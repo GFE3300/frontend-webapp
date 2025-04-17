@@ -1,14 +1,11 @@
 @import "tailwindcss";
+@import "./styles/WeeklySpecialLoader.module.css";
 
 /* ---------------------------------------------
    🧁 Custom Styles for Premium Bakery App
    Author: [Your Name]
    --------------------------------------------- */
 
-/* ---------------------------------------------
-   🎨 1. Google Fonts
-   --------------------------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@400;700&display=swap');
 
 /* ---------------------------------------------
    🎨 2. CSS Variables for Brand Colors
@@ -34,7 +31,10 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: 'Playfair Display', serif;
 }
 
@@ -98,10 +98,6 @@ h1, h2, h3, h4 {
   @apply py-12 md:py-16;
 }
 
-.section-title {
-  @apply text-heading text-center mb-6;
-}
-
 .text-accent {
   color: var(--color-caramel);
 }
@@ -126,8 +122,44 @@ h1, h2, h3, h4 {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
+
+
+
+
+@media (min-width: 640px) {
+  .carousel-item {
+    min-width: 50%;
+  }
+}
+
+@media (min-width: 768px) {
+  .carousel-item {
+    min-width: 33.33%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .carousel-item {
+    min-width: 25%;
+  }
+}
+
+.carousel-container {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.carousel-item {
+  scroll-snap-align: start;
+}
+
+.min-w-\[280px\] { min-width: 280px; }
+.sm\:min-w-\[320px\] { @media (min-width: 640px) { min-width: 320px; } }
+.lg\:min-w-\[360px\] { @media (min-width: 1024px) { min-width: 360px; } }

@@ -1,82 +1,200 @@
+import React, { useEffect, useState } from "react";
 import Header from "../components/header/Header";
+import FeaturedProducts from "../components/sections/FeaturedProducts";
 import AboutSection from "../components/layout/AboutSection";
+import WeeklySpecialBanner from "../components/sections/WeeklySpecialBanner";
+import { fetchCategories } from "../services/api";
+
+const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' },
+];
+
+const categories = [
+    {
+        id: 'bread',
+        title: 'Artisan Breads',
+        image: 'https://source.unsplash.com/collection/bread/100x100',
+        items: [
+            { id: 'sourdough', price: 5.5 },
+            { id: 'rye', price: 6.0 },
+        ],
+    },
+    {
+        id: 'pastries',
+        title: 'Pastries',
+        image: 'https://source.unsplash.com/collection/pastries/100x100',
+        items: [
+            { id: 'croissant', price: 3.0 },
+            { id: 'danish', price: 3.5 },
+        ],
+    },
+    {
+        id: 'cakes',
+        title: 'Cakes',
+        image: 'https://source.unsplash.com/collection/cakes/100x100',
+        items: [
+            { id: 'cheesecake', price: 20.0 },
+            { id: 'chocolate', price: 22.0 },
+        ],
+    },
+];
+
+const user = {
+    name: 'Jane Doe',
+    avatarUrl: 'https://i.pravatar.cc/150?img=47',
+};
 
 const HomePage = () => {
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            const data = await fetchCategories();
+            setCategories(data);
+        };
+        loadCategories();
+    }, []);
+
     return (
-        <div className="min-h-screen bg-cream-50">
+        <div className="min-h-screen bg-[var(--color-cream)]">
             {/* --- Header/Hero Section --- */}
-            <Header />
+            <Header
+                navLinks={navLinks}
+                categories={categories}
+                user={user}
+            />
+
+            {/* --- Weekly Special Banner --- */}
+            <WeeklySpecialBanner />
 
             {/* --- Featured Products & Promotions --- */}
-            <section className="py-16 px-4">
-                <h2 className="text-3xl font-bold text-center mb-12">Seasonal Specialties</h2>
-                <div className="container mx-auto">
-                    {/* ProductCarousel component will map through featuredProducts here */}
-                    <div className="grid gap-6 md:grid-cols-3">
-                        {[1, 2, 3].map((item) => (
-                            <div key={item} className="h-64 bg-gray-100 rounded-lg"></div>
+            <FeaturedProducts />
+
+            {/* --- About/Bakery Story --- */}
+            <AboutSection />
+
+            {/* --- Categories & Navigation --- */}
+            <section className="section-padding bg-[var(--color-white)]">
+                <div className="container">
+                    <div className="flex flex-wrap gap-4 justify-center mb-8">
+                        {['Breads', 'Pastries', 'Cakes', 'Special Diets'].map((category) => (
+                            <button
+                                key={category}
+                                className="btn btn-outline"
+                            >
+                                {category}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="max-w-md mx-auto relative">
+                        <input
+                            type="text"
+                            placeholder="Search our creations..."
+                            className="w-full px-6 py-3 rounded-full border border-[var(--color-caramel)] focus:ring-2 focus:ring-[var(--color-caramel)]"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* --- Testimonials & Social Proof --- */}
+            <section className="section-padding bg-[var(--color-rose)]">
+                <div className="container">
+                    <h2 className="section-title text-[var(--color-chocolate)]">
+                        Sweet Words From Our Clients
+                    </h2>
+                    <div className="grid gap-8 md:grid-cols-2">
+                        {[1, 2].map((testimonial) => (
+                            <div key={testimonial} className="card group">
+                                <p className="text-body italic mb-4">
+                                    "The most exquisite croissants I've tasted outside Paris. Every
+                                    bite tells a story of craftsmanship and passion."
+                                </p>
+                                <p className="text-subheading">- Marie Leclerc</p>
+                            </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* --- About/Bakery Story --- */}
-            <section className="about-section py-16 bg-white">
-                <AboutSection />
-            </section>
-
-            {/* --- Categories & Navigation --- */}
-            <section className="py-16 container mx-auto">
-                <div className="mb-8 flex gap-4 justify-center">
-                    {/* CategoryNav component with interactive buttons */}
-                    {['Breads', 'Pastries', 'Cakes', 'Special Diets'].map((category) => (
-                        <button key={category} className="px-4 py-2 bg-gray-100 rounded">
-                            {category}
-                        </button>
-                    ))}
-                </div>
-                {/* SearchBar component placeholder */}
-                <div className="max-w-md mx-auto bg-gray-100 h-12 rounded"></div>
-            </section>
-
-            {/* --- Testimonials & Social Proof --- */}
-            <section className="py-16 bg-cream-100">
-                <h2 className="text-3xl font-bold text-center mb-12">Customer Stories</h2>
-                <div className="container mx-auto grid gap-6 md:grid-cols-2">
-                    {/* TestimonialCarousel will map through testimonials here */}
-                    {[1, 2].map((testimonial) => (
-                        <div key={testimonial} className="p-6 bg-white rounded-lg shadow-sm">
-                            <p className="mb-4">"Testimonial text placeholder..."</p>
-                            <p className="text-gold-500">- Customer Name</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
             {/* --- Conversion & Engagement --- */}
-            <section className="py-16 container mx-auto text-center">
-                <div className="max-w-2xl mx-auto">
-                    <h2 className="text-3xl font-bold mb-6">Join Our Community</h2>
-                    {/* NewsletterSignup component */}
-                    <div className="mb-12 bg-gray-100 h-12 rounded mx-auto max-w-md"></div>
-                    {/* LoyaltyPromo component */}
-                    <div className="bg-gray-100 h-48 rounded-lg"></div>
+            <section className="section-padding">
+                <div className="container max-w-3xl text-center">
+                    <h2 className="section-title text-[var(--color-chocolate)]">
+                        Join Our Artisan Circle
+                    </h2>
+                    <div className="space-y-12">
+                        <div className="card p-8 space-y-4">
+                            <h3 className="text-subheading">
+                                Get Fresh Updates
+                            </h3>
+                            <div className="flex gap-4 justify-center">
+                                <input
+                                    type="email"
+                                    placeholder="Your best email..."
+                                    className="flex-1 px-6 py-3 rounded-full border border-[var(--color-caramel)]"
+                                />
+                                <button className="btn btn-primary">
+                                    Subscribe
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="card p-8 bg-[var(--color-blush)]">
+                            <h3 className="text-subheading mb-4">
+                                Earn Golden Crust Rewards
+                            </h3>
+                            <p className="text-body mb-6">
+                                Join our loyalty program and turn every purchase into
+                                delicious rewards.
+                            </p>
+                            <button className="btn btn-secondary">
+                                Discover Benefits
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             {/* --- Footer --- */}
-            <footer className="bg-espresso-950 text-white py-12">
-                <div className="container mx-auto grid md:grid-cols-4 gap-8">
+            <footer className="bg-[var(--color-chocolate)] text-[var(--color-cream)] py-12">
+                <div className="container grid md:grid-cols-4 gap-8">
                     <div>
-                        <h3 className="text-lg font-bold mb-4">Navigation</h3>
-                        {/* FooterNav component links */}
+                        <h3 className="text-lg font-heading mb-4">Navigation</h3>
+                        <nav className="space-y-2">
+                            {['Home', 'Menu', 'About', 'Contact'].map((link) => (
+                                <a
+                                    key={link}
+                                    href="#"
+                                    className="block hover:text-[var(--color-caramel)] transition-colors"
+                                >
+                                    {link}
+                                </a>
+                            ))}
+                        </nav>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold mb-4">Follow Us</h3>
-                        {/* SocialIcons component */}
+                        <h3 className="text-lg font-heading mb-4">Follow Us</h3>
+                        <div className="flex gap-4">
+                            {['Instagram', 'Facebook', 'Pinterest'].map((social) => (
+                                <a
+                                    key={social}
+                                    href="#"
+                                    className="hover:text-[var(--color-caramel)] transition-colors"
+                                >
+                                    {social}
+                                </a>
+                            ))}
+                        </div>
                     </div>
                     <div className="md:col-span-2">
-                        <p className="text-cream-100">© 2024 Premium Bakery. All rights reserved.</p>
+                        <div className="max-w-sm">
+                            <p className="text-body">
+                                © 2024 Artisan Bakehouse. Crafted with patience and
+                                natural leavening. All rights reserved.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </footer>

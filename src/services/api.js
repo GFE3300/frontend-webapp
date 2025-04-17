@@ -1,6 +1,11 @@
-import axios from 'axios';
+import { 
+  getFeaturedProducts,
+  getWeeklySpecial,
+  getCategories,
+  getTestimonials
+} from '../utils/mockProducts';
 
-export const fetchFeaturedProducts = async () => {
-    const { data } = await axios.get('/api/products/featured');
-    return data;
-  };
+export const fetchFeaturedProducts = getFeaturedProducts;
+export const fetchWeeklySpecial = getWeeklySpecial;
+export const fetchCategories = getCategories;
+export const fetchTestimonials = getTestimonials;

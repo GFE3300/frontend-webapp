@@ -120,13 +120,3 @@ All layouts and components should adapt fluidly across devices.
 ### 9. 📦 Design Tokens & Utility Classes
 
 **Color Tokens:** Defined in `index.css` using `:root` and usable with Tailwind `bg-[var(--color-cream)]`, etc.
-
-**Typography Utilities:**
-
-```css
-.text-heading {
-  @apply text-3xl md:text-4xl font-bold text-[var(--color-chocolate)];
-}
-.text-body {
-  @apply text-base leading-relaxed text-[var(--color-charcoal)];
-}

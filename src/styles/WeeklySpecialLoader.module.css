@@ -1,0 +1,52 @@
+/* Glowing Bubbles Styles */
+.glowing-bubbles {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.bubble {
+    position: absolute;
+    background: rgba(203, 164, 127, 0.5);
+    /* Warm caramel with transparency */
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: bubbleAnimation 3s infinite ease-in-out;
+}
+
+/* Position and size definitions for each bubble */
+.bubble-1 {
+    width: 40px;
+    height: 40px;
+    top: 10%;
+    left: 20%;
+}
+
+.bubble-2 {
+    width: 50px;
+    height: 50px;
+    bottom: 15%;
+    right: 15%;
+    animation-delay: 0.5s;
+}
+
+.bubble-3 {
+    width: 30px;
+    height: 30px;
+    top: 50%;
+    right: 25%;
+    animation-delay: 1s;
+}
+
+@keyframes bubbleAnimation {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-10px) scale(1.1);
+    }
+}
+

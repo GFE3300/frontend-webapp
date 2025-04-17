@@ -1,118 +1,143 @@
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import Logo from './Logo';
+import NavLinks from './NavLinks';
+import SearchBar from './SearchBar';
+import IconButton from './IconButton';
+import CartPeek from '../store/CartPeek';
+import ProfileMenu from './ProfileMenu';
+import useCart from '../../hooks/useCart';
+import { useFlyingImageContext } from '../animations/flying_image/FlyingImageContext';
 
-const Header = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const cartItemCount = 3; // TODO: Replace with state/context
-    const navLinks = [
-        { name: 'Home', path: '/' },
-        { name: 'Menu', path: '/menu' },
-        { name: 'About', path: '/about' },
-        { name: 'Contact', path: '/contact' },
-    ];
+const SCROLL_THRESHOLD = 50;
+
+const Header = ({ navLinks, categories, user }) => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { openCart, totalItems, wishlist } = useCart();
+
+    const [hideOnScroll, setHideOnScroll] = useState(false);
+    const [prevScrollY, setPrevScrollY] = useState(0);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const headerRef = useRef(null);
+    const { desktopTargetRef, mobileTargetRef } = useFlyingImageContext();
+
+
+    useEffect(() => {
+        let ticking = false;
+        const handleScroll = () => {
+            const currentY = window.scrollY;
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (Math.abs(currentY - prevScrollY) > SCROLL_THRESHOLD) {
+                        setHideOnScroll(currentY > prevScrollY);
+                        setPrevScrollY(currentY);
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [prevScrollY]);
 
     return (
-        <header className="sticky top-0 bg-white/80 backdrop-blur-sm border-b border-gray-100 z-50">
-            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-20">
-                    {/* Logo */}
-                    <div className="flex-shrink-0">
-                        <a href="/" className="flex items-center">
-                            {/* TODO: Replace with actual logo SVG */}
-                            <div className="h-10 w-10 bg-gold-500 rounded-full" />
-                            <span className="ml-3 text-xl font-semibold text-gray-900 font-serif">
-                                Artisan Bakehouse
-                            </span>
-                        </a>
+        <motion.header
+            ref={headerRef}
+            initial={false}
+            animate={{ y: hideOnScroll ? - (headerRef.current?.offsetHeight || 0) : 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+            className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md"
+            role="navigation"
+            aria-label="Main Navigation"
+        >
+            {/* Desktop & Tablet */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hidden md:flex items-center justify-between h-16">
+                {/* Logo */}
+                <Logo className="h-8 cursor-pointer" onClick={() => navigate('/')} />
+                {/* Nav Links + MegaMenu under 'Menu' */}
+                <NavLinks links={navLinks} activePath={location.pathname} categories={categories} />
+                {/* Utilities */}
+                <div className="flex items-center space-x-4">
+                    <SearchBar placeholder="Search artisan goodies" fetchSuggestions={async (q) => {
+                        // TODO: replace with real API call
+                        return ['Sourdough', 'Baguette', 'Croissant', 'Muffin'].filter(item =>
+                            item.toLowerCase().includes(q.toLowerCase())
+                        );
+                    }} />
+                    <IconButton
+                        iconName="favorite_border"
+                        ariaLabel="Wishlist"
+                        onClick={() => navigate('/wishlist')}
+                        isActive={wishlist.length > 0}
+                    />
+                    <div className="relative" ref={desktopTargetRef}>
+                        <IconButton
+                            iconName="shopping_cart"
+                            ariaLabel="Cart"
+                            onClick={openCart}
+                            badgeCount={totalItems}
+                        />
                     </div>
-
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex md:items-center md:space-x-8">
-                        {navLinks.map((link) => (
-                            <a
-                                key={link.name}
-                                href={link.path}
-                                className="text-gray-600 hover:text-gold-600 transition-colors duration-200 text-lg"
-                                aria-current={link.path === window.location.pathname ? 'page' : undefined}
-                            >
-                                {link.name}
-                            </a>
-                        ))}
-                    </div>
-
-                    {/* Right Section */}
-                    <div className="flex items-center gap-6">
-                        {/* Cart with Badge */}
-                        <button className="relative p-2 text-gray-600 hover:text-gold-600 transition-colors">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
-                            <span className="absolute -top-1 -right-1 bg-gold-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                                {cartItemCount}
-                            </span>
-                        </button>
-
-                        {/* CTA Button */}
-                        <button className="hidden md:inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gold-500 hover:bg-gold-600 transition-colors">
-                            Order Now
-                        </button>
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            className="md:hidden p-2 text-gray-600 hover:text-gold-600"
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            aria-label="Toggle navigation menu"
-                            aria-expanded={isMenuOpen}
-                            aria-controls="mobile-menu"
-                        >
-                            <svg
-                                className="h-8 w-8"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
-                                />
-                            </svg>
-                        </button>
-                    </div>
+                    <ProfileMenu user={user} onSignIn={() => navigate('/signin')} onSignOut={() => navigate('/signout')} onNavigate={navigate} />
                 </div>
-
-                {/* Mobile Menu */}
-                <div
-                    id="mobile-menu"
-                    className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${isMenuOpen ? 'max-h-96' : 'max-h-0'
-                        }`}
-                >
-                    <div className="pt-4 pb-8 space-y-6">
-                        {navLinks.map((link) => (
-                            <a
-                                key={link.name}
-                                href={link.path}
-                                className="block text-gray-600 hover:text-gold-600 text-lg px-2"
-                            >
-                                {link.name}
-                            </a>
-                        ))}
+            </div>
+            {/* Mobile */}
+            <div className="md:hidden flex items-center justify-between px-4 py-3">
+                <Logo className="h-8 cursor-pointer" onClick={() => navigate('/')} />
+                <div className="flex items-center space-x-2">
+                    <div className="relative" ref={mobileTargetRef}>
+                        <IconButton
+                            iconName="shopping_cart"
+                            ariaLabel="Cart"
+                            onClick={openCart}
+                            badgeCount={totalItems}
+                        />
                     </div>
+                    <IconButton
+                        iconName="menu"
+                        ariaLabel="Toggle menu"
+                        onClick={() => setMobileMenuOpen((o) => !o)}
+                    />
                 </div>
-            </nav>
-        </header>
+            </div>
+            {/* Mobile Menu Drawer */}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <motion.nav
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="md:hidden bg-white shadow-lg overflow-hidden"
+                        role="menu"
+                        aria-label="Mobile Menu"
+                    >
+                        <div className="px-4 pt-2 pb-4 space-y-3">
+                            <NavLinks links={navLinks} activePath={location.pathname} vertical categories={categories} />
+                            <SearchBar placeholder="Search artisan goodies" fetchSuggestions={async (q) => {
+                                return ['Sourdough', 'Baguette', 'Croissant', 'Muffin'].filter(item =>
+                                    item.toLowerCase().includes(q.toLowerCase())
+                                );
+                            }} />
+                            <ProfileMenu user={user} onSignIn={() => navigate('/signin')} onSignOut={() => navigate('/signout')} onNavigate={navigate} vertical />
+                        </div>
+                    </motion.nav>
+                )}
+            </AnimatePresence>
+        </motion.header>
     );
+};
+
+Header.propTypes = {
+    navLinks: PropTypes.arrayOf(
+        PropTypes.shape({ name: PropTypes.string.isRequired, path: PropTypes.string.isRequired })
+    ).isRequired,
+    categories: PropTypes.array.isRequired,
+    user: PropTypes.shape({ name: PropTypes.string, avatarUrl: PropTypes.string }),
 };
 
 export default Header;
