@@ -10,13 +10,16 @@ import CartPeek from '../store/CartPeek';
 import ProfileMenu from './ProfileMenu';
 import useCart from '../../hooks/useCart';
 import { useFlyingImageContext } from '../animations/flying_image/FlyingImageContext';
+import { useAuth } from '../../contexts/AuthContext';
+
 
 const SCROLL_THRESHOLD = 50;
 
-const Header = ({ navLinks, categories, user }) => {
+const Header = ({ navLinks, categories }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { openCart, totalItems, wishlist } = useCart();
+    const { user, logout } = useAuth()
 
     const [hideOnScroll, setHideOnScroll] = useState(false);
     const [prevScrollY, setPrevScrollY] = useState(0);
@@ -82,7 +85,11 @@ const Header = ({ navLinks, categories, user }) => {
                             badgeCount={totalItems}
                         />
                     </div>
-                    <ProfileMenu user={user} onSignIn={() => navigate('/signin')} onSignOut={() => navigate('/signout')} onNavigate={navigate} />
+                    <ProfileMenu
+                        user={user}
+                        onSignIn={() => navigate('/login')}
+                        onSignOut={logout}
+                    />
                 </div>
             </div>
             {/* Mobile */}

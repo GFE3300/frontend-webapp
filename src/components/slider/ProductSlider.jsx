@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import ArrowButton from '../common/ArrowButton';
-import DotsNavigation from '../common/DotsNavigation';
+import ArrowButton from './ArrowButton';
+import DotsNavigation from './DotsNavigation';
 import useResponsiveSlider from '../../hooks/useResponsiveSlider';
 import ProductCard from '../store/ProductCard';
 import SkeletonProductCard from '../loaders/SkeletonProductCard';

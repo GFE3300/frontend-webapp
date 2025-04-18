@@ -5,6 +5,7 @@ import AboutSection from "../components/layout/AboutSection";
 import WeeklySpecialBanner from "../components/sections/WeeklySpecialBanner";
 import { fetchCategories } from "../services/api";
 
+
 const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },

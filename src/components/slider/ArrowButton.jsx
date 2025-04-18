@@ -1,4 +1,4 @@
-import Icon from "./Icon";
+import Icon from "../common/Icon";
 
 const ArrowButton = ({ direction, onClick }) => {
     const isLeft = direction === 'left';

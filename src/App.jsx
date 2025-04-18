@@ -1,29 +1,62 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, BrowserRouter as Router } from 'react-router-dom';
 import HomePage from './pages/HomePage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import CartDrawer from './components/store/CartDrawer.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+
+// Contexts
+import { CartProvider } from './contexts/CartContext';
+import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
+import { AuthProvider } from './contexts/AuthContext';
 
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <HomePage />,
+		element: (
+			<AuthProvider>
+				<HomePage />
+			</AuthProvider>
+		),
 		errorElement: <NotFoundPage />,
-
+	},
+	{
+		path: "/login",
+		element: (
+			<AuthProvider>
+				<LoginPage />
+			</AuthProvider>
+		),
+		errorElement: <NotFoundPage />,
+	},
+	{
+		path: "/register",
+		element: (
+			<AuthProvider>
+				<LoginPage />
+			</AuthProvider>
+		),
+		errorElement: <NotFoundPage />,
 	}
 ]);
 
 function App() {
 	return (
 		<React.StrictMode>
-			{/* Renders the pages */}
-			<RouterProvider router={router} />
+			<CartProvider>
+				<FlyingImageProvider>
+					{/* Renders the pages */}
 
-			{/* This lives at the app root so the drawer can overlay any page */}
-			<CartDrawer />
+					<RouterProvider router={router} />
+
+					{/* This lives at the app root so the drawer can overlay any page */}
+					<CartDrawer />
+
+				</FlyingImageProvider>
+			</CartProvider>
 		</React.StrictMode>
 	)
-}
+};	
 
 export default App;
