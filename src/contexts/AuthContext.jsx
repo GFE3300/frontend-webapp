@@ -8,6 +8,7 @@ const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
+    const [requiresProfile, setRequiresProfile] = useState(false);
     const [loading, setLoading] = useState(true)
     const navigate = useNavigate()
 
@@ -17,62 +18,114 @@ export const AuthProvider = ({ children }) => {
             return
         }
         const checkAuth = async () => {
-            const token = localStorage.getItem('access')
+            const token = localStorage.getItem('accessToken'); // Changed from 'access'
             if (token) {
                 try {
-                    const decoded = jwtDecode(token)
+                    const decoded = jwtDecode(token);
                     if (decoded.exp * 1000 < Date.now()) {
-                        logout()
+                        logout();
                     } else {
-                        setUser(decoded)
+                        setUser(decoded);
                     }
                 } catch (error) {
-                    console.error('Invalid token:', error)
-                    logout()
+                    console.error('Invalid token:', error);
+                    logout();
                 }
             }
-            setLoading(false)
+            setLoading(false);
         }
-        checkAuth()
-    }, [navigate])
+        checkAuth();
+    }, [navigate]);
 
     const login = async (email, password) => {
         try {
             const { data } = await apiService.post('/auth/login/', { email, password });
+
+            if (!data?.access) {
+                console.error('Invalid login response:', data);
+                throw new Error('Invalid login response');
+            }
+
             localStorage.setItem('accessToken', data.access);
             localStorage.setItem('refreshToken', data.refresh);
-            const userData = await apiService.get('/auth/user/');
-            setUser(userData.data);
+
+            const decoded = jwtDecode(data.access);
+            setUser(decoded);
+            navigate('/');
+
         } catch (error) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
             throw new Error(getErrorMessage(error));
         }
     };
 
-    const logout = () => {
-        apiService.post('/auth/logout/');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        setUser(null);
+    const logout = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            await apiService.post('/auth/logout/', { refresh: refreshToken });
+        } catch (error) {
+            console.error('Logout failed:', getErrorMessage(error));
+        } finally {
+            // Clear frontend state regardless of backend success
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            setUser(null);
+            navigate('/login');
+        }
     };
 
-    const register = async (email, username, password) => {
-        const response = await fetch('http://localhost:8000/api/auth/register/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, username, password }),
-        })
+    const register = async (email, password) => {
+        try {
+            await apiService.post('/auth/register/', {
+                email,
+                password
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json()
-            throw new Error(errorData.detail || 'Registration failed')
+            const { data } = await apiService.post('/auth/login/', { email, password });	
+
+            // Verify the token structure
+            if (!data?.access || !data?.refresh) {
+                console.error('Invalid server response - missing tokens:', data);
+                throw new Error('Invalid server response - missing tokens');
+            }
+
+            // Store tokens
+            localStorage.setItem('accessToken', data.access);
+            localStorage.setItem('refreshToken', data.refresh);
+
+            // Verify token validity
+            try {
+                const decodedUser = jwtDecode(data.access);
+                setUser(decodedUser);
+                setRequiresProfile(true);
+                navigate('/complete-profile');
+            } catch (decodeError) {
+                console.error('Token decode error:', decodeError);
+                throw new Error('Invalid token format received');
+            }
+
+        } catch (error) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            throw new Error(getErrorMessage(error));
         }
+    };
 
-        const data = await response.json()
-        return data
-    }
+    const completeProfile = (profileData) => {
+        setUser(prev => ({ ...prev, ...profileData }));
+        setRequiresProfile(false);
+        navigate('/');
+    };
 
-    const value = { user, loading, login, register, logout };
-
+    const value = {
+        user,
+        requiresProfile,
+        login,
+        register,
+        completeProfile,
+        logout
+    };
     return (
         <AuthContext.Provider value={value}>
             {!loading && children}

@@ -1,12 +1,20 @@
-import { Navigate } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext'
+import { useEffect } from 'react';
+import { useNavigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
-const PrivateRoute = ({ children }) => {
-    const { user, loading } = useAuth()
+const PrivateRoute = () => {
+    const { user, requiresProfile } = useAuth();
+    const navigate = useNavigate();
 
-    if (loading) return <div>Loading...</div>
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        } else if (requiresProfile) {
+            navigate('/complete-profile');
+        }
+    }, [user, requiresProfile, navigate]);
 
-    return user ? children : <Navigate to="/login" replace />
-}
+    return user ? <Outlet /> : null;
+};
 
-export default PrivateRoute
+export default PrivateRoute;

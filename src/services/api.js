@@ -13,7 +13,6 @@ export const fetchTestimonials = getTestimonials;
 // REAL ONE
 
 import axios from 'axios';
-import { getErrorMessage } from '../utils/getErrorMessage';
 import { useAuth } from '../contexts/AuthContext';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
@@ -47,7 +46,7 @@ const processQueue = (error, token = null) => {
 api.interceptors.request.use(async (config) => {
 	const token = localStorage.getItem('accessToken');
 
-	if (token) {
+	if (token) {	
 		config.headers.Authorization = `Bearer ${token}`;
 	}
 
@@ -91,6 +90,8 @@ api.interceptors.response.use(
 			} catch (refreshError) {
 				processQueue(refreshError, null);
 				logout();
+				localStorage.removeItem('accessToken');
+				localStorage.removeItem('refreshToken');
 				window.location.href = '/login';
 				return Promise.reject(refreshError);
 			} finally {
@@ -101,7 +102,7 @@ api.interceptors.response.use(
 		// Normal error handling
 		const processedError = {
 			...error,
-			message: getErrorMessage(error),
+			message: error,
 			status: error.response?.status || 500
 		};
 

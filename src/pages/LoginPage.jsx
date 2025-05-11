@@ -5,9 +5,7 @@ import AuthCard from '../components/DoughToggleCard/AuthCard'
 const LoginPage = () => {
 
     return (
-        <>
             <AuthCard />
-        </>
     )
 }
 

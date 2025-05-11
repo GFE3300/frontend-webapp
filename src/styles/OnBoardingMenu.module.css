@@ -1,0 +1,45 @@
+body {
+    --texture: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.08"/></svg>');
+}
+
+.page-texture {
+    background-image: linear-gradient(15deg, #f5efe6 0%, #ebd8b7 100%), var(--texture);
+}
+
+.pac-container {
+    border-radius: 1rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid var(--color-cream) !important;
+    margin-top: 0.5rem;
+}
+
+.pac-item {
+    padding: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    border-bottom: 1px solid #eee;
+}
+
+.pac-item:hover {
+    background-color: var(--color-cream);
+}
+
+.pac-icon {
+    display: none;
+}
+
+/* Add to global CSS */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slideDown {
+    animation: slideDown 0.2s ease-out;
+}

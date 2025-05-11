@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./styles/WeeklySpecialLoader.module.css";
+@import "./styles/OnBoardingMenu.module.css";
 
 /* ---------------------------------------------
    🧁 Custom Styles for Premium Bakery App
@@ -21,6 +22,11 @@
   /* Neutrals */
   --color-white: #ffffff;
   --color-charcoal: #2E2E2E;
+
+    /* New “Metallic” Accents */
+    --color-gold:      #D4AF37;   /* foil stamping & borders */
+    --color-emerald:   #3A6651;   /* decorative lines, tertiary icons */
+    --color-mauve:     #BFA8A0;   /* disabled states, divider backgrounds */
 }
 
 /* ---------------------------------------------
@@ -34,7 +40,8 @@ body {
 h1,
 h2,
 h3,
-h4 {
+h4,
+.font-playfair {
   font-family: 'Playfair Display', serif;
 }
 

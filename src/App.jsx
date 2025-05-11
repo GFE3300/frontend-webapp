@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import CartDrawer from './components/store/CartDrawer.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import CompleteProfilePage from './pages/CompleteProfilePage.jsx';
+import PrivateRoute from './components/common/PrivateRoute.jsx';
 
 // Contexts
 import { CartProvider } from './contexts/CartContext';
@@ -31,11 +33,22 @@ const router = createBrowserRouter([
 		errorElement: <NotFoundPage />,
 	},
 	{
+		path: "/logout",
+		
+	},
+	{
 		path: "/register",
 		element: (
 			<AuthProvider>
 				<LoginPage />
 			</AuthProvider>
+		),
+		errorElement: <NotFoundPage />,
+	},
+	{
+		path: "/complete-profile",
+		element: (
+					<CompleteProfilePage />
 		),
 		errorElement: <NotFoundPage />,
 	}
@@ -57,6 +70,6 @@ function App() {
 			</CartProvider>
 		</React.StrictMode>
 	)
-};	
+};
 
 export default App;

@@ -5,8 +5,11 @@ import { ToggleSwitch } from './ToggleSwitch';
 import { AuthForm } from './AuthForm';
 import { RollingPin } from './RollingPin';
 import { getErrorMessage } from '../../utils/getErrorMessage';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AuthCard = () => {
+    const { login, register } = useAuth();
+
     const [isLogin, setIsLogin] = useState(true);
     const [isAnimating, setIsAnimating] = useState(false);
     const [formData, setFormData] = useState({
@@ -37,18 +40,12 @@ const AuthCard = () => {
 
         setIsLoading(true);
         try {
-            const endpoint = isLogin ? 'login' : 'register';
-            const url = `http://localhost:8000/api/auth/${endpoint}/`;
-            const payload = {
-                email: formData.email,
-                password: formData.password
-            };
-
-            const { data } = await axios.post(url, payload);
-
-            console.log(isLogin ? 'Login successful!' : 'Registration successful!', data);
+            if (isLogin) {
+                await login(formData.email, formData.password);
+            } else {
+                await register(formData.email, formData.password);
+            }
             setFormData({ email: '', password: '', confirmPassword: '' });
-            setApiError('');
         } catch (error) {
             setApiError(getErrorMessage(error));
         } finally {

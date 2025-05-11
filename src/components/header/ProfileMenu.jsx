@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../contexts/AuthContext';
 import Icon from '../common/Icon';
 
-const ProfileMenu = ({ user, onSignIn, onSignOut, onNavigate, vertical = false }) => {
+const ProfileMenu = ({ onSignIn, onSignOut, onNavigate, vertical = false }) => {
+    const { user, logout } = useAuth();
     const [open, setOpen] = useState(false);
     const btnRef = useRef(null);
     const menuRef = useRef(null);
 
-    // Close on outside click
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (open && menuRef.current && !menuRef.current.contains(e.target) && !btnRef.current.contains(e.target)) {
@@ -22,6 +23,15 @@ const ProfileMenu = ({ user, onSignIn, onSignOut, onNavigate, vertical = false }
     const handleKeyDown = (e) => {
         if (e.key === 'Escape') setOpen(false);
     };
+
+    const handleSignOut = async () => {
+        try {
+          await logout();
+          onSignOut?.();
+        } catch (e) {
+          console.error('Failed to log out. Please try again.');
+        }
+      };
 
     return (
         <div className={`${vertical ? 'w-full' : 'relative'}`} onKeyDown={handleKeyDown}>
@@ -79,7 +89,7 @@ const ProfileMenu = ({ user, onSignIn, onSignOut, onNavigate, vertical = false }
                                     </li>
                                     <li>
                                         <button
-                                            onClick={() => { onSignOut(); setOpen(false); }}
+                                            onClick={handleSignOut}
                                             className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
                                             role="menuitem"
                                         >
