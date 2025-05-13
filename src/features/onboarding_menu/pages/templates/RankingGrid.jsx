@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import Icon from '../../../../components/common/Icon';
@@ -27,7 +28,6 @@ export default function RankingBadges({
         onChange?.(newSelection);
     };
 
-    console.log(options);
     return (
         <div className="w-full mx-auto">
             <div className="grid grid-cols-3 gap-6">
@@ -88,24 +88,15 @@ export default function RankingBadges({
                                             <Icon name="check" className="w-6 h-6" />
                                         </motion.span>
                                     ) : (
-
-                                        {/*Conditional Icon Rendering */}
-                                        (typeof item.icon === 'string' && !item.icon.includes('/') && !item.icon.includes('.')) ? (
-                                            <Icon
-                                                name={item.icon}
-                                                className="w-8 h-8"
-                                                style={{ fontSize: '2rem' }}
-                                            />
-                                        ) : (
-                                            <motion.img
-                                                src={item.icon}
-                                                alt={item.label}
-                                                className="w-8 h-8"
-                                                initial={{ scale: 1 }}
-                                                whileHover={{ scale: 1.2 }}
-                                                transition={{ type: 'spring' }}
-                                                />
-                                        )
+                                        <motion.img
+                                            key="icon"
+                                            src={item.icon}
+                                            alt={item.label}
+                                            className="w-8 h-8"
+                                            initial={{ scale: 1 }}
+                                            whileHover={{ scale: 1.2 }}
+                                            transition={{ type: 'spring' }}
+                                        />
                                     )}
                                 </AnimatePresence>
                             </motion.div>
