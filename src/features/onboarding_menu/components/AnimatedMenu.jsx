@@ -1,8 +1,13 @@
+// src/features/onboarding_menu/components/AnimatedMenu.jsx
 import { useState } from "react";
 import { motion } from "framer-motion";
 import BookContainer from "./BookContainer";
 
-const AnimatedMenu = ({ pages, currentPage, setCurrentPage }) => {
+const AnimatedMenu = ({
+     pages= [],
+      currentPage= 0,
+       setCurrentPage= () => {} 
+    }) => {
     const [enableShift, setEnableShift] = useState(false);
     const size = { width: 380, height: 600 };
 
@@ -14,7 +19,7 @@ const AnimatedMenu = ({ pages, currentPage, setCurrentPage }) => {
     return (
         <div className="fixed inset-0 overflow-hidden">
             {/* Scrollbar hiding styles */}
-            <style jsx global>{`
+            <style>{`
                 ::-webkit-scrollbar { display: none; }
             `}</style>
 

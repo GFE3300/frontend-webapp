@@ -87,15 +87,26 @@ export default function RankingBadges({
                                             <Icon name="check" className="w-6 h-6" />
                                         </motion.span>
                                     ) : (
-                                        <motion.img
-                                            key="icon"
-                                            src={item.icon}
-                                            alt={item.label}
-                                            className="w-8 h-8"
-                                            initial={{ scale: 1 }}
-                                            whileHover={{ scale: 1.2 }}
-                                            transition={{ type: 'spring' }}
-                                        />
+
+                                        {/*Conditional Icon Rendering */}
+                                        (typeof item.icon === 'string' && !item.icon.includes('/') && !item.icon.includes('.')) ? (
+                                            <Icon
+                                                key="icon"
+                                                name={item.icon}
+                                                className="w-8 h-8"
+                                                style={{ fontSize: '2rem' }}
+                                            />
+                                        ) : (
+                                            <motion.img
+                                                key="icon"
+                                                src={item.icon}
+                                                alt={item.label}
+                                                className="w-8 h-8"
+                                                initial={{ scale: 1 }}
+                                                whileHover={{ scale: 1.2 }}
+                                                transition={{ type: 'spring' }}
+                                                />
+                                        )
                                     )}
                                 </AnimatePresence>
                             </motion.div>

@@ -6,29 +6,29 @@ import Icon from '../../../components/common/Icon';
 import Navigation from './Navigation';
 
 // Bread type options
-const BREAD_TYPES = [
+const DRINK_TYPES = [
     {
-        key: 'sourdough',
-        label: 'Sourdough',
-        icon: 'bread-slice',
+        key: 'coffee',
+        label: 'Coffee',
+        icon: 'coffee',
         gradient: ['#EAD2AC', '#C4A77D']
     },
     {
-        key: 'baguette',
-        label: 'Baguette',
-        icon: 'baguette',
+        key: 'tea',
+        label: 'Tea',
+        icon: 'tea',
         gradient: ['#F7EFE5', '#E3C9A5']
     },
     {
-        key: 'ciabatta',
-        label: 'Ciabatta',
-        icon: 'ciabatta',
+        key: 'juice',
+        label: 'Juice',
+        icon: 'juice',
         gradient: ['#D7CCC8', '#A9927E']
     },
     {
-        key: 'wholegrain',
-        label: 'Wholegrain',
-        icon: 'grain',
+        key: 'smoothie',
+        label: 'Smoothie',
+        icon: 'smoothie',
         gradient: ['#BCAAA4', '#8D6E63']
     },
     {
@@ -38,20 +38,30 @@ const BREAD_TYPES = [
         gradient: ['#6D4C41', '#3E2723']
     },
     {
-        key: 'brioche',
-        label: 'Brioche',
-        icon: 'croissant',
+        key: 'fizzy drink',
+        label: 'Fizzy Drink',
+        icon: 'fizzy-drink',
         gradient: ['#FFECB3', '#FFB300']
     },
 ];
 
-export const BreadPreferencesPage = ({
+export const DrinkPreferencesPage = ({
     nextPage,
     prevPage,
     isRight,
     isMobile,
+    formData,
+    error
 }) => {
-    const [selectedBreads, setSelectedBreads] = useState([]);
+    const initialSelectedDrinks = formData?.drinks || [];
+    const [selectedDrinks, setSelectedDrinks] = useState(initialSelectedDrinks);
+    const MAX_SELECTIONS = 3;
+
+    const handleNext = () => {
+        if (selectedDrinks.length === MAX_SELECTIONS) {
+            nextPage({ drinks: selectedDrinks });
+        }
+    };
 
     return (
         <div className="h-full w-full flex flex-col items-start justify-start max-w-3xl p-6">
@@ -64,25 +74,26 @@ export const BreadPreferencesPage = ({
                         background: `linear-gradient(18deg, var(--color-gold) 0%, rgb(238, 203, 89) 95%)`,
                     }}
                 >
-                    <Icon name="bread" className="w-8 h-8" />
+                    <Icon name="liquor" className="w-8 h-8" />
                 </div>
 
                 <div className="font-playfair flex flex-col items-start justify-center gap-1 text-xl text-[var(--color-chocolate)]">
-                    <h2 className='font-bold text-2xl'>Bread Preferences</h2>
+                    <h2 className='font-bold text-2xl'>Drink Preferences</h2>
                     <p className="text-[var(--color-chocolate)] text-[0.85rem]">
-                        Choose your top 3 daily breads
+                        Choose your top 3 drinks from the list below.
                     </p>
                 </div>
             </div>
 
-            {/* Bread Selection Grid */}
+            {/* Drink Selection Grid */}
             <RankingBadges
-                options={BREAD_TYPES}
-                value={selectedBreads}
-                onChange={setSelectedBreads}
+                options={DRINK_TYPES}
+                value={selectedDrinks}
+                onChange={setSelectedDrinks}
+                maxSelections={MAX_SELECTIONS}
             />
 
-            {/* Artisan Display Footer */}
+            {/* Display Footer */}
             <motion.footer
                 className="w-full mt-6 border-t border-[var(--color-cream)] pt-4"
                 initial={{ opacity: 0, y: 20 }}
@@ -91,33 +102,33 @@ export const BreadPreferencesPage = ({
             >
                 <div className="flex flex-col gap-3">
                     <h3 className="font-playfair text-lg text-[var(--color-chocolate)]">
-                        Your Daily Loaf Selection
+                        Your Refreshment Selection
                     </h3>
 
                     <div className="flex items-center gap-2">
                         <div
                             className="h-2 rounded-full bg-[var(--color-cream)] transition-all duration-500"
                             style={{
-                                width: `${(selectedBreads.length / 3) * 100}%`,
+                                width: `${(selectedDrinks.length / 3) * 100}%`,
                                 background: `linear-gradient(90deg, var(--color-gold) 0%, var(--color-caramel) 100%)`
                             }}
                         />
                         <span className="text-sm text-[var(--color-chocolate)]">
-                            {selectedBreads.length}/3 selected
+                            {selectedDrinks.length}/3 selected
                         </span>
                     </div>
 
                     <AnimatePresence>
-                        {selectedBreads.length > 0 && (
+                        {selectedDrinks.length > 0 && (
                             <motion.div
                                 className="flex flex-wrap gap-2 mt-2"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                             >
-                                {selectedBreads.map((bread, index) => (
+                                {selectedDrinks.map((drink, index) => (
                                     <motion.div
-                                        key={bread.key}
+                                        key={drink.key}
                                         className="px-3 py-1 rounded-full bg-[var(--color-cream)] flex items-center gap-2"
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
@@ -128,11 +139,11 @@ export const BreadPreferencesPage = ({
                                             {index + 1}.
                                         </span>
                                         <Icon
-                                            name={bread.icon}
+                                            name={drink.icon}
                                             className="w-4 h-4 text-[var(--color-gold)]"
                                         />
                                         <span className="text-sm text-[var(--color-chocolate)]">
-                                            {bread.label}
+                                            {drink.label}
                                         </span>
                                     </motion.div>
                                 ))}
