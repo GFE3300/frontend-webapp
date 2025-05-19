@@ -3,6 +3,7 @@ import DashboardLayout from '../features/dashboard/DashboardLayout';
 import StatCard from '../features/dashboard/StatCard';
 import Icon from '../components/common/Icon';
 import { useAuth } from '../contexts/AuthContext';
+import ProductsTable from '../features/products_table/subcomponents/ProductsTable';
 
 const BusinessDashboardPage = () => {
     const { user } = useAuth();
@@ -44,7 +45,7 @@ const BusinessDashboardPage = () => {
                 </div>
 
                 {/* Placeholder for Recent Activity / Charts */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                     <div className="lg:col-span-2 bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-lg">
                         <h2 className="text-xl font-semibold text-neutral-700 dark:text-neutral-200 mb-4">Recent Activity</h2>
                         <ul className="space-y-3">
@@ -65,6 +66,9 @@ const BusinessDashboardPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Placeholder for Products Table */}
+            <ProductsTable />
         </DashboardLayout>
     );
 };

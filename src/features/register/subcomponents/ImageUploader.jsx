@@ -87,26 +87,36 @@ const ImageUploader = ({
 
     // Effect to handle changes to the `initialSrc` prop after initial render.
     useEffect(() => {
+        // This effect should primarily run when the component mounts with an initialSrc
+        // or if initialSrc changes EXTERNALLY in a way that means "load this new base image".
+        // It should NOT interfere if the user has just cropped an image and we are trying to
+        // show the croppedImageUrl and the dropzone.
+
+        // A flag to know if the current imageSrc was set due to user file drop (data: URL)
+        const isUserDroppedImageActive = imageSrc && imageSrc.startsWith('data:image');
+
         if (initialSrc) {
-            // If initialSrc is provided and it's different from the current imageSrc being used for cropping
-            if (initialSrc !== imageSrc) {
-                setImageSrc(initialSrc);      // Set this to display the image in the cropper
-                setCroppedImageUrl(null); // Clear any previous local "saved" crop preview
+            // Only set imageSrc from initialSrc if:
+            // 1. There's no current imageSrc (fresh load with initialSrc)
+            // 2. The initialSrc has actually changed AND we are not currently in a user-dropped image flow
+            //    (to avoid initialSrc overwriting a just-dropped file before cropping).
+            // 3. The initialSrc is different from the current imageSrc (if imageSrc is also a URL)
+            if (!imageSrc || (initialSrc !== imageSrc && !isUserDroppedImageActive)) {
+                setImageSrc(initialSrc);
+                setCroppedImageUrl(null); // If initialSrc changes, old local crop is invalid
                 setError('');
-                setCrop(null);            // Reset crop selection
+                setCrop(null); // Reset crop for the new initialSrc
+                // console.log("ImageUploader: initialSrc changed, setting imageSrc for cropping:", initialSrc);
             }
-        } else {
-            // If initialSrc becomes null (e.g., parent wants to clear the displayed image)
-            // AND the current imageSrc is not a data URL (i.e., it was from a previous initialSrc)
-            if (imageSrc && !imageSrc.startsWith('data:image')) {
-                setImageSrc(null);
-            }
-            // Note: We don't clear `croppedImageUrl` here. If `initialSrc` is cleared but `croppedImageUrl`
-            // exists (from a previous crop-and-save operation), the preview should still show.
-            // The parent component (StepX) is responsible for clearing `formData.businessLogoFile` etc.
-            // which would then lead to `previewUrl` in StepX becoming null, then `initialSrc` here becoming null.
+        } else if (!isUserDroppedImageActive && imageSrc) {
+            // If initialSrc is removed AND the current imageSrc is not a user-dropped data URL (meaning it was from a previous initialSrc)
+            // then clear imageSrc.
+            setImageSrc(null);
+            // console.log("ImageUploader: initialSrc removed, clearing imageSrc.");
         }
-    }, [initialSrc]);; // Rerun if initialSrc or imageSrc changes.
+        // We don't want imageSrc in the dependency array if it causes loops with initialSrc.
+        // This effect is about `initialSrc` driving `imageSrc`.
+    }, [initialSrc]);
 
     // Effect to clean up object URLs created for `croppedImageUrl` to prevent memory leaks.
     useEffect(() => {
@@ -251,15 +261,14 @@ const ImageUploader = ({
             return;
         }
         const file = new File([blob], `cropped-image-${Date.now()}.png`, { type: 'image/png' });
-
         const newCroppedUrl = URL.createObjectURL(blob);
-        setCroppedImageUrl(newCroppedUrl); // Update state for local preview.
-        setIsProcessing(false);
-        onImageUpload(file); // Pass the File object to the parent component.
 
-        // Reset to dropzone view to show the preview of the newly cropped image and allow new uploads.
-        setImageSrc(null);
-        setCrop(null);
+        // Order of state updates:
+        onImageUpload(file);         // 1. Inform parent (this might trigger parent re-render)
+        setCroppedImageUrl(newCroppedUrl); // 2. Set the preview for *this* uploader
+        setImageSrc(null);           // 3. CRITICAL: Switch back to dropzone view
+        setCrop(null);               // 4. Reset crop selection
+        setIsProcessing(false);
 
     }, [completedCrop, onImageUpload, outputImageSize, circularCrop, aspectRatio]);
 
@@ -272,32 +281,22 @@ const ImageUploader = ({
         if (initialSrc && imageSrc === initialSrc) {
             // If `initialSrc` is currently displayed, reset the crop for it.
             // Re-triggering `onImageLoad` will re-calculate the default centered crop.
-            if (imgRef.current) {
-                onImageLoad({ currentTarget: imgRef.current });
+            if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+                onImageLoad({ currentTarget: imgRef.current }); // Recenter crop on existing image
             } else {
-                setCrop(null); // Fallback if imgRef is not available.
+                // Fallback: if image not loaded, maybe just reset crop state
+                setCrop(null);
             }
         } else {
-            // If a new file was uploaded (imageSrc is a data URL), clear it.
+            // If it was a user-uploaded image (data: URL), clear it to show dropzone.
             setImageSrc(null);
             setCrop(null);
         }
-        // Clear any existing cropped image preview and errors.
-        // Do not clear `croppedImageUrl` here if we want to keep showing the last *saved* crop
-        // when `initialSrc` is re-selected for cropping. If the intent is to always clear, then uncomment.
-        // setCroppedImageUrl(null); 
         setError('');
-        setIsProcessing(false); // Reset processing state.
+        setIsProcessing(false);
 
-        // Clear the value of the hidden file input to allow re-selection of the same file.
-        const inputElement = document.querySelector('input[type="file"][data-testid="file-input"]'); // More robust selector might be needed if multiple file inputs exist.
-        if (inputElement) {
-            inputElement.value = "";
-        }
-
-        // If `onImageUpload(null)` is desired on cancel to clear parent state:
-        // onImageUpload(null);
-    }, [initialSrc, imageSrc, onImageLoad /*, onImageUpload */]); // `getInputProps` was removed as direct DOM manipulation is tricky with refs from hooks.
+        // If not directly clearing parent's file: onImageUpload(null);
+    }, [initialSrc, imageSrc, onImageLoad]); // Removed inputActualRef as it is not defined.
 
     // ===========================================================================
     // Validation (Prop Validation - Critical for component operation)
@@ -461,36 +460,6 @@ const ImageUploader = ({
                 )}
             </AnimatePresence>
 
-            {/* Cropped Image Preview Area: Shows the last successfully cropped image if not currently cropping. */}
-            <AnimatePresence>
-                {croppedImageUrl && !imageSrc && ( // Display only when in dropzone view and a crop exists.
-                    <motion.div
-                        className="mt-6 sm:mt-8 text-center"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ delay: 0.1 }} // Slight delay to appear after dropzone.
-                        data-testid="cropped-preview-area"
-                    >
-                        <p className="text-sm sm:text-md font-semibold text-neutral-700 dark:text-neutral-300 mb-2 sm:mb-3">
-                            {scriptLines.imageUploader.preview.title}
-                        </p>
-                        <img
-                            src={croppedImageUrl}
-                            alt="Cropped preview" // More descriptive alt text
-                            className={`w-28 h-28 sm:w-36 sm:h-36 ${circularCrop ? 'rounded-full' : 'rounded-md'} mx-auto shadow-xl border-4 border-white dark:border-neutral-700 object-cover`}
-                        />
-                        {/* Button to trigger file dialog again, allowing user to change the cropped image. */}
-                        <button
-                            type="button" // Explicitly type="button"
-                            onClick={openFileDialog} // Re-uses dropzone's open function.
-                            className={`mt-3 sm:mt-4 text-xs sm:text-sm ${currentTheme.textActive} hover:underline focus:outline-none focus-visible:ring-1 ${currentTheme.borderActive} rounded px-1`}
-                        >
-                            {scriptLines.imageUploader.preview.uploadNew}
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
             {/* Optional: Hidden canvas for other preview methods if needed, though current approach uses URL.createObjectURL. */}
             {/* <canvas ref={canvasPreviewRef} style={{ display: 'none' }} /> */}
         </div>

@@ -206,7 +206,7 @@ const MapViewport = memo(({
         const message = !isApiLoaded || !google ? "Loading map API..." : "Loading map components...";
         return (
             <div className={mapContainerClassName || "default-map-viewport-container rounded-2xl overflow-hidden"}
-                style={mapContainerStyle || { width: '100%', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                style={mapContainerStyle || { width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <p className="text-sm text-gray-500 dark:text-neutral-400">{message}</p>
             </div>
         );
@@ -216,7 +216,7 @@ const MapViewport = memo(({
         <div
             ref={mapContainerRef}
             className={mapContainerClassName || "default-map-viewport-container rounded-2xl overflow-hidden"}
-            style={mapContainerStyle || { width: '100%', height: '400px' }}
+            style={mapContainerStyle || { width: '100%', height: '300px' }}
             role="application"
             aria-label="Location selection map"
         />

@@ -1,193 +1,170 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+// src/features/register/stages/Step5ProfileImage.jsx
+import React, { memo, useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { ImageUploader } from '../subcomponents';
-import Icon from "../../../components/common/Icon";
-import { scriptLines_Steps as scriptLines } from '../utils/script_lines'; // Import localization strings
+import { ImageUploader } from '../subcomponents'; // Assuming ImageUploader is in subcomponents
+import Icon from "../../../components/common/Icon"; // Assuming Icon path
+import { scriptLines_Steps as scriptLines } from '../utils/script_lines'; // Localization strings
 
 /**
- * Profile Image step (Step 5) for the registration form.
- * This component allows users to upload and crop a profile image using the
- * `ImageUploader` subcomponent. It integrates with the main form state by
- * updating the `profileImage` field with the processed `File` object and
- * can display a previously saved image via `existingProfileImageUrl`.
- * The component is memoized for performance and includes prop validation
- * and localized text for a production-ready experience.
- * @component Step5ProfileImage
- * @param {Object} props - Component properties.
- * @param {Object} props.formData - The current state of the form data.
- *        Expected to have `profileImage` (for the new `File` object after upload/crop) and
- *        optionally `existingProfileImageUrl` (a URL string of a previously saved profile image).
- * @param {Function} props.updateField - Callback function to update a specific field in the main form's formData.
- *        This function should be stable (e.g., memoized by `useFormState`) to ensure optimal performance.
- * @param {Object} [props.errors=null] - An object containing validation errors, specifically for the `profileImage` field if any.
- *        Defaults to `null` if not provided.
- * @param {string} [props.themeColor=scriptLines.step5ProfileImage.themeColorDefault] - The primary theme color for accents, passed to `ImageUploader`.
- *        Defaults to a value from `scriptLines`.
+ * @typedef {object} FormDataForProfileImage
+ * @property {File} [profileImageFile] - The new profile image File object after upload/crop.
+ * @property {string} [existingProfileImageUrl] - Optional URL string of a previously saved profile image.
+ */
+
+/**
+ * Step5ProfileImage Component
+ * Allows users to upload and crop a profile image.
+ *
+ * @component
+ * @param {object} props - Component properties.
+ * @param {FormDataForProfileImage} props.formData - Current form data for the profile image.
+ * @param {(fieldName: string, value: File | string | null) => void} props.updateField - Callback to update form state.
+ * @param {object} [props.errors] - Validation errors (e.g., `errors.profileImageFile`).
+ * @param {string} [props.themeColor] - Theme color for `ImageUploader`.
  */
 const Step5ProfileImage = ({
     formData,
     updateField,
     errors,
-    themeColor = scriptLines.step5ProfileImage.themeColorDefault,
+    themeColor = scriptLines.step5ProfileImage.themeColorDefault || 'rose', // Fallback theme
 }) => {
+    const [uploaderKey, setUploaderKey] = useState(Date.now());
+    const [parentPreviewUrl, setParentPreviewUrl] = useState(null);
+    const objectUrlRef = useRef(null);
 
-    // ===========================================================================
-    // Configuration
-    // ===========================================================================
-    const [previewUrl, setPreviewUrl] = useState(null);
-
-    // ===========================================================================
-    // Effect & Handlers (Memoized for performance to prevent unnecessary re-renders of ImageUploader)
-    // ===========================================================================
-
+    /**
+     * Effect to manage the parent-level preview URL (`parentPreviewUrl`).
+     */
     useEffect(() => {
-        let objectUrl = null;
-        if (formData.profileImage instanceof File) {
-            objectUrl = URL.createObjectURL(formData.profileImage);
-            setPreviewUrl(objectUrl);
+        if (objectUrlRef.current) {
+            URL.revokeObjectURL(objectUrlRef.current);
+            objectUrlRef.current = null;
+        }
+
+        if (formData.profileImageFile instanceof File) {
+            const newObjectUrl = URL.createObjectURL(formData.profileImageFile);
+            setParentPreviewUrl(newObjectUrl);
+            objectUrlRef.current = newObjectUrl;
         } else if (formData.existingProfileImageUrl) {
-            setPreviewUrl(formData.existingProfileImageUrl);
+            setParentPreviewUrl(formData.existingProfileImageUrl);
         } else {
-            setPreviewUrl(null);
+            setParentPreviewUrl(null);
         }
 
         return () => {
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl);
+            if (objectUrlRef.current) {
+                URL.revokeObjectURL(objectUrlRef.current);
+                objectUrlRef.current = null;
             }
         };
-    }, [formData.profileImage, formData.existingProfileImageUrl]);
+    }, [formData.profileImageFile, formData.existingProfileImageUrl]);
 
+    /**
+     * Callback for when `ImageUploader` successfully processes an image.
+     * @param {File | null} imageFile - The cropped image File object, or null if cleared.
+     */
     const handleImageUploaded = useCallback((imageFile) => {
-        updateField('profileImage', imageFile);
-        if (imageFile) { // If a new file is uploaded, existing URL is no longer the source
-            updateField('existingProfileImageUrl', null);
+        updateField('profileImageFile', imageFile);
+        if (imageFile) {
+            updateField('existingProfileImageUrl', null); // New upload overrides existing URL
         }
-        // The useEffect above will handle setting the previewUrl from profileImage
     }, [updateField]);
-    
-    // ===========================================================================
-    // Validation (Prop Validation - Critical for component stability and operation)
-    // ===========================================================================
-    // This section validates essential props (`formData`, `updateField`).
-    // If critical props are missing or invalid, the component renders a fallback UI
-    // with a localized error message and logs a localized error to the console.
-    // This ensures graceful failure and aids developers in debugging.
 
-    if (typeof formData !== 'object' || formData === null) {
-        console.error(scriptLines.step5ProfileImage.console.invalidFormDataProp);
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                <Icon name="error_outline" className="w-12 h-12 text-red-500 mb-2" />
-                <p className="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 p-3 rounded-md">
-                    {scriptLines.step5ProfileImage.errors.formDataUnavailable}
-                </p>
-            </div>
-        );
-    }
-    if (typeof updateField !== 'function') {
-        console.error(scriptLines.step5ProfileImage.console.invalidUpdateFieldProp);
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                <Icon name="settings_alert" className="w-12 h-12 text-red-500 mb-2" />
-                <p className="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 p-3 rounded-md">
-                    {scriptLines.step5ProfileImage.errors.updateMechanismImproperlyConfigured}
-                </p>
-            </div>
-        );
-    }
-    // Optional prop check: `errors` can be undefined/null, but if provided, it should be an object.
-    if (errors !== undefined && errors !== null && (typeof errors !== 'object')) {
-        console.warn(scriptLines.step5ProfileImage.console.invalidErrorsProp);
-        // Component can still render; error display might be affected.
-    }
+    /**
+     * Handles clearing the current profile image selection.
+     */
+    const handleClearImage = useCallback(() => {
+        updateField('profileImageFile', null);
+        updateField('existingProfileImageUrl', null);
+        setParentPreviewUrl(null);
+        setUploaderKey(Date.now()); // Force ImageUploader to re-mount
+    }, [updateField]);
 
-    // ===========================================================================
-    // Rendering Logic
-    // ===========================================================================
+    // `initialSrc` for ImageUploader should primarily be an existing persisted URL.
+    // If `profileImageFile` (a File object) exists, ImageUploader's internal `croppedImageUrl`
+    // (after a crop) or its `imageSrc` (if a file is just selected but not yet cropped) handles the preview.
+    // We don't want to create an object URL from `profileImageFile` and pass it back as `initialSrc`
+    // right after a crop, as that would cause the "stuck in crop" loop.
+    const initialSrcForUploader = formData.existingProfileImageUrl || null;
+
     return (
         <div
-            className="step5-profile-image-container flex flex-col items-center space-y-8 pt-4 pb-8" // Consistent class naming
-            data-testid="step5-profile-image" // Consistent test ID
+            className="step5-profile-image-container flex flex-col items-center space-y-6 sm:space-y-8 pt-4 pb-8"
+            data-testid="step5-profile-image"
         >
-            {/* Step Instructions: Provides context and guidance to the user. */}
-            <div className="text-center px-4 font-montserrat">
-                <h3 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100 mb-2 font-montserrat">
+            <div className="text-center px-4">
+                <h3 className="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100 mb-2">
                     {scriptLines.step5ProfileImage.title}
                 </h3>
-                <p className="text-md text-neutral-600 dark:text-neutral-400 max-w-md mx-auto">
+                <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 max-w-md sm:max-w-lg mx-auto">
                     {scriptLines.step5ProfileImage.description}
                 </p>
             </div>
 
-            {/* ImageUploader Component: Handles the core functionality of image selection, cropping, and preview. */}
-            <div className="w-full max-w-md px-2"> {/* Adjusted max-w-md for better visual balance */}
+            <div className="w-full max-w-xs sm:max-w-sm px-2"> {/* Adjusted max-width for profile image context */}
                 <ImageUploader
+                    key={uploaderKey}
                     onImageUpload={handleImageUploaded}
-                    initialSrc={previewUrl}
+                    initialSrc={initialSrcForUploader} // Use existing URL or null
                     themeColor={themeColor}
+                    outputImageSize={scriptLines.step5ProfileImage.outputImageSize || 200}
+                    maxFileSizeMB={scriptLines.step5ProfileImage.maxFileSizeMB || 2}
+                    circularCrop={scriptLines.step5ProfileImage.circularCrop !== undefined ? scriptLines.step5ProfileImage.circularCrop : true}
+                    aspectRatio={scriptLines.step5ProfileImage.aspectRatio || 1 / 1}
                 />
             </div>
 
-            {/* Validation Error Display: Shows errors related to the 'profileImage' field. */}
-            {errors?.profileImage && (
+            {parentPreviewUrl && (
+                <div className="mt-4 flex flex-col items-center gap-3" data-testid="parent-profile-preview-section">
+                    <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                        {scriptLines.step5ProfileImage.currentImagePreview || "Current Profile Image:"}
+                    </p>
+                    <img
+                        src={parentPreviewUrl}
+                        alt="Current profile image"
+                        className={`w-24 h-24 sm:w-32 sm:h-32 ${(scriptLines.step5ProfileImage.circularCrop !== undefined ? scriptLines.step5ProfileImage.circularCrop : true) ? 'rounded-full' : 'rounded-md'} 
+                                   object-cover shadow-lg border-2 border-neutral-200 dark:border-neutral-600`}
+                    />
+                    <button
+                        type="button"
+                        onClick={handleClearImage}
+                        className={`text-xs sm:text-sm font-medium transition-colors
+                                    ${themeColor === 'rose' ? 'text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300' : 'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'} 
+                                    focus:outline-none focus:ring-1 ${themeColor === 'rose' ? 'focus:ring-rose-500' : 'focus:ring-blue-500'} rounded p-1`}
+                        aria-label={scriptLines.step5ProfileImage.buttons?.changeImage || "Change or remove image"}
+                    >
+                        {scriptLines.step5ProfileImage.buttons?.changeImage || "Change/Remove"}
+                    </button>
+                </div>
+            )}
+
+            {errors?.profileImageFile && (
                 <div
-                    className="mt-4 w-full max-w-md text-sm text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40 p-3 rounded-lg flex items-center justify-center gap-2 shadow"
-                    role="alert" // Informs assistive technologies that this is an important message.
+                    className="mt-4 w-full max-w-sm text-sm text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40 p-3 rounded-lg flex items-center justify-center gap-2 shadow"
+                    role="alert"
                     data-testid="profile-image-error"
                 >
                     <Icon name="warning" className="w-5 h-5 flex-shrink-0" />
-                    {/* The error message (errors.profileImage) is expected to be already localized
-                        by the validation schema (e.g., Yup in useFormState). This component just displays it.
-                    */}
-                    <span>{errors.profileImage}</span>
+                    <span>{errors.profileImageFile}</span>
                 </div>
             )}
-            {/*
-                Note on Preview:
-                The preview of a *newly uploaded and cropped* image is managed internally by the `ImageUploader`
-                component (likely using its own state for the `croppedImageUrl`). This `Step5ProfileImage` component's
-                role is to integrate `ImageUploader` into this specific form step, manage the `File` object that
-                will be part of `formData` for submission, and handle the display of an `existingProfileImageUrl`
-                when the step is first loaded or revisited before a new image interaction.
-            */}
         </div>
     );
 };
 
-// Define prop types for type safety, improved readability, and robust development.
 Step5ProfileImage.propTypes = {
-    /** 
-     * The current state of the form data. Must be an object.
-     * - `profileImage`: The new profile image `File` object (after upload/crop).
-     * - `existingProfileImageUrl`: Optional URL string of a previously saved profile image.
-     */
     formData: PropTypes.shape({
-        profileImage: PropTypes.instanceOf(File), // Can be null if no image is selected/uploaded.
-        existingProfileImageUrl: PropTypes.string, // Can be null or undefined.
-        // Include other formData properties if they are directly accessed or relevant to this component's logic.
-    }).isRequired, // formData is critical for this component.
-
-    /** Callback function to update a field in the main form's formData. Must be a function. */
-    updateField: PropTypes.func.isRequired, // updateField is critical.
-
-    /** 
-     * An object containing validation errors for this step's fields (e.g., `profileImage`). 
-     * Optional; defaults to `null`. If provided, must be an object.
-     */
+        profileImageFile: PropTypes.instanceOf(File), // For the newly uploaded/cropped File
+        existingProfileImageUrl: PropTypes.string,    // For a URL of an already saved image
+    }).isRequired,
+    updateField: PropTypes.func.isRequired,
     errors: PropTypes.object,
-
-    /** The primary theme color for accents, passed to `ImageUploader`. Optional string. */
     themeColor: PropTypes.string,
 };
 
-// Specify default props for optional props, ensuring the component has defined values to work with.
 Step5ProfileImage.defaultProps = {
-    errors: null, // If no errors prop is passed, it defaults to null.
-    themeColor: scriptLines.step5ProfileImage.themeColorDefault, // Use localized default for themeColor.
+    errors: null,
+    themeColor: scriptLines.step5ProfileImage.themeColorDefault || 'rose',
 };
 
-// Export the component, memoized for performance optimization.
-// `React.memo` performs a shallow comparison of props, preventing re-renders if props have not changed.
-// This is particularly useful for form steps that might be part of a larger, frequently updating form.
 export default memo(Step5ProfileImage);
