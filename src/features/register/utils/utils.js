@@ -1,3 +1,10 @@
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs) {
+    return twMerge(clsx(inputs));
+}
+
 export function deepEqual(a, b) {
     if (a === b) return true;
 
@@ -22,7 +29,6 @@ export function deepEqual(a, b) {
     return true;
 }
 
-// utils.js
 export const getCountryCodeFromName = (name) => {
     // Static list must mirror AddressForm's STATIC_COUNTRIES
     const COUNTRY_NAME_TO_CODE = {

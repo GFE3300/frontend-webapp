@@ -3,7 +3,6 @@ import Header from "../components/header/Header";
 import FeaturedProducts from "../components/sections/FeaturedProducts";
 import AboutSection from "../components/layout/AboutSection";
 import WeeklySpecialBanner from "../components/sections/WeeklySpecialBanner";
-import { fetchCategories } from "../services/api";
 
 
 const navLinks = [
@@ -52,7 +51,7 @@ const HomePage = () => {
 
     useEffect(() => {
         const loadCategories = async () => {
-            const data = await fetchCategories();
+            const data = [];
             setCategories(data);
         };
         loadCategories();

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { fetchWeeklySpecial } from "../../services/api";
 import WeeklySpecialLoader from "../loaders/WeeklySpecialLoader";
 
 const WeeklySpecialBanner = () => {
@@ -10,7 +9,7 @@ const WeeklySpecialBanner = () => {
 
     useEffect(() => {
         const loadData = async () => {
-            const special = await fetchWeeklySpecial();
+            const special = {};
 
             // Preload the image
             const img = new Image();

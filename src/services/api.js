@@ -1,122 +1,102 @@
-import {
-	getFeaturedProducts,
-	getWeeklySpecial,
-	getCategories,
-	getTestimonials
-} from '../utils/mockProducts';
-
-export const fetchFeaturedProducts = getFeaturedProducts;
-export const fetchWeeklySpecial = getWeeklySpecial;
-export const fetchCategories = getCategories;
-export const fetchTestimonials = getTestimonials;
-
-// REAL ONE
-
 import axios from 'axios';
-import { useAuth } from '../contexts/AuthContext';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
 
-const api = axios.create({
+export const apiInstance = axios.create({ 
 	baseURL,
 	timeout: 10000,
-	withCredentials: true, // For future cookie-based auth
 	headers: {
 		'Content-Type': 'application/json',
 		'Accept': 'application/json',
 	}
 });
 
-// Request queue for token refresh flow
 let isRefreshing = false;
-let failedRequests = [];
+let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-	failedRequests.forEach(prom => {
+	failedQueue.forEach(prom => {
 		if (error) {
 			prom.reject(error);
 		} else {
 			prom.resolve(token);
 		}
 	});
-	failedRequests = [];
+	failedQueue = [];
 };
 
-// Request interceptor for auth token
-api.interceptors.request.use(async (config) => {
-	const token = localStorage.getItem('accessToken');
-
-	if (token) {	
-		config.headers.Authorization = `Bearer ${token}`;
+// Use apiInstance for interceptors
+apiInstance.interceptors.request.use(
+	config => {
+		const token = localStorage.getItem('accessToken');
+		if (token) {
+			config.headers['Authorization'] = 'Bearer ' + token;
+		}
+		return config;
+	},
+	error => {
+		return Promise.reject(error);
 	}
+);
 
-	return config;
-}, (error) => {
-	return Promise.reject(error);
-});
-
-// Response interceptor for token refresh
-api.interceptors.response.use(
-	(response) => response,
-	async (error) => {
+apiInstance.interceptors.response.use(
+	response => response,
+	async error => {
 		const originalRequest = error.config;
-		const { logout } = useAuth();
 
-		// Handle token expiration
 		if (error.response?.status === 401 && !originalRequest._retry) {
 			if (isRefreshing) {
-				return new Promise((resolve, reject) => {
-					failedRequests.push({ resolve, reject });
-				}).then(() => api(originalRequest))
-					.catch((err) => Promise.reject(err));
+				return new Promise(function (resolve, reject) {
+					failedQueue.push({ resolve, reject });
+				})
+					.then(token => {
+						originalRequest.headers['Authorization'] = 'Bearer ' + token;
+						return apiInstance(originalRequest); // Use apiInstance
+					})
+					.catch(err => {
+						return Promise.reject(err);
+					});
 			}
 
 			originalRequest._retry = true;
 			isRefreshing = true;
 
+			const refreshToken = localStorage.getItem('refreshToken');
+			if (!refreshToken) {
+				isRefreshing = false;
+				return Promise.reject(new Error("No refresh token available."));
+			}
+
 			try {
-				const refreshToken = localStorage.getItem('refreshToken');
-				if (!refreshToken) throw new Error('No refresh token');
-
-				const { data } = await axios.post(`${baseURL}auth/refresh/`, {
-					refresh: refreshToken
+				const rs = await axios.post(`${baseURL}auth/refresh/`, { // Use axios directly for refresh to avoid interceptor loop
+					refresh: refreshToken,
 				});
-
-				localStorage.setItem('accessToken', data.access);
-				api.defaults.headers.Authorization = `Bearer ${data.access}`;
-
-				processQueue(null, data.access);
-				return api(originalRequest);
-			} catch (refreshError) {
-				processQueue(refreshError, null);
-				logout();
+				const { access } = rs.data;
+				localStorage.setItem('accessToken', access);
+				apiInstance.defaults.headers.common['Authorization'] = 'Bearer ' + access; // Set on apiInstance
+				originalRequest.headers['Authorization'] = 'Bearer ' + access;
+				processQueue(null, access);
+				return apiInstance(originalRequest); // Use apiInstance
+			} catch (_error) {
+				processQueue(_error, null);
 				localStorage.removeItem('accessToken');
 				localStorage.removeItem('refreshToken');
-				window.location.href = '/login';
-				return Promise.reject(refreshError);
+				return Promise.reject(_error);
 			} finally {
 				isRefreshing = false;
 			}
 		}
-
-		// Normal error handling
-		const processedError = {
-			...error,
-			message: error,
-			status: error.response?.status || 500
-		};
-
-		return Promise.reject(processedError);
+		return Promise.reject(error);
 	}
 );
 
-// Helper methods for common operations
+// apiService still uses apiInstance internally
 const apiService = {
-	get: (url, params, config = {}) => api.get(url, { ...config, params }),
-	post: (url, data, config) => api.post(url, data, config),
-	put: (url, data, config) => api.put(url, data, config),
-	delete: (url, config) => api.delete(url, config),
-	createCancelToken: () => axios.CancelToken.source()
+	get: (url, params, config = {}) => apiInstance.get(url, { ...config, params }),
+	post: (url, data, config) => apiInstance.post(url, data, config),
+	put: (url, data, config) => apiInstance.put(url, data, config),
+	delete: (url, config) => apiInstance.delete(url, config),
+	registerUserAndBusiness: (data) => apiInstance.post('auth/register/', data),
 };
 
 export default apiService;
