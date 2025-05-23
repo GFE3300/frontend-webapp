@@ -38,6 +38,7 @@ const Dropdown = memo(({
     themeColor = "rose",
     name,
     id,
+    errorClassName = '',
     ...restProps // To pass down other props like onFocus, onBlur if needed
 }) => {
     // ===========================================================================
@@ -340,7 +341,7 @@ const Dropdown = memo(({
             </AnimatePresence>
 
             {/* Error and Help Text Section */}
-            <div className="mt-1.5 ml-3 min-h-[1.25rem]"> {/* Placeholder for height consistency */}
+            <div className={`mt-1.5 ml-3 min-h-[1.25rem] ${errorClassName}`}> {/* Placeholder for height consistency */}
                 <AnimatePresence>
                     {error && (
                         <motion.div

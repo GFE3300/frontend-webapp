@@ -12,11 +12,22 @@ import RegistrationPage from './features/register/RegistrationPage.jsx';
 import BusinessLoginPage from './pages/BusinessLoginPage.jsx'; // Assuming this is the correct import path
 import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
 import PrivateRoute from './components/common/PrivateRoute.jsx';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Contexts
 import { CartProvider } from './contexts/CartContext';
 import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
 import { AuthProvider } from './contexts/AuthContext'; // Crucial import
+
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: 1000 * 60 * 5, // 5 minutes
+			refetchOnWindowFocus: false, // Adjust as needed
+			retry: 1, // Retry failed requests once
+		},
+	},
+});
 
 // Define routes without per-route AuthProvider, as it will be global
 const router = createBrowserRouter([
@@ -68,15 +79,16 @@ const router = createBrowserRouter([
 function App() {
 	return (
 		<React.StrictMode>
-			{/* AuthProvider now wraps RouterProvider, making auth context available to all routes */}
-			<AuthProvider>
-				<CartProvider>
-					<FlyingImageProvider>
-						<RouterProvider router={router} />
-						<CartDrawer />
-					</FlyingImageProvider>
-				</CartProvider>
-			</AuthProvider>
+			<QueryClientProvider client={queryClient}>
+				<AuthProvider>
+					<CartProvider>
+						<FlyingImageProvider>
+							<RouterProvider router={router} />
+							<CartDrawer />
+						</FlyingImageProvider>
+					</CartProvider>
+				</AuthProvider>
+			</QueryClientProvider>
 		</React.StrictMode>
 	);
 }

@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, memo, useState, useCallback } from 'react';
 // eslint-disable-next-line
 import { AnimatePresence, motion } from 'framer-motion';
+import { jwtDecode } from 'jwt-decode';
 import PropTypes from 'prop-types';
 import { useFormState } from './hooks/useFormState';
 import useWindowSize from '../../hooks/useWindowSize';
@@ -73,6 +74,7 @@ const RegistrationPage = () => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [formFlowStatus, setFormFlowStatus] = useState('filling_form');
+    const [fileUploadErrors, setFileUploadErrors] = useState({});
 
     const { login: contextLogin } = useAuth();
 
@@ -99,62 +101,161 @@ const RegistrationPage = () => {
      */
     const handleFormCompletion = useCallback(async () => {
         const isFinalStepValid = await formState.validateStep(formState.currentStep);
-        if (!isFinalStepValid) {
-            return;
-        }
+        if (!isFinalStepValid) return;
 
+        setFormFlowStatus('submitting_main');
+        setFileUploadErrors({}); 
+
+        const businessAddressData = formState.formData.address || {};
         const registrationData = {
-            email: formState.formData.email,             // from Step3Profile
-            password: formState.formData.password,       // from Step3Profile
-            first_name: formState.formData.name,         // Assuming 'name' from Step3Profile
-            last_name: formState.formData.lastName,      // from Step3Profile
-            phone: formState.formData.phone,             // from Step3Profile (user phone)
+            email: formState.formData.email,
+            password: formState.formData.password,
+            first_name: formState.formData.name,
+            last_name: formState.formData.lastName,
+            phone: formState.formData.phone,
+            address: formState.formData.userPersonalAddress,
 
-            business_name: formState.formData.businessName, // from Step0BusinessInfo
-            business_email: formState.formData.businessEmail, // from Step0BusinessInfo
-            business_phone: formState.formData.businessPhone, // from Step0BusinessInfo
-            address: formState.formData.businessAddress, // from Step1Location
-            business_description: formState.formData.businessDescription, // from Step0BusinessInfo
+            business_name: formState.formData.businessName,
+            business_email: formState.formData.businessEmail,
+            business_phone: formState.formData.businessPhone,
+            business_website: formState.formData.businessWebsite,
+            business_username: formState.formData.businessUsername,
+            business_description: formState.formData.businessDescription,
+            business_tags: Array.isArray(formState.formData.businessTags) ? formState.formData.businessTags.join(',') : formState.formData.businessTags,
+
+            business_address_street: businessAddressData.street,
+            business_address_city: businessAddressData.city,
+            business_address_state: businessAddressData.state,
+            business_address_postal_code: businessAddressData.postalCode,
+            business_address_country: businessAddressData.country,
+            business_address_formatted: businessAddressData.formattedAddress,
         };
+        const cleanRegistrationData = Object.fromEntries(
+            Object.entries(registrationData).filter(([_, v]) => v !== null && v !== undefined && v !== '')
+        );
 
-        setFormFlowStatus('submitting_form'); // Visual feedback for user
-
+        let mainRegResponse;
         try {
-            const response = await apiService.registerUserAndBusiness(registrationData);
-            console.log("Registration successful:", response.data);
+            mainRegResponse = await apiService.registerUserAndBusiness(cleanRegistrationData);
+            console.log("Main registration successful:", mainRegResponse.data);
 
-            // After successful registration, backend returns tokens. Log the user in.
-            if (response.data.access && response.data.refresh) {
-                contextLogin(response.data.access, response.data.refresh);
-                // contextLogin should store tokens and user data (including business/role from token)
+            if (mainRegResponse.data.access && mainRegResponse.data.refresh) {
+                contextLogin(mainRegResponse.data.access, mainRegResponse.data.refresh);
+            } else {
+                throw new Error("Registration succeeded but no tokens were returned.");
             }
-
-            // Decide next flow: plan selection or success. For now, assume success.
-            // If plan selection is next: setFormFlowStatus('selecting_plan');
-            // Else, if registration is the final step:
-            formState.resetForm(); // Clear form data from session storage
-            setFormFlowStatus('final_success'); // Show success modal
-
         } catch (error) {
-            console.error('Registration error:', error);
+            console.error('Main registration error details:', error); // Log the full error object
             let errorMessage = "Registration failed. Please try again.";
-            if (error.response && error.response.data) {
-                // Try to parse backend validation errors
-                const backendErrors = error.response.data;
-                if (typeof backendErrors === 'object') {
-                    // Concatenate all error messages
-                    errorMessage = Object.values(backendErrors)
-                        .map(errArray => Array.isArray(errArray) ? errArray.join(' ') : String(errArray))
-                        .join(' ');
-                } else if (typeof backendErrors === 'string') {
-                    errorMessage = backendErrors;
+
+            if (error.response) {
+                // Handle HTTP errors (e.g., 400, 401, 500)
+                console.error('Backend error response status:', error.response.status);
+                console.error('Backend error response data:', error.response.data);
+
+                if (error.response.status >= 500) { // Handle 500 and other 5xx errors
+                    errorMessage = "A server error occurred. Please try again later or contact support.";
+                } else if (error.response.data) {
+                    const errorData = error.response.data;
+                    let messages = [];
+                    if (typeof errorData === 'object' && errorData !== null) {
+                        // Handle structured JSON errors (typically 400 Bad Request from DRF validation)
+                        for (const key in errorData) {
+                            if (key === "detail" && typeof errorData[key] === 'string') {
+                                messages.push(errorData[key]); // Common for single error messages
+                            } else if (Array.isArray(errorData[key])) {
+                                const fieldName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                messages.push(`${fieldName}: ${errorData[key].join(', ')}`);
+                            } else if (typeof errorData[key] === 'string') {
+                                // Handle non-array values if they represent errors
+                                const fieldName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                messages.push(`${fieldName}: ${errorData[key]}`);
+                            }
+                        }
+                    } else if (typeof errorData === 'string') {
+                        // For plain string errors (less common for DRF validation but possible)
+                        messages.push(errorData);
+                    }
+                    
+                    if (messages.length > 0) {
+                        errorMessage = messages.join('; ');
+                    } else {
+                         // If errorData is present but couldn't be parsed into specific messages
+                        errorMessage = `An error occurred (Status: ${error.response.status}). Please check your input.`;
+                    }
+                } else {
+                     // No error.response.data, but there is an error.response status
+                    errorMessage = `An error occurred (Status: ${error.response.status}). Please try again.`;
                 }
-            } else if (error.message) {
-                errorMessage = error.message;
+            } else if (error.request) {
+                // The request was made but no response was received
+                errorMessage = "No response from the server. Please check your network connection.";
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                errorMessage = error.message || "An unknown error occurred during registration.";
             }
+
             formState.setGeneralError(errorMessage);
-            setFormFlowStatus('filling_form'); // Revert to form to show errors
+            setFormFlowStatus('filling_form'); 
+            return; 
         }
+
+        // --- File Uploads ---
+        // (Rest of the file upload logic remains the same)
+        let decodedToken;
+        const newAccessToken = mainRegResponse.data.access || localStorage.getItem('accessToken');
+        if (newAccessToken) {
+            try {
+                decodedToken = jwtDecode(newAccessToken);
+            } catch (e) {
+                console.error("Error decoding token for file uploads:", e);
+                formState.setGeneralError("Session error after registration. Please try logging in to complete setup.");
+                setFormFlowStatus('final_success_with_issues');
+                return;
+            }
+        }
+
+        const businessIdForLogo = decodedToken?.active_business_id;
+        let allUploadsSuccessful = true;
+
+        if (formState.formData.businessLogoFile && businessIdForLogo) {
+            setFormFlowStatus('uploading_logo');
+            try {
+                console.log(`Uploading logo for business ${businessIdForLogo}...`);
+                await apiService.uploadBusinessLogo(businessIdForLogo, formState.formData.businessLogoFile);
+                console.log("Business logo uploaded.");
+            } catch (err) {
+                allUploadsSuccessful = false;
+                console.error("Logo upload failed:", err.response?.data || err.message);
+                setFileUploadErrors(prev => ({ ...prev, logo: err.response?.data?.detail || "Logo upload failed." }));
+            }
+        }
+
+        if (formState.formData.profileImageFile) {
+            setFormFlowStatus('uploading_profile');
+            try {
+                console.log("Uploading profile image...");
+                await apiService.uploadUserProfileImage(formState.formData.profileImageFile);
+                console.log("Profile image uploaded.");
+            } catch (err) {
+                allUploadsSuccessful = false;
+                console.error("Profile image upload failed:", err.response?.data || err.message);
+                setFileUploadErrors(prev => ({ ...prev, profile: err.response?.data?.detail || "Profile image upload failed." }));
+            }
+        }
+
+        if (allUploadsSuccessful && Object.keys(fileUploadErrors).length === 0) {
+            formState.resetForm();
+            setFormFlowStatus('final_success');
+        } else {
+            let finalMessage = "Account created successfully. ";
+            if (fileUploadErrors.logo) finalMessage += `However, the business logo could not be uploaded: ${fileUploadErrors.logo} `;
+            if (fileUploadErrors.profile) finalMessage += `The profile image could not be uploaded: ${fileUploadErrors.profile} `;
+            finalMessage += "You can manage these from your dashboard.";
+            formState.setGeneralError(finalMessage);
+            setFormFlowStatus('final_success_with_issues');
+        }
+
     }, [formState, contextLogin]);
 
 

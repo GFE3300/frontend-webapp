@@ -3,7 +3,7 @@ import DashboardLayout from '../features/dashboard/DashboardLayout';
 import StatCard from '../features/dashboard/StatCard';
 import Icon from '../components/common/Icon';
 import { useAuth } from '../contexts/AuthContext';
-import ProductsTable from '../features/products_table/subcomponents/ProductsTable';
+import ProductsTable from '../features/products_table/ProductsTable';
 
 const BusinessDashboardPage = () => {
     const { user } = useAuth();

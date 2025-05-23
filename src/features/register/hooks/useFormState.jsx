@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import * as yup from 'yup';
-import { scriptLines_useFormState } from '../utils/script_lines';
+import { scriptLines_useFormState as scriptLines } from '../utils/script_lines';
 
 /**
  * Custom hook for managing multi-step form state with validation, persistence, and navigation context.
@@ -39,69 +39,105 @@ export const useFormState = (initialFormStateData = {}) => {
     const TOTAL_STEPS = 6; // 0:Info, 1:Location, 2:Logo, 3:Profile, 4:Preferences, 5:ProfileImage
     const SESSION_STORAGE_KEY = 'formRegistrationState'; // More specific key (Internal, not typically localized)
 
+    const defaultInitialData = {
+        businessName: '',
+        businessEmail: '',
+        businessUsername: '',
+        businessPhone: '',
+        businessWebsite: '',
+        businessDescription: '', // NEW
+        businessTags: [],
+        address: { // This is for BUSINESS address from Step1Location
+            street: '', city: '', state: '', postalCode: '', country: '', formattedAddress: '',
+        },
+        locationCoords: { lat: 0, lng: 0 },
+        businessLogoFile: null,
+        existingBusinessLogoUrl: '',
+        name: '', // User's first name
+        lastName: '', // User's last name
+        role: '', // User's role in the business
+        email: '', // User's email
+        phone: '', // User's phone
+        password: '',
+        confirmPassword: '',
+        timezone: '',
+        preferredChannel: '',
+        currency: '',
+        dailySummaryTime: '',
+        language: '',
+        referralSources: [],
+        acceptTerms: false,
+        profileImageFile: null,
+        existingProfileImageUrl: '',
+        ...initialFormStateData // Allows override from component prop
+    };
+
     const STEP_VALIDATIONS = useMemo(() => ({
         0: yup.object().shape({ // Step 0: Business Information
-            businessName: yup.string().required(scriptLines_useFormState.validation.businessNameRequired),
-            businessEmail: yup.string().email(scriptLines_useFormState.validation.emailInvalid).required(scriptLines_useFormState.validation.businessEmailRequired),
-            businessUsername: yup.string().matches(/^[a-zA-Z0-9_]+$/, scriptLines_useFormState.validation.businessUsernameInvalidFormat).required(scriptLines_useFormState.validation.businessUsernameRequired),
-            businessPhone: yup.string().required(scriptLines_useFormState.validation.businessPhoneRequired),
-            businessTags: yup.array().min(1, scriptLines_useFormState.validation.businessTagsMin).required(),
-            businessWebsite: yup.string().url(scriptLines_useFormState.validation.businessWebsiteInvalidUrl).nullable(), // Using the exact original string via scriptLines_useFormState
+            businessName: yup.string().required(scriptLines.validation.businessNameRequired),
+            businessEmail: yup.string().email(scriptLines.validation.emailInvalid).required(scriptLines.validation.businessEmailRequired),
+            businessUsername: yup.string()
+                .matches(/^[a-zA-Z0-9_.-]+$/, scriptLines.validation.businessUsernameInvalidFormat) // Allow . and -
+                .required(scriptLines.validation.businessUsernameRequired),
+            businessPhone: yup.string().required(scriptLines.validation.businessPhoneRequired),
+            businessTags: yup.array().min(1, scriptLines.validation.businessTagsMin).required(),
+            businessWebsite: yup.string().url(scriptLines.validation.businessWebsiteInvalidUrl).nullable(),
         }),
         1: yup.object().shape({ // Step 1: Business Location
             locationCoords: yup.object().shape({
                 lat: yup.number().required(),
                 lng: yup.number().required(),
-            }).typeError(scriptLines_useFormState.validation.locationRequiredOnMap).required(scriptLines_useFormState.validation.locationRequiredOnMap),
+            }).typeError(scriptLines.validation.locationRequiredOnMap).required(scriptLines.validation.locationRequiredOnMap),
             address: yup.object().shape({
-                street: yup.string().required(scriptLines_useFormState.validation.addressStreetRequired),
-                city: yup.string().required(scriptLines_useFormState.validation.addressCityRequired),
-                postalCode: yup.string().required(scriptLines_useFormState.validation.addressPostalCodeRequired),
-                country: yup.string().required(scriptLines_useFormState.validation.addressCountryRequired),
-            }).typeError(scriptLines_useFormState.validation.addressDetailsRequired).required(scriptLines_useFormState.validation.addressDetailsRequired),
+                street: yup.string().required(scriptLines.validation.addressStreetRequired),
+                city: yup.string().required(scriptLines.validation.addressCityRequired),
+                postalCode: yup.string().required(scriptLines.validation.addressPostalCodeRequired),
+                country: yup.string().required(scriptLines.validation.addressCountryRequired),
+            }).typeError(scriptLines.validation.addressDetailsRequired).required(scriptLines.validation.addressDetailsRequired),
         }),
         2: yup.object().shape({ // Step 2: Business Logo
             businessLogoFile: yup.mixed().nullable()
-            // .test('fileSize', scriptLines_useFormState.validation.logoFileSizeTooLarge, value => !value || (value && value.size <= 5 * 1024 * 1024))
-            // .test('fileType', scriptLines_useFormState.validation.logoFileTypeUnsupported, value => !value || (value && ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(value.type)))
+            // .test('fileSize', scriptLines.validation.logoFileSizeTooLarge, value => !value || (value && value.size <= 5 * 1024 * 1024))
+            // .test('fileType', scriptLines.validation.logoFileTypeUnsupported, value => !value || (value && ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(value.type)))
         }),
         3: yup.object().shape({ // Step 3: Your Profile
-            name: yup.string().required(scriptLines_useFormState.validation.profileNameRequired),
-            email: yup.string().email(scriptLines_useFormState.validation.emailInvalid).required(scriptLines_useFormState.validation.profileEmailRequired),
-            phone: yup.string().required(scriptLines_useFormState.validation.profilePhoneRequired),
+            name: yup.string().required(scriptLines.validation.profileNameRequired),
+            email: yup.string().email(scriptLines.validation.emailInvalid).required(scriptLines.validation.profileEmailRequired),
+            phone: yup.string().required(scriptLines.validation.profilePhoneRequired),
             password: yup.string()
-                .min(8, scriptLines_useFormState.validation.passwordMinLength)
-                .matches(/[A-Z]/, scriptLines_useFormState.validation.passwordRequiresUppercase)
-                .matches(/[a-z]/, scriptLines_useFormState.validation.passwordRequiresLowercase)
-                .matches(/[0-9]/, scriptLines_useFormState.validation.passwordRequiresNumber)
-                .matches(/[\W_]/, scriptLines_useFormState.validation.passwordRequiresSpecialChar)
-                .required(scriptLines_useFormState.validation.passwordRequired),
+                .min(8, scriptLines.validation.passwordMinLength)
+                .matches(/[A-Z]/, scriptLines.validation.passwordRequiresUppercase)
+                .matches(/[a-z]/, scriptLines.validation.passwordRequiresLowercase)
+                .matches(/[0-9]/, scriptLines.validation.passwordRequiresNumber)
+                .matches(/[\W_]/, scriptLines.validation.passwordRequiresSpecialChar)
+                .required(scriptLines.validation.passwordRequired),
             confirmPassword: yup.string()
-                .oneOf([yup.ref('password')], scriptLines_useFormState.validation.confirmPasswordMatch)
-                .required(scriptLines_useFormState.validation.confirmPasswordRequired),
+                .oneOf([yup.ref('password')], scriptLines.validation.confirmPasswordMatch)
+                .required(scriptLines.validation.confirmPasswordRequired),
             role: yup.string().nullable(),
         }),
         4: yup.object().shape({ // Step 4: Preferences
-            timezone: yup.string().required(scriptLines_useFormState.validation.timezoneRequired),
-            currency: yup.string().required(scriptLines_useFormState.validation.currencyRequired),
-            language: yup.string().required(scriptLines_useFormState.validation.languageRequired),
-            acceptTerms: yup.boolean().oneOf([true], scriptLines_useFormState.validation.acceptTermsRequired),
+            timezone: yup.string().required(scriptLines.validation.timezoneRequired),
+            currency: yup.string().required(scriptLines.validation.currencyRequired),
+            language: yup.string().required(scriptLines.validation.languageRequired),
+            acceptTerms: yup.boolean().oneOf([true], scriptLines.validation.acceptTermsRequired),
             preferredChannel: yup.string().nullable(),
             dailySummaryTime: yup.string().nullable(),
             referralSources: yup.array().nullable(),
         }),
         5: yup.object().shape({ // Step 5: Profile Image
             profileImage: yup.mixed().nullable()
-            // .test('fileSize', scriptLines_useFormState.validation.profileImageFileSizeTooLarge, value => ...)
-            // .test('fileType', scriptLines_useFormState.validation.profileImageFileTypeUnsupported, value => ...)
+            // .test('fileSize', scriptLines.validation.profileImageFileSizeTooLarge, value => ...)
+            // .test('fileType', scriptLines.validation.profileImageFileTypeUnsupported, value => ...)
         }),
-    }), [scriptLines_useFormState]); // scriptLines_useFormState dependency added, though it's static import
+    }), [scriptLines]); // scriptLines dependency added, though it's static import
 
     // ===========================================================================
     // State Management
     // ===========================================================================
     const [state, setState] = useState(() => {
         let persistedState = {};
+        // ... (session storage loading logic)
         if (typeof window !== 'undefined') {
             try {
                 const item = sessionStorage.getItem(SESSION_STORAGE_KEY);
@@ -109,12 +145,12 @@ export const useFormState = (initialFormStateData = {}) => {
                     persistedState = JSON.parse(item);
                 }
             } catch (error) {
-                console.error(scriptLines_useFormState.log.failedToParseSessionStorage, error);
+                console.error(scriptLines.log.failedToParseSessionStorage, error);
             }
         }
         return {
             currentStep: persistedState.currentStep || 0,
-            formData: { ...initialFormStateData, ...persistedState.formData },
+            formData: { ...defaultInitialData, ...persistedState.formData }, // Use defaultInitialData
             errors: {},
             generalError: null,
             visitedSteps: new Set(
@@ -134,7 +170,7 @@ export const useFormState = (initialFormStateData = {}) => {
     // ===========================================================================
     // Persistence Layer
     // ===========================================================================
-    useEffect(() => {
+     useEffect(() => {
         if (typeof window !== 'undefined') {
             const stateToPersist = {
                 currentStep: state.currentStep,
@@ -145,7 +181,7 @@ export const useFormState = (initialFormStateData = {}) => {
             try {
                 sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(stateToPersist));
             } catch (error) {
-                console.error(scriptLines_useFormState.log.failedToSaveSessionStorage, error);
+                console.error(scriptLines.log.failedToSaveSessionStorage, error);
             }
         }
     }, [state.currentStep, state.formData, state.navigationHistory, state.visitedSteps]);
@@ -182,12 +218,12 @@ export const useFormState = (initialFormStateData = {}) => {
             setState(prev => ({
                 ...prev,
                 errors: { ...prev.errors, ...fieldErrors },
-                generalError: scriptLines_useFormState.error.form.correctErrorsInStep.replace('{stepNumber}', (stepToValidate + 1).toString()),
+                generalError: scriptLines.error.form.correctErrorsInStep.replace('{stepNumber}', (stepToValidate + 1).toString()),
                 stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? false : v)),
             }));
             return false;
         }
-    }, [state.formData, STEP_VALIDATIONS, scriptLines_useFormState.error.form.correctErrorsInStep]);
+    }, [state.formData, STEP_VALIDATIONS, scriptLines.error.form.correctErrorsInStep]);
 
     // ===========================================================================
     // Form Operations
@@ -275,7 +311,7 @@ export const useFormState = (initialFormStateData = {}) => {
     // Password Strength Calculator
     // ===========================================================================
     const calculatePasswordStrength = useCallback((password) => {
-        if (!password || password.length < 8) return scriptLines_useFormState.passwordStrength.weak;
+        if (!password || password.length < 8) return scriptLines.passwordStrength.weak;
         const strengthFactors = [
             /[A-Z]/.test(password), /\d/.test(password), /[^A-Za-z0-9]/.test(password)
         ];
@@ -283,10 +319,10 @@ export const useFormState = (initialFormStateData = {}) => {
         // Returning the localized string directly.
         // For more advanced i18n, might return keys like 'weak', 'fair', 'strong'
         // and let the UI component handle translation.
-        return strengthScore >= 3 ? scriptLines_useFormState.passwordStrength.strong :
-            strengthScore >= 2 ? scriptLines_useFormState.passwordStrength.fair :
-                scriptLines_useFormState.passwordStrength.weak;
-    }, [scriptLines_useFormState.passwordStrength]);
+        return strengthScore >= 3 ? scriptLines.passwordStrength.strong :
+            strengthScore >= 2 ? scriptLines.passwordStrength.fair :
+                scriptLines.passwordStrength.weak;
+    }, [scriptLines.passwordStrength]);
 
     // ===========================================================================
     // Form Submission (Conceptual - validates all steps)
@@ -301,7 +337,7 @@ export const useFormState = (initialFormStateData = {}) => {
                         ...prev,
                         currentStep: i,
                         submissionStatus: 'idle',
-                        generalError: scriptLines_useFormState.error.form.correctErrorsInStepTitleCase.replace('{stepNumber}', (i + 1).toString())
+                        generalError: scriptLines.error.form.correctErrorsInStepTitleCase.replace('{stepNumber}', (i + 1).toString())
                     }));
                     return false;
                 }
@@ -367,8 +403,8 @@ export const useFormState = (initialFormStateData = {}) => {
         submitForm,
         resetForm,
         setGeneralError,
-        passwordStrength,
-        isCurrentStepValid,
+        passwordStrength, // Assuming this is calculated and returned
+        isCurrentStepValid, // Assuming this is calculated and returned
         canGoNext: state.currentStep < TOTAL_STEPS - 1,
         canGoBack: state.currentStep > 0,
     };

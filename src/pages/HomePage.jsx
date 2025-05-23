@@ -65,16 +65,14 @@ const HomePage = () => {
                 categories={categories}
                 user={user}
             />
-
             {/* --- Weekly Special Banner --- */}
-            <WeeklySpecialBanner />
+            {/*<WeeklySpecialBanner /> */}
 
             {/* --- Featured Products & Promotions --- */}
             <FeaturedProducts />
 
             {/* --- About/Bakery Story --- */}
             <AboutSection />
-
             {/* --- Categories & Navigation --- */}
             <section className="section-padding bg-[var(--color-white)]">
                 <div className="container">

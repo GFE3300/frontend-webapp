@@ -303,8 +303,8 @@ const FormStep = ({
                         >
                             {isFinalStep
                                 ? (formState.submissionStatus === 'submitting'
-                                    ? <> <Icon name="progress_activity" className="animate-spin w-5 h-5 mr-2" /> {scriptLines.formStep.buttons.submitting} </>
-                                    : <> <Icon name="check_circle" className="w-5 h-5 mr-2" /> {scriptLines.formStep.buttons.completeRegistration} </>
+                                    ? <> <Icon name="progress_activity" className="animate-spin w-6 h-6 mr-2" /> {scriptLines.formStep.buttons.submitting} </>
+                                    : <> <Icon name="check_circle" className="w-6 h-6 mr-2" /> {scriptLines.formStep.buttons.completeRegistration} </>
                                 )
                                 : <> {scriptLines.formStep.buttons.continue} <Icon name="chevron_right" className="w-6 h-6" aria-hidden="true" /> </>
                             }
@@ -325,14 +325,14 @@ const FormStep = ({
                         role="alert"
                         data-testid="form-step-error"
                     >
-                        <Icon name="error" className="w-5 h-5 flex-shrink-0" />
+                        <Icon name="error" className="w-6 h-6 flex-shrink-0" />
                         <span className="font-semibold font-montserrat flex-grow">{localError}</span>
                         <button
                             onClick={() => setLocalError(null)}
                             className="ml-auto p-1 -mr-1 h-7 w-7 rounded-full hover:bg-white/20 transition-colors flex-shrink-0"
                             aria-label="Dismiss error" // Accessibility for close button
                         >
-                            <Icon name="close" className="w-5 h-5" />
+                            <Icon name="close" className="w-6 h-6" />
                         </button>
                     </motion.div>
                 )}

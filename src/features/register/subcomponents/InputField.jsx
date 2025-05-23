@@ -68,15 +68,18 @@ const InputField = memo(forwardRef(({
         <div className={`relative ${className}`}>
             {/* Label Animation Container */}
             <motion.div className="relative">
-                <label className="absolute -top-7 left-3 origin-bottom-left pointer-events-none">
+                <label className="absolute -top-7 left-3 origin-bottom-left pointer-events-none max-h-4.5 max-w-[80%]">
                     <motion.span
-                        className={`text-sm font-medium font-montserrat transition-colors duration-200 ${isFocused || hasValue
-                            ? 'text-rose-400 dark:text-rose-400'
-                            : 'text-neutral-700 dark:text-gray-300'
-                            }`}
+                        className={`text-sm overflow-hidden text-ellipsis whitespace-nowrap max-w-full font-medium font-montserrat transition-colors duration-200 ${
+                            isFocused || hasValue
+                                ? 'text-rose-400 dark:text-rose-400'
+                                : 'text-neutral-700 dark:text-gray-300'
+                        }`}
                         animate={{
                             y: isFocused || hasValue ? -24 : 0,
                             scale: isFocused || hasValue ? 0.85 : 1,
+                            height: 18,
+                            maxWidth: '100%'
                         }}
                         transition={animationConfig.labelSpring}
                     >

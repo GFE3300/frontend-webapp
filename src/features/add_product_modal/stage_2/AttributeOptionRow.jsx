@@ -1,0 +1,226 @@
+// 1. Imports
+import React, { memo, useCallback, useId } from 'react';
+import PropTypes from 'prop-types';
+// eslint-disable-next-line
+import { motion, useReducedMotion } from 'framer-motion';
+import { InputField } from '../../../features/register/subcomponents'; // Assuming path, ensure this InputField is robust
+import Icon from '../../../components/common/Icon'; // Assuming path
+
+/**
+ * Renders a single row for an attribute option within the AttributeGroupBuilder.
+ * It includes fields for the option's name, price adjustment, and a toggle for marking it as default.
+ * It also provides a button to remove the option.
+ *
+ * @component AttributeOptionRow
+ * @param {Object} props - Component properties.
+ * @param {Object} props.option - The attribute option data. (Required)
+ * @param {string} props.option.id - Unique ID for the option.
+ * @param {string} props.option.name - Name of the option.
+ * @param {number} [props.option.priceAdjustment=0] - Price adjustment for this option.
+ * @param {boolean} [props.option.isDefault=false] - Whether this option is the default.
+ * @param {number} props.groupIndex - The index of the parent attribute group. (Required)
+ * @param {number} props.optionIndex - The index of this option within its group. (Required)
+ * @param {function} props.onOptionChange - Callback when any field in the option changes. Receives `(groupIndex, optionIndex, fieldName, value)`. (Required)
+ * @param {function} props.onRemoveOption - Callback to remove this option. Receives `(groupIndex, optionIndex)`. (Required)
+ * @param {boolean} [props.isOnlyOption=false] - True if this is the only option in the group, disabling the remove button.
+ * @param {string} [props.errorName] - Validation error message for the option name.
+ * @param {string} [props.errorPriceAdjustment] - Validation error message for the price adjustment.
+ * @param {string} [props.currencySymbol="$"] - The currency symbol to display.
+ * @param {string} [props.themeColor="rose"] - Theme color for accents.
+ */
+const AttributeOptionRow = ({
+    option,
+    groupIndex,
+    optionIndex,
+    onOptionChange,
+    onRemoveOption,
+    isOnlyOption = false,
+    errorName,
+    errorPriceAdjustment,
+    currencySymbol = "$", // Default currency symbol
+    themeColor = "rose",   // Default theme
+}) => {
+    // ===========================================================================
+    // Configuration
+    // ===========================================================================
+    const prefersReducedMotion = useReducedMotion();
+    const generatedIdBase = useId(); // Unique base for IDs within this row
+
+    const THEME_CLASSES = {
+        rose: {
+            checkboxText: 'text-rose-600 dark:text-rose-400',
+            checkboxRing: 'focus:ring-rose-500 dark:focus:ring-rose-400',
+            checkboxCheckedBg: 'dark:checked:bg-rose-500 dark:checked:border-rose-500',
+            removeButtonRing: 'focus-visible:ring-red-500',
+        },
+        // Add other themes if needed
+    };
+    const currentTheme = THEME_CLASSES[themeColor] || THEME_CLASSES.rose;
+
+    const animationVariants = {
+        rowEnterExit: {
+            initial: { opacity: 0, y: prefersReducedMotion ? 0 : -10, scale: prefersReducedMotion ? 1 : 0.98 },
+            animate: { opacity: 1, y: 0, scale: 1 },
+            exit: { opacity: 0, y: prefersReducedMotion ? 0 : 10, scale: prefersReducedMotion ? 1 : 0.98, transition: { duration: 0.2 } },
+            transition: { type: "spring", stiffness: 300, damping: 25 }
+        }
+    };
+
+    // ===========================================================================
+    // Handlers
+    // ===========================================================================
+    const handleFieldChange = useCallback((field, value) => {
+        // Type coercion for price adjustment to ensure it's a number or null if empty
+        if (field === 'priceAdjustment') {
+            const parsedValue = parseFloat(value);
+            onOptionChange(groupIndex, optionIndex, field, isNaN(parsedValue) ? (value === '' ? null : 0) : parsedValue);
+        } else {
+            onOptionChange(groupIndex, optionIndex, field, value);
+        }
+    }, [groupIndex, optionIndex, onOptionChange]);
+
+    const handleRemoveClick = useCallback(() => {
+        onRemoveOption(groupIndex, optionIndex);
+    }, [groupIndex, optionIndex, onRemoveOption]);
+
+    // ===========================================================================
+    // Validation Logic (Props Validation)
+    // ===========================================================================
+    if (!option || typeof option.id !== 'string' || typeof option.name === 'undefined') { // name can be empty string but must be defined
+        console.error('AttributeOptionRow: Invalid `option` prop. Must be an object with at least `id` and `name`.');
+        return <div className="p-2 text-xs text-red-500 bg-red-100 rounded">Error: Invalid option data.</div>;
+    }
+    if (typeof groupIndex !== 'number' || typeof optionIndex !== 'number') {
+        console.error('AttributeOptionRow: `groupIndex` and `optionIndex` props are required and must be numbers.');
+        return <div className="p-2 text-xs text-red-500 bg-red-100 rounded">Error: Missing index props.</div>;
+    }
+    if (typeof onOptionChange !== 'function' || typeof onRemoveOption !== 'function') {
+        console.error('AttributeOptionRow: `onOptionChange` and `onRemoveOption` props are required functions.');
+        return <div className="p-2 text-xs text-red-500 bg-red-100 rounded">Error: Missing callback functions.</div>;
+    }
+
+    // ===========================================================================
+    // Rendering Logic
+    // ===========================================================================
+    return (
+        <motion.div
+            layout // Enables shared layout animation with parent (AttributeGroupBuilder)
+            variants={animationVariants.rowEnterExit}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="attribute-option-row flex flex-col sm:flex-row sm:items-end gap-y-3 sm:gap-x-3 px-3 py-3.5 border border-neutral-200 dark:border-neutral-600/80 rounded-lg bg-white dark:bg-neutral-700/50 shadow-sm hover:shadow-md transition-shadow duration-200"
+            role="group" // Each row is a group of related inputs
+            aria-labelledby={`${generatedIdBase}-option-name-label`} // Labelled by its name field
+        >
+            {/* Option Name Input */}
+            <div className="flex flex-col justify-end h-15 w-full sm:flex-grow">
+                <InputField
+                    id={`${generatedIdBase}-option-name`} // Unique ID for the input
+                    label="Option Name" // Accessible label for the InputField
+                    value={option.name}
+                    onChange={(e) => handleFieldChange('name', e.target.value)}
+                    placeholder="e.g., Small, Almond Milk"
+                    required // Visually indicate requirement if InputField supports it
+                    error={errorName}
+                    maxLength={50}
+                    hidelabel // InputField manages its own floating label; this hides an additional static one
+                    classNameWrapper="mb-0" // Remove default bottom margin from InputField
+                    inputClassName="text-sm sm:text-base"
+                    aria-label={`Name for option ${optionIndex + 1}`} // More specific ARIA label
+                />
+                {/* Hidden label for ARIA association for the group */}
+                <label id={`${generatedIdBase}-option-name-label`} className="sr-only">
+                    Attribute Option: {option.name || `Option ${optionIndex + 1}`}
+                </label>
+            </div>
+
+            {/* Price Adjustment Input */}
+            <div className="flex flex-col justify-end h-15 sm:w-36 flex-shrink-0">
+                <InputField
+                    id={`${generatedIdBase}-price-adj`}
+                    label={`Price Adj. (${currencySymbol})`}
+                    type="number"
+                    value={option.priceAdjustment === null || typeof option.priceAdjustment === 'undefined' ? '' : option.priceAdjustment} // Handle null/undefined for empty display
+                    onChange={(e) => handleFieldChange('priceAdjustment', e.target.value)}
+                    placeholder={`e.g., +0.50`} // Simplified placeholder
+                    step="0.01" // Allow decimal inputs
+                    error={errorPriceAdjustment}
+                    hidelabel
+                    classNameWrapper="mb-0"
+                    inputClassName="text-sm sm:text-base text-right pr-8" // Text right, space for suffix
+                    suffix={currencySymbol} // InputField should support a suffix prop
+                    aria-label={`Price adjustment for option ${optionIndex + 1}`}
+                />
+            </div>
+
+            {/* Default Toggle Checkbox */}
+            <div className="flex items-center justify-start sm:justify-center sm:pb-[0.4rem] sm:pt-0 pt-1"> {/* Alignment adjustment */}
+                <input
+                    type="checkbox"
+                    id={`${generatedIdBase}-default-option`}
+                    checked={!!option.isDefault} // Ensure boolean
+                    onChange={(e) => handleFieldChange('isDefault', e.target.checked)}
+                    className={`h-4 w-4 sm:h-5 sm:w-5 rounded border-neutral-300 dark:border-neutral-500
+                                ${currentTheme.checkboxText} ${currentTheme.checkboxRing} ${currentTheme.checkboxCheckedBg}
+                                focus:ring-offset-2 dark:focus:ring-offset-neutral-700/50
+                                transition-colors duration-150`}
+                    aria-labelledby={`${generatedIdBase}-default-label`}
+                />
+                <label
+                    id={`${generatedIdBase}-default-label`}
+                    htmlFor={`${generatedIdBase}-default-option`}
+                    className="ml-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 cursor-pointer"
+                >
+                    Default
+                </label>
+            </div>
+
+            {/* Remove Option Button */}
+            <button
+                type="button"
+                onClick={handleRemoveClick}
+                disabled={isOnlyOption}
+                className={`w-full sm:w-auto flex items-center justify-center p-2 sm:h-9 sm:w-9
+                            text-neutral-500 hover:text-red-500 dark:text-neutral-400 dark:hover:text-red-300 
+                            rounded-md sm:rounded-full 
+                            transition-colors duration-150 focus:outline-none focus-visible:ring-2 
+                            ${currentTheme.removeButtonRing}
+                            focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-700/50
+                            disabled:opacity-40 disabled:hover:text-neutral-500 disabled:cursor-not-allowed
+                            hover:bg-neutral-100 dark:hover:bg-neutral-600/50
+                            bg-neutral-50 dark:bg-neutral-700/30 sm:bg-transparent sm:dark:bg-transparent
+                            mt-2 sm:mt-0 sm:self-end`} // Ensure it aligns nicely at the end
+                aria-label={`Remove option ${option.name || `Option ${optionIndex + 1}`}`}
+            >
+                <Icon name="remove_circle_outline" className="w-6 h-6" />
+            </button>
+        </motion.div>
+    );
+};
+
+AttributeOptionRow.propTypes = {
+    option: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired, // Can be empty string initially
+        priceAdjustment: PropTypes.number, // Can be null or undefined for empty input
+        isDefault: PropTypes.bool,
+    }).isRequired,
+    groupIndex: PropTypes.number.isRequired,
+    optionIndex: PropTypes.number.isRequired,
+    onOptionChange: PropTypes.func.isRequired,
+    onRemoveOption: PropTypes.func.isRequired,
+    isOnlyOption: PropTypes.bool,
+    errorName: PropTypes.string,
+    errorPriceAdjustment: PropTypes.string,
+    currencySymbol: PropTypes.string,
+    themeColor: PropTypes.oneOf(['rose' /* , add other themes here */]),
+};
+
+AttributeOptionRow.defaultProps = {
+    isOnlyOption: false,
+    currencySymbol: "$",
+    themeColor: "rose",
+};
+
+export default memo(AttributeOptionRow);
