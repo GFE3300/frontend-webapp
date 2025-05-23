@@ -1,93 +1,92 @@
-// frontend/src/features/add_product_modal/hooks/useAddProductForm.js
-import { useState, useCallback, useMemo, useEffect } from 'react'; // Added useEffect
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import * as yup from 'yup';
+import scriptLines from '../utils/script_lines'; // Added import for scriptLines
 
-// ... (Keep all your existing schemas: step1Schema, optionSchema, etc.) ...
 // --- STAGE 1: Basic Data ---
 const step1Schema = yup.object().shape({
-    productName: yup.string().required("Product name is required.").max(100, "Name too long (max 100 chars)."),
-    subtitle: yup.string().max(150, "Subtitle too long (max 150 chars).").nullable(),
-    description: yup.string().max(1000, "Description too long (max 1000 chars).").nullable(),
-    category: yup.string().required("Category is required."), // Store category ID
+    productName: yup.string().required(scriptLines.error_productName_required).max(100, scriptLines.error_productName_maxLength),
+    subtitle: yup.string().max(150, scriptLines.error_subtitle_maxLength).nullable(),
+    description: yup.string().max(1000, scriptLines.error_description_maxLength).nullable(),
+    category: yup.string().required(scriptLines.error_category_required),
     productAttributes: yup.array().of(
-        yup.object().shape({ // This is the shape of how tags are STORED in formData
-            id: yup.string().required(), // This is the tag's actual ID
-            label: yup.string().required(), // This is the tag's name
+        yup.object().shape({
+            id: yup.string().required(),
+            label: yup.string().required(),
             iconName: yup.string().nullable(),
         })
-    ).max(10, "Maximum 10 tags allowed.").nullable(),
-    productImage: yup.mixed().nullable(), // Can be File, URL string, or null
+    ).max(10, scriptLines.error_productAttributes_maxLength).nullable(),
+    productImage: yup.mixed().nullable(),
 });
 
 // --- STAGE 2: Editable Attributes ---
 const optionSchema = yup.object().shape({
-    id: yup.string().required(), // Can be temp client ID or backend UUID
-    name: yup.string().required("Option name is required.").max(50, "Option name too long."),
-    priceAdjustment: yup.number().typeError("Price adjustment must be a number.").default(0).nullable(),
+    id: yup.string().required(),
+    name: yup.string().required(scriptLines.error_optionName_required).max(50, scriptLines.error_optionName_maxLength),
+    priceAdjustment: yup.number().typeError(scriptLines.error_priceAdjustment_type).default(0).nullable(),
     isDefault: yup.boolean().default(false),
-    display_order: yup.number().integer().min(0).default(0).nullable(), // Added
+    display_order: yup.number().integer().min(0).default(0).nullable(),
 });
 
 const editableAttributeSchema = yup.object().shape({
-    id: yup.string().required(), // Can be temp client ID or backend UUID
-    name: yup.string().required("Attribute group name is required.").max(50, "Group name too long."),
-    type: yup.string().oneOf(['single_select', 'multi_select']).required("Selection type is required."),
+    id: yup.string().required(),
+    name: yup.string().required(scriptLines.error_attributeGroupName_required).max(50, scriptLines.error_attributeGroupName_maxLength),
+    type: yup.string().oneOf(['single_select', 'multi_select']).required(scriptLines.error_attributeType_required),
     isRequired: yup.boolean().default(false),
-    options: yup.array().of(optionSchema).min(1, "At least one option is required for an attribute group.").max(20, "Max 20 options per group."),
-    display_order: yup.number().integer().min(0).default(0).nullable(), // Added
+    options: yup.array().of(optionSchema).min(1, scriptLines.error_attributeOptions_minLength).max(20, scriptLines.error_attributeOptions_maxLength),
+    display_order: yup.number().integer().min(0).default(0).nullable(),
 });
 
 const step2Schema = yup.object().shape({
-    editableAttributes: yup.array().of(editableAttributeSchema).max(5, "Maximum 5 attribute groups allowed.").nullable(),
+    editableAttributes: yup.array().of(editableAttributeSchema).max(5, scriptLines.error_editableAttributes_maxLength).nullable(),
 });
 
 // --- STAGE 3: Ingredients ---
 const recipeComponentSchema = yup.object().shape({
-    id: yup.string().required(), // Can be temp client ID or backend UUID
-    inventoryItemId: yup.string().required("Ingredient item is required."), // FK to InventoryItem
-    inventoryItemName: yup.string().nullable(), // For display, convenience
-    quantity: yup.number().typeError("Quantity must be a number.").required("Quantity is required.").min(0.000001, "Quantity must be positive."),
-    unit: yup.string().required("Unit is required.").max(20, "Unit too long."),
-    display_order: yup.number().integer().min(0).default(0).nullable(), // Added
+    id: yup.string().required(),
+    inventoryItemId: yup.string().required(scriptLines.error_recipeComponent_inventoryItem_required),
+    inventoryItemName: yup.string().nullable(),
+    quantity: yup.number().typeError(scriptLines.error_recipeComponent_quantity_type).required(scriptLines.error_recipeComponent_quantity_required).min(0.000001, scriptLines.error_recipeComponent_quantity_min),
+    unit: yup.string().required(scriptLines.error_recipeComponent_unit_required).max(20, scriptLines.error_recipeComponent_unit_maxLength),
+    display_order: yup.number().integer().min(0).default(0).nullable(),
 });
 
 const step3Schema = yup.object().shape({
-    productType: yup.string().required("Product type is required.").oneOf(['made_in_house', 'resold_item']),
+    productType: yup.string().required(scriptLines.error_productType_required).oneOf(['made_in_house', 'resold_item']),
     recipeComponents: yup.array().when('productType', {
         is: 'made_in_house',
-        then: (schema) => schema.of(recipeComponentSchema).min(1, "At least one ingredient is required for made-in-house products.").nullable(), // Allow nullable for initial state if user switches type
-        otherwise: (schema) => schema.nullable().max(0, "Resold items cannot have ingredients."), // Ensure empty for resold
+        then: (schema) => schema.of(recipeComponentSchema).min(1, scriptLines.error_recipeComponents_minLength_madeInHouse).nullable(),
+        otherwise: (schema) => schema.nullable().max(0, scriptLines.error_recipeComponents_maxLength_resold),
     }),
     recipeYields: yup.number().when('productType', {
         is: 'made_in_house',
-        then: (schema) => schema.typeError("Yield must be a number.").required("Recipe yield is required.").integer("Yield must be a whole number.").min(1, "Yield must be at least 1."),
-        otherwise: (schema) => schema.nullable().transform(value => (isNaN(value) ? 1 : value)).default(1), // Default to 1 for resold
+        then: (schema) => schema.typeError(scriptLines.error_recipeYields_type_madeInHouse).required(scriptLines.error_recipeYields_required_madeInHouse).integer(scriptLines.error_recipeYields_integer_madeInHouse).min(1, scriptLines.error_recipeYields_min_madeInHouse),
+        otherwise: (schema) => schema.nullable().transform(value => (isNaN(value) ? 1 : value)).default(1),
     }),
 });
 
 // --- STAGE 4: Pricing ---
 const step4Schema = yup.object().shape({
-    laborAndOverheadCost: yup.number().typeError("Cost must be a number.").min(0, "Cost cannot be negative.").nullable().default(0),
-    sellingPrice: yup.number().typeError("Price must be a number.").required("Selling price is required.").min(0, "Price cannot be negative."),
-    taxRateId: yup.string().nullable(), // Store tax rate ID
+    laborAndOverheadCost: yup.number().typeError(scriptLines.error_laborCost_type).min(0, scriptLines.error_laborCost_min).nullable().default(0),
+    sellingPrice: yup.number().typeError(scriptLines.error_sellingPrice_type).required(scriptLines.error_sellingPrice_required).min(0, scriptLines.error_sellingPrice_min),
+    taxRateId: yup.string().nullable(),
 });
 
 // --- STAGE 5: Discounts & Extras ---
 const appliedDiscountSchema = yup.object().shape({
-    id: yup.string().required(), // UI temporary ID or backend ProductAppliedDiscount ID
-    discount_master: yup.string().required("Master discount ID is required."), // FK to DiscountMaster
-    codeName: yup.string().nullable(), // For display convenience
-    description: yup.string().nullable(), // For display convenience
+    id: yup.string().required(),
+    discount_master: yup.string().required(scriptLines.error_appliedDiscount_masterId_required),
+    codeName: yup.string().nullable(),
+    description: yup.string().nullable(),
     discount_percentage_override: yup.number()
-        .typeError("Override percentage must be a number.")
-        .min(0, "Min 0%")
-        .max(100, "Max 100%")
+        .typeError(scriptLines.error_appliedDiscount_overridePercentage_type)
+        .min(0, scriptLines.error_appliedDiscount_overridePercentage_min)
+        .max(100, scriptLines.error_appliedDiscount_overridePercentage_max)
         .nullable(),
 });
 
 const step5Schema = yup.object().shape({
     appliedDiscounts: yup.array().of(appliedDiscountSchema).nullable(),
-    additionalNotes: yup.string().max(500, "Notes too long (max 500 chars).").nullable(),
+    additionalNotes: yup.string().max(500, scriptLines.error_additionalNotes_maxLength).nullable(),
     isTemplateCandidate: yup.boolean().default(false),
 });
 
@@ -107,23 +106,23 @@ const getInitialFormData = (initialProductData = null) => {
         _prevStep: 0, navigationDirection: 1,
     };
 
-    if (!initialProductData || Object.keys(initialProductData).length === 0) { // Check if empty object too
+    if (!initialProductData || Object.keys(initialProductData).length === 0) {
         return defaults;
     }
-    console.log("[getInitialFormData] Mapping from initialProductData:", initialProductData);
+    // console.log("[getInitialFormData] Mapping from initialProductData:", initialProductData); // Developer log, no localization needed
 
     return {
         ...defaults,
         productName: initialProductData.name || '',
         subtitle: initialProductData.subtitle || '',
         description: initialProductData.description || '',
-        category: initialProductData.category || '', // This is category ID
+        category: initialProductData.category || '',
         productAttributes: (initialProductData.product_tags_details || []).map(tag => ({
             id: tag.id,
             label: tag.name,
             iconName: tag.icon_name || null,
         })),
-        productImage: initialProductData.image_url || null, // Store URL, file handled separately
+        productImage: initialProductData.image_url || null,
 
         editableAttributes: (initialProductData.editable_attribute_groups || []).map(group => ({
             id: group.id || generateTempId('attr_group_'),
@@ -143,7 +142,7 @@ const getInitialFormData = (initialProductData = null) => {
         productType: initialProductData.product_type || 'made_in_house',
         recipeComponents: (initialProductData.recipe_components || []).map(comp => ({
             id: comp.id || generateTempId('comp_'),
-            inventoryItemId: comp.inventory_item || '', // This is InventoryItem ID
+            inventoryItemId: comp.inventory_item || '',
             inventoryItemName: comp.inventory_item_details?.name || '',
             quantity: comp.quantity != null ? Number(comp.quantity) : '',
             unit: comp.unit || '',
@@ -155,19 +154,19 @@ const getInitialFormData = (initialProductData = null) => {
 
         laborAndOverheadCost: initialProductData.labor_overhead_cost != null ? parseFloat(initialProductData.labor_overhead_cost) : null,
         sellingPrice: initialProductData.selling_price_excl_tax != null ? parseFloat(initialProductData.selling_price_excl_tax) : null,
-        taxRateId: initialProductData.tax_rate || null, // This is TaxRate ID
+        taxRateId: initialProductData.tax_rate || null,
 
         appliedDiscounts: (initialProductData.applied_product_discounts || []).map(ad => ({
             id: ad.id || generateTempId('applied_disc_'),
-            discount_master: ad.discount_master, // This is DiscountMaster ID
+            discount_master: ad.discount_master,
             codeName: ad.discount_master_code_name || '',
-            description: ad.discount_master_description || '', // Make sure your backend provides this if needed
+            description: ad.discount_master_description || '',
             discount_percentage_override: ad.discount_percentage_override != null ? parseFloat(ad.discount_percentage_override) : null,
         })),
         additionalNotes: initialProductData.additional_notes || '',
         isTemplateCandidate: initialProductData.is_template_candidate || false,
-        _prevStep: 0, // Reset navigation state
-        navigationDirection: 1, // Reset navigation state
+        _prevStep: 0,
+        navigationDirection: 1,
     };
 };
 
@@ -175,12 +174,10 @@ const getInitialFormData = (initialProductData = null) => {
 export const useAddProductForm = ({ initialData: initialProductDataFromProp = null } = {}) => {
     const [currentStep, setCurrentStep] = useState(1);
 
-    // Initialize formData using the helper, considering initialProductDataFromProp
     const [formData, setFormData] = useState(() => {
-        // Initial call on hook mount
-        console.log("[useAddProductForm useState Initializer] initialProductDataFromProp:", initialProductDataFromProp);
+        // console.log("[useAddProductForm useState Initializer] initialProductDataFromProp:", initialProductDataFromProp); // Developer log
         const data = getInitialFormData(initialProductDataFromProp);
-        console.log("[useAddProductForm useState Initializer] Initial formData:", data);
+        // console.log("[useAddProductForm useState Initializer] Initial formData:", data); // Developer log
         return data;
     });
 
@@ -190,15 +187,13 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
     const isEditMode = useMemo(() => !!initialProductDataFromProp, [initialProductDataFromProp]);
 
     useEffect(() => {
-        // This effect runs when initialProductDataFromProp changes AFTER the initial mount,
-        // or if the hook re-renders and initialProductDataFromProp has a new reference (even if same content).
-        console.log("[useAddProductForm Effect] Triggered. isEditMode:", isEditMode, "initialProductDataFromProp:", initialProductDataFromProp);
+        // console.log("[useAddProductForm Effect] Triggered. isEditMode:", isEditMode, "initialProductDataFromProp:", initialProductDataFromProp); // Developer log
         const newFormData = getInitialFormData(initialProductDataFromProp);
         setFormData(newFormData);
-        setCurrentStep(1); // Reset to first step
+        setCurrentStep(1);
         setErrors({});
         setStepSaved({});
-        console.log("[useAddProductForm Effect] Set formData to:", JSON.parse(JSON.stringify(newFormData)));
+        // console.log("[useAddProductForm Effect] Set formData to:", JSON.parse(JSON.stringify(newFormData))); // Developer log
     }, [initialProductDataFromProp, isEditMode]);
 
 
@@ -214,7 +209,7 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
             if (newErrors[baseFieldKey] && typeof newErrors[baseFieldKey] === 'string') {
                 delete newErrors[baseFieldKey];
             }
-            Object.keys(newErrors).forEach(errKey => { // Clear nested errors like 'editableAttributes[0].name'
+            Object.keys(newErrors).forEach(errKey => {
                 if (errKey.startsWith(baseFieldKey + '.') || errKey.startsWith(baseFieldKey + '[')) {
                     delete newErrors[errKey];
                 }
@@ -234,13 +229,10 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
                     });
                     return newErrs;
                 });
-            } else if (value === 'made_in_house' && (!formData.recipeComponents || formData.recipeComponents.length === 0)) {
-                // Optionally add a default empty ingredient if switching to made_in_house and no ingredients exist
-                // setFormData(prev => ({ ...prev, recipeComponents: [{ id: generateTempId('comp_'), inventoryItemId: '', quantity: '', unit: '' }] }));
             }
         }
         setStepSaved(prev => ({ ...prev, [currentStep]: false }));
-    }, [currentStep, formData.recipeComponents]); // Added formData.recipeComponents
+    }, [currentStep, formData.recipeComponents]);
 
     const updateFormData = useCallback((newFormDataChunk) => {
         setFormData(prev => ({ ...prev, ...newFormDataChunk }));
@@ -264,9 +256,6 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
         const schema = schemas[stepNumberToValidate - 1];
         if (!schema) return true;
 
-        // Create a new object for validation, ensuring all defaults from schema are applied if fields are missing in formData
-        // This is important because Yup might skip validation for undefined fields unless .defined() or .required() is used.
-        // Or, ensure your initial formData has ALL possible keys from ALL schemas.
         const dataToValidate = {
             productName: formData.productName,
             subtitle: formData.subtitle,
@@ -293,8 +282,8 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
                 const newErrors = { ...prevErrors };
                 const schemaFieldKeys = Object.keys(schema.fields);
                 schemaFieldKeys.forEach(key => {
-                    delete newErrors[key]; // Clear direct field errors
-                    Object.keys(newErrors).forEach(errorKey => { // Clear nested errors like 'editableAttributes[0].name'
+                    delete newErrors[key];
+                    Object.keys(newErrors).forEach(errorKey => {
                         if (errorKey.startsWith(key + '.') || errorKey.startsWith(key + '[')) {
                             delete newErrors[errorKey];
                         }
@@ -311,7 +300,7 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
                     stepErrors[error.path] = error.message;
                 });
             } else {
-                stepErrors[`step${stepNumberToValidate}_general`] = err.message || "An unknown validation error occurred.";
+                stepErrors[`step${stepNumberToValidate}_general`] = err.message || scriptLines.error_unknownValidation; // Used scriptLines here
             }
             setErrors(prevErrors => ({ ...prevErrors, ...stepErrors }));
             return false;
@@ -351,15 +340,14 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
     const isCurrentStepValid = useCallback(async () => {
         const schema = schemas[currentStep - 1];
         if (!schema) return true;
-        // Similar to validateStep, prepare data for validation
-        const dataToValidate = { /* ... construct dataToValidate from formData like in validateStep ... */
+        const dataToValidate = {
             productName: formData.productName, subtitle: formData.subtitle, description: formData.description, category: formData.category, productAttributes: formData.productAttributes, productImage: formData.productImage,
             editableAttributes: formData.editableAttributes, productType: formData.productType, recipeComponents: formData.recipeComponents, recipeYields: formData.recipeYields,
             laborAndOverheadCost: formData.laborAndOverheadCost, sellingPrice: formData.sellingPrice, taxRateId: formData.taxRateId,
             appliedDiscounts: formData.appliedDiscounts, additionalNotes: formData.additionalNotes, isTemplateCandidate: formData.isTemplateCandidate,
         };
         try {
-            await schema.validate(dataToValidate, { abortEarly: true }); // Abort early for quick check
+            await schema.validate(dataToValidate, { abortEarly: true });
             return true;
         } catch {
             return false;
@@ -367,8 +355,8 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
     }, [formData, currentStep, schemas]);
 
     const resetForm = useCallback(() => {
-        console.log("[useAddProductForm resetForm] Resetting form. initialProductDataFromProp:", initialProductDataFromProp);
-        setFormData(getInitialFormData(initialProductDataFromProp)); // Use prop here to reset to original edit data or defaults
+        // console.log("[useAddProductForm resetForm] Resetting form. initialProductDataFromProp:", initialProductDataFromProp); // Developer log
+        setFormData(getInitialFormData(initialProductDataFromProp));
         setErrors({});
         setCurrentStep(1);
         setStepSaved({});
@@ -382,6 +370,6 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
         TOTAL_STEPS,
         navigationDirection: formData.navigationDirection,
         goToStep,
-        isEditMode, // Expose edit mode status
+        isEditMode,
     };
 };

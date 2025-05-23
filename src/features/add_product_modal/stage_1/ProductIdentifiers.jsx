@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import Icon from '../../../components/common/Icon'; // Adjust path if necessary
 import CustomTagModal from './CustomTagModal'; // Adjust path if necessary
+import scriptLines from '../utils/script_lines'; // IMPORTED scriptLines
 
 /**
  * A component for managing a set of selectable product identifiers (tags/attributes).
@@ -12,7 +13,7 @@ import CustomTagModal from './CustomTagModal'; // Adjust path if necessary
  *
  * @component ProductIdentifiers
  * @param {Object} props - Component properties.
- * @param {string} [props.label="Product Attributes"] - A descriptive label for the entire section.
+ * @param {string} [props.label=scriptLines.productIdentifiers_defaultLabel] - A descriptive label for the entire section.
  * @param {Array<Object>} props.allAvailableIdentifiers - An array of all available identifier objects. Each object should have `id` (string, unique), `label` (string, display name), `iconName` (string, optional, for Icon component), and `isCustom` (boolean, optional). (Required)
  * @param {Array<string>} props.selectedIdentifiers - An array of `id` strings representing the currently selected identifiers. (Required)
  * @param {function} props.onToggleIdentifier - Callback function invoked when an identifier button is clicked. Receives the `id` of the toggled identifier. (Required)
@@ -22,14 +23,14 @@ import CustomTagModal from './CustomTagModal'; // Adjust path if necessary
  * @param {Object} [props.error] - An error object or string. If an object, can target specific parts like `error.list` for an array-level error, or `error.modal` for modal-related issues. If a string, treated as a general error for the component.
  */
 const ProductIdentifiers = ({
-    label = "Product Attributes",
+    label = scriptLines.productIdentifiers_defaultLabel, // Using scriptLines for default
     allAvailableIdentifiers = [],
     selectedIdentifiers = [],
     onToggleIdentifier,
     onCustomTagCreate,
     className = "",
     themeColor = "rose",
-    error, // General error for the component or specific error for the list
+    error,
     customTagCreationError,
 }) => {
     // ===========================================================================
@@ -48,9 +49,8 @@ const ProductIdentifiers = ({
             selectedTagBorder: 'border-rose-500',
             selectedTagText: 'text-white',
             selectedTagFocusRing: 'focus-visible:ring-rose-400',
-            unselectedTagFocusRing: 'focus-visible:ring-rose-500', // For consistency, or could be neutral
+            unselectedTagFocusRing: 'focus-visible:ring-rose-500',
         },
-        // Add other themes if needed
     };
     const currentTheme = THEME_CLASSES[themeColor] || THEME_CLASSES.rose;
 
@@ -73,21 +73,21 @@ const ProductIdentifiers = ({
     const openModal = useCallback(() => setIsModalOpen(true), []);
     const closeModal = useCallback(() => setIsModalOpen(false), []);
 
-const handleModalSubmit = useCallback(async (newTagData) => {
-    console.log("ProductIdentifiers: handleModalSubmit called with", newTagData); // ADD THIS
-    try {
-        await onCustomTagCreate(newTagData);
-        console.log("ProductIdentifiers: onCustomTagCreate succeeded."); // ADD THIS
-        closeModal(); 
-    } catch (error) {
-        console.error("ProductIdentifiers: Error caught in handleModalSubmit from onCustomTagCreate:", error); // ADD THIS
-    }
-}, [onCustomTagCreate, closeModal]);
+    const handleModalSubmit = useCallback(async (newTagData) => {
+        // console.log("ProductIdentifiers: handleModalSubmit called with", newTagData); // Dev log, no localization needed
+        try {
+            await onCustomTagCreate(newTagData);
+            // console.log("ProductIdentifiers: onCustomTagCreate succeeded."); // Dev log
+            closeModal();
+        } catch (error) {
+            console.error("ProductIdentifiers: Error caught in handleModalSubmit from onCustomTagCreate:", error); // Dev log
+            // Error is expected to be handled by the parent and passed back via `customTagCreationError`
+        }
+    }, [onCustomTagCreate, closeModal]);
 
     // ===========================================================================
     // Derived State / Calculations
     // ===========================================================================
-    // Memoize `existingLabels` to prevent re-calculation on every render if `allAvailableIdentifiers` hasn't changed.
     const existingLabels = useMemo(
         () => allAvailableIdentifiers.map(idfr => idfr.label),
         [allAvailableIdentifiers]
@@ -96,27 +96,27 @@ const handleModalSubmit = useCallback(async (newTagData) => {
     const generalError = typeof error === 'string' ? error : error?.list;
 
     // ===========================================================================
-    // Validation Logic (Props Validation)
+    // Validation Logic (Props Validation) - Using scriptLines for error messages
     // ===========================================================================
     if (!Array.isArray(allAvailableIdentifiers)) {
         console.error('ProductIdentifiers: `allAvailableIdentifiers` prop is required and must be an array.');
-        return <p className="text-sm text-red-600">Identifier data is missing or invalid.</p>;
+        return <p className="text-sm text-red-600">{scriptLines.productIdentifiers_error_missingData}</p>;
     }
     if (allAvailableIdentifiers.some(idfr => typeof idfr.id !== 'string' || typeof idfr.label !== 'string')) {
         console.error('ProductIdentifiers: Each item in `allAvailableIdentifiers` must have an `id` (string) and `label` (string).');
-        return <p className="text-sm text-red-600">Invalid identifier data structure.</p>;
+        return <p className="text-sm text-red-600">{scriptLines.productIdentifiers_error_invalidStructure}</p>;
     }
     if (!Array.isArray(selectedIdentifiers)) {
         console.error('ProductIdentifiers: `selectedIdentifiers` prop is required and must be an array of strings.');
-        return <p className="text-sm text-red-600">Selected identifiers data is missing or invalid.</p>;
+        return <p className="text-sm text-red-600">{scriptLines.productIdentifiers_error_missingSelectedData}</p>;
     }
     if (typeof onToggleIdentifier !== 'function') {
         console.error('ProductIdentifiers: `onToggleIdentifier` prop is required and must be a function.');
-        return <p className="text-sm text-red-600">Identifier toggle handler is missing.</p>;
+        return <p className="text-sm text-red-600">{scriptLines.productIdentifiers_error_missingToggleHandler}</p>;
     }
     if (typeof onCustomTagCreate !== 'function') {
         console.error('ProductIdentifiers: `onCustomTagCreate` prop is required and must be a function.');
-        return <p className="text-sm text-red-600">Custom tag creation handler is missing.</p>;
+        return <p className="text-sm text-red-600">{scriptLines.productIdentifiers_error_missingCreateHandler}</p>;
     }
 
     // ===========================================================================
@@ -124,7 +124,6 @@ const handleModalSubmit = useCallback(async (newTagData) => {
     // ===========================================================================
     return (
         <div className={`product-identifiers-container ${className}`} role="group" aria-labelledby={labelId}>
-            {/* Header: Label and "Add Tag" button */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 font-montserrat">
                 {label && (
                     <label id={labelId} className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 sm:mb-0">
@@ -137,14 +136,13 @@ const handleModalSubmit = useCallback(async (newTagData) => {
                     className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 
                                 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800
                                 ${currentTheme.addTagButtonText} ${currentTheme.addTagButtonHoverBg} ${currentTheme.addTagButtonFocusRing}`}
-                    aria-label="Add custom product attribute or tag"
+                    aria-label={scriptLines.productIdentifiers_addTag_ariaLabel}
                 >
-                    <Icon name="add_circle" className="w-6 h-6" /> {/* Updated icon size for consistency */}
-                    Add Tag
+                    <Icon name="add_circle" className="w-6 h-6" />
+                    {scriptLines.productIdentifiers_addTagButton}
                 </button>
             </div>
 
-            {/* General Error Display for the list */}
             {generalError && (
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -158,15 +156,14 @@ const handleModalSubmit = useCallback(async (newTagData) => {
                 </motion.div>
             )}
 
-            {/* Container for identifier buttons */}
             <div
-                className="flex flex-wrap gap-2.5 min-h-[3rem] p-1 border border-transparent" // min-height to prevent layout jumps, p-1 for focus rings
-                role="listbox" // Using listbox role for a set of selectable options
+                className="flex flex-wrap gap-2.5 min-h-[3rem] p-1 border border-transparent"
+                role="listbox"
                 aria-labelledby={labelId}
                 aria-multiselectable="true"
                 aria-describedby={listErrorId || undefined}
             >
-                <LayoutGroup> {/* Enables shared layout animations for children */}
+                <LayoutGroup>
                     <AnimatePresence initial={false}>
                         {allAvailableIdentifiers.map((identifier) => {
                             const isSelected = selectedIdentifiers.includes(identifier.id);
@@ -174,7 +171,7 @@ const handleModalSubmit = useCallback(async (newTagData) => {
                                 <motion.button
                                     key={identifier.id}
                                     type="button"
-                                    layout // Animate layout changes (add/remove/reorder)
+                                    layout
                                     variants={identifierButtonVariants}
                                     initial="initial"
                                     animate="animate"
@@ -192,7 +189,7 @@ const handleModalSubmit = useCallback(async (newTagData) => {
                                         }`}
                                     role="option"
                                     aria-selected={isSelected}
-                                    aria-pressed={isSelected} // Use aria-pressed for toggle buttons
+                                    aria-pressed={isSelected}
                                 >
                                     {identifier.iconName && (
                                         <Icon name={identifier.iconName} className={`w-6 h-6 ${isSelected ? 'text-white opacity-90' : 'text-current opacity-70'}`} />
@@ -203,22 +200,19 @@ const handleModalSubmit = useCallback(async (newTagData) => {
                         })}
                     </AnimatePresence>
                 </LayoutGroup>
-                {/* Empty state message */}
                 {allAvailableIdentifiers.length === 0 && !generalError && (
                     <div className="w-full text-center py-3 text-sm text-neutral-500 dark:text-neutral-400 italic">
-                        No attributes defined yet. Click "Add Tag" to create one.
+                        {scriptLines.productIdentifiers_emptyState}
                     </div>
                 )}
             </div>
 
-            {/* Modal for creating custom tags */}
             <CustomTagModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 onSubmit={handleModalSubmit}
-                existingLabels={existingLabels} // Pass existing labels to prevent duplicates within the modal
+                existingLabels={existingLabels}
                 submissionError={customTagCreationError}
-            // availableIcons can be passed if CustomTagModal supports an icon picker
             />
         </div>
     );
@@ -236,17 +230,19 @@ ProductIdentifiers.propTypes = {
     onToggleIdentifier: PropTypes.func.isRequired,
     onCustomTagCreate: PropTypes.func.isRequired,
     className: PropTypes.string,
-    themeColor: PropTypes.oneOf(['rose' /*, add other themes here */]),
+    themeColor: PropTypes.oneOf(['rose']),
     error: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    customTagCreationError: PropTypes.string, // Added for completeness, though not directly localized here if it's just passed through
 };
 
 ProductIdentifiers.defaultProps = {
-    label: "Product Attributes",
+    label: scriptLines.productIdentifiers_defaultLabel, // Updated default prop
     allAvailableIdentifiers: [],
     selectedIdentifiers: [],
     className: "",
     themeColor: "rose",
     error: null,
+    customTagCreationError: null, // Added for completeness
 };
 
 export default memo(ProductIdentifiers);

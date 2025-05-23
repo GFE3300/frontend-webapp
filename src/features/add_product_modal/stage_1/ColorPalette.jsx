@@ -1,9 +1,7 @@
-// src/features/add_product_modal/subcomponents/ColorPalette.jsx
-
-// 1. Imports
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import Icon from '../../../components/common/Icon'; // Assuming Icon component path
+import scriptLines from '../utils/script_lines'; // Import the localization object
 
 /**
  * @component ColorPalette
@@ -36,29 +34,15 @@ const ColorPalette = ({
     // Configuration
     // ===========================================================================
 
-    // Derive ring offset classes from container background props.
-    // These classes ensure the focus/selection ring has a contrasting offset
-    // against the component's container background.
     const ringOffsetLightClass = containerBgLight.replace('bg-', 'ring-offset-');
     const ringOffsetDarkClass = containerBgDark.replace('dark:bg-', 'dark:ring-offset-');
 
-    // Icon properties for the selected state
     const selectedIconConfig = {
         name: "check",
-        className: "w-3.5 h-3.5 text-white pointer-events-none", // pointer-events-none for icon inside button
+        className: "w-3.5 h-3.5 text-white pointer-events-none",
         style: { fontSize: '0.9rem' },
         variations: { fill: 1, weight: 600, grade: 0, opsz: 18 },
     };
-
-    // ===========================================================================
-    // Validation
-    // ===========================================================================
-
-    // PropType validation handles most structural checks.
-    // If availableColors is empty, the component will render an empty div, which is acceptable.
-    // No specific runtime validation beyond PropTypes is deemed critical for this component's core rendering.
-    // For instance, if `availableColors` was required to have at least one item to render anything meaningful,
-    // a check like `if (!availableColors || availableColors.length === 0) return null;` could be added here.
 
     // ===========================================================================
     // Rendering Logic
@@ -66,26 +50,23 @@ const ColorPalette = ({
     return (
         <div className={`flex flex-wrap gap-2.5 py-1 ${className}`}>
             {availableColors.map((color) => {
-                // Determine color value and display name
                 const colorValue = typeof color === 'string' ? color : color.value;
                 const colorName = typeof color === 'string' ? colorValue : color.name || colorValue;
                 const isSelected = selectedColorValue === colorValue;
-
-                // Determine if the colorValue is a hex code or a Tailwind class
                 const isHexColor = colorValue.startsWith('#');
 
-                // Base classes for each color button
                 const baseButtonClasses = `w-6 h-6 rounded-full flex items-center justify-center 
                                          transition-all duration-200 ease-out transform
                                          focus:outline-none focus:ring-2 ${ringOffsetLightClass} ${ringOffsetDarkClass} focus:ring-rose-500`;
-
-                // Apply Tailwind background class directly if it's not a hex color
+                
                 const backgroundClass = isHexColor ? '' : colorValue;
 
-                // Conditional classes for selected vs. non-selected state
                 const stateClasses = isSelected
                     ? `ring-2 ring-rose-500 dark:ring-rose-400 ${ringOffsetLightClass} ${ringOffsetDarkClass} scale-110 shadow-md`
                     : `hover:scale-110 hover:shadow-sm border border-transparent hover:border-neutral-300 dark:hover:border-neutral-600`;
+
+                // Construct aria-label using localized prefix
+                const ariaLabel = `${scriptLines.colorPalette.selectColorPrefix} ${colorName}`;
 
                 return (
                     <button
@@ -94,11 +75,10 @@ const ColorPalette = ({
                         onClick={() => onColorSelect(colorValue)}
                         className={`${baseButtonClasses} ${backgroundClass} ${stateClasses}`}
                         style={isHexColor ? { backgroundColor: colorValue } : {}}
-                        aria-label={`Select color: ${colorName}`}
+                        aria-label={ariaLabel} // MODIFIED: Uses localized string
                         title={colorName}
                         aria-pressed={isSelected}
                     >
-                        {/* Checkmark Icon for selected color */}
                         {isSelected && (
                             <Icon
                                 name={selectedIconConfig.name}
@@ -134,8 +114,8 @@ ColorPalette.propTypes = {
 ColorPalette.defaultProps = {
     selectedColorValue: null,
     className: "",
-    containerBgLight: 'bg-neutral-50', // Default for light mode form backgrounds
-    containerBgDark: 'dark:bg-neutral-800', // Default for dark mode form backgrounds
+    containerBgLight: 'bg-neutral-50',
+    containerBgDark: 'dark:bg-neutral-800',
 };
 
 export default memo(ColorPalette);

@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon'; // Adjust path as needed
 import IconPicker from './IconPicker'; // Adjust path as needed
+import scriptLines from '../utils/script_lines'; // IMPORTED scriptLines
 
-// Default icons for custom tags - can be overridden via props
 export const defaultCustomTagIcons = [
     { name: 'label', label: 'Generic Tag' }, { name: 'sell', label: 'Price Tag' },
     { name: 'local_pizza', label: 'Pizza' }, { name: 'eco', label: 'Eco-friendly' },
@@ -43,14 +43,14 @@ const CustomTagModal = ({
     onSubmit,
     existingLabels,
     availableIcons = defaultCustomTagIcons,
-    submissionError // New prop for displaying errors from parent submission attempts
+    submissionError
 }) => {
     // ===========================================================================
     // State & Refs
     // ===========================================================================
     const [tagName, setTagName] = useState('');
     const [selectedIconName, setSelectedIconName] = useState(availableIcons[0]?.name || '');
-    const [internalError, setInternalError] = useState(''); // For local validation errors (e.g., empty name)
+    const [internalError, setInternalError] = useState('');
     const inputRef = useRef(null);
 
     // ===========================================================================
@@ -73,12 +73,9 @@ const CustomTagModal = ({
     // ===========================================================================
     useEffect(() => {
         if (isOpen) {
-            // Reset form state when modal opens
             setTagName('');
             setSelectedIconName(availableIcons[0]?.name || '');
-            setInternalError(''); // Clear internal validation errors
-            // `submissionError` is a prop and will be controlled by the parent.
-            // Focus the input field shortly after modal opens to allow for transition
+            setInternalError('');
             const timer = setTimeout(() => inputRef.current?.focus(), 100);
             return () => clearTimeout(timer);
         }
@@ -89,35 +86,28 @@ const CustomTagModal = ({
     // ===========================================================================
     const handleTagNameChange = (e) => {
         setTagName(e.target.value);
-        if (internalError) setInternalError(''); // Clear internal error message on new input
+        if (internalError) setInternalError('');
     };
 
     const handleIconSelect = (iconName) => {
         setSelectedIconName(iconName);
     };
 
-    /**
-     * Handles the click on the "Create Tag" button.
-     * Validates the tag name for emptiness and uniqueness.
-     * Calls `onSubmit` prop with new tag data if valid.
-     */
     const handleCreateTagClick = () => {
         const trimmedName = tagName.trim();
 
-        // Validation for tag name
         if (!trimmedName) {
-            setInternalError('Tag name cannot be empty.');
+            setInternalError(scriptLines.customTagModal_error_nameEmpty);
             inputRef.current?.focus();
             return;
         }
         if (existingLabels.map(label => label.toLowerCase()).includes(trimmedName.toLowerCase())) {
-            setInternalError(`A tag named "${trimmedName}" already exists.`);
+            setInternalError(scriptLines.customTagModal_error_nameExists.replace('{tagName}', trimmedName));
             inputRef.current?.focus();
             return;
         }
 
-        setInternalError(''); // Clear any internal errors before calling onSubmit
-        // If validation passes, call onSubmit prop. Parent handles actual creation & modal closing.
+        setInternalError('');
         onSubmit({ label: trimmedName, iconName: selectedIconName });
     };
 
@@ -134,31 +124,27 @@ const CustomTagModal = ({
                     animate="visible"
                     exit="exit"
                     className="fixed inset-0 z-40 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 font-montserrat"
-                    onClick={onClose} // Close modal on backdrop click
+                    onClick={onClose}
                     data-testid="custom-tag-modal-backdrop"
                 >
-                    {/* Modal Content Wrapper */}
                     <motion.div
                         key="custom-tag-modal-content"
                         variants={motionModalVariants}
                         className="relative bg-white dark:bg-neutral-800 rounded-xl shadow-2xl w-full max-w-md p-6 sm:p-8"
-                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal content
+                        onClick={(e) => e.stopPropagation()}
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="custom-tag-modal-title"
                         data-testid="custom-tag-modal-content"
                     >
-                        {/* Modal Header */}
                         <h2 id="custom-tag-modal-title" className="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100 mb-6">
-                            Create Custom Tag
+                            {scriptLines.customTagModal_title}
                         </h2>
 
-                        {/* Tag Creation - NO <form> TAG HERE. Use a div. */}
                         <div className="space-y-5">
-                            {/* Tag Name Input Field */}
                             <div>
                                 <label htmlFor="customTagName" className="block ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-                                    Tag Name
+                                    {scriptLines.customTagModal_tagNameLabel}
                                 </label>
                                 <input
                                     ref={inputRef}
@@ -166,7 +152,7 @@ const CustomTagModal = ({
                                     id="customTagName"
                                     value={tagName}
                                     onChange={handleTagNameChange}
-                                    placeholder="e.g., Sugar Free, Staff Pick"
+                                    placeholder={scriptLines.customTagModal_tagNamePlaceholder}
                                     className={`w-full px-3.5 py-2.5 border rounded-full text-sm
                                                 bg-white dark:bg-neutral-700
                                                 text-neutral-900 dark:text-neutral-100
@@ -181,10 +167,9 @@ const CustomTagModal = ({
                                 {internalError && <p id="tag-name-error" className="mt-1.5 ml-3 text-xs text-red-600 dark:text-red-400" role="alert">{internalError}</p>}
                             </div>
 
-                            {/* Icon Picker Section */}
                             <div>
                                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-                                    Choose an Icon (Optional)
+                                    {scriptLines.customTagModal_chooseIconLabel}
                                 </label>
                                 <IconPicker
                                     availableIcons={availableIcons}
@@ -194,38 +179,35 @@ const CustomTagModal = ({
                                 />
                             </div>
 
-                            {/* Display submission error from parent if no internal error */}
                             {submissionError && !internalError && (
                                 <p className="mt-2 text-xs text-red-600 dark:text-red-400 text-center bg-red-50 dark:bg-red-900/20 p-2 rounded-md" role="alert">
                                     {submissionError}
                                 </p>
                             )}
 
-                            {/* Action Buttons: Cancel and Create */}
                             <div className="flex items-center justify-end gap-3 pt-3">
                                 <button
-                                    type="button" // Explicitly type="button"
+                                    type="button"
                                     onClick={onClose}
                                     className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded-full transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
                                 >
-                                    Cancel
+                                    {scriptLines.common_cancel}
                                 </button>
                                 <button
-                                    type="button" // Explicitly type="button"
-                                    onClick={handleCreateTagClick} // Call the specific handler
+                                    type="button"
+                                    onClick={handleCreateTagClick}
                                     className="px-5 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-full transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800"
                                 >
-                                    Create Tag
+                                    {scriptLines.customTagModal_createTagButton}
                                 </button>
                             </div>
-                        </div> {/* End of the div that replaced the form */}
+                        </div>
 
-                        {/* Close Button (Top Right) */}
                         <button
                             type="button"
                             onClick={onClose}
                             className="absolute top-4 right-4 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
-                            aria-label="Close modal"
+                            aria-label={scriptLines.common_closeModal_ariaLabel}
                         >
                             <Icon name="close" className="w-6 h-6" />
                         </button>
@@ -244,16 +226,16 @@ CustomTagModal.propTypes = {
     availableIcons: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,
-            label: PropTypes.string.isRequired,
+            label: PropTypes.string.isRequired, // Label is now sourced from scriptLines at definition
         })
     ),
-    submissionError: PropTypes.string, // New propType
+    submissionError: PropTypes.string,
 };
 
 CustomTagModal.defaultProps = {
     existingLabels: [],
     availableIcons: defaultCustomTagIcons,
-    submissionError: null, // New defaultProp
+    submissionError: null,
 };
 
 export default memo(CustomTagModal);

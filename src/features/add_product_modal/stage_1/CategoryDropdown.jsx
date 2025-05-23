@@ -4,21 +4,22 @@ import Icon from '../../../components/common/Icon';
 // eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import ColorPalette from './ColorPalette';
+import scriptLines from '../utils/script_lines'; // Already imported
 
-// Predefined colors for new categories
+// Predefined colors for new categories - names are now localized
 export const defaultCategoryPaletteColors = [
-    { value: 'bg-rose-500', name: 'Rose' }, { value: 'bg-pink-500', name: 'Pink' },
-    { value: 'bg-fuchsia-500', name: 'Fuchsia' }, { value: 'bg-purple-500', name: 'Purple' },
-    { value: 'bg-violet-500', name: 'Violet' }, { value: 'bg-indigo-500', name: 'Indigo' },
-    { value: 'bg-blue-500', name: 'Blue' }, { value: 'bg-sky-500', name: 'Sky' },
-    { value: 'bg-cyan-500', name: 'Cyan' }, { value: 'bg-teal-500', name: 'Teal' },
-    { value: 'bg-emerald-500', name: 'Emerald' }, { value: 'bg-green-500', name: 'Green' },
-    { value: 'bg-lime-500', name: 'Lime' }, { value: 'bg-yellow-500', name: 'Yellow' },
-    { value: 'bg-amber-500', name: 'Amber' }, { value: 'bg-orange-500', name: 'Orange' },
-    { value: 'bg-red-500', name: 'Red' }, { value: 'bg-neutral-500', name: 'Neutral' },
+    { value: 'bg-rose-500', name: scriptLines.colorRose || 'Rose' }, { value: 'bg-pink-500', name: scriptLines.colorPink || 'Pink' },
+    { value: 'bg-fuchsia-500', name: scriptLines.colorFuchsia || 'Fuchsia' }, { value: 'bg-purple-500', name: scriptLines.colorPurple || 'Purple' },
+    { value: 'bg-violet-500', name: scriptLines.colorViolet || 'Violet' }, { value: 'bg-indigo-500', name: scriptLines.colorIndigo || 'Indigo' },
+    { value: 'bg-blue-500', name: scriptLines.colorBlue || 'Blue' }, { value: 'bg-sky-500', name: scriptLines.colorSky || 'Sky' },
+    { value: 'bg-cyan-500', name: scriptLines.colorCyan || 'Cyan' }, { value: 'bg-teal-500', name: scriptLines.colorTeal || 'Teal' },
+    { value: 'bg-emerald-500', name: scriptLines.colorEmerald || 'Emerald' }, { value: 'bg-green-500', name: scriptLines.colorGreen || 'Green' },
+    { value: 'bg-lime-500', name: scriptLines.colorLime || 'Lime' }, { value: 'bg-yellow-500', name: scriptLines.colorYellow || 'Yellow' },
+    { value: 'bg-amber-500', name: scriptLines.colorAmber || 'Amber' }, { value: 'bg-orange-500', name: scriptLines.colorOrange || 'Orange' },
+    { value: 'bg-red-500', name: scriptLines.colorRed || 'Red' }, { value: 'bg-neutral-500', name: scriptLines.colorNeutral || 'Neutral' },
 ];
 
-// Category colors mapping
+// Category colors mapping - no user-facing text here
 export const categoryDisplayColors = {
     default: 'bg-neutral-400 dark:bg-neutral-500',
     breads: 'bg-yellow-600', pastries: 'bg-pink-500', cakes: 'bg-purple-500',
@@ -37,10 +38,10 @@ const CategoryDropdown = ({
     onChange,
     onNewCategorySubmit,
     error,
-    placeholder = "Select or create category",
+    placeholder = scriptLines.categoryDropdownPlaceholder || "Select or create category", // Already localized
     className = "",
     availableColorsForNewCategory = defaultCategoryPaletteColors,
-    id, // For label accessibility
+    id,
 }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
@@ -48,7 +49,7 @@ const CategoryDropdown = ({
     const [newCategoryColor, setNewCategoryColor] = useState(availableColorsForNewCategory[0]?.value || '#CCCCCC');
     const [newCategoryNameError, setNewCategoryNameError] = useState("");
 
-    const componentRootRef = useRef(null); // Ref for the entire component
+    const componentRootRef = useRef(null);
 
     const selectedOption = options.find(opt => opt.value === value);
     const displayColorClass = selectedOption?.color_class || categoryDisplayColors.default;
@@ -57,20 +58,20 @@ const CategoryDropdown = ({
         const handleClickOutside = (event) => {
             if (componentRootRef.current && !componentRootRef.current.contains(event.target)) {
                 setIsDropdownOpen(false);
-                if (isCreateFormOpen) { // Only if create form was open
+                if (isCreateFormOpen) {
                     setIsCreateFormOpen(false);
-                    setNewCategoryNameError(""); // Clear error when closing form via outside click
+                    setNewCategoryNameError("");
                 }
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [isCreateFormOpen]); // Re-bind if isCreateFormOpen changes, to ensure its state is considered
+    }, [isCreateFormOpen]);
 
     const toggleDropdown = () => {
         if (isCreateFormOpen) {
-            setIsCreateFormOpen(false); // Close create form first
-            setIsDropdownOpen(false); // Ensure dropdown is also closed before reopening
+            setIsCreateFormOpen(false);
+            setIsDropdownOpen(false);
             setNewCategoryNameError("");
         } else {
             setIsDropdownOpen(!isDropdownOpen);
@@ -102,11 +103,11 @@ const CategoryDropdown = ({
     const handleSaveNewCategory = () => {
         const trimmedName = newCategoryName.trim();
         if (!trimmedName) {
-            setNewCategoryNameError("Category name cannot be empty.");
+            setNewCategoryNameError(scriptLines.categoryDropdownErrorNameEmpty || "Category name cannot be empty."); // Already localized
             return;
         }
         if (options.some(opt => opt.label.toLowerCase() === trimmedName.toLowerCase())) {
-            setNewCategoryNameError("A category with this name already exists.");
+            setNewCategoryNameError(scriptLines.categoryDropdownErrorNameExists || "A category with this name already exists."); // Already localized
             return;
         }
 
@@ -117,9 +118,8 @@ const CategoryDropdown = ({
                 label: trimmedName,
                 colorClass: newCategoryColor,
             });
-            // Parent will handle actual state update and closing, or show error
-            // For now, optimistically close and clear.
-            // setIsCreateFormOpen(false); // Parent should control this based on submission status
+            // Optionally close form and clear state on successful submission (parent might control this by re-rendering)
+            // setIsCreateFormOpen(false);
             // setNewCategoryName("");
             // setNewCategoryNameError("");
         }
@@ -131,7 +131,11 @@ const CategoryDropdown = ({
         setNewCategoryNameError("");
     };
 
-    const allDropdownOptions = [...options, { value: 'trigger_create_new_category', label: 'Create New Category...', isAction: true }];
+    const allDropdownOptions = [...options, { 
+        value: 'trigger_create_new_category', 
+        label: scriptLines.categoryDropdownCreateNewActionLabel || 'Create New Category...', // Already localized
+        isAction: true 
+    }];
 
     const dropdownAnimation = {
         initial: { opacity: 0, y: -10, height: 0, scale: 0.95 },
@@ -150,7 +154,7 @@ const CategoryDropdown = ({
 
     return (
         <div className={`relative font-montserrat ${className}`} ref={componentRootRef}>
-            <div className="relative"> {/* Button and Dropdown List Wrapper */}
+            <div className="relative">
                 <button
                     id={id}
                     type="button"
@@ -215,15 +219,13 @@ const CategoryDropdown = ({
                     )}
                 </AnimatePresence>
             </div>
-            {/* Form error is passed via prop, newCategoryNameError is internal to form */}
             {error && !isCreateFormOpen && <p className="mt-1.5 text-xs text-red-600 dark:text-red-400 px-1">{error}</p>}
 
-            {/* Inline Create Category Form */}
             <AnimatePresence>
                 {isCreateFormOpen && (
                     <motion.div
                         key="create-category-form"
-                        className="overflow-hidden" // Crucial for height animation
+                        className="overflow-hidden"
                         variants={formAnimation}
                         initial="initial" animate="animate" exit="exit"
                     >
@@ -232,7 +234,7 @@ const CategoryDropdown = ({
                                 type="text"
                                 value={newCategoryName}
                                 onChange={handleCreateCategoryNameChange}
-                                placeholder="New category name"
+                                placeholder={scriptLines.categoryDropdownNewNamePlaceholder || "New category name"} // Already localized
                                 className={`w-full text-sm px-3 py-2.5 border rounded-full
                                             bg-white dark:bg-neutral-700 
                                             text-neutral-900 dark:text-neutral-100 
@@ -247,7 +249,9 @@ const CategoryDropdown = ({
                             {newCategoryNameError && <p className="text-xs text-red-500 dark:text-red-400 -mt-2 px-1">{newCategoryNameError}</p>}
 
                             <div>
-                                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">Category Color</label>
+                                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
+                                    {scriptLines.categoryDropdownColorLabel || "Category Color"} {/* Already localized */}
+                                </label>
                                 <ColorPalette
                                     availableColors={availableColorsForNewCategory}
                                     selectedColorValue={newCategoryColor}
@@ -263,14 +267,14 @@ const CategoryDropdown = ({
                                     onClick={handleCancelCreate}
                                     className="px-4 py-2 text-xs font-medium text-neutral-700 dark:text-neutral-200 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded-full transition-colors"
                                 >
-                                    Cancel
+                                    {scriptLines.categoryDropdownButtonCancel || "Cancel"} {/* Already localized */}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleSaveNewCategory}
                                     className="px-4 py-2 text-xs font-medium text-white bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-full transition-colors"
                                 >
-                                    Create Category
+                                    {scriptLines.categoryDropdownButtonCreate || "Create Category"} {/* Already localized */}
                                 </button>
                             </div>
                         </div>

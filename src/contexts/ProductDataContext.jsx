@@ -4,9 +4,42 @@ import apiService from '../services/api'; // Adjust path if needed
 import { queryKeys } from '../services/queryKeys'; // Adjust path if needed
 import { useAuth } from './AuthContext';
 
+import { useDebounce } from '../hooks/useDebounce';
+
 const PAGE_SIZE = 10;
 
 // --- Custom Hooks for Data Fetching ---
+
+
+/**
+ * Fetches product search suggestions.
+ * @param {string} query - The search query from debounced input.
+ * @param {object} options - TanStack Query options.
+ */
+export const useProductSearchSuggestions = (debouncedQuery, options = {}) => {
+    const { user } = useAuth();
+
+    return useQuery({
+        // Use a distinct queryKey for suggestions
+        queryKey: [queryKeys.productSearchSuggestions, debouncedQuery],
+        queryFn: async () => {
+            // Only fetch if query is valid (e.g., length >= 2)
+            if (!debouncedQuery || debouncedQuery.length < 2) {
+                return []; // Return empty array, no API call
+            }
+            // console.log(`Fetching suggestions for: '${debouncedQuery}'`);
+            const response = await apiService.get('/products/suggestions/', { q: debouncedQuery, limit: 7 });
+            return response.data; // Backend should return an array of suggestions
+        },
+        // Enable the query only when the user is authenticated, has an active business,
+        // and the debounced query is long enough.
+        enabled: !!user && !!user.activeBusinessId && debouncedQuery.length >= 2 && (options.enabled !== false),
+        staleTime: 1000 * 60 * 1, // Cache suggestions for 1 minute
+        keepPreviousData: false, // We want fresh suggestions based on current typing
+        ...options,
+    });
+};
+
 
 /**
  * Fetches categories for the active business.

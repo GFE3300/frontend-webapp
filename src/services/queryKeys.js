@@ -13,4 +13,5 @@ export const queryKeys = {
     productsList: (params) => [PRODUCTS_BASE_KEY, 'list', params],
     productDetails: (productId) => [PRODUCTS_BASE_KEY, 'details', productId],
     productLastTemplate: [PRODUCTS_BASE_KEY, 'last-template'],
+    productSearchSuggestions: [PRODUCTS_BASE_KEY, 'search-suggestions'],
 };

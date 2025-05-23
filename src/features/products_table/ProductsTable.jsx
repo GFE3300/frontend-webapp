@@ -4,7 +4,7 @@ import { useProducts, useUpdateProduct, useDeleteProduct } from '../../contexts/
 import ProductsToolbar from './subcomponents/ProductsToolbar';
 import ProductsTableHeader from './subcomponents/ProductsTableHeader';
 import ProductsTableBody from './subcomponents/ProductsTableBody';
-import { initialColumns as allAvailableColumns, setTableActions } from './utils/tableConfig';
+import { initialColumns as allAvailableColumnsConfig, setTableActions } from './utils/tableConfig'; // Renamed for clarity
 import AddProductModal from '../add_product_modal/subcomponents/AddProductModal';
 import Icon from '../../components/common/Icon';
 
@@ -13,21 +13,25 @@ const toast = {
     error: (message) => alert(`ERROR: ${message}`),   // Replace with actual toast
 };
 
-
 const ProductsTable = () => {
     const {
-        columnVisibility, setColumnVisibility,
-        columnOrder,
+        columnVisibility, // This is now a Set
+        setColumnVisibility,
+        columnOrder, // This is an Array of keys
+        setColumnOrder, // New setter from useTableSettings
         filters, setFilters,
         sort, setSort,
         pagination, setPagination,
+        resetTableSettings
     } = useTableSettings();
 
+    // ... (isAddProductModalOpen, editingProduct, queryParams, data fetching, mutations... remain largely the same)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-    const [editingProduct, setEditingProduct] = useState(null); // For editing
+    const [editingProduct, setEditingProduct] = useState(null);
 
     const queryParams = useMemo(() => {
-        const params = {
+        // ...
+         const params = {
             page: pagination.pageIndex + 1,
             search: filters.search,
             category: filters.category,
@@ -35,29 +39,29 @@ const ProductsTable = () => {
             product_type: filters.product_type,
             tags: Array.isArray(filters.tags) ? filters.tags.join(',') : '',
             sort: sort.id ? (sort.desc ? `-${sort.id}` : sort.id) : '',
-            // pageSize will be handled by useProducts if you add it to useTableSettings
         };
         return params;
     }, [pagination.pageIndex, filters, sort]);
 
     const { data: productsData, isLoading, error, refetch } = useProducts(queryParams, { keepPreviousData: true });
     const updateProductMutation = useUpdateProduct();
-    const deleteProductMutation = useDeleteProduct(); // Initialize delete mutation
+    const deleteProductMutation = useDeleteProduct();
 
     const handleUpdateProductField = async (productId, fieldKey, newValue) => {
+        // ...
         try {
             await updateProductMutation.mutateAsync({ productId, data: { [fieldKey]: newValue } });
             toast.success(`Product field '${fieldKey}' updated.`);
-            // TanStack Query onSuccess will invalidate and refetch (configured in ProductDataContext)
         } catch (err) {
             console.error("Update failed in table:", err);
             const errorMessage = err.response?.data?.detail || err.response?.data?.[fieldKey]?.[0] || `Failed to update ${fieldKey}.`;
             toast.error(errorMessage);
-            throw err; // Re-throw to allow EditableCell to catch and display error
+            throw err; 
         }
     };
 
     const handleStatusToggle = useCallback( async (productId, newStatus) => {
+        // ...
         try {
             await updateProductMutation.mutateAsync({ productId, data: { is_active: newStatus } });
             toast.success(`Product status updated to ${newStatus ? 'Active' : 'Inactive'}.`);
@@ -74,11 +78,11 @@ const ProductsTable = () => {
 
     const handleDeleteProduct = useCallback(
         async (productId, productName) => {
-            if (window.confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+            // ...
+             if (window.confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
                 try {
                     await deleteProductMutation.mutateAsync(productId);
                     toast.success(`Product "${productName}" deleted successfully.`);
-                    // TanStack Query onSuccess will invalidate and refetch
                 } catch (err) {
                     console.error("Delete failed:", err);
                     toast.error(err.response?.data?.detail || `Failed to delete "${productName}".`);
@@ -86,20 +90,20 @@ const ProductsTable = () => {
             }
         }, [deleteProductMutation]
     );
-
-    // Pass action handlers to tableConfig
+    
     useEffect(() => {
         setTableActions({
             onEdit: handleEditProduct,
             onDelete: handleDeleteProduct,
             onStatusToggle: handleStatusToggle,
         });
-    }, [handleEditProduct, handleDeleteProduct, handleStatusToggle]); // Add dependencies if handlers change based on state/props
+    }, [handleEditProduct, handleDeleteProduct, handleStatusToggle]);
+
 
     const handleSort = (columnIdToSort) => {
-        if (!allAvailableColumns.find(col => col.id === columnIdToSort)?.isSortable) return;
-
+        if (!allAvailableColumnsConfig.find(col => col.id === columnIdToSort)?.isSortable) return;
         setSort(prevSort => {
+            // ...
             if (prevSort.id === columnIdToSort) {
                 return { id: columnIdToSort, desc: !prevSort.desc };
             }
@@ -108,15 +112,19 @@ const ProductsTable = () => {
     };
 
     const visibleColumns = useMemo(() => {
+        // columnOrder is an array of keys.
+        // columnVisibility is a Set of visible keys.
         return columnOrder
-            .map(colId => allAvailableColumns.find(col => col.id === colId))
-            .filter(col => col && columnVisibility[col.id] !== false);
+            .filter(key => columnVisibility.has(key)) // Filter by visibility first
+            .map(key => allAvailableColumnsConfig.find(col => col.id === key)) // Map to full column config
+            .filter(Boolean); // Ensure no undefined columns if a key in order is somehow not in allAvailableColumnsConfig
     }, [columnOrder, columnVisibility]);
 
-    const handleProductAddedOrUpdated = () => { // Renamed for clarity
+    // ... (handleProductAddedOrUpdated, closeModal, isEffectivelyLoading, renderPaginationControls... remain same)
+    const handleProductAddedOrUpdated = () => { 
         refetch();
         setIsAddProductModalOpen(false);
-        setEditingProduct(null); // Clear editing state
+        setEditingProduct(null); 
     };
 
     const closeModal = () => {
@@ -127,11 +135,13 @@ const ProductsTable = () => {
     const isEffectivelyLoading = (isLoading && !productsData?.items?.length);
 
     const renderPaginationControls = () => {
+        // ...
         if (!productsData || productsData.count === 0) return null;
-        const { currentPage, totalPages, count, pageSize } = productsData; // Added pageSize from productsData
+        const { currentPage, totalPages, count, pageSize } = productsData;
 
         return (
             <div className="px-4 py-3 flex items-center justify-between border-t border-neutral-200 dark:border-neutral-700 sm:px-6">
+                {/* Mobile Pagination */}
                 <div className="flex-1 flex justify-between sm:hidden">
                     <button
                         onClick={() => setPagination(prev => ({ ...prev, pageIndex: Math.max(0, prev.pageIndex - 1) }))}
@@ -148,6 +158,7 @@ const ProductsTable = () => {
                         Next
                     </button>
                 </div>
+                {/* Desktop Pagination */}
                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm text-neutral-700 dark:text-neutral-300">
@@ -184,20 +195,22 @@ const ProductsTable = () => {
         );
     };
 
-
     return (
         <div className="flex flex-col h-full bg-neutral-100 dark:bg-neutral-900 rounded-lg shadow-md overflow-hidden">
             <ProductsToolbar
                 filters={filters}
                 onFilterChange={setFilters}
                 sort={sort}
-                onSortChange={handleSort} // Direct pass-through
-                columnVisibility={columnVisibility}
-                onColumnVisibilityChange={setColumnVisibility}
-                allColumns={allAvailableColumns}
-                onAddProduct={() => { setEditingProduct(null); setIsAddProductModalOpen(true); }} // Clear editingProduct for new
+                onSortChange={setSort} // Direct pass-through
+                columnVisibility={columnVisibility} // Pass the Set
+                onColumnVisibilityChange={setColumnVisibility} // Pass the updater function for the Set
+                columnOrder={columnOrder} // Pass the array of keys
+                onColumnOrderChange={setColumnOrder} // Pass the updater function for the array
+                allColumns={allAvailableColumnsConfig} // Pass full config
+                onAddProduct={() => { setEditingProduct(null); setIsAddProductModalOpen(true); }}
                 onRefresh={refetch}
             />
+            {/* ... rest of the table structure ... */}
             <div className="flex-grow overflow-x-auto">
                 <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
                     <ProductsTableHeader
@@ -212,7 +225,6 @@ const ProductsTable = () => {
                         error={error}
                         onUpdateProductField={handleUpdateProductField}
                         colSpan={visibleColumns.length}
-                    // Actions are now handled by tableConfig, no need to pass handlers here
                     />
                 </table>
             </div>
@@ -220,8 +232,8 @@ const ProductsTable = () => {
             <AddProductModal
                 isOpen={isAddProductModalOpen}
                 onClose={closeModal}
-                onProductAdded={handleProductAddedOrUpdated} // Used for both add and update success
-                initialProductData={editingProduct} // Pass the product to edit
+                onProductAdded={handleProductAddedOrUpdated}
+                initialProductData={editingProduct}
             />
         </div>
     );

@@ -6,6 +6,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 // eslint-disable-next-line
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Icon from "../../../components/common/Icon"; // Adjust path as needed
+import scriptLines from '../utils/script_lines'; // Added import
 
 const PLATE_ASPECT_RATIO = 1; // Always 1:1 for circular plate
 
@@ -54,7 +55,7 @@ async function getCroppedImg(image, crop, outputWidth, circular = true, fileName
         canvas.toBlob((blob) => {
             if (!blob) {
                 console.error("Canvas to Blob conversion failed.");
-                reject(new Error("Canvas to Blob conversion failed."));
+                reject(new Error(scriptLines.productImageUploaderErrorCanvasToBlobFailed || "Canvas to Blob conversion failed.")); // Technical error, but user might see if propagated
                 return;
             }
             resolve(new File([blob], fileName, { type: 'image/png' }));
@@ -66,25 +67,25 @@ async function getCroppedImg(image, crop, outputWidth, circular = true, fileName
 const ProductImageUploader = ({
     onImageUpload,
     initialSrc = null,
-    maxFileSizeMB = 5,
-    outputImageSize = 300,
+    maxFileSizeMB = ProductImageUploader.defaultProps.maxFileSizeMB, // Ensure correct default is used for subMessage
+    outputImageSize = ProductImageUploader.defaultProps.outputImageSize,
     dropzoneIcon = <Icon name="restaurant" className="w-10 h-10 sm:w-12 sm:h-12 text-neutral-400 dark:text-neutral-500 mb-2 group-hover:text-rose-500 transition-colors" />,
-    dropzoneMessage = "Tap or Drag Your Food Photo",
-    dropzoneSubMessage = `PNG, JPG, WEBP up to ${maxFileSizeMB}MB`,
-    className = "",
+    dropzoneMessage = (scriptLines.productImageUploaderDropzoneMessageDefault || "Tap or Drag Your Food Photo"),
+    dropzoneSubMessage = (scriptLines.productImageUploaderDropzoneSubMessagePattern || `PNG, JPG, WEBP up to {maxFileSizeMB}MB`).replace('{maxFileSizeMB}', maxFileSizeMB),
+    className = ProductImageUploader.defaultProps.className,
 }) => {
     const prefersReducedMotion = useReducedMotion();
     const MAX_FILE_SIZE_BYTES = maxFileSizeMB * 1024 * 1024;
     const ACCEPTED_IMAGE_TYPES = { 'image/jpeg': ['.jpeg', '.jpg'], 'image/png': ['.png'], 'image/webp': ['.webp'] };
 
-    const [imageForCropperDataUrl, setImageForCropperDataUrl] = useState(null); // Data URL for the image in cropper
-    const [crop, setCrop] = useState(null); // Stores PercentCrop
-    const [completedCrop, setCompletedCrop] = useState(null); // Stores PixelCrop
+    const [imageForCropperDataUrl, setImageForCropperDataUrl] = useState(null);
+    const [crop, setCrop] = useState(null);
+    const [completedCrop, setCompletedCrop] = useState(null);
     const [error, setError] = useState('');
-    const [isProcessing, setIsProcessing] = useState(false); // For "Confirm Crop" action
-    const [isReadingFile, setIsReadingFile] = useState(false); // For FileReader
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [isReadingFile, setIsReadingFile] = useState(false);
 
-    const imgRef = useRef(null); // Ref for the image inside ReactCrop
+    const imgRef = useRef(null);
     const fileInputRef = useRef(null);
 
     const animationProps = prefersReducedMotion ? {} : {
@@ -94,12 +95,8 @@ const ProductImageUploader = ({
         transition: { duration: 0.25, ease: "circOut" },
     };
 
-    // Effect to clear cropper if initialSrc is removed by parent,
-    // but only if we are not actively cropping a new image.
     useEffect(() => {
         if (!initialSrc && !imageForCropperDataUrl) {
-            // If initialSrc becomes null (e.g., parent removed it) and we're not cropping,
-            // ensure any lingering crop states are cleared.
             setCrop(null);
             setCompletedCrop(null);
         }
@@ -108,22 +105,22 @@ const ProductImageUploader = ({
 
     const onFileDrop = useCallback((acceptedFiles, fileRejections) => {
         setError('');
-        setCrop(null); // Reset crop for new image
+        setCrop(null);
         setCompletedCrop(null);
         setIsReadingFile(true);
-        setImageForCropperDataUrl(null); // Clear previous cropper image if any
+        setImageForCropperDataUrl(null);
 
         if (fileRejections.length > 0) {
             const firstRejection = fileRejections[0].errors[0];
             if (firstRejection.code === 'file-too-large') {
-                setError(`Photo is too large. Max ${maxFileSizeMB}MB.`);
+                setError((scriptLines.productImageUploaderErrorFileTooLarge || "Photo is too large. Max {maxFileSizeMB}MB.").replace('{maxFileSizeMB}', maxFileSizeMB));
             } else if (firstRejection.code === 'file-invalid-type') {
-                setError("Invalid file type. Please use JPG, PNG, or WEBP.");
+                setError(scriptLines.productImageUploaderErrorInvalidFileType || "Invalid file type. Please use JPG, PNG, or WEBP.");
             } else {
-                setError("Couldn't accept this file. Please try another.");
+                setError(scriptLines.productImageUploaderErrorFileNotAccepted || "Couldn't accept this file. Please try another.");
             }
             setIsReadingFile(false);
-            if (fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
+            if (fileInputRef.current) fileInputRef.current.value = "";
             return;
         }
 
@@ -135,7 +132,7 @@ const ProductImageUploader = ({
                 setIsReadingFile(false);
             };
             reader.onerror = () => {
-                setError("Error reading file. Please try again.");
+                setError(scriptLines.productImageUploaderErrorReadingFile || "Error reading file. Please try again.");
                 setIsReadingFile(false);
                 if (fileInputRef.current) fileInputRef.current.value = "";
             };
@@ -150,7 +147,7 @@ const ProductImageUploader = ({
         onDrop: onFileDrop,
         accept: ACCEPTED_IMAGE_TYPES,
         maxSize: MAX_FILE_SIZE_BYTES,
-        noClick: true, // We'll trigger click manually
+        noClick: true,
         noKeyboard: true,
         multiple: false,
     });
@@ -167,8 +164,8 @@ const ProductImageUploader = ({
         const { naturalWidth, naturalHeight } = img;
 
         if (naturalWidth === 0 || naturalHeight === 0) {
-            setError("Image data is invalid or image could not be loaded. Try a different one.");
-            setImageForCropperDataUrl(null); // Clear bad image
+            setError(scriptLines.productImageUploaderErrorInvalidImageData || "Image data is invalid or image could not be loaded. Try a different one.");
+            setImageForCropperDataUrl(null);
             setCrop(null);
             setCompletedCrop(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -187,7 +184,7 @@ const ProductImageUploader = ({
 
     const handleConfirmCrop = useCallback(async () => {
         if (!completedCrop || !imgRef.current || completedCrop.width === 0 || completedCrop.height === 0) {
-            setError("Could not save crop. Please select a valid crop area or wait for image to load.");
+            setError(scriptLines.productImageUploaderErrorCouldNotSaveCrop || "Could not save crop. Please select a valid crop area or wait for image to load.");
             return;
         }
         setIsProcessing(true);
@@ -198,21 +195,23 @@ const ProductImageUploader = ({
                 imgRef.current,
                 completedCrop,
                 outputImageSize,
-                true // circularCrop
+                true
             );
 
             if (croppedImageFile) {
-                onImageUpload(croppedImageFile); // Send File to parent
-                setImageForCropperDataUrl(null); // Exit cropping mode
+                onImageUpload(croppedImageFile);
+                setImageForCropperDataUrl(null);
                 setCrop(null);
                 setCompletedCrop(null);
-                if (fileInputRef.current) fileInputRef.current.value = ""; // Reset to allow re-upload of same file later
+                if (fileInputRef.current) fileInputRef.current.value = "";
             } else {
-                setError("Failed to process image. Please try again.");
+                setError(scriptLines.productImageUploaderErrorFailedToProcess || "Failed to process image. Please try again.");
             }
         } catch (err) {
             console.error("Error cropping image:", err);
-            setError(`An error occurred while saving: ${err.message || "Please try again."}`);
+            const anErrorOccurredMsg = scriptLines.productImageUploaderErrorSavingGeneric || "An error occurred while saving: {errorMessage}";
+            const tryAgainMsg = scriptLines.productImageUploaderErrorSavingDefault || "Please try again.";
+            setError(anErrorOccurredMsg.replace('{errorMessage}', err.message || tryAgainMsg));
         } finally {
             setIsProcessing(false);
         }
@@ -223,13 +222,11 @@ const ProductImageUploader = ({
         setCrop(null);
         setCompletedCrop(null);
         setError('');
-        if (fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
+        if (fileInputRef.current) fileInputRef.current.value = "";
     }, []);
 
     const handleRemoveFinalImage = useCallback(() => {
-        onImageUpload(null); // Notify parent to remove image
-        // initialSrc will become null via prop update from parent
-        // No need to setImageForCropperDataUrl(null) as it's already null in this state
+        onImageUpload(null);
         setError('');
         if (fileInputRef.current) fileInputRef.current.value = "";
     }, [onImageUpload]);
@@ -239,7 +236,6 @@ const ProductImageUploader = ({
     const primaryButtonClasses = `${commonButtonClasses} bg-rose-500 text-white hover:bg-rose-600 focus-visible:ring-rose-500`;
     const secondaryButtonClasses = `${commonButtonClasses} bg-neutral-200 text-neutral-700 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-600 focus-visible:ring-neutral-500`;
 
-    // Determine crossOrigin prop for the initialSrc image tag if it's an external URL
     let initialImageCrossOriginVal;
     if (initialSrc && initialSrc.startsWith('http')) {
         try {
@@ -253,18 +249,19 @@ const ProductImageUploader = ({
         }
     }
 
-
     const uploaderContent = () => {
         if (isReadingFile) {
             return (
                 <motion.div key="reading" {...animationProps} className="flex flex-col items-center justify-center w-full h-full">
                     <Icon name="progress_activity" className="w-10 h-10 sm:w-12 sm:h-12 text-rose-500 animate-spin mb-2" />
-                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Preparing photo...</p>
+                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                        {scriptLines.productImageUploaderStatusPreparing || "Preparing photo..."}
+                    </p>
                 </motion.div>
             );
         }
 
-        if (imageForCropperDataUrl) { // Cropping State
+        if (imageForCropperDataUrl) {
             return (
                 <motion.div
                     key="cropper"
@@ -282,12 +279,12 @@ const ProductImageUploader = ({
                             minWidth={50}
                             minHeight={50}
                             className="max-h-full max-w-full [&>div>img]:max-h-full [&>div>img]:max-w-full"
-                            ariaLabel="Image crop area"
+                            ariaLabel={scriptLines.productImageUploaderCropAreaAriaLabel || "Image crop area"}
                         >
                             <img
                                 ref={imgRef}
-                                src={imageForCropperDataUrl} // Always a data URL
-                                alt="Image to crop"
+                                src={imageForCropperDataUrl}
+                                alt={scriptLines.productImageUploaderCropImageAlt || "Image to crop"}
                                 onLoad={onImageLoadInCropper}
                                 className="object-contain"
                                 style={{ maxHeight: '100%', maxWidth: '100%' }}
@@ -306,7 +303,10 @@ const ProductImageUploader = ({
                                 ? <Icon name="progress_activity" className="w-6 h-6 mr-1.5 animate-spin" />
                                 : <Icon name="check_circle" className="w-6 h-6 mr-1.5" />
                             }
-                            {isProcessing ? "Saving..." : "Confirm"}
+                            {isProcessing 
+                                ? (scriptLines.productImageUploaderButtonSaving || "Saving...") 
+                                : (scriptLines.productImageUploaderButtonConfirm || "Confirm")
+                            }
                         </button>
                         <button
                             type="button"
@@ -315,14 +315,14 @@ const ProductImageUploader = ({
                             className={`${secondaryButtonClasses} flex-1 flex items-center justify-center`}
                         >
                             <Icon name="cancel" className="w-6 h-6 mr-1.5" />
-                            Cancel
+                            {scriptLines.productImageUploaderButtonCancel || "Cancel"}
                         </button>
                     </div>
                 </motion.div>
             );
         }
 
-        if (initialSrc) { // Final Image Display State
+        if (initialSrc) {
             return (
                 <motion.div
                     key="final-image"
@@ -331,24 +331,24 @@ const ProductImageUploader = ({
                 >
                     <div className="relative w-full h-full bg-white dark:bg-neutral-800 rounded-full shadow-lg flex items-center justify-center overflow-hidden">
                         <img
-                            src={initialSrc} // Can be blob URL or remote URL
-                            alt="Product" // Changed alt text
+                            src={initialSrc}
+                            alt={scriptLines.productImageUploaderFinalImageAlt || "Product"}
                             crossOrigin={initialImageCrossOriginVal}
-                            className="w-full h-full object-cover" // object-cover to fill the circle
-                            onError={() => { // Basic error handling for initialSrc
-                                setError("Could not load product image.");
-                                onImageUpload(null); // Effectively remove broken link
+                            className="w-full h-full object-cover"
+                            onError={() => {
+                                setError(scriptLines.productImageUploaderErrorCouldNotLoadProductImage || "Could not load product image.");
+                                onImageUpload(null);
                             }}
                         />
                     </div>
                     <div className="flex absolute -bottom-3 sm:-bottom-15 items-center justify-center gap-2 sm:gap-3 w-full max-w-[15rem] sm:max-w-[16rem] mx-auto">
                         <button
                             type="button"
-                            onClick={triggerFileInput} // Opens file dialog for new image
+                            onClick={triggerFileInput}
                             className={`${primaryButtonClasses} flex-1 flex items-center justify-center`}
                         >
                             <Icon name="edit" className="w-6 h-6 mr-1.5" />
-                            Change
+                            {scriptLines.productImageUploaderButtonChange || "Change"}
                         </button>
                         <button
                             type="button"
@@ -356,33 +356,30 @@ const ProductImageUploader = ({
                             className={`${secondaryButtonClasses} flex-1 flex items-center justify-center`}
                         >
                             <Icon name="delete" className="w-6 h-6 mr-1.5" />
-                            Remove
+                            {scriptLines.productImageUploaderButtonRemove || "Remove"}
                         </button>
                     </div>
                 </motion.div>
             );
         }
 
-        // Dropzone State (Default)
         return (
             <motion.div
                 key="dropzone"
                 {...getRootProps()}
-                onClick={triggerFileInput} // Use dedicated trigger to ensure fileInputRef is used
+                onClick={triggerFileInput}
                 className={`relative flex flex-col items-center justify-center w-full h-full border-2 border-dashed rounded-full cursor-pointer group
                             transition-all duration-200 ease-in-out text-center font-montserrat
                             ${isDragActive
                         ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/40 scale-105'
                         : 'border-neutral-300 dark:border-neutral-600 hover:border-rose-400 dark:hover:border-rose-600 bg-neutral-50/50 dark:bg-neutral-800/30'
                     }`}
-                aria-label="Image dropzone: Click or drag and drop an image"
+                aria-label={scriptLines.productImageUploaderDropzoneAriaLabel || "Image dropzone: Click or drag and drop an image"}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') triggerFileInput(); }}
                 {...animationProps}
             >
-                {/* input is already part of getRootProps, but we need ref explicitly */}
-                {/* <input {...getInputProps({ ref: fileInputRef, id: "plate-image-input" })} /> */}
                 {dropzoneIcon}
                 <p className="text-sm sm:text-base font-semibold text-neutral-700 dark:text-neutral-200 px-3 group-hover:text-rose-600 dark:group-hover:text-rose-400">
                     {dropzoneMessage}
@@ -394,10 +391,9 @@ const ProductImageUploader = ({
 
     return (
         <div className={`flex flex-col items-center justify-center gap-4 ${className}`}>
-            {/* Hidden file input, to be triggered programmatically */}
             <input {...getInputProps({ ref: fileInputRef, id: "plate-image-input", style: { display: 'none' } })} />
 
-            <div className="flex items-center justify-center gap-x-4 sm:gap-x-6 pb-17"> {/* pb-17 for buttons below */}
+            <div className="flex items-center justify-center gap-x-4 sm:gap-x-6 pb-17">
                 <div className="relative flex-shrink-0 w-[13rem] h-[13rem] sm:w-[15rem] sm:h-[15rem] md:w-[17rem] md:h-[17rem]">
                     <div className="absolute inset-0 rounded-full bg-neutral-200 dark:bg-neutral-700 shadow-xl transform scale-105"></div>
                     <div className={`relative w-full h-full bg-white dark:bg-neutral-800 rounded-full shadow-lg flex items-center justify-center`}>
@@ -436,9 +432,6 @@ ProductImageUploader.propTypes = {
     dropzoneMessage: PropTypes.string,
     dropzoneSubMessage: PropTypes.string,
     className: PropTypes.string,
-    // svgColorClassName and svgSizeClassName are no longer used directly for dropzoneIcon styling internally
-    // but kept for API compatibility if parent was relying on them for other reasons (unlikely).
-    // The dropzoneIcon prop should be a fully styled node.
     svgColorClassName: PropTypes.string,
     svgSizeClassName: PropTypes.string,
 };
@@ -448,8 +441,8 @@ ProductImageUploader.defaultProps = {
     maxFileSizeMB: 5,
     outputImageSize: 300,
     className: "w-full py-4",
-    svgColorClassName: "text-neutral-400 dark:text-neutral-500",
-    svgSizeClassName: "w-6 h-6 sm:w-7 sm:h-7",
+    svgColorClassName: "text-neutral-400 dark:text-neutral-500", // Kept for API compatibility, not used for internal defaults
+    svgSizeClassName: "w-6 h-6 sm:w-7 sm:h-7", // Kept for API compatibility
 };
 
 export default memo(ProductImageUploader);

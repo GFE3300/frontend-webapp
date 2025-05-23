@@ -13,11 +13,15 @@ import BusinessLoginPage from './pages/BusinessLoginPage.jsx'; // Assuming this 
 import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
 import PrivateRoute from './components/common/PrivateRoute.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HTML5Backend } from 'react-dnd-html5-backend'; // Import HTML5Backend
 
 // Contexts
 import { CartProvider } from './contexts/CartContext';
 import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
 import { AuthProvider } from './contexts/AuthContext'; // Crucial import
+import { DndProvider } from 'react-dnd';
+import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
+import { ThemeProvider } from './utils/ThemeProvider.jsx';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -80,14 +84,18 @@ function App() {
 	return (
 		<React.StrictMode>
 			<QueryClientProvider client={queryClient}>
-				<AuthProvider>
-					<CartProvider>
+				<DndProvider backend={HTML5Backend}>
+					<AuthProvider>
 						<FlyingImageProvider>
+							<ThemeProvider>
+
+							<ThemeToggleButton />
 							<RouterProvider router={router} />
-							<CartDrawer />
+
+							</ThemeProvider>
 						</FlyingImageProvider>
-					</CartProvider>
-				</AuthProvider>
+					</AuthProvider>
+				</ DndProvider>
 			</QueryClientProvider>
 		</React.StrictMode>
 	);
