@@ -1,10 +1,9 @@
-// src/features/add_product_modal/subcomponents/ModalFooter.jsx
-// (Content from your provided ModalHeader.jsx that was actually footer logic)
-// Main change is how isNextDisabled is set due to async isStepValid
 import React, { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon'; // Adjust path
+import scriptLines from '../utils/script_lines'; // Added import
 
 const ModalFooter = memo(({
     currentStep,
@@ -13,17 +12,17 @@ const ModalFooter = memo(({
     onNext,
     onSubmit,
     isSubmitting,
-    isStepValid, // This is an async function from useAddProductForm
-    formData, // Keep for dependency to re-check validity on data change
+    isStepValid,
+    formData,
 }) => {
-    const [isNextDisabledState, setIsNextDisabledState] = useState(true); // Internal state for button
-    const [isValidating, setIsValidating] = useState(false); // To show loading on button if validation is slow
+    const [isNextDisabledState, setIsNextDisabledState] = useState(true);
+    const [isValidating, setIsValidating] = useState(false);
 
     useEffect(() => {
         let isActive = true;
         const checkValidity = async () => {
             if (typeof isStepValid !== 'function') {
-                if (isActive) setIsNextDisabledState(true); // Should not happen if hook is correct
+                if (isActive) setIsNextDisabledState(true);
                 return;
             }
             if (isActive) setIsValidating(true);
@@ -36,7 +35,7 @@ const ModalFooter = memo(({
 
         checkValidity();
         return () => { isActive = false; };
-    }, [isStepValid, currentStep, formData]); // formData is crucial
+    }, [isStepValid, currentStep, formData]);
 
     const buttonVariants = {
         hover: { scale: 1.03, transition: { type: "spring", stiffness: 400, damping: 10 } },
@@ -44,6 +43,12 @@ const ModalFooter = memo(({
     };
 
     const finalIsNextDisabled = isSubmitting || isNextDisabledState || isValidating;
+
+    const backButtonText = scriptLines.modalFooterBackButton || "Back";
+    const continueButtonText = scriptLines.modalFooterContinueButton || "Continue";
+    const validatingButtonText = scriptLines.modalFooterValidatingButton || "Validating...";
+    const creatingButtonText = scriptLines.modalFooterCreatingButton || "Creating...";
+    const createProductButtonText = scriptLines.modalFooterCreateProductButton || "Create Product";
 
     return (
         <footer className="px-6 py-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 rounded-b-xl sticky bottom-0">
@@ -57,16 +62,17 @@ const ModalFooter = memo(({
                         whileHover="hover"
                         whileTap="tap"
                     >
-                        Back
+                        {backButtonText}
                     </motion.button>
                 ) : (
-                    <div /> // Placeholder
+                    <div /> 
                 )}
 
                 {currentStep < totalSteps ? (
                     <motion.button
                         type="button"
                         onClick={onNext}
+                        disabled={finalIsNextDisabled} // Ensure disabled attribute is set
                         className={`px-5 py-2.5 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800
                             ${(finalIsNextDisabled) ? 'opacity-50 cursor-not-allowed' : ''}`}
                         variants={buttonVariants}
@@ -74,15 +80,16 @@ const ModalFooter = memo(({
                         whileTap={!(finalIsNextDisabled) ? "tap" : ""}
                     >
                         {isValidating ? (
-                            <><Icon name="progress_activity" className="animate-spin w-4 h-4 mr-1.5 inline-block" /> Validating...</>
+                            <><Icon name="progress_activity" className="animate-spin w-4 h-4 mr-1.5 inline-block" /> {validatingButtonText}</>
                         ) : (
-                            <>Continue <Icon name="arrow_forward" className="w-4 h-4 ml-1.5 inline-block" /></>
+                            <>{continueButtonText} <Icon name="arrow_forward" className="w-4 h-4 ml-1.5 inline-block" /></>
                         )}
                     </motion.button>
                 ) : (
                     <motion.button
                         type="button"
                         onClick={onSubmit}
+                        disabled={finalIsNextDisabled} // Ensure disabled attribute is set
                         className={`px-5 py-2.5 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800
                             ${(finalIsNextDisabled) ? 'opacity-50 cursor-not-allowed' : ''}`}
                         variants={buttonVariants}
@@ -90,11 +97,11 @@ const ModalFooter = memo(({
                         whileTap={!(finalIsNextDisabled) ? "tap" : ""}
                     >
                         {isSubmitting ? (
-                            <><Icon name="progress_activity" className="animate-spin w-4 h-4 mr-1.5 inline-block" /> Creating...</>
+                            <><Icon name="progress_activity" className="animate-spin w-4 h-4 mr-1.5 inline-block" /> {creatingButtonText}</>
                         ) : isValidating ? (
-                            <><Icon name="progress_activity" className="animate-spin w-4 h-4 mr-1.5 inline-block" /> Validating...</>
+                            <><Icon name="progress_activity" className="animate-spin w-4 h-4 mr-1.5 inline-block" /> {validatingButtonText}</>
                         ) : (
-                            <><Icon name="add_task" className="w-4 h-4 mr-1.5 inline-block" /> Create Product</>
+                            <><Icon name="add_task" className="w-4 h-4 mr-1.5 inline-block" /> {createProductButtonText}</>
                         )}
                     </motion.button>
                 )}
@@ -110,7 +117,7 @@ ModalFooter.propTypes = {
     onNext: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
     isSubmitting: PropTypes.bool,
-    isStepValid: PropTypes.func.isRequired, // is an async function
+    isStepValid: PropTypes.func.isRequired,
     formData: PropTypes.object.isRequired,
 };
 

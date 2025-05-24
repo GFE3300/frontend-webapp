@@ -1,13 +1,15 @@
 import React, { useState, useMemo, useRef, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
+import scriptLines from '../utils/script_lines'; // IMPORTED scriptLines
 
 const DiscountCodeSelector = memo(({
-    availableCodes, // Array of { id, codeName, description, type, value (general value) }
-    appliedCodeIds, // Array of IDs of codes already applied to this product
-    onSelectCode,   // (selectedCodeObject) => void
-    onCreateNew,    // () => void (triggers modal)
+    availableCodes,
+    appliedCodeIds,
+    onSelectCode,
+    onCreateNew,
     error,
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +19,7 @@ const DiscountCodeSelector = memo(({
     const filteredAndAvailableCodes = useMemo(() => {
         const lowerSearchTerm = searchTerm?.toLowerCase();
         return availableCodes
-            .filter(code => !appliedCodeIds.includes(code.id)) // Show only codes not yet applied
+            .filter(code => !appliedCodeIds.includes(code.id))
             .filter(code =>
                 code.codeName?.toLowerCase().includes(lowerSearchTerm) ||
                 (code.description && code?.description?.toLowerCase().includes(lowerSearchTerm))
@@ -43,7 +45,7 @@ const DiscountCodeSelector = memo(({
     return (
         <div className="relative" ref={wrapperRef}>
             <label htmlFor="discount-search" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Add Discount Code to this Product
+                {scriptLines.discountCodeSelector_label}
             </label>
             <div className="relative">
                 <input
@@ -52,7 +54,7 @@ const DiscountCodeSelector = memo(({
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onFocus={() => setIsOpen(true)}
-                    placeholder="Search existing codes or create new..."
+                    placeholder={scriptLines.discountCodeSelector_placeholder}
                     className={`
                     dropdown-button group w-full h-9 py-2 pl-4 pr-3 rounded-full font-montserrat font-medium
                     flex items-center justify-between text-left
@@ -81,7 +83,7 @@ const DiscountCodeSelector = memo(({
                 {isOpen && (
                     <motion.div
                         initial={{ opacity: 0, y: -5, maxHeight: 0 }}
-                        animate={{ opacity: 1, y: 0, maxHeight: '240px' }} // Max height for scroll
+                        animate={{ opacity: 1, y: 0, maxHeight: '240px' }}
                         exit={{ opacity: 0, y: -5, maxHeight: 0 }}
                         transition={{ duration: 0.2 }}
                         className="absolute z-10 w-full mt-1 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-xl shadow-lg overflow-y-auto"
@@ -98,13 +100,13 @@ const DiscountCodeSelector = memo(({
                                 </div>
                             ))
                         ) : searchTerm && (
-                            <div className="px-4 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">No matching codes found.</div>
+                            <div className="px-4 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">{scriptLines.discountCodeSelector_noMatch}</div>
                         )}
                         <div
                             onClick={() => { setIsOpen(false); onCreateNew(); }}
                             className="px-4 py-2.5 border-t border-neutral-200 dark:border-neutral-700 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-700/20 cursor-pointer flex items-center gap-2"
                         >
-                            <Icon name="add_circle" className="w-6 h-6" /> Create New Discount Code
+                            <Icon name="add_circle" className="w-6 h-6" /> {scriptLines.discountCodeSelector_createNew}
                         </div>
                     </motion.div>
                 )}

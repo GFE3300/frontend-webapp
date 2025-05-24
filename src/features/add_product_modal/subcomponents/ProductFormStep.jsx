@@ -3,20 +3,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion, useReducedMotion } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
-
-// Default script lines, consider moving to a shared constants/localization file
-const scriptLines = {
-    formStep: {
-        buttons: {
-            back: "Back",
-            continue: "Continue",
-            submitProduct: "Create Product",
-            submitting: "Creating...",
-            validating: "Validating...",
-        },
-        themeColorDefault: "rose",
-    }
-};
+import scriptLines from '../utils/script_lines'; // Import centralized scriptLines
 
 /**
  * @component ProductFormStep
@@ -35,6 +22,7 @@ const scriptLines = {
  *   @param {string} [props.formStateHook.submissionStatus] - Status of the form submission (e.g., 'submitting').
  *   @param {number} [props.formStateHook.navigationDirection] - Direction of navigation (-1 for back, 1 for forward).
  *   @param {Function} props.formStateHook.isCurrentStepValid - Async function to check if the current step's data is valid.
+ *   @param {boolean} [props.formStateHook.isEditMode] - Indicates if the form is in edit mode.
  * @param {Function} props.onProceed - Callback function to proceed to the next step.
  * @param {Function} props.onBack - Callback function to go to the previous step.
  * @param {Function} [props.onSubmit] - Callback function for final form submission (only used if `isFinalStep` is true).
@@ -48,14 +36,13 @@ const ProductFormStep = ({
     onProceed,
     onBack,
     onSubmit,
-    themeColor = scriptLines.formStep.themeColorDefault,
+    themeColor = 'rose', // Default theme color kept static, not from scriptLines text
 }) => {
     const prefersReducedMotion = useReducedMotion();
     const [isNavigating, setIsNavigating] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
     const [isButtonValidating, setIsButtonValidating] = useState(false);
 
-    // Theme classes for buttons
     const THEME_CLASSES = {
         rose: {
             buttonPrimaryBg: 'bg-rose-500 hover:bg-rose-600',
@@ -63,14 +50,11 @@ const ProductFormStep = ({
             buttonFinalBg: 'bg-green-500 hover:bg-green-600',
             buttonFinalRing: 'focus-visible:ring-green-500',
         },
-        // Add other themes if needed (e.g., blue, teal)
-        // blue: { buttonPrimaryBg: 'bg-blue-500 hover:bg-blue-600', ... }
     };
     const currentTheme = THEME_CLASSES[themeColor] || THEME_CLASSES.rose;
 
-    const { isEditMode } = formStateHook; // Get isEditMode from the hook
+    const { isEditMode } = formStateHook;
 
-    // Animation configuration for step transitions
     const animationConfig = {
         stepVariants: {
             enter: (direction = 1) => ({
@@ -90,76 +74,67 @@ const ProductFormStep = ({
         },
     };
 
-    // Effect to update the disabled state of the Continue/Submit button based on current step validity
     useEffect(() => {
         let isActive = true;
         const checkStepValidity = async () => {
-            // Only re-evaluate if this step is the one currently active in the modal
-            if (formStateHook.currentStep === stepIndex + 1) { // formStateHook.currentStep is 1-indexed
+            if (formStateHook.currentStep === stepIndex + 1) {
                 if (isActive) setIsButtonValidating(true);
-                const valid = await formStateHook.isCurrentStepValid(); // isCurrentStepValid is an async function
+                const valid = await formStateHook.isCurrentStepValid();
                 if (isActive) {
                     setIsButtonDisabled(!valid);
                     setIsButtonValidating(false);
                 }
             } else {
-                // If this specific ProductFormStep instance is not the active one,
-                // its buttons shouldn't be interactive. However, the disabled state should reflect
-                // the actual current step's validity. For simplicity, assume it's managed.
-                // This effect primarily cares about its *own* content's validity when it *is* the current step.
                 if (isActive) {
-                    setIsButtonDisabled(true); // Default to disabled if not the active step, prevents premature enabling.
+                    setIsButtonDisabled(true);
                     setIsButtonValidating(false);
                 }
             }
         };
 
         checkStepValidity();
-        return () => { isActive = false; }; // Cleanup to prevent state updates on unmounted component
+        return () => { isActive = false; };
     }, [formStateHook.isCurrentStepValid, formStateHook.formData, formStateHook.currentStep, stepIndex]);
 
-    // Handler for proceeding to the next step
     const handleProceedInternal = useCallback(async () => {
         if (isNavigating || formStateHook.submissionStatus === 'submitting' || isButtonValidating) return;
-
         setIsNavigating(true);
         setIsButtonValidating(true);
-
-        // Validate the current step before allowing progression
         const isValid = await formStateHook.validateStep(formStateHook.currentStep);
-
         setIsButtonValidating(false);
-
         if (isValid) {
-            onProceed(); // Call the nextStep function from useAddProductForm
+            onProceed();
         }
-        // Reset navigation lock after a delay to allow animations
-        setTimeout(() => setIsNavigating(false), 500); // Adjust timeout based on animation duration
-
+        setTimeout(() => setIsNavigating(false), 500);
     }, [isNavigating, formStateHook, onProceed, isButtonValidating]);
 
-    // Handler for submitting the entire form (or proceeding if not the final step)
     const handleSubmitForm = useCallback(async (e) => {
-        e.preventDefault(); // Prevent default browser form submission
+        e.preventDefault();
         if (isNavigating || formStateHook.submissionStatus === 'submitting' || isButtonValidating) return;
-
         if (isFinalStep) {
             if (typeof onSubmit === 'function') {
-                onSubmit(); // Call the final submission handler from AddProductModal
+                onSubmit();
             }
         } else {
-            await handleProceedInternal(); // Otherwise, just proceed to the next step
+            await handleProceedInternal();
         }
     }, [isFinalStep, onSubmit, handleProceedInternal, isNavigating, formStateHook.submissionStatus, isButtonValidating]);
 
-    // Handler for navigating to the previous step
     const handleBackNavigation = useCallback(() => {
         if (isNavigating || formStateHook.submissionStatus === 'submitting') return;
-        onBack(); // Call the prevStep function from useAddProductForm
+        onBack();
     }, [onBack, isNavigating, formStateHook.submissionStatus]);
 
-    // Final determination of whether the main action button (Continue/Submit) should be disabled
     const finalButtonDisabledState = formStateHook.submissionStatus === 'submitting' || isButtonDisabled || isButtonValidating || isNavigating;
+
+    // Localized button texts
+    const backButtonText = scriptLines.productFormStepButtonBack || "Back";
+    const continueButtonText = scriptLines.productFormStepButtonContinue || "Continue";
+    const submitProductButtonText = scriptLines.productFormStepButtonSubmitProduct || "Create Product";
+    const submittingButtonText = scriptLines.productFormStepButtonSubmitting || "Creating...";
+    const validatingButtonText = scriptLines.productFormStepButtonValidating || "Validating...";
+    const savingChangesButtonText = scriptLines.productFormStepButtonSaving || "Saving..."; // For edit mode
+    const saveChangesButtonText = scriptLines.productFormStepButtonSaveChanges || "Save Changes"; // For edit mode
 
     return (
         <motion.div
@@ -172,21 +147,21 @@ const ProductFormStep = ({
         >
             <div className="product-form-step-content-wrapper font-montserrat pt-4 pb-2">
                 <form onSubmit={handleSubmitForm} className="relative" noValidate>
+
                     <div className='space-y-6 md:space-y-8 h-120 px-1 pb-32 sm:pb-18 overflow-y-auto'>
                         {children}
                     </div>
-                    <div className="step-controls absolute w-full bottom-0 pt-6 sm:pt-8 flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 pt-6 sm:pt-8 bg-gradient-to-t from-white dark:from-neutral-800 from-70% to-neutral-0/0 dark:to-neutral-900 to-90%">
+                    <div className="step-controls absolute w-full bottom-0 pt-6 sm:pt-8 flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 bg-gradient-to-t from-white dark:from-neutral-800 from-70% to-neutral-0/0 dark:to-neutral-900 to-90%"> {/* Removed pt-6 sm:pt-8 from here as it was doubled */}
                         {formStateHook.currentStep > 1 ? (
                             <motion.button
                                 type="button"
                                 onClick={handleBackNavigation}
-                                disabled={isNavigating || formStateHook.submissionStatus === 'submitting'}
                                 className="navigation-button back-button w-full sm:w-auto flex items-center justify-center gap-x-2 px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 rounded-full transition-all duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 disabled:opacity-60"
                                 whileHover={{ scale: (prefersReducedMotion || isNavigating || formStateHook.submissionStatus === 'submitting') ? 1 : 1.02 }}
                                 whileTap={{ scale: (prefersReducedMotion || isNavigating || formStateHook.submissionStatus === 'submitting') ? 1 : 0.98 }}
                             >
                                 <Icon name="chevron_left" className="w-6 h-6" aria-hidden="true" />
-                                {scriptLines.formStep.buttons.back}
+                                {backButtonText}
                             </motion.button>
                         ) : (
                             <div className="hidden sm:block sm:w-auto" style={{ minWidth: 'calc(6rem + 20px)' }} />
@@ -194,7 +169,6 @@ const ProductFormStep = ({
 
                         <motion.button
                             type="submit"
-                            disabled={finalButtonDisabledState}
                             className={`navigation-button submit-button w-full sm:w-auto flex items-center justify-center gap-x-2 px-5 py-2.5 text-sm font-semibold text-white 
                                         ${isFinalStep
                                     ? (formStateHook.submissionStatus === 'submitting' ? 'bg-gray-400 cursor-wait' : `${currentTheme.buttonFinalBg} ${currentTheme.buttonFinalRing}`)
@@ -207,15 +181,15 @@ const ProductFormStep = ({
                             aria-live="polite"
                         >
                             {isButtonValidating ? (
-                                <><Icon name="progress_activity" className="animate-spin w-6 h-6 mr-2" /> {scriptLines.formStep.buttons.validating}</>
+                                <><Icon name="progress_activity" className="animate-spin w-6 h-6 mr-2" /> {validatingButtonText}</>
                             ) : isFinalStep ? (
                                 formStateHook.submissionStatus === 'submitting' ? (
-                                    <><Icon name="progress_activity" className="animate-spin w-6 h-6 mr-2" /> {isEditMode ? "Saving..." : scriptLines.formStep.buttons.submitting}</>
+                                    <><Icon name="progress_activity" className="animate-spin w-6 h-6 mr-2" /> {isEditMode ? savingChangesButtonText : submittingButtonText}</>
                                 ) : (
-                                    <><Icon name={isEditMode ? "save" : "add_task"} className="w-6 h-6 mr-2" /> {isEditMode ? "Save Changes" : scriptLines.formStep.buttons.submitProduct}</>
+                                    <><Icon name={isEditMode ? "save" : "add_task"} className="w-6 h-6 mr-2" /> {isEditMode ? saveChangesButtonText : submitProductButtonText}</>
                                 )
                             ) : (
-                                <>{scriptLines.formStep.buttons.continue} <Icon name="chevron_right" className="w-6 h-6 ml-1.5" aria-hidden="true" /></>
+                                <>{continueButtonText} <Icon name="chevron_right" className="w-6 h-6 ml-1.5" aria-hidden="true" /></>
                             )}
                         </motion.button>
                     </div>
@@ -237,11 +211,19 @@ ProductFormStep.propTypes = {
         submissionStatus: PropTypes.string,
         navigationDirection: PropTypes.oneOf([-1, 1, undefined]),
         isCurrentStepValid: PropTypes.func.isRequired,
+        isEditMode: PropTypes.bool, // Added isEditMode
     }).isRequired,
     onProceed: PropTypes.func.isRequired,
     onBack: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func, // Required only if isFinalStep is true
+    onSubmit: PropTypes.func,
     themeColor: PropTypes.string,
 };
+
+ProductFormStep.defaultProps = { // Added defaultProp for isEditMode in formStateHook
+    formStateHook: {
+        isEditMode: false,
+    }
+};
+
 
 export default memo(ProductFormStep);

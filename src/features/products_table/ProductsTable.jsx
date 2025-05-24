@@ -4,34 +4,44 @@ import { useProducts, useUpdateProduct, useDeleteProduct } from '../../contexts/
 import ProductsToolbar from './subcomponents/ProductsToolbar';
 import ProductsTableHeader from './subcomponents/ProductsTableHeader';
 import ProductsTableBody from './subcomponents/ProductsTableBody';
-import { initialColumns as allAvailableColumnsConfig, setTableActions } from './utils/tableConfig'; // Renamed for clarity
+import { initialColumns as allAvailableColumnsConfig, setTableInteractionContext } from './utils/tableConfig'; // Renamed
 import AddProductModal from '../add_product_modal/subcomponents/AddProductModal';
 import Icon from '../../components/common/Icon';
+import ConfirmationModal from '../../components/common/ConfirmationModal'; // Import ConfirmationModal
 
+// Placeholder for a real toast notification system (e.g., react-toastify, sonner)
 const toast = {
-    success: (message) => alert(`SUCCESS: ${message}`), // Replace with actual toast
-    error: (message) => alert(`ERROR: ${message}`),   // Replace with actual toast
+    success: (message) => console.log(`SUCCESS: ${message}`), // Replace with actual toast call
+    error: (message) => console.error(`ERROR: ${message}`),   // Replace with actual toast call
 };
 
 const ProductsTable = () => {
     const {
-        columnVisibility, // This is now a Set
+        columnVisibility,
         setColumnVisibility,
-        columnOrder, // This is an Array of keys
-        setColumnOrder, // New setter from useTableSettings
+        columnOrder,
+        setColumnOrder,
         filters, setFilters,
         sort, setSort,
         pagination, setPagination,
         resetTableSettings
     } = useTableSettings();
 
-    // ... (isAddProductModalOpen, editingProduct, queryParams, data fetching, mutations... remain largely the same)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [updatingStatusProductId, setUpdatingStatusProductId] = useState(null); // For status toggle loading
+
+    // State for Confirmation Modal
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [confirmModalProps, setConfirmModalProps] = useState({
+        message: '',
+        onConfirm: () => { },
+        isLoading: false,
+    });
+
 
     const queryParams = useMemo(() => {
-        // ...
-         const params = {
+        const params = {
             page: pagination.pageIndex + 1,
             search: filters.search,
             category: filters.category,
@@ -48,7 +58,7 @@ const ProductsTable = () => {
     const deleteProductMutation = useDeleteProduct();
 
     const handleUpdateProductField = async (productId, fieldKey, newValue) => {
-        // ...
+        // This is awaited by EditableCell, which handles its own isSaving state
         try {
             await updateProductMutation.mutateAsync({ productId, data: { [fieldKey]: newValue } });
             toast.success(`Product field '${fieldKey}' updated.`);
@@ -56,54 +66,74 @@ const ProductsTable = () => {
             console.error("Update failed in table:", err);
             const errorMessage = err.response?.data?.detail || err.response?.data?.[fieldKey]?.[0] || `Failed to update ${fieldKey}.`;
             toast.error(errorMessage);
-            throw err; 
+            throw err;
         }
     };
 
-    const handleStatusToggle = useCallback( async (productId, newStatus) => {
-        // ...
+    const handleStatusToggle = useCallback(async (productId, newStatus) => {
+        setUpdatingStatusProductId(productId);
         try {
             await updateProductMutation.mutateAsync({ productId, data: { is_active: newStatus } });
             toast.success(`Product status updated to ${newStatus ? 'Active' : 'Inactive'}.`);
         } catch (err) {
             console.error("Status update failed:", err);
             toast.error(err.response?.data?.detail || "Failed to update status.");
+            // Optionally refetch or revert UI state here if mutation doesn't handle it
+        } finally {
+            setUpdatingStatusProductId(null);
         }
     }, [updateProductMutation]);
 
-    const handleEditProduct = useCallback( (product) => {
+    const handleEditProduct = useCallback((product) => {
         setEditingProduct(product);
         setIsAddProductModalOpen(true);
     }, []);
 
-    const handleDeleteProduct = useCallback(
-        async (productId, productName) => {
-            // ...
-             if (window.confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
-                try {
-                    await deleteProductMutation.mutateAsync(productId);
-                    toast.success(`Product "${productName}" deleted successfully.`);
-                } catch (err) {
-                    console.error("Delete failed:", err);
-                    toast.error(err.response?.data?.detail || `Failed to delete "${productName}".`);
-                }
-            }
-        }, [deleteProductMutation]
-    );
-    
-    useEffect(() => {
-        setTableActions({
-            onEdit: handleEditProduct,
-            onDelete: handleDeleteProduct,
-            onStatusToggle: handleStatusToggle,
+    const handleDeleteRequest = useCallback((productId, productName) => {
+        setConfirmModalProps({
+            title: "Confirm Deletion",
+            message: `Are you sure you want to delete "${productName}"? This action cannot be undone.`,
+            onConfirm: () => confirmDeleteProduct(productId, productName),
+            isLoading: false,
         });
-    }, [handleEditProduct, handleDeleteProduct, handleStatusToggle]);
+        setIsConfirmModalOpen(true);
+    }, []);
+
+    const confirmDeleteProduct = async (productId, productName) => {
+        setConfirmModalProps(prev => ({ ...prev, isLoading: true }));
+        try {
+            await deleteProductMutation.mutateAsync(productId);
+            toast.success(`Product "${productName}" deleted successfully.`);
+            setIsConfirmModalOpen(false);
+        } catch (err) {
+            console.error("Delete failed:", err);
+            toast.error(err.response?.data?.detail || `Failed to delete "${productName}".`);
+            // Keep modal open to show error or close and show toast
+            setConfirmModalProps(prev => ({ ...prev, isLoading: false, message: `Error: ${err.response?.data?.detail || "Failed to delete."}` })); // Example: update message
+            // Or simply:
+            // setConfirmModalProps(prev => ({ ...prev, isLoading: false }));
+            // setIsConfirmModalOpen(false); // if you want to close it and rely on toast
+        } finally {
+            // Ensure isLoading is false if modal isn't closed on error
+            if (isConfirmModalOpen) { // Check if modal might still be open
+                setConfirmModalProps(prev => ({ ...prev, isLoading: false }));
+            }
+        }
+    };
+
+    useEffect(() => {
+        setTableInteractionContext({ // Use the renamed setter
+            onEdit: handleEditProduct,
+            onDeleteRequest: handleDeleteRequest, // Pass request handler
+            onStatusToggle: handleStatusToggle,
+            isProductStatusUpdating: (pid) => pid === updatingStatusProductId,
+        });
+    }, [handleEditProduct, handleDeleteRequest, handleStatusToggle, updatingStatusProductId]);
 
 
     const handleSort = (columnIdToSort) => {
         if (!allAvailableColumnsConfig.find(col => col.id === columnIdToSort)?.isSortable) return;
         setSort(prevSort => {
-            // ...
             if (prevSort.id === columnIdToSort) {
                 return { id: columnIdToSort, desc: !prevSort.desc };
             }
@@ -112,19 +142,16 @@ const ProductsTable = () => {
     };
 
     const visibleColumns = useMemo(() => {
-        // columnOrder is an array of keys.
-        // columnVisibility is a Set of visible keys.
         return columnOrder
-            .filter(key => columnVisibility.has(key)) // Filter by visibility first
-            .map(key => allAvailableColumnsConfig.find(col => col.id === key)) // Map to full column config
-            .filter(Boolean); // Ensure no undefined columns if a key in order is somehow not in allAvailableColumnsConfig
+            .filter(key => columnVisibility.has(key))
+            .map(key => allAvailableColumnsConfig.find(col => col.id === key))
+            .filter(Boolean);
     }, [columnOrder, columnVisibility]);
 
-    // ... (handleProductAddedOrUpdated, closeModal, isEffectivelyLoading, renderPaginationControls... remain same)
-    const handleProductAddedOrUpdated = () => { 
+    const handleProductAddedOrUpdated = () => {
         refetch();
         setIsAddProductModalOpen(false);
-        setEditingProduct(null); 
+        setEditingProduct(null);
     };
 
     const closeModal = () => {
@@ -132,10 +159,13 @@ const ProductsTable = () => {
         setEditingProduct(null);
     };
 
-    const isEffectivelyLoading = (isLoading && !productsData?.items?.length);
+    const closeConfirmModal = () => {
+        setIsConfirmModalOpen(false);
+    };
+
+    const isEffectivelyLoading = (isLoading && !productsData?.items?.length && !updateProductMutation.isLoading && !deleteProductMutation.isLoading);
 
     const renderPaginationControls = () => {
-        // ...
         if (!productsData || productsData.count === 0) return null;
         const { currentPage, totalPages, count, pageSize } = productsData;
 
@@ -201,16 +231,16 @@ const ProductsTable = () => {
                 filters={filters}
                 onFilterChange={setFilters}
                 sort={sort}
-                onSortChange={setSort} // Direct pass-through
-                columnVisibility={columnVisibility} // Pass the Set
-                onColumnVisibilityChange={setColumnVisibility} // Pass the updater function for the Set
-                columnOrder={columnOrder} // Pass the array of keys
-                onColumnOrderChange={setColumnOrder} // Pass the updater function for the array
-                allColumns={allAvailableColumnsConfig} // Pass full config
+                onSortChange={setSort}
+                columnVisibility={columnVisibility}
+                onColumnVisibilityChange={setColumnVisibility}
+                columnOrder={columnOrder}
+                onColumnOrderChange={setColumnOrder}
+                allColumns={allAvailableColumnsConfig}
                 onAddProduct={() => { setEditingProduct(null); setIsAddProductModalOpen(true); }}
                 onRefresh={refetch}
+                onResetTableSettings={resetTableSettings}
             />
-            {/* ... rest of the table structure ... */}
             <div className="flex-grow overflow-x-auto">
                 <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
                     <ProductsTableHeader
@@ -223,8 +253,9 @@ const ProductsTable = () => {
                         columns={visibleColumns}
                         isLoading={isEffectivelyLoading}
                         error={error}
-                        onUpdateProductField={handleUpdateProductField}
+                        onUpdateProductField={handleUpdateProductField} // This prop is still needed by ProductsTableCell for EditableCell
                         colSpan={visibleColumns.length}
+                    // No need to pass updatingStatusProductId here, tableConfig handles it via context
                     />
                 </table>
             </div>
@@ -234,6 +265,14 @@ const ProductsTable = () => {
                 onClose={closeModal}
                 onProductAdded={handleProductAddedOrUpdated}
                 initialProductData={editingProduct}
+            />
+            <ConfirmationModal
+                isOpen={isConfirmModalOpen}
+                onClose={closeConfirmModal}
+                onConfirm={confirmModalProps.onConfirm}
+                title={confirmModalProps.title}
+                message={confirmModalProps.message}
+                isLoading={confirmModalProps.isLoading}
             />
         </div>
     );

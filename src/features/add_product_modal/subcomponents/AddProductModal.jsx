@@ -10,6 +10,7 @@ import ModalStepIndicator from './ModalStepIndicator';
 import ProductFormStep from './ProductFormStep';
 import apiService from '../../../services/api';
 import Icon from '../../../components/common/Icon';
+import scriptLines from '../utils/script_lines';
 
 import Step1_BasicData_Actual from '../steps/Step1_BasicData';
 import Step2_EditableAttributes_Actual from '../steps/Step2_EditableAttributes';
@@ -46,22 +47,21 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
 
     useEffect(() => {
         if (isOpen) {
-            if (!isEditMode && !initialProductData) { // Ensure it's truly new product mode
+            if (!isEditMode && !initialProductData) {
                 setIsFetchingTemplate(true);
                 apiService.get('/products/last-template/')
                     .then(response => {
                         const template = response.data;
                         if (template && Object.keys(template).length > 0) {
-                            const templateFormData = { /* ... map template to formData structure ... */
+                            const templateFormData = { /* ... mapping logic ... */
                                 productName: template.name || '',
                                 subtitle: template.subtitle || '',
                                 description: template.description || '',
-                                category: template.category || '', // This is category ID
+                                category: template.category || '',
                                 productAttributes: (template.product_tags_details || []).map(tag => ({
                                     id: tag.id, label: tag.name, iconName: tag.icon_name || null,
                                 })),
-                                // productImage: template.image_url || null, // Don't load template image, user should upload new
-                                productImage: null, // Always start with no image for templates
+                                productImage: null,
                                 editableAttributes: (template.editable_attribute_groups || []).map(group => ({
                                     id: group.id, name: group.name, type: group.type, isRequired: group.is_required, display_order: group.display_order || 0,
                                     options: (group.options || []).map(opt => ({
@@ -83,27 +83,27 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                                     discount_percentage_override: ad.discount_percentage_override != null ? parseFloat(ad.discount_percentage_override) : null,
                                 })),
                                 additionalNotes: template.additional_notes || '',
-                                isTemplateCandidate: false, // Default to false when creating from template
+                                isTemplateCandidate: false,
                             };
                             updateFormData(templateFormData);
-                            console.log("[AddProductModal Effect] Loaded product from template (image cleared):", templateFormData);
+                            // console.log("[AddProductModal Effect] Loaded product from template (image cleared):", templateFormData); // Dev log
                         } else {
-                            resetForm(); 
+                            resetForm();
                         }
                     })
                     .catch(error => {
                         if (error.response && error.response.status === 404) {
-                            console.info("[AddProductModal Effect] No product template found (404). Resetting form.");
+                            console.info(scriptLines.addProductModal_noTemplateFound);
                         } else {
-                            console.error("[AddProductModal Effect] Error fetching product template:", error);
+                            console.error(scriptLines.addProductModal_errorFetchingTemplate, error);
                         }
                         resetForm();
                     })
                     .finally(() => setIsFetchingTemplate(false));
-            } else { // Edit mode or initialProductData is present
-                setIsFetchingTemplate(false); 
+            } else {
+                setIsFetchingTemplate(false);
             }
-        } else { 
+        } else {
             setIsFetchingTemplate(false);
         }
     }, [isOpen, isEditMode, initialProductData, updateFormData, resetForm]);
@@ -116,15 +116,13 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
         return () => document.removeEventListener('keydown', handleEscape);
     }, [isOpen, onClose]);
 
-    useEffect(() => {
-        if (isOpen) {
-            console.log("[AddProductModal Content Render] formData:", JSON.parse(JSON.stringify(formData)));
-        }
-    }, [isOpen, formData, currentStep]);
+    // useEffect(() => { // Dev log
+    //     if (isOpen) {
+    //         console.log("[AddProductModal Content Render] formData:", JSON.parse(JSON.stringify(formData)));
+    //     }
+    // }, [isOpen, formData, currentStep]);
 
-    // ... (parseApiErrors, handleCreateCategory, handleCreateAttribute) ...
     const parseApiErrors = (error, defaultMessage) => {
-        // ... (implementation as provided) ...
         if (error.response?.data) {
             const data = error.response.data;
             if (typeof data === 'object' && !Array.isArray(data)) {
@@ -138,22 +136,22 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                             const nestedFirstKey = nestedKeys[0];
                             message = `${nestedFirstKey}: ${Array.isArray(message[nestedFirstKey]) ? message[nestedFirstKey][0] : message[nestedFirstKey]}`;
                         } else {
-                            message = JSON.stringify(message); 
+                            message = JSON.stringify(message);
                         }
                     }
+                    // Dynamic field name, difficult to fully localize without backend sending localized field names or codes
                     return `${firstKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}: ${message}`;
                 }
             }
             if (data.detail) return data.detail;
             if (typeof data === 'string') return data;
         }
-        return error.message || defaultMessage;
+        return error.message || defaultMessage || scriptLines.addProductModal_error_apiErrorDefault;
     };
 
     const handleCreateCategory = async (dataFromDropdown) => {
-        // ... (implementation as provided) ...
         if (!user?.activeBusinessId) {
-            const msg = "Active business context missing.";
+            const msg = scriptLines.addProductModal_error_activeBusinessMissing;
             setErrors(prev => ({ ...prev, category: msg, form: msg }));
             throw new Error(msg);
         }
@@ -168,16 +166,15 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
             updateField('category', createdCategory.id);
             return createdCategory;
         } catch (error) {
-            const errorMessage = parseApiErrors(error, "Failed to create category.");
-            setErrors(prev => ({ ...prev, category: errorMessage, form: `Category creation failed: ${errorMessage}` }));
+            const errorMessage = parseApiErrors(error, scriptLines.addProductModal_error_failedToCreateCategory);
+            setErrors(prev => ({ ...prev, category: errorMessage, form: scriptLines.addProductModal_error_categoryCreationFailed.replace('{errorMessage}', errorMessage) }));
             throw error;
         }
     };
 
     const handleCreateAttribute = async (newAttributeData) => {
-        // ... (implementation as provided) ...
         if (!user?.activeBusinessId) {
-            const msg = "Active business context missing.";
+            const msg = scriptLines.addProductModal_error_activeBusinessMissing;
             setErrors(prev => ({ ...prev, productAttributes: msg, customTagModalError: msg, form: msg }));
             throw new Error(msg);
         }
@@ -190,18 +187,17 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
             const createdAttribute = await createAttributeMutation.mutateAsync(payload);
             const attributeForForm = {
                 id: createdAttribute.id,
-                label: createdAttribute.name, 
-                iconName: createdAttribute.icon_name, 
+                label: createdAttribute.name,
+                iconName: createdAttribute.icon_name,
             };
             updateField('productAttributes', [...(formData.productAttributes || []), attributeForForm]);
             return createdAttribute;
         } catch (error) {
-            const errorMessage = parseApiErrors(error, "Failed to create tag.");
-            setErrors(prev => ({ ...prev, customTagModalError: errorMessage, form: `Tag creation failed: ${errorMessage}` }));
+            const errorMessage = parseApiErrors(error, scriptLines.addProductModal_error_failedToCreateTag);
+            setErrors(prev => ({ ...prev, customTagModalError: errorMessage, form: scriptLines.addProductModal_error_tagCreationFailed.replace('{errorMessage}', errorMessage) }));
             throw error;
         }
     };
-
 
     const handleFinalSubmit = async () => {
         setIsSubmittingProduct(true);
@@ -217,14 +213,13 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
         const imageFileToUpload = formData.productImage instanceof File ? formData.productImage : null;
         const imageWasCleared = isEditMode && formData.productImage === null && initialProductData?.image_url;
 
-        // 1. Prepare JSON data payload (always, no image file here)
         const jsonDataPayload = {
             name: formData.productName,
             subtitle: formData.subtitle || null,
             description: formData.description || null,
             business: user?.activeBusinessId,
             category: formData.category || null,
-            product_tags: (formData.productAttributes || []).map(attr => attr.id), // Array of IDs
+            product_tags: (formData.productAttributes || []).map(attr => attr.id),
             product_type: formData.productType,
             recipe_yields: formData.productType === 'made_in_house' ? (Number(formData.recipeYields) || 1) : 1,
             labor_overhead_cost: formData.laborAndOverheadCost !== null ? Number(formData.laborAndOverheadCost) : 0,
@@ -251,12 +246,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                 discount_percentage_override: disc.discount_percentage_override !== null ? Number(disc.discount_percentage_override) : null,
             })),
         };
-
-        // Note: If image is not changed in edit mode, 'image' field is not sent in JSON, backend won't touch it.
-        // The backend ProductSerializer's 'image' field will be read_only.
-        // Clearing an image is handled by a separate DELETE request.
-
-        console.log('[handleFinalSubmit] JSON Data Payload:', JSON.parse(JSON.stringify(jsonDataPayload)));
+        // console.log('[handleFinalSubmit] JSON Data Payload:', JSON.parse(JSON.stringify(jsonDataPayload))); // Dev log
 
         try {
             let productDataResponse;
@@ -272,39 +262,37 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                 productDataResponse = await apiService.post('/products/', jsonDataPayload, jsonRequestConfig);
             }
 
-            let resultingProduct = productDataResponse.data; 
+            let resultingProduct = productDataResponse.data;
             let finalProductId = resultingProduct.id;
 
-            // 2. Handle Image: Upload or Delete
             if (imageFileToUpload && finalProductId) {
                 try {
                     const imageResponse = await apiService.uploadProductImage(finalProductId, imageFileToUpload);
-                    // Update resultingProduct with new image URL if backend returns it
                     if (imageResponse.data && imageResponse.data.image_url) {
                         resultingProduct.image_url = imageResponse.data.image_url;
                     }
-                    toast.info("Image uploaded successfully.");
+                    toast.info(scriptLines.addProductModal_toast_imageUploaded);
                 } catch (imageError) {
-                    console.error("Error uploading product image:", imageError.response || imageError);
-                    toast.error(`Product data saved, but image upload failed: ${parseApiErrors(imageError, "Image upload error.")}`);
+                    const errMsg = parseApiErrors(imageError, "Image upload error."); // "Image upload error." can be localized too
+                    toast.error(scriptLines.addProductModal_toast_imageUploadFailed.replace('{errorMessage}', errMsg));
                 }
             } else if (imageWasCleared && finalProductId) {
                 try {
                     await apiService.deleteProductImage(finalProductId);
-                    toast.info("Image removed.");
+                    toast.info(scriptLines.addProductModal_toast_imageRemoved);
                     if (resultingProduct.image_url) resultingProduct.image_url = null;
                 } catch (deleteImageError) {
-                    console.error("Error deleting product image:", deleteImageError.response || deleteImageError);
-                    toast.error(`Product data saved, but image removal failed: ${parseApiErrors(deleteImageError, "Image removal error.")}`);
+                    const errMsg = parseApiErrors(deleteImageError, "Image removal error."); // "Image removal error." can be localized
+                    toast.error(scriptLines.addProductModal_toast_imageRemoveFailed.replace('{errorMessage}', errMsg));
                 }
             }
-            
-            toast.success(isEditMode ? "Product updated successfully!" : "Product added successfully!");
+
+            toast.success(isEditMode ? scriptLines.addProductModal_toast_productUpdated : scriptLines.addProductModal_toast_productAdded);
             onProductAdded(resultingProduct);
             onClose();
 
         } catch (apiError) {
-            console.error(isEditMode ? "Error updating product:" : "Error adding product:", apiError.response || apiError);
+            // console.error(isEditMode ? "Error updating product:" : "Error adding product:", apiError.response || apiError); // Dev log
             const backendErrors = apiError.response?.data;
             const newErrorsState = {};
             if (backendErrors && typeof backendErrors === 'object') {
@@ -313,7 +301,6 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                         name: 'productName', selling_price_excl_tax: 'sellingPrice',
                         labor_overhead_cost: 'laborAndOverheadCost', recipe_yields: 'recipeYields',
                         product_tags: 'productAttributes', tax_rate: 'taxRateId', category: 'category',
-                        // image: 'productImage', // Image errors handled separately or via general form error
                         editable_attribute_groups: 'editableAttributes',
                         recipe_components: 'recipeComponents',
                         applied_product_discounts: 'appliedDiscounts',
@@ -333,7 +320,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                     }
                 }
             }
-            const formMessage = newErrorsState.detail || newErrorsState.non_field_errors || parseApiErrors(apiError, isEditMode ? "Failed to update product." : "Failed to add product.");
+            const formMessage = newErrorsState.detail || newErrorsState.non_field_errors || parseApiErrors(apiError, isEditMode ? scriptLines.addProductModal_error_failedToUpdateProduct : scriptLines.addProductModal_error_failedToAddProduct);
             if (newErrorsState.detail) delete newErrorsState.detail;
             if (newErrorsState.non_field_errors) delete newErrorsState.non_field_errors;
 
@@ -352,18 +339,19 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
         };
 
         if (isLoadingCategories || isLoadingAttributes || (isFetchingTemplate && !isEditMode)) {
-            return ( /* ... loading indicator ... */
+            return (
                 <div className="flex justify-center items-center h-120">
                     <Icon name="hourglass_empty" className="w-8 h-8 text-rose-500 animate-spin" style={{ fontSize: "2rem" }} />
-                    <p className="ml-3 text-neutral-600 dark:text-neutral-300">Loading product setup...</p>
+                    <p className="ml-3 text-neutral-600 dark:text-neutral-300">{scriptLines.addProductModal_loading_productSetup}</p>
                 </div>
             );
         }
         if (categoriesError || attributesError) {
-            return ( /* ... error display ... */
+            const errorMsg = categoriesError?.message || attributesError?.message || scriptLines.addProductModal_loading_initialDataError_fallback;
+            return (
                 <div className="text-red-500 p-4 text-center">
                     <Icon name="error_outline" className="w-10 h-10 mx-auto mb-2" />
-                    Error loading initial data: {categoriesError?.message || attributesError?.message || "Please try again."}
+                    {scriptLines.addProductModal_loading_initialDataError.replace('{errorMessage}', errorMsg)}
                 </div>
             );
         }
@@ -378,28 +366,25 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                             onCategoryCreate={handleCreateCategory}
                             availableInitialAttributes={(attributesData || []).map(attr => ({ ...attr, id: attr.id, label: attr.name, iconName: attr.icon_name }))}
                             onAttributeCreate={handleCreateAttribute}
-                            customTagCreationError={errors?.customTagModalError} // Use this for CustomTagModal
+                            customTagCreationError={errors?.customTagModalError}
                         />
                     </ProductFormStep>
                 );
-            case 2:
-                return (
-                    <ProductFormStep key={currentStep} stepIndex={1} {...commonFormStepProps}>
-                        <Step2_EditableAttributes_Actual formData={formData} updateField={updateField} errors={errors} />
-                    </ProductFormStep>
-                );
-            case 3:
-                return (
-                    <ProductFormStep key={currentStep} stepIndex={2} {...commonFormStepProps}>
-                        <Step3_Ingredients_Actual formData={formData} updateField={updateField} updateFormData={updateFormData} errors={errors} />
-                    </ProductFormStep>
-                );
-            case 4:
-                return (
-                    <ProductFormStep key={currentStep} stepIndex={3} {...commonFormStepProps}>
-                        <Step4_Pricing_Actual formData={formData} updateField={updateField} updateFormData={updateFormData} errors={errors} />
-                    </ProductFormStep>
-                );
+            case 2: /* ... */ return (
+                <ProductFormStep key={currentStep} stepIndex={1} {...commonFormStepProps}>
+                    <Step2_EditableAttributes_Actual formData={formData} updateField={updateField} errors={errors} />
+                </ProductFormStep>
+            );
+            case 3: /* ... */ return (
+                <ProductFormStep key={currentStep} stepIndex={2} {...commonFormStepProps}>
+                    <Step3_Ingredients_Actual formData={formData} updateField={updateField} updateFormData={updateFormData} errors={errors} />
+                </ProductFormStep>
+            );
+            case 4: /* ... */ return (
+                <ProductFormStep key={currentStep} stepIndex={3} {...commonFormStepProps}>
+                    <Step4_Pricing_Actual formData={formData} updateField={updateField} updateFormData={updateFormData} errors={errors} />
+                </ProductFormStep>
+            );
             case 5:
                 return (
                     <ProductFormStep key={currentStep} stepIndex={4} isFinalStep={true} onSubmit={handleFinalSubmit} {...commonFormStepProps}>
@@ -407,12 +392,12 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                             formData={formData}
                             updateField={updateField}
                             errors={errors}
-                            activeBusinessId={user?.activeBusinessId} // Pass for discount creation
+                            activeBusinessId={user?.activeBusinessId}
                         />
                     </ProductFormStep>
                 );
             default:
-                return <div className="p-4 text-center text-red-500">Error: Invalid step.</div>;
+                return <div className="p-4 text-center text-red-500">{scriptLines.addProductModal_error_invalidStep}</div>;
         }
     };
 
@@ -445,28 +430,29 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                             productName={formData.productName}
                             onProductNameSave={(name) => updateField('productName', name)}
                             productNameError={errors?.productName}
-                            titlePlaceholder={isEditMode ? "Edit Product Name..." : "Enter Product Name..."} // Adjusted placeholder
-                            isEditMode={isEditMode} // Pass isEditMode
+                            titlePlaceholder={isEditMode ? scriptLines.addProductModal_header_placeholderEdit : scriptLines.addProductModal_header_placeholderNew}
+                            isEditMode={isEditMode}
                         />
                         <div className="px-4 sm:px-6 pt-2 sm:pt-4 pb-4 flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent">
                             {showInitialLoadingOrError ? (
-                                // ... (keep existing loading/error display for initial data) ...
                                 <>
                                     {(isLoadingCategories || isLoadingAttributes || (isFetchingTemplate && !isEditMode)) && (
                                         <div className="flex flex-col items-center justify-center h-full min-h-[300px] p-10">
                                             <Icon name="hourglass_empty" className="w-12 h-12 text-rose-500 animate-spin mb-4 flex items-center justify-center" style={{ fontSize: "2.75rem" }} />
-                                            <p className="text-lg font-medium text-neutral-700 dark:text-neutral-300">Preparing product form...</p>
-                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Fetching latest settings and templates.</p>
+                                            <p className="text-lg font-medium text-neutral-700 dark:text-neutral-300">{scriptLines.addProductModal_loading_preparingForm}</p>
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{scriptLines.addProductModal_loading_fetchingSettings}</p>
                                         </div>
                                     )}
                                     {(categoriesError || attributesError) && (
                                         <div className="flex flex-col items-center justify-center h-full min-h-[300px] p-10 text-center">
                                             <Icon name="error_outline" className="w-12 h-12 text-red-500 mb-4" style={{ fontSize: "2.5rem" }} />
-                                            <p className="text-lg font-medium text-red-700 dark:text-red-400">Could not load essential data.</p>
+                                            <p className="text-lg font-medium text-red-700 dark:text-red-400">{scriptLines.addProductModal_error_couldNotLoadData}</p>
                                             <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-                                                {categoriesError?.message || attributesError?.message || "Please try closing and reopening the modal."}
+                                                {categoriesError?.message || attributesError?.message || scriptLines.addProductModal_error_tryClosingModal}
                                             </p>
-                                            <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 rounded-md">Close</button>
+                                            <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 rounded-md">
+                                                {scriptLines.common_cancel || scriptLines.addProductModal_button_close}
+                                            </button>
                                         </div>
                                     )}
                                 </>
@@ -475,17 +461,15 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                                     <ModalStepIndicator
                                         currentStep={currentStep} totalSteps={TOTAL_STEPS} stepSaved={stepSaved}
                                         onStepClick={async (stepNum) => {
-                                            // Allow navigation to previous valid steps or next if current is valid
                                             if (stepNum < currentStep || (stepNum === currentStep + 1 && await formStateHook.isCurrentStepValid())) {
                                                 const currentStepContentIsValid = await formStateHook.validateStep(currentStep);
-                                                // Allow navigation back even if current step has errors, but save attempt if it was valid enough
                                                 if (currentStepContentIsValid || (errors && Object.keys(errors).length > 0 && !Object.keys(errors).some(k => k !== 'form'))) {
                                                     goToStep(stepNum);
-                                                } else if (stepNum < currentStep) { // Allow going back even if current step is invalid
+                                                } else if (stepNum < currentStep) {
                                                     goToStep(stepNum);
                                                 }
                                             } else if (stepSaved[stepNum - 1] === true || stepSaved[stepNum - 1] === 'ticked') {
-                                                goToStep(stepNum); // Allow navigation to already saved/ticked steps
+                                                goToStep(stepNum);
                                             }
                                         }}
                                     />

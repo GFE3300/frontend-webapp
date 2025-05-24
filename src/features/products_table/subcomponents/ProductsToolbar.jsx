@@ -121,9 +121,9 @@ const ProductsToolbar = ({
             </button>
             <button
                 onClick={onAddProduct}
-                className="px-4 h-10 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg flex items-center"
+                className="px-2 pr-4 h-9 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-full flex items-center"
             >
-                <Icon name="add_circle" className="w-5 h-5 mr-2" />
+                <Icon name="add_circle" className="w-5 h-5 mr-2" style={{ fontSize: '1.25rem'}}/>
                 Add Product
             </button>
         </div>

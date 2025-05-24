@@ -14,24 +14,24 @@ export const COLUMN_KEYS = {
     TYPE: 'product_type',
     PRICE: 'selling_price_excl_tax',
     COST: 'labor_overhead_cost',
-    STOCK: 'stock', // Placeholder
-    SALES: 'sales', // Placeholder
+    STOCK: 'stock',
+    SALES: 'sales',
     STATUS: 'is_active',
     TAGS: 'product_tags',
     BARCODE: 'barcode',
     LAST_UPDATED: 'updated_at',
 };
 
-// Function to be passed from ProductsTable to handle actions
-// We define it here for clarity, but it will be populated in ProductsTable
-let tableActions = {
+// This context will be populated by ProductsTable
+let tableInteractionContext = {
     onEdit: (product) => console.warn('onEdit not implemented', product),
-    onDelete: (productId, productName) => console.warn('onDelete not implemented', productId, productName),
+    onDeleteRequest: (productId, productName) => console.warn('onDeleteRequest not implemented', productId, productName), // Renamed to avoid confusion with direct delete
     onStatusToggle: (productId, newStatus) => console.warn('onStatusToggle not implemented', productId, newStatus),
+    isProductStatusUpdating: (productId) => false, // New: check if a specific product's status is updating
 };
 
-export const setTableActions = (actions) => {
-    tableActions = { ...tableActions, ...actions };
+export const setTableInteractionContext = (context) => {
+    tableInteractionContext = { ...tableInteractionContext, ...context };
 };
 
 
@@ -39,22 +39,22 @@ export const initialColumns = [
     {
         id: COLUMN_KEYS.ACTIONS,
         header: 'Actions',
-        accessorKey: 'actions', // Special key, not directly from data
+        accessorKey: 'actions',
         isSortable: false,
-        isVisibilityToggleable: false, // Usually actions column is always visible
-        size: 100, // Increased size for more icons
-        sticky: 'left', // For fixed column
+        isVisibilityToggleable: false,
+        size: 100,
+        sticky: 'left',
         cell: ({ row }) => (
             <div className="flex space-x-2 items-center">
                 <button
-                    onClick={() => tableActions.onEdit(row.original)}
+                    onClick={() => tableInteractionContext.onEdit(row.original)}
                     title="Edit Product"
                     className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                 >
                     <Icon name="edit" className="w-4 h-4" />
                 </button>
                 <button
-                    onClick={() => tableActions.onDelete(row.original.id, row.original.name)}
+                    onClick={() => tableInteractionContext.onDeleteRequest(row.original.id, row.original.name)}
                     title="Delete Product"
                     className="p-1 text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 transition-colors"
                 >
@@ -63,6 +63,7 @@ export const initialColumns = [
             </div>
         ),
     },
+    // ... (IMAGE, NAME, SKU, CATEGORY, TYPE, PRICE, COST, STOCK, SALES columns remain the same for brevity)
     {
         id: COLUMN_KEYS.IMAGE,
         header: 'Image',
@@ -78,8 +79,8 @@ export const initialColumns = [
         header: 'Product Name',
         accessorKey: 'name',
         isSortable: true,
-        cellType: 'editableText', // Enable inline editing
-        cell: ({ row, getValue }) => ( // Keep custom display for subtitle
+        cellType: 'editableText',
+        cell: ({ row, getValue }) => (
             <div>
                 <span className="font-medium text-neutral-800 dark:text-neutral-100">{getValue()}</span>
                 {row.original.subtitle && <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{row.original.subtitle}</p>}
@@ -106,8 +107,7 @@ export const initialColumns = [
         header: 'Price',
         accessorKey: 'selling_price_excl_tax',
         isSortable: true,
-        cellType: 'editableCurrency', // Custom type for EditableCell
-        // cell: ({ getValue }) => `$${parseFloat(getValue() || 0).toFixed(2)}`, // EditableCell will handle display
+        cellType: 'editableCurrency',
         size: 100,
     },
     {
@@ -115,24 +115,23 @@ export const initialColumns = [
         header: 'Cost',
         accessorKey: 'labor_overhead_cost',
         isSortable: true,
-        cellType: 'editableCurrency', // Custom type for EditableCell
-        // cell: ({ getValue }) => `$${parseFloat(getValue() || 0).toFixed(2)}`, // EditableCell will handle display
+        cellType: 'editableCurrency',
         size: 100,
     },
     {
         id: COLUMN_KEYS.STOCK,
         header: 'Stock Level',
-        accessorKey: 'stock', // This field needs to be calculated or mocked
-        isSortable: false, // Sorting might be complex for calculated stock
-        cell: ({ getValue }) => <StockProgressBar percentage={getValue() || 0} />, // getValue() should be a percentage
+        accessorKey: 'stock',
+        isSortable: false,
+        cell: ({ getValue }) => <StockProgressBar percentage={getValue() || 0} />,
         size: 150,
     },
     {
         id: COLUMN_KEYS.SALES,
         header: 'Sales (7d)',
-        accessorKey: 'sales', // This field needs to come from aggregated data
+        accessorKey: 'sales',
         isSortable: false,
-        cell: ({ getValue }) => <SalesSparkline data={getValue() || []} />, // getValue() should be an array of numbers
+        cell: ({ getValue }) => <SalesSparkline data={getValue() || []} />,
         size: 120,
     },
     {
@@ -140,14 +139,15 @@ export const initialColumns = [
         header: 'Status',
         accessorKey: 'is_active',
         isSortable: true,
-        cell: ({ row }) => ( // Modified to use SimpleToggle
+        cell: ({ row }) => (
             <SimpleToggle
                 checked={row.original.is_active}
-                onChange={() => tableActions.onStatusToggle(row.original.id, !row.original.is_active)}
+                onChange={() => tableInteractionContext.onStatusToggle(row.original.id, !row.original.is_active)}
                 size="sm"
+                isLoading={tableInteractionContext.isProductStatusUpdating(row.original.id)} // Use context here
             />
         ),
-        size: 80, // Reduced size as toggle is compact
+        size: 80,
     },
     {
         id: COLUMN_KEYS.TAGS,
@@ -176,11 +176,12 @@ export const initialColumns = [
         header: 'Last Updated',
         accessorKey: 'updated_at',
         isSortable: true,
-        cell: ({ getValue }) => new Date(getValue()).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }), // Improved date formatting
-        size: 180, // Increased size for more descriptive date
+        cell: ({ getValue }) => new Date(getValue()).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }),
+        size: 180,
     },
 ];
 
+// ... (defaultColumnVisibility, defaultColumnOrder, filterOptions, sortOptions remain the same)
 export const defaultColumnVisibility = initialColumns.reduce((acc, col) => {
     if ([COLUMN_KEYS.STOCK, COLUMN_KEYS.SALES, COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED].includes(col.id)) {
         acc[col.id] = false;
@@ -192,9 +193,8 @@ export const defaultColumnVisibility = initialColumns.reduce((acc, col) => {
 
 export const defaultColumnOrder = initialColumns.map(col => col.id);
 
-// Filter options for the toolbar
 export const filterOptions = {
-    category: [], // Will be populated from useCategories
+    category: [],
     product_type: [
         { value: '', label: 'All Types' },
         { value: 'made_in_house', label: 'Made In-House' },
@@ -202,7 +202,7 @@ export const filterOptions = {
     ],
     is_active: [
         { value: '', label: 'All Statuses' },
-        { value: 'active', label: 'Active' }, // These values must match what useProducts expects ('active'/'inactive')
+        { value: 'active', label: 'Active' },
         { value: 'inactive', label: 'Inactive' },
     ],
 };
