@@ -60,20 +60,37 @@ export const useCategories = (options = {}) => {
  */
 export const useUpdateProduct = (options = {}) => {
     const queryClient = useQueryClient();
+    const { user } = useAuth();
+
     return useMutation({
-        mutationFn: ({ productId, data, requestHeaders }) => // Accept requestHeaders
-            apiService.patch(`/products/${productId}/`, data, { headers: requestHeaders }), // Pass as Axios config
-        onSuccess: (data, variables, context) => {
-            // Invalidate the specific product details query
+        mutationFn: ({ productId, data, requestHeaders }) =>
+            apiService.patch(`/products/${productId}/`, data, { headers: requestHeaders }),
+
+        onSuccess: (responseData, variables, context) => {
+            console.log("Product update success. Response:", responseData, "Variables:", variables);
+
+            // Invalidate the specific product details query (good for detail pages)
             queryClient.invalidateQueries({ queryKey: queryKeys.productDetails(variables.productId) });
-            // Invalidate the list query to refresh the table
-            queryClient.invalidateQueries({ queryKey: [queryKeys.products, 'list'] }); // More general invalidation for lists
-            if (options.onSuccess) options.onSuccess(data, variables, context);
+
+            // Invalidate ALL product lists to ensure the table refreshes.
+            // The key ['products', 'list'] will match all queries starting with it,
+            // such as ['products', 'list', { page: 1, ... }]
+            queryClient.invalidateQueries({ queryKey: [queryKeys.PRODUCTS_BASE_KEY, 'list'] });
+            // queryKeys.PRODUCTS_BASE_KEY is 'products'
+
+            // If there was a global onSuccess passed when calling useUpdateProduct (not common for this setup)
+            if (options.onSuccess) {
+                options.onSuccess(responseData, variables, context);
+            }
         },
+
         onError: (error, variables, context) => {
-            // console.error("Error updating product:", error);
-            if (options.onError) options.onError(error, variables, context);
+            console.error("Error updating product in useUpdateProduct:", error);
+            if (options.onError) {
+                options.onError(error, variables, context);
+            }
         },
+
         ...options,
     });
 };

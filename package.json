@@ -32,6 +32,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
+    "react-hot-toast": "^2.5.2",
     "react-image-crop": "^11.0.10",
     "react-map-gl": "^6.1.21",
     "react-query": "^3.39.3",

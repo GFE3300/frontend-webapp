@@ -1,10 +1,13 @@
+// features/products_table/utils/tableConfig.jsx
 import React from 'react';
-import StockProgressBar from '../subcomponents/StockProgressBar';
-import SalesSparkline from '../subcomponents/SalesSparkline';
 import Icon from '../../../components/common/Icon';
-import SimpleToggle from '../subcomponents/SimpleToggle';
 
-// Define unique keys for each column for stable rendering and settings
+import CategoryLabel from '../subcomponents/cell_contents/CategoryLabel';
+import StockLevelDisplay from '../subcomponents/cell_contents/StockLevelDisplay';
+import TagPills from '../subcomponents/cell_contents/TagPills';
+import SalesSparkline from '../subcomponents/cell_contents/SalesSparkline';
+import SimpleToggle from '../subcomponents/cell_contents/SimpleToggle';
+
 export const COLUMN_KEYS = {
     ACTIONS: 'actions',
     IMAGE: 'image',
@@ -14,7 +17,7 @@ export const COLUMN_KEYS = {
     TYPE: 'product_type',
     PRICE: 'selling_price_excl_tax',
     COST: 'labor_overhead_cost',
-    STOCK: 'stock',
+    STOCK: 'stock_quantity',
     SALES: 'sales',
     STATUS: 'is_active',
     TAGS: 'product_tags',
@@ -22,12 +25,11 @@ export const COLUMN_KEYS = {
     LAST_UPDATED: 'updated_at',
 };
 
-// This context will be populated by ProductsTable
 let tableInteractionContext = {
     onEdit: (product) => console.warn('onEdit not implemented', product),
-    onDeleteRequest: (productId, productName) => console.warn('onDeleteRequest not implemented', productId, productName), // Renamed to avoid confusion with direct delete
+    onDeleteRequest: (productId, productName) => console.warn('onDeleteRequest not implemented', productId, productName),
     onStatusToggle: (productId, newStatus) => console.warn('onStatusToggle not implemented', productId, newStatus),
-    isProductStatusUpdating: (productId) => false, // New: check if a specific product's status is updating
+    isProductStatusUpdating: (productId) => false,
 };
 
 export const setTableInteractionContext = (context) => {
@@ -41,151 +43,256 @@ export const initialColumns = [
         header: 'Actions',
         accessorKey: 'actions',
         isSortable: false,
+        isResizable: false, // Actions column usually not resizable
+        minWidth: 100,      // Still good to have a minWidth
         isVisibilityToggleable: false,
         size: 100,
         sticky: 'left',
+        align: 'center',
+        skeletonType: 'actions',
         cell: ({ row }) => (
-            <div className="flex space-x-2 items-center">
+            <div className="flex space-x-2 items-center justify-center">
                 <button
                     onClick={() => tableInteractionContext.onEdit(row.original)}
                     title="Edit Product"
-                    className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    className="p-1 w-7 h-7 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                 >
-                    <Icon name="edit" className="w-4 h-4" />
+                    <Icon name="edit" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
                 </button>
                 <button
                     onClick={() => tableInteractionContext.onDeleteRequest(row.original.id, row.original.name)}
                     title="Delete Product"
-                    className="p-1 text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 transition-colors"
+                    className="p-1 w-7 h-7 text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 transition-colors"
                 >
-                    <Icon name="delete" className="w-4 h-4" />
+                    <Icon name="delete" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
                 </button>
             </div>
         ),
     },
-    // ... (IMAGE, NAME, SKU, CATEGORY, TYPE, PRICE, COST, STOCK, SALES columns remain the same for brevity)
     {
         id: COLUMN_KEYS.IMAGE,
         header: 'Image',
         accessorKey: 'image_url',
         isSortable: false,
-        cell: ({ getValue }) => (
-            getValue() ? <img src={getValue()} alt="Product" className="w-10 h-10 object-cover rounded" /> : <div className="w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded flex items-center justify-center text-neutral-400 dark:text-neutral-500"><Icon name="image_not_supported" /></div>
-        ),
+        isResizable: false, // Images are usually fixed size
+        minWidth: 80,
+        isVisibilityToggleable: true, // Assuming this can be toggled
         size: 80,
+        align: 'center',
+        skeletonType: 'image',
+        cell: ({ getValue }) => (
+            <div className="flex justify-center items-center w-full h-full">
+                {getValue() ? <img src={getValue()} alt="Product" className="w-10 h-10 object-cover rounded" /> : <div className="w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded flex items-center justify-center text-neutral-400 dark:text-neutral-500"><Icon name="image_not_supported" /></div>}
+            </div>
+        ),
     },
     {
         id: COLUMN_KEYS.NAME,
         header: 'Product Name',
         accessorKey: 'name',
         isSortable: true,
+        isResizable: true,
+        minWidth: 150,
         cellType: 'editableText',
-        cell: ({ row, getValue }) => (
-            <div>
-                <span className="font-medium text-neutral-800 dark:text-neutral-100">{getValue()}</span>
-                {row.original.subtitle && <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{row.original.subtitle}</p>}
-            </div>
-        ),
         size: 250,
+        align: 'left',
+        skeletonType: 'name',
+        cell: ({ row, getValue, column }) => {
+            if (column.cellType === 'editableText' && tableInteractionContext.onUpdateProductField) {
+                return (
+                    <div>
+                        <span className="font-medium text-neutral-800 dark:text-neutral-100">{getValue()}</span>
+                        {row.original.subtitle && <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{row.original.subtitle}</p>}
+                    </div>
+                );
+            }
+            return (
+                <div>
+                    <span className="font-medium text-neutral-800 dark:text-neutral-100">{getValue()}</span>
+                    {row.original.subtitle && <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{row.original.subtitle}</p>}
+                </div>
+            );
+        }
     },
-    { id: COLUMN_KEYS.SKU, header: 'SKU', accessorKey: 'sku', isSortable: true, cellType: 'editableText', size: 120 },
-    { id: COLUMN_KEYS.CATEGORY, header: 'Category', accessorFn: (row) => row.category_details?.name || 'N/A', isSortable: true, size: 150 },
+    {
+        id: COLUMN_KEYS.SKU,
+        header: 'SKU',
+        accessorKey: 'sku',
+        isSortable: true,
+        isResizable: true,
+        minWidth: 100,
+        cellType: 'editableText',
+        size: 120,
+        align: 'left',
+        skeletonType: 'sku',
+    },
+    {
+        id: COLUMN_KEYS.CATEGORY,
+        header: 'Category',
+        accessorFn: (row) => row.category_details,
+        isSortable: true,
+        isResizable: true,
+        minWidth: 120,
+        size: 180,
+        align: 'left',
+        skeletonType: 'text_short',
+        cell: ({ getValue }) => {
+            const category = getValue();
+            return <CategoryLabel category={category} />;
+        },
+    },
     {
         id: COLUMN_KEYS.TYPE,
         header: 'Type',
         accessorKey: 'product_type',
         isSortable: true,
-        cell: ({ getValue }) => (
-            <span className={`px-2 py-0.5 text-xs rounded-full ${getValue() === 'made_in_house' ? 'bg-sky-100 text-sky-700 dark:bg-sky-700 dark:text-sky-100' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-700 dark:text-emerald-100'}`}>
-                {getValue()?.replace(/_/g, ' ')?.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-            </span>
-        ),
+        isResizable: true,
+        minWidth: 100,
         size: 150,
+        align: 'left',
+        skeletonType: 'badge',
+        cell: ({ getValue }) => {
+            const type = getValue();
+            if (!type) return null;
+            return (
+                <span className={`px-2 py-1 font-montserrat py-0.5 text-xs rounded-full ${type === 'made_in_house' ? 'bg-sky-100 text-sky-700 dark:bg-sky-700 dark:text-sky-100' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-700 dark:text-emerald-100'}`}>
+                    {type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                </span>
+            );
+        }
     },
     {
         id: COLUMN_KEYS.PRICE,
         header: 'Price',
         accessorKey: 'selling_price_excl_tax',
         isSortable: true,
+        isResizable: true,
+        minWidth: 80,
         cellType: 'editableCurrency',
         size: 100,
+        align: 'right',
+        skeletonType: 'price',
     },
     {
         id: COLUMN_KEYS.COST,
         header: 'Cost',
         accessorKey: 'labor_overhead_cost',
         isSortable: true,
+        isResizable: true,
+        minWidth: 80,
         cellType: 'editableCurrency',
         size: 100,
+        align: 'right',
+        skeletonType: 'price',
     },
     {
         id: COLUMN_KEYS.STOCK,
         header: 'Stock Level',
-        accessorKey: 'stock',
-        isSortable: false,
-        cell: ({ getValue }) => <StockProgressBar percentage={getValue() || 0} />,
-        size: 150,
+        accessorKey: 'stock_quantity',
+        isSortable: true,
+        isResizable: true,
+        minWidth: 120,
+        size: 180,
+        align: 'left',
+        skeletonType: 'text_short',
+        cell: ({ getValue }) => {
+            const quantity = getValue();
+            return <StockLevelDisplay quantity={quantity} lowStockThreshold={10} />;
+        },
     },
     {
         id: COLUMN_KEYS.SALES,
         header: 'Sales (7d)',
-        accessorKey: 'sales',
-        isSortable: false,
-        cell: ({ getValue }) => <SalesSparkline data={getValue() || []} />,
+        accessorKey: 'sales_data',
+        isSortable: false, // Sales data might be complex to sort on client
+        isResizable: true,
+        minWidth: 100,
         size: 120,
+        align: 'left',
+        skeletonType: 'sales',
+        cell: ({ getValue }) => <SalesSparkline data={getValue() || []} />,
     },
     {
         id: COLUMN_KEYS.STATUS,
         header: 'Status',
         accessorKey: 'is_active',
         isSortable: true,
-        cell: ({ row }) => (
-            <SimpleToggle
-                checked={row.original.is_active}
-                onChange={() => tableInteractionContext.onStatusToggle(row.original.id, !row.original.is_active)}
-                size="sm"
-                isLoading={tableInteractionContext.isProductStatusUpdating(row.original.id)} // Use context here
-            />
-        ),
+        isResizable: false, // Toggle usually doesn't need resize
+        minWidth: 80,
         size: 80,
+        align: 'center',
+        skeletonType: 'status',
+        cell: ({ row }) => (
+            <div className="flex justify-center items-center w-full">
+                <SimpleToggle
+                    checked={row.original.is_active}
+                    onChange={(newCheckedState) => tableInteractionContext.onStatusToggle(row.original.id, newCheckedState)}
+                    size="sm"
+                    isLoading={tableInteractionContext.isProductStatusUpdating(row.original.id)}
+                />
+            </div>
+        ),
     },
     {
         id: COLUMN_KEYS.TAGS,
         header: 'Tags',
-        accessorFn: (row) => (row.product_tags_details || []).map(tag => tag.name).join(', '),
+        accessorFn: (row) => (row.product_tags_details || []),
         isSortable: false,
-        cell: ({ row }) => (
-            <div className="flex flex-wrap gap-1 max-w-[200px]">
-                {(row.original.product_tags_details || []).slice(0, 2).map(tag => (
-                    <span key={tag.id} className="px-1.5 py-0.5 text-xs bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 rounded">
-                        {tag.name}
-                    </span>
-                ))}
-                {(row.original.product_tags_details || []).length > 2 && (
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                        +{(row.original.product_tags_details || []).length - 2} more
-                    </span>
-                )}
-            </div>
-        ),
-        size: 200,
+        isResizable: true,
+        minWidth: 150,
+        size: 220,
+        align: 'left',
+        skeletonType: 'tags',
+        cell: ({ getValue }) => {
+            const tagsDetails = getValue();
+            if (!tagsDetails || tagsDetails.length === 0) return null;
+            return <TagPills tags={tagsDetails} maxVisibleTags={2} />;
+        }
     },
-    { id: COLUMN_KEYS.BARCODE, header: 'Barcode', accessorKey: 'barcode', isSortable: true, cellType: 'editableText', size: 130 },
+    {
+        id: COLUMN_KEYS.BARCODE,
+        header: 'Barcode',
+        accessorKey: 'barcode',
+        isSortable: true,
+        isResizable: true,
+        minWidth: 100,
+        cellType: 'editableText',
+        size: 130,
+        align: 'left',
+        skeletonType: 'sku',
+    },
     {
         id: COLUMN_KEYS.LAST_UPDATED,
         header: 'Last Updated',
         accessorKey: 'updated_at',
         isSortable: true,
-        cell: ({ getValue }) => new Date(getValue()).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }),
+        isResizable: true,
+        minWidth: 150,
         size: 180,
+        align: 'left',
+        skeletonType: 'date',
+        cell: ({ getValue }) => {
+            const dateValue = getValue();
+            if (!dateValue) return null;
+            try {
+                return new Date(dateValue).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+            } catch (e) {
+                return 'Invalid Date';
+            }
+        }
     },
 ];
 
-// ... (defaultColumnVisibility, defaultColumnOrder, filterOptions, sortOptions remain the same)
+// ... (defaultColumnVisibility, defaultColumnOrder, filterOptions, sortOptions remain the same) ...
+// Default visibility: Hide COST, SALES, BARCODE, LAST_UPDATED, TAGS by default
+// Adjusted STOCK to be visible by default as it's commonly needed.
 export const defaultColumnVisibility = initialColumns.reduce((acc, col) => {
-    if ([COLUMN_KEYS.STOCK, COLUMN_KEYS.SALES, COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED].includes(col.id)) {
+    if ([COLUMN_KEYS.COST, COLUMN_KEYS.SALES, COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED].includes(col.id)) {
         acc[col.id] = false;
     } else {
+        acc[col.id] = true;
+    }
+    if (col.isVisibilityToggleable === false) {
         acc[col.id] = true;
     }
     return acc;
@@ -215,4 +322,6 @@ export const sortOptions = [
     { value: '-selling_price_excl_tax', label: 'Price (High-Low)' },
     { value: 'updated_at', label: 'Last Updated (Oldest)' },
     { value: '-updated_at', label: 'Last Updated (Newest)' },
+    { value: COLUMN_KEYS.STOCK, label: 'Stock (Low-High)' },
+    { value: `-${COLUMN_KEYS.STOCK}`, label: 'Stock (High-Low)' },
 ];

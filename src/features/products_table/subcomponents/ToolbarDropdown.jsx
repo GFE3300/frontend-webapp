@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, memo, useCallback, useId, useMemo }
 import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
-import Icon from '../../../components/common/Icon'; // Assuming this path is correct
+import Icon from '../../../components/common/Icon';
 
 const ToolbarDropdown = memo(({
     options,
@@ -11,15 +11,16 @@ const ToolbarDropdown = memo(({
     placeholder = "Select",
     className = '',
     disabled = false,
-    iconName, // Optional icon to display on the button
-    ariaLabel, // For accessibility if no visible label text
+    iconName,
+    ariaLabel,
+    isSortActiveTarget = false, // New prop for highlighting
     ...restProps
 }) => {
     const generatedId = useId();
     const CONTROL_ID = `${generatedId}-toolbar-dropdown-control`;
     const LISTBOX_ID = `${generatedId}-toolbar-dropdown-listbox`;
 
-    const currentTheme = { // Simplified theme, can be expanded
+    const currentTheme = {
         focusRing: 'focus-visible:ring-2 focus-visible:ring-rose-400 dark:focus-visible:ring-rose-500',
         selectedOptionBg: 'bg-rose-50 dark:bg-rose-700/50',
         selectedOptionText: 'text-rose-600 dark:text-rose-300',
@@ -72,7 +73,7 @@ const ToolbarDropdown = memo(({
 
     const handleOptionClick = useCallback((optionValue) => {
         if (disabled) return;
-        onChange(optionValue); // Directly pass the value
+        onChange(optionValue);
         setIsOpen(false);
         buttonRef.current?.focus();
     }, [disabled, onChange]);
@@ -136,6 +137,21 @@ const ToolbarDropdown = memo(({
         return <p className="text-red-500">Error: Dropdown onChange missing.</p>;
     }
 
+    const baseButtonClasses = `
+        dropdown-button group w-full h-9 py-2 pl-4 pr-3 rounded-full font-montserrat font-medium
+        flex items-center justify-between text-left
+        focus:outline-none focus-visible:ring-2 ${currentTheme.focusRing}
+        transition-all duration-200
+        text-neutral-900 dark:text-neutral-800 text-sm
+    `;
+
+    const stateClasses = disabled
+        ? 'cursor-not-allowed opacity-70 bg-neutral-100 dark:bg-neutral-200'
+        : isSortActiveTarget
+            ? 'cursor-pointer bg-sky-100 dark:bg-sky-200 ring-2 ring-sky-500 dark:ring-sky-500 shadow-sm hover:bg-sky-200 dark:hover:bg-sky-300/80'
+            : 'cursor-pointer bg-neutral-100 dark:bg-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-300/80';
+
+
     return (
         <div className={`toolbar-dropdown-container relative ${className}`} ref={dropdownRef}>
             <button
@@ -145,15 +161,7 @@ const ToolbarDropdown = memo(({
                 onClick={toggleDropdown}
                 onKeyDown={handleKeyDown}
                 disabled={disabled}
-                className={`
-                    dropdown-button group w-full h-9 py-2 pl-4 pr-3 rounded-full font-montserrat font-medium
-                    flex items-center justify-between text-left
-                    bg-neutral-100 dark:bg-neutral-200
-                    focus:outline-none focus-visible:ring-2 ${currentTheme.focusRing}
-                    transition-all duration-200
-                    text-neutral-900 dark:text-neutral-800 text-sm
-                    ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-300/80'}
-                `}
+                className={`${baseButtonClasses} ${stateClasses}`}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 aria-label={ariaLabel || displayLabelText}
@@ -182,9 +190,9 @@ const ToolbarDropdown = memo(({
                         id={LISTBOX_ID}
                         ref={listboxRef}
                         className="
-                            dropdown-options absolute top-full left-0 z-20 w-full mt-1 
-                            bg-white dark:bg-neutral-200 font-montserrat text-neutral-900 dark:text-neutral-800
-                            border border-neutral-200 dark:border-neutral-600 
+                            dropdown-options absolute top-full left-0 z-20 w-full mt-1
+                            bg-white dark:bg-neutral-100 font-montserrat text-neutral-900 dark:text-neutral-800
+                            border border-neutral-200 dark:border-neutral-600
                             rounded-xl shadow-lg max-h-60 overflow-y-auto py-1 focus:outline-none"
                         role="listbox"
                         tabIndex={-1}
@@ -200,7 +208,7 @@ const ToolbarDropdown = memo(({
                                 className={`
                                     px-3 py-2 text-sm cursor-pointer transition-colors outline-none
                                     flex items-center justify-between
-                                    text-neutral-700 dark:text-neutral-200
+                                    text-neutral-700 dark:text-neutral-800 
                                     ${option.disabled ? 'opacity-50 cursor-not-allowed'
                                         : `${currentTheme.optionHoverBg}`}
                                     ${activeIndex === index && !option.disabled ? `${currentTheme.selectedOptionBg} ${currentTheme.selectedOptionText}` : ''}
@@ -240,11 +248,12 @@ ToolbarDropdown.propTypes = {
     value: PropTypes.any,
     onChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
-    className: PropTypes.string, // Class for the main wrapper div
-    buttonClassName: PropTypes.string, // Class specifically for the button element
+    className: PropTypes.string,
+    buttonClassName: PropTypes.string,
     disabled: PropTypes.bool,
-    iconName: PropTypes.string, // Optional icon for the button
+    iconName: PropTypes.string,
     ariaLabel: PropTypes.string,
+    isSortActiveTarget: PropTypes.bool, // New prop
 };
 
 export default ToolbarDropdown;

@@ -81,24 +81,22 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-	return (
-		<React.StrictMode>
-			<QueryClientProvider client={queryClient}>
-				<DndProvider backend={HTML5Backend}>
-					<AuthProvider>
-						<FlyingImageProvider>
-							<ThemeProvider>
-
-							<ThemeToggleButton />
-							<RouterProvider router={router} />
-
-							</ThemeProvider>
-						</FlyingImageProvider>
-					</AuthProvider>
-				</ DndProvider>
-			</QueryClientProvider>
-		</React.StrictMode>
-	);
+    return (
+        <React.StrictMode>
+            <QueryClientProvider client={queryClient}>
+                <DndProvider backend={HTML5Backend}>
+                    <AuthProvider>
+                        <FlyingImageProvider>
+                            <ThemeProvider>
+                                <ThemeToggleButton />
+                                <RouterProvider router={router} /> {/* All routed components are children */}
+                            </ThemeProvider>
+                        </FlyingImageProvider>
+                    </AuthProvider>
+                </DndProvider>
+            </QueryClientProvider>
+        </React.StrictMode>
+    );
 }
 
 export default App;

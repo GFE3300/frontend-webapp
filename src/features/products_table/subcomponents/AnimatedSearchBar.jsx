@@ -3,17 +3,17 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
-import { useProductSearchSuggestions } from '../../../contexts/ProductDataContext'; // We'll create this
-import { useDebounce } from '../../../hooks/useDebounce'; // Assuming you have or create this
+import { useProductSearchSuggestions } from '../../../contexts/ProductDataContext';
+import { useDebounce } from '../../../hooks/useDebounce';
 
-const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder = "Search..." }) => {
+const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder = "Search...", isSortActiveTarget = false }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const [activeIndex, setActiveIndex] = useState(-1); // For keyboard navigation of suggestions
+    const [activeIndex, setActiveIndex] = useState(-1);
 
     const inputRef = useRef(null);
-    const barRef = useRef(null); // Ref for the entire search bar component
+    const barRef = useRef(null);
 
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -34,12 +34,11 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
         }
     }, [isExpanded, showSuggestions]);
 
-    // Click outside handler
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (barRef.current && !barRef.current.contains(event.target)) {
                 setShowSuggestions(false);
-                if (isExpanded && !searchTerm) { // Collapse if empty and clicked outside
+                if (isExpanded && !searchTerm) {
                     setIsExpanded(false);
                 }
             }
@@ -50,20 +49,18 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
 
     const handleIconClick = () => {
         if (isExpanded && searchTerm) {
-            // If expanded and has term, icon click submits
             triggerSearch(searchTerm);
         } else {
-            // Otherwise, toggle expansion
             setIsExpanded(!isExpanded);
-            if (!isExpanded) { // If was not expanded, now it is
-                setShowSuggestions(false); // Don't show old suggestions immediately
+            if (!isExpanded) {
+                setShowSuggestions(false);
             }
         }
     };
 
     const handleChange = (e) => {
         setSearchTerm(e.target.value);
-        setActiveIndex(-1); // Reset active index on new typing
+        setActiveIndex(-1);
         if (e.target.value.length >= 2) {
             setShowSuggestions(true);
         } else {
@@ -74,15 +71,13 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
     const triggerSearch = (term) => {
         onSearchSubmit(term);
         setShowSuggestions(false);
-        // Optionally collapse after search, or keep it open
-        // if (!term) setIsExpanded(false);
     };
 
     const handleSuggestionClick = (suggestion) => {
-        const valueToUse = suggestion.is_general_search_suggestion ? suggestion.value : suggestion.value; // Adapt if suggestion object changes
+        const valueToUse = suggestion.is_general_search_suggestion ? suggestion.value : suggestion.value;
         setSearchTerm(valueToUse);
         triggerSearch(valueToUse);
-        setIsExpanded(true); // Keep expanded to show the term, or false to collapse
+        setIsExpanded(true);
     };
 
     const handleKeyDown = (e) => {
@@ -116,20 +111,24 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
         }
     };
 
+    const baseClasses = `
+        dropdown-button group w-full h-9 py-2 px-2 rounded-full font-montserrat font-medium
+        flex items-center justify-between text-left
+        focus:outline-none focus-visible:ring-2
+        transition-all duration-200
+        text-neutral-900 dark:text-neutral-800 text-sm
+        cursor-pointer`;
+
+    const normalStateClasses = 'bg-neutral-100 dark:bg-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-300/80';
+    const activeSortTargetClasses = 'bg-sky-100 dark:bg-sky-200 ring-2 ring-sky-500 dark:ring-sky-500 shadow-md';
+    const expandedStateClasses = isExpanded ? 'shadow-lg' : 'shadow-xs hover:shadow-md';
+
     return (
         <div ref={barRef} className="relative flex items-center">
             <motion.form
                 onSubmit={(e) => { e.preventDefault(); triggerSearch(searchTerm); }}
                 layout
-                className={`
-                    dropdown-button group w-full h-9 py-2 px-2 rounded-full font-montserrat font-medium
-                    flex items-center justify-between text-left
-                    bg-neutral-100 dark:bg-neutral-200
-                    focus:outline-none focus-visible:ring-2
-                    transition-all duration-200
-                    text-neutral-900 dark:text-neutral-800 text-sm
-                    cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-300/80
-                    ${isExpanded ? 'shadow-lg' : 'shadow-xs hover:shadow-md'}`}
+                className={`${baseClasses} ${isSortActiveTarget ? activeSortTargetClasses : normalStateClasses} ${expandedStateClasses}`}
                 transition={{ duration: 0.3, type: 'spring', stiffness: 150, damping: 20 }}
             >
                 <AnimatePresence>
@@ -161,7 +160,7 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.5 }}
                     >
-                        <Icon name="close" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 48 }}/>
+                        <Icon name="close" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 48 }} />
                     </motion.button>
                 )}
 
@@ -171,8 +170,8 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
                     className="p-1 h-6 flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-600 focus:outline-none rounded-full transition-colors"
                     title={isExpanded ? "Search" : "Open search"}
                 >
-                    <Icon name="search" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 48 }}/>
-                </button> 
+                    <Icon name="search" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 48 }} />
+                </button>
             </motion.form>
 
             <AnimatePresence>
@@ -189,7 +188,7 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
                                 key={suggestion.id || suggestion.value + index}
                                 onClick={() => handleSuggestionClick(suggestion)}
                                 onMouseEnter={() => setActiveIndex(index)}
-                                className={`px-3 py-2.5 text-sm cursor-pointer 
+                                className={`px-3 py-2.5 text-sm cursor-pointer
                                             ${index === activeIndex ? 'bg-rose-50 dark:bg-rose-700/50' : 'hover:bg-neutral-50 dark:hover:bg-neutral-700/60'}
                                             text-neutral-700 dark:text-neutral-200`}
                             >
@@ -220,6 +219,7 @@ AnimatedSearchBar.propTypes = {
     initialSearchTerm: PropTypes.string,
     onSearchSubmit: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
+    isSortActiveTarget: PropTypes.bool, // New prop
 };
 
 export default AnimatedSearchBar;

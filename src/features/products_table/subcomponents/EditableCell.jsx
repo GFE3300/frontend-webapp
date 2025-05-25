@@ -1,3 +1,4 @@
+// src/features/products_table/subcomponents/EditableCell.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Icon from '../../../components/common/Icon';
@@ -7,61 +8,119 @@ const EditableCell = ({ initialValue, onSave, cellType = 'text', productId, fiel
     const [isEditing, setIsEditing] = useState(false);
     const [value, setValue] = useState(initialValue);
     const [error, setError] = useState('');
-    const [isSaving, setIsSaving] = useState(false); // New state for saving
+    const [isSaving, setIsSaving] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const inputRef = useRef(null);
+    const cellRef = useRef(null);
 
     useEffect(() => {
         setValue(initialValue);
-        setError('');
+        setError(''); // Reset error when initialValue changes (e.g., data refresh)
     }, [initialValue]);
 
     useEffect(() => {
         if (isEditing && inputRef.current) {
             inputRef.current.focus();
+            // Select text only for text inputs, not for number/currency to avoid annoying selection
             if (cellType === 'text' || cellType === 'editableText') {
-                inputRef.current.select();
+                // Delay select to ensure focus is established, especially after click
+                setTimeout(() => inputRef.current?.select(), 0);
             }
         }
     }, [isEditing, cellType]);
 
+    useEffect(() => {
+        if (showSuccess) {
+            const timer = setTimeout(() => {
+                setShowSuccess(false);
+            }, 1500); // Duration of success indication
+            return () => clearTimeout(timer);
+        }
+    }, [showSuccess]);
+
+    const handleOpenEditMode = () => {
+        if (isSaving || isEditing) return;
+        setValue(initialValue); // Reset to initial value in case of previous aborted edits
+        setError('');
+        setIsEditing(true);
+    };
+
     const handleSave = async () => {
-        if (isSaving) return; // Prevent multiple saves
+        if (isSaving) return;
+
+        // Trim string values before comparison and saving
+        const processedValue = typeof value === 'string' ? value.trim() : value;
+        const processedInitialValue = typeof initialValue === 'string' ? initialValue?.trim() : initialValue;
 
         setError('');
-        if (value !== initialValue) {
+        if (processedValue !== processedInitialValue) {
+            // Validation
             if (cellType === 'currency' || cellType === 'editableCurrency') {
-                const numValue = parseFloat(value);
+                const numValue = parseFloat(processedValue);
                 if (isNaN(numValue)) {
                     setError("Invalid number.");
-                    setIsEditing(true);
-                    return;
+                    // No setIsEditing(true) here, as we want to keep it editable
+                    return; // Don't proceed with saving
                 }
                 if (numValue < 0 && (fieldKey === 'selling_price_excl_tax' || fieldKey === 'labor_overhead_cost')) {
-                    setError("Price/Cost cannot be negative.");
-                    setIsEditing(true);
+                    setError("Value cannot be negative.");
                     return;
                 }
             }
-            if (fieldKey === 'name' && String(value).trim() === '') { // Ensure value is string for trim
+            if (fieldKey === 'name' && String(processedValue).trim() === '') {
                 setError("Name cannot be empty.");
-                setIsEditing(true);
                 return;
             }
 
             setIsSaving(true);
             try {
-                await onSave(productId, fieldKey, cellType.startsWith('editableCurrency') ? parseFloat(value) : value);
+                const valueToSave = (cellType.startsWith('editableCurrency') || cellType === 'currency')
+                    ? parseFloat(processedValue)
+                    : processedValue;
+
+                await onSave(productId, fieldKey, valueToSave);
                 setIsEditing(false);
+                setShowSuccess(true); // Trigger success indication
             } catch (err) {
                 console.error("Failed to save cell:", err);
-                setError(err.response?.data?.detail || err.response?.data?.[fieldKey]?.[0] || err.message || "Save failed.");
-                setIsEditing(true);
+                const backendError = err.response?.data;
+                let errorMessage = "Save failed.";
+                if (backendError) {
+                    if (backendError[fieldKey] && Array.isArray(backendError[fieldKey])) {
+                        errorMessage = backendError[fieldKey][0];
+                    } else if (backendError.detail) {
+                        errorMessage = backendError.detail;
+                    } else if (typeof backendError === 'string') {
+                        errorMessage = backendError;
+                    } else {
+                        // Fallback for complex error objects
+                        const firstKey = Object.keys(backendError)[0];
+                        if (firstKey && Array.isArray(backendError[firstKey])) {
+                            errorMessage = `${firstKey}: ${backendError[firstKey][0]}`;
+                        } else {
+                            errorMessage = JSON.stringify(backendError);
+                        }
+                    }
+                } else if (err.message) {
+                    errorMessage = err.message;
+                }
+                setError(errorMessage);
+                // Keep isEditing true to allow correction
             } finally {
                 setIsSaving(false);
             }
         } else {
+            // Value hasn't changed
             setIsEditing(false);
+            setError(''); // Clear any previous errors if value is reverted
         }
+    };
+
+    const handleCancelEdit = () => {
+        setValue(initialValue); // Revert to original value
+        setError('');
+        setIsEditing(false);
+        setIsSaving(false);
     };
 
     const handleKeyDown = (e) => {
@@ -69,56 +128,98 @@ const EditableCell = ({ initialValue, onSave, cellType = 'text', productId, fiel
             e.preventDefault();
             handleSave();
         } else if (e.key === 'Escape') {
-            setValue(initialValue);
-            setError('');
-            setIsEditing(false);
-            setIsSaving(false); // Ensure saving is reset
+            e.preventDefault();
+            handleCancelEdit();
         }
     };
 
-    const openEditor = () => {
-        if (isSaving) return; // Don't open if currently involved in a save elsewhere (e.g. blur then click)
-        setIsEditing(true);
-    }
-
     if (isEditing) {
         return (
-            <div className="relative w-full">
-                <input
-                    ref={inputRef}
-                    type={(cellType === 'currency' || cellType === 'editableCurrency') ? 'number' : 'text'}
-                    value={value === null || value === undefined ? '' : value} // Handle null/undefined for input
-                    onChange={(e) => setValue(e.target.value)}
-                    onBlur={handleSave}
-                    onKeyDown={handleKeyDown}
-                    disabled={isSaving}
-                    className={`w-full px-1 py-0.5 text-sm border rounded bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100
-                                ${error ? 'border-red-500 ring-red-500' : 'border-rose-500 focus:ring-rose-500'}
-                                ${isSaving ? 'pr-7' : ''}`} // Make space for spinner
-                    step={(cellType === 'currency' || cellType === 'editableCurrency') ? "0.01" : undefined}
-                />
-                {isSaving && (
-                    <div className="absolute top-1/2 right-1.5 transform -translate-y-1/2">
-                        <Spinner size="xs" />
-                    </div>
+            <div className="relative w-full" ref={cellRef}>
+                <div className="relative flex items-center justify-between w-full">
+                    <input
+                        ref={inputRef}
+                        type={(cellType === 'currency' || cellType === 'editableCurrency') ? 'number' : 'text'}
+                        value={value === null || value === undefined ? '' : value}
+                        onChange={(e) => setValue(e.target.value)}
+                        onBlur={(e) => {
+                            // Prevent blur save if a click inside the cell (e.g. on an icon) is happening
+                            if (cellRef.current && !cellRef.current.contains(e.relatedTarget)) {
+                                handleSave();
+                            }
+                        }}
+                        onKeyDown={handleKeyDown}
+                        disabled={isSaving}
+                        className={`w-full py-1 px-2 text-sm border rounded-md font-montserrat
+                                    bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100
+                                    focus:outline-none focus:ring-2 
+                                    ${error
+                                ? 'border-red-500 dark:border-red-400 focus:ring-red-400 dark:focus:ring-red-300 pr-8' // Space for error icon
+                                : 'border-neutral-300 dark:border-neutral-600 focus:ring-rose-500 dark:focus:ring-rose-400'
+                            }
+                                    ${isSaving ? 'pr-8' : ''} // Space for spinner
+                                  `}
+                        step={(cellType === 'currency' || cellType === 'editableCurrency') ? "0.01" : undefined}
+                        aria-invalid={!!error}
+                        aria-describedby={error ? `${fieldKey}-error` : undefined}
+                    />
+                    {isSaving && (
+                        <div className="absolute top-1/2 right-2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                            <Spinner size="xs" />
+                        </div>
+                    )}
+                    {error && !isSaving && (
+                        <div className="absolute p-1 w-6 h-6 top-1/2 right-2 transform -translate-y-1/2 text-red-500 dark:text-red-400" title={error}>
+                            <Icon name="error_outline" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 400, grade: 0, opsz: 18 }}/>
+                        </div>
+                    )}
+                </div>
+                {error && (
+                    <p id={`${fieldKey}-error`} className="absolute text-xs text-red-600 dark:text-red-400 mt-0.5 left-0 whitespace-nowrap font-montserrat">
+                        {error}
+                    </p>
                 )}
-                {error && <p className="absolute text-xs text-red-500 -bottom-4 left-0 whitespace-nowrap">{error}</p>}
             </div>
         );
     }
 
-    const displayValue = (cellType === 'currency' || cellType === 'editableCurrency')
-        ? `$${parseFloat(value || 0).toFixed(2)}`
-        : (value === null || value === undefined || String(value).trim() === '' ? <span className="italic text-neutral-400">N/A</span> : String(value));
+    const isEmpty = value === null || value === undefined || String(value).trim() === '';
+    let displayValue = isEmpty ? <span className="italic text-neutral-500 dark:text-neutral-400">—</span> : String(value);
+
+    if (!isEmpty && (cellType === 'currency' || cellType === 'editableCurrency')) {
+        const num = parseFloat(value);
+        displayValue = isNaN(num)
+            ? <span className="italic text-red-500 dark:text-red-400">Invalid</span>
+            : `$${num.toFixed(2)}`;
+    }
 
     return (
         <div
-            onClick={openEditor}
-            className="cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-700/20 p-1 rounded group relative min-h-[24px] w-full flex items-center justify-between"
+            ref={cellRef}
+            onClick={handleOpenEditMode}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenEditMode(); }}
+            role="button" // Making it behave more like a button for accessibility
+            tabIndex={0} // Make it focusable
+            className={`group relative w-full min-h-[28px] flex items-center justify-between 
+                        px-2 py-1 rounded-md cursor-pointer font-montserrat
+                        transition-all duration-150 ease-in-out
+                        text-neutral-700 dark:text-neutral-200
+                        hover:bg-neutral-100 dark:hover:bg-neutral-700/60
+                        focus:outline-none focus:ring-1 focus:ring-rose-500 dark:focus:ring-rose-400
+                        ${showSuccess ? 'ring-2 ring-green-500 dark:ring-green-400 shadow-md' : 'ring-transparent'}
+                      `}
+            title={isEditing ? undefined : `Click to edit ${fieldKey}`}
         >
-            <span className="truncate">{displayValue}</span>
-            {!isSaving && <Icon name="edit" className="w-3 h-3 text-neutral-400 dark:text-neutral-500 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-1" />}
-            {isSaving && <Spinner size="xs" className="flex-shrink-0 ml-1" />} {/* Show spinner in non-editing view too if needed, usually not */}
+            <span className="truncate flex-grow">{displayValue}</span>
+            {!isEditing && !isSaving && (
+                <Icon 
+                    name="edit" 
+                    className="
+                        w-4 h-4 text-neutral-400 dark:text-neutral-500 
+                        opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity flex-shrink-0 ml-2" 
+                    style={{ fontSize: '1rem' }}
+                    />
+            )}
         </div>
     );
 };
@@ -127,7 +228,7 @@ EditableCell.propTypes = {
     initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onSave: PropTypes.func.isRequired,
     cellType: PropTypes.oneOf(['text', 'currency', 'editableText', 'editableCurrency']),
-    productId: PropTypes.string.isRequired,
+    productId: PropTypes.string.isRequired, // Or number, depending on your ID type
     fieldKey: PropTypes.string.isRequired,
 };
 

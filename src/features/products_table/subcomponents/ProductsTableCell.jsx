@@ -1,50 +1,115 @@
-// frontend/src/features/products_table/subcomponents/ProductsTableCell.jsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import EditableCell from './EditableCell';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
+import Icon from '../../../components/common/Icon';
 
-const ProductsTableCell = ({ product, column, onUpdateProductField }) => {
+const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStatusProductId }) => {
+    const {
+        id: columnId,
+        accessorKey,
+        accessorFn,
+        cell: customCellRenderer,
+        cellType,
+        currentWidth, // Use currentWidth from props
+        minWidth,     // Use minWidth from props
+        sticky,
+        align = 'left',
+    } = column;
+
+    const isEditable = cellType === 'editableCurrency' || cellType === 'editableText';
+
+    const rawValue = useMemo(() => {
+        if (accessorKey) return product[accessorKey];
+        if (accessorFn) return accessorFn(product);
+        return undefined;
+    }, [product, accessorKey, accessorFn]);
+
     let cellContent;
 
-    if (column.cellType === 'editableCurrency' || column.cellType === 'editableText') {
-        const initialValue = column.accessorKey ? product[column.accessorKey] : (column.accessorFn ? column.accessorFn(product) : '');
+    if (isEditable) {
         cellContent = (
             <EditableCell
-                initialValue={initialValue === null || initialValue === undefined ? '' : initialValue} // Pass empty string for null/undefined
+                initialValue={rawValue === null || rawValue === undefined ? '' : rawValue}
                 onSave={onUpdateProductField}
-                cellType={column.cellType} // Pass 'editableCurrency' or 'editableText'
+                cellType={cellType}
                 productId={product.id}
-                fieldKey={column.accessorKey} // Make sure accessorKey matches backend field name
+                fieldKey={accessorKey || columnId}
             />
         );
-    } else if (column.cell) { // Custom cell renderer from config (like Actions or Status toggle)
-        cellContent = column.cell({ row: { original: product }, getValue: () => product[column.accessorKey] || (column.accessorFn && column.accessorFn(product)) });
-    } else if (column.accessorFn) {
-        cellContent = column.accessorFn(product);
+    } else if (customCellRenderer) {
+        cellContent = customCellRenderer({
+            row: { original: product },
+            getValue: () => rawValue,
+            column,
+            updatingStatusProductId: updatingStatusProductId,
+        });
     } else {
-        cellContent = product[column.accessorKey];
+        if (rawValue === undefined || rawValue === null || String(rawValue).trim() === '') {
+            cellContent = <span className="italic text-neutral-400 dark:text-neutral-500">—</span>;
+        } else if (cellType === 'currency') {
+            const num = parseFloat(rawValue);
+            cellContent = isNaN(num)
+                ? <span className="italic text-red-500 dark:text-red-400">Invalid</span>
+                : `$${num.toFixed(2)}`;
+        } else {
+            cellContent = String(rawValue);
+        }
     }
 
-    // Fallback for undefined content (EditableCell now handles its own N/A for empty strings)
-    if (!(column.cellType === 'editableCurrency' || column.cellType === 'editableText') &&
-        (cellContent === undefined || cellContent === null || cellContent === '')) {
-        cellContent = <span className="italic text-neutral-400">N/A</span>;
-    }
+    const alignmentClass = useMemo(() => {
+        let effectiveAlign = align;
+        if (align === 'left' && (cellType === 'currency' || cellType === 'editableCurrency' || typeof rawValue === 'number')) {
+            effectiveAlign = 'right';
+        }
+        switch (effectiveAlign) {
+            case 'center': return 'text-center justify-center';
+            case 'right': return 'text-right justify-end';
+            default: return 'text-left justify-start';
+        }
+    }, [align, cellType, rawValue]);
 
+    const cellPaddingClass = isEditable ? 'py-0.5 px-1' : 'px-4 py-3';
+
+    const NonEditableWrapper = ({ children }) => {
+        const stringContent = typeof children === 'string' || typeof children === 'number' ? String(children) : '';
+        return (
+            <div
+                className={`w-full flex items-center ${alignmentClass} ${isEditable ? '' : 'truncate'}`}
+                title={stringContent.length > 20 || typeof children !== 'string' ? stringContent : undefined}
+            >
+                {children}
+            </div>
+        );
+    };
 
     return (
         <motion.td
-            layout
+            layout // Keep layout animation for row reordering
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className={`px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300 whitespace-nowrap ${column.sticky ? `sticky ${column.sticky === 'left' ? 'left-0' : 'right-0'} bg-white dark:bg-neutral-800 z-10` : ''} ${column.cellType === 'editableText' || column.cellType === 'editableCurrency' ? 'py-1' : ''}`} // Reduce padding for editable cells
-            style={{ width: column.size ? `${column.size}px` : 'auto', minWidth: column.size ? `${column.size}px` : '100px' }}
+            className={`text-sm text-neutral-700 dark:text-neutral-300 whitespace-nowrap
+                        ${cellPaddingClass}
+                        ${sticky
+                    ? `sticky ${sticky === 'left' ? 'left-0 border-r' : 'right-0 border-l'} 
+                               bg-white dark:bg-neutral-800 z-[1] border-neutral-200 dark:border-neutral-700`
+                    : ''
+                }
+                      `}
+            style={{
+                // Use currentWidth for dynamic width, fallback to a sensible default like 'auto' or a fixed min if not set
+                width: currentWidth ? `${currentWidth}px` : 'auto',
+                // Apply minWidth from column config, fallback to a default if not specified
+                minWidth: minWidth ? `${minWidth}px` : (isEditable ? '120px' : '100px'),
+            }}
+            role="gridcell"
         >
-            {/* For editable cells, ensure they can take full width of td */}
-            {(column.cellType === 'editableCurrency' || column.cellType === 'editableText') ? (
-                <div className="w-full">{cellContent}</div>
+            {isEditable ? (
+                <div className={`w-full flex ${alignmentClass}`}>
+                    {cellContent}
+                </div>
             ) : (
-                cellContent
+                <NonEditableWrapper>{cellContent}</NonEditableWrapper>
             )}
         </motion.td>
     );
@@ -52,8 +117,21 @@ const ProductsTableCell = ({ product, column, onUpdateProductField }) => {
 
 ProductsTableCell.propTypes = {
     product: PropTypes.object.isRequired,
-    column: PropTypes.object.isRequired,
+    column: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        accessorKey: PropTypes.string,
+        accessorFn: PropTypes.func,
+        cell: PropTypes.func,
+        cellType: PropTypes.string,
+        // size: PropTypes.number, // Original default size, currentWidth takes precedence
+        currentWidth: PropTypes.number, // Current dynamic width from state
+        minWidth: PropTypes.number,     // Minimum resizable width
+        sticky: PropTypes.oneOf(['left', 'right']),
+        align: PropTypes.oneOf(['left', 'center', 'right']),
+        header: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    }).isRequired,
     onUpdateProductField: PropTypes.func.isRequired,
+    updatingStatusProductId: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
 };
 
 export default ProductsTableCell;
