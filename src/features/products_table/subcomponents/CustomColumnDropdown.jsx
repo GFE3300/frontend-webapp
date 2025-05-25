@@ -190,7 +190,7 @@ const CustomColumnDropdown = ({
                                     }}
                                     className="w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-neutral-700/60 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 focus-visible:ring-rose-500 transition-colors group"
                                 >
-                                    <Icon name="restart_alt" className="w-4 h-4 mr-1.5 group-hover:rotate-[-60deg] transition-transform duration-200" />
+                                    <Icon name="restart_alt" className="w-4 h-4 mr-1.5 group-hover:rotate-[-60deg] transition-transform duration-200" style={{ fontSize: '1rem' }} />
                                     Reset to Default
                                 </button>
                             </footer>
