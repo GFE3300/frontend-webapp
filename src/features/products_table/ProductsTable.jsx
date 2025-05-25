@@ -1,7 +1,6 @@
 // frontend/src/features/products_table/ProductsTable.jsx
 import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { useTableSettings } from './hooks/useTableSettings';
 import { useProducts, useUpdateProduct, useDeleteProduct } from '../../contexts/ProductDataContext';
@@ -18,7 +17,6 @@ const ProductsTable = () => {
     const {
         columnVisibility, setColumnVisibility,
         columnOrder, setColumnOrder,
-        columnWidths, setColumnWidths, // Get columnWidths and its setter
         filters, setFilters,
         sort, setSort,
         pagination, setPagination,
@@ -34,9 +32,7 @@ const ProductsTable = () => {
         title: '', message: '', onConfirm: () => { }, isLoading: false,
     });
 
-    // --- Column Resizing State & Refs ---
-    const resizingColumnInfoRef = useRef(null); // Stores { id, initialX, initialWidth, minWidth }
-    const tableWrapperRef = useRef(null); // Ref for the table's scrollable container
+    const tableWrapperRef = useRef(null);
 
     const queryParams = useMemo(() => ({
         page: pagination.pageIndex + 1,
@@ -104,16 +100,6 @@ const ProductsTable = () => {
         setEditingProduct(product); setIsAddProductModalOpen(true);
     }, []);
 
-    const handleDeleteRequest = useCallback((productId, productName) => {
-        setConfirmModalProps({
-            title: "Confirm Deletion",
-            message: `Are you sure you want to delete "${productName}"? This action cannot be undone.`,
-            onConfirm: () => confirmDeleteProduct(productId, productName),
-            isLoading: false,
-        });
-        setIsConfirmModalOpen(true);
-    }, []); // confirmDeleteProduct added as dependency below
-
     const confirmDeleteProduct = useCallback(async (productId, productName) => {
         setConfirmModalProps(prev => ({ ...prev, isLoading: true }));
         try {
@@ -125,7 +111,17 @@ const ProductsTable = () => {
             toast.error(errorMessage);
             setConfirmModalProps(prev => ({ ...prev, isLoading: false }));
         }
-    }, [deleteProductMutation, parseBackendError]); // Added dependencies
+    }, [deleteProductMutation, parseBackendError]);
+
+    const handleDeleteRequest = useCallback((productId, productName) => {
+        setConfirmModalProps({
+            title: "Confirm Deletion",
+            message: `Are you sure you want to delete "${productName}"? This action cannot be undone.`,
+            onConfirm: () => confirmDeleteProduct(productId, productName),
+            isLoading: false,
+        });
+        setIsConfirmModalOpen(true);
+    }, [confirmDeleteProduct]);
 
     const handleSort = useCallback((columnIdToSort) => {
         if (!allAvailableColumnsConfig.find(col => col.id === columnIdToSort)?.isSortable) return;
@@ -133,54 +129,6 @@ const ProductsTable = () => {
             id: columnIdToSort, desc: prevSort.id === columnIdToSort ? !prevSort.desc : false,
         }));
     }, [setSort]);
-
-    // --- Column Resizing Handlers ---
-    const handleColumnResizeMove = useCallback((event) => {
-        if (!resizingColumnInfoRef.current) return;
-        event.preventDefault(); // Prevent text selection during drag
-
-        const { id, initialX, initialWidth, minWidth } = resizingColumnInfoRef.current;
-        const deltaX = event.clientX - initialX;
-        let newWidth = initialWidth + deltaX;
-        newWidth = Math.max(newWidth, minWidth); // Enforce minWidth
-
-        setColumnWidths(prevWidths => ({
-            ...prevWidths,
-            [id]: newWidth,
-        }));
-    }, [setColumnWidths]);
-
-    const handleColumnResizeEnd = useCallback(() => {
-        if (!resizingColumnInfoRef.current) return;
-
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-
-        document.removeEventListener('mousemove', handleColumnResizeMove);
-        document.removeEventListener('mouseup', handleColumnResizeEnd);
-        resizingColumnInfoRef.current = null;
-    }, [handleColumnResizeMove]);
-
-    const handleColumnResizeStart = useCallback((columnId, initialClientX) => {
-        const columnConfig = allAvailableColumnsConfig.find(c => c.id === columnId);
-        if (!columnConfig || columnConfig.isResizable === false) return;
-
-        // Use width from columnWidths state, fallback to config size, then a default
-        const currentWidth = columnWidths[columnId] || columnConfig.size || 150;
-
-        resizingColumnInfoRef.current = {
-            id: columnId,
-            initialX: initialClientX,
-            initialWidth: currentWidth,
-            minWidth: columnConfig.minWidth || 50,
-        };
-
-        document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';
-
-        document.addEventListener('mousemove', handleColumnResizeMove);
-        document.addEventListener('mouseup', handleColumnResizeEnd);
-    }, [columnWidths, allAvailableColumnsConfig, handleColumnResizeMove, handleColumnResizeEnd]); // Added dependencies
 
     const handleOpenAddProductModal = () => { setEditingProduct(null); setIsAddProductModalOpen(true); };
     const handleProductModalClose = () => { setIsAddProductModalOpen(false); setEditingProduct(null); };
@@ -198,33 +146,26 @@ const ProductsTable = () => {
             onStatusToggle: handleStatusToggle,
             isProductStatusUpdating: (pid) => pid === updatingStatusProductId,
         });
-        // Cleanup global listeners if component unmounts while resizing
-        return () => {
-            if (resizingColumnInfoRef.current) {
-                handleColumnResizeEnd(); // This will remove listeners
-            }
-        };
     }, [
         handleEditProductInModal, handleDeleteRequest, handleStatusToggle,
-        updatingStatusProductId, handleColumnResizeEnd // Added handleColumnResizeEnd
+        updatingStatusProductId
     ]);
 
     const visibleColumns = useMemo(() => {
-        return columnOrder
+        const cols = columnOrder
             .filter(key => columnVisibility.has(key))
             .map(key => {
                 const colConfig = allAvailableColumnsConfig.find(col => col.id === key);
                 if (!colConfig) return null;
-                // console.log(`Column ${key} is visible with config:`, colConfig, columnWidths); // Keep this for debugging if needed
                 return {
                     ...colConfig,
-                    // Safeguard: Ensure columnWidths is an object before accessing a key
-                    currentWidth: (columnWidths && typeof columnWidths === 'object' && columnWidths[key]) || colConfig.size,
+                    currentWidth: colConfig.size || 150,
                     minWidth: colConfig.minWidth || 50,
                 };
             })
             .filter(Boolean);
-    }, [columnOrder, columnVisibility, columnWidths, allAvailableColumnsConfig]);
+        return cols;
+    }, [columnOrder, columnVisibility, allAvailableColumnsConfig]);
 
 
     const renderPaginationControls = () => {
@@ -268,17 +209,15 @@ const ProductsTable = () => {
             />
 
             <div className="flex-grow overflow-x-auto" ref={tableWrapperRef}>
-                {/* Add table-layout: fixed for predictable column resizing */}
                 <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700 table-fixed">
                     <ProductsTableHeader
-                        columns={visibleColumns} // Passed with currentWidth and minWidth
+                        columns={visibleColumns}
                         onSort={handleSort}
                         currentSort={sort}
-                        onColumnResizeStart={handleColumnResizeStart} // Pass the handler
                     />
                     <ProductsTableBody
                         products={productsData?.items}
-                        columns={visibleColumns} // Passed with currentWidth and minWidth
+                        columns={visibleColumns}
                         isLoading={isEffectivelyLoading}
                         error={productsError}
                         onUpdateProductField={handleSaveChangesToField}

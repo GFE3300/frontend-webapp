@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import EditableCell from './EditableCell';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 
@@ -12,8 +11,8 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
         accessorFn,
         cell: customCellRenderer,
         cellType,
-        currentWidth, // Use currentWidth from props
-        minWidth,     // Use minWidth from props
+        currentWidth,
+        minWidth, 
         sticky,
         align = 'left',
     } = column;
@@ -27,12 +26,11 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
     }, [product, accessorKey, accessorFn]);
 
     let cellContent;
-
     if (isEditable) {
         cellContent = (
             <EditableCell
                 initialValue={rawValue === null || rawValue === undefined ? '' : rawValue}
-                onSave={onUpdateProductField}
+                onSave={onUpdateProductField} 
                 cellType={cellType}
                 productId={product.id}
                 fieldKey={accessorKey || columnId}
@@ -57,6 +55,7 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
             cellContent = String(rawValue);
         }
     }
+
 
     const alignmentClass = useMemo(() => {
         let effectiveAlign = align;
@@ -84,10 +83,13 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
         );
     };
 
+    const tdStyle = {
+        width: currentWidth ? `${currentWidth}px` : 'auto',
+        minWidth: minWidth ? `${minWidth}px` : (isEditable ? '120px' : '100px'),
+    };
+
     return (
         <motion.td
-            layout // Keep layout animation for row reordering
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className={`text-sm text-neutral-700 dark:text-neutral-300 whitespace-nowrap
                         ${cellPaddingClass}
                         ${sticky
@@ -96,12 +98,7 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
                     : ''
                 }
                       `}
-            style={{
-                // Use currentWidth for dynamic width, fallback to a sensible default like 'auto' or a fixed min if not set
-                width: currentWidth ? `${currentWidth}px` : 'auto',
-                // Apply minWidth from column config, fallback to a default if not specified
-                minWidth: minWidth ? `${minWidth}px` : (isEditable ? '120px' : '100px'),
-            }}
+            style={tdStyle}
             role="gridcell"
         >
             {isEditable ? (
@@ -123,12 +120,12 @@ ProductsTableCell.propTypes = {
         accessorFn: PropTypes.func,
         cell: PropTypes.func,
         cellType: PropTypes.string,
-        // size: PropTypes.number, // Original default size, currentWidth takes precedence
-        currentWidth: PropTypes.number, // Current dynamic width from state
-        minWidth: PropTypes.number,     // Minimum resizable width
+        currentWidth: PropTypes.number,
+        minWidth: PropTypes.number,
         sticky: PropTypes.oneOf(['left', 'right']),
         align: PropTypes.oneOf(['left', 'center', 'right']),
         header: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+        size: PropTypes.number,
     }).isRequired,
     onUpdateProductField: PropTypes.func.isRequired,
     updatingStatusProductId: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
