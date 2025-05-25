@@ -1,7 +1,7 @@
 // src/contexts/ProductDataContext.jsx
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '../services/api'; // Adjust path if needed
-import { queryKeys } from '../services/queryKeys'; // Adjust path if needed
+import { queryKeys, PRODUCTS_BASE_KEY } from '../services/queryKeys'; // Adjust path if needed
 import { useAuth } from './AuthContext';
 
 import { useDebounce } from '../hooks/useDebounce';
@@ -60,37 +60,60 @@ export const useCategories = (options = {}) => {
  */
 export const useUpdateProduct = (options = {}) => {
     const queryClient = useQueryClient();
-    const { user } = useAuth();
+    // const { user } = useAuth(); // Not strictly needed for this mutation
 
     return useMutation({
-        mutationFn: ({ productId, data, requestHeaders }) =>
-            apiService.patch(`/products/${productId}/`, data, { headers: requestHeaders }),
+        mutationFn: async ({ productId, data, requestHeaders }) => {
+            // console.log(`[useUpdateProduct] mutationFn START: Patching ${productId} with data:`, data);
+            const response = await apiService.patch(`/products/${productId}/`, data, { headers: requestHeaders });
+            // console.log(`[useUpdateProduct] mutationFn SUCCESS: API response for ${productId}:`, response);
+            return response; // Return the full Axios response
+        },
 
-        onSuccess: (responseData, variables, context) => {
-            console.log("Product update success. Response:", responseData, "Variables:", variables);
+        onSuccess: (response, variables, context) => { // Axios response is the first arg
+            const updatedProduct = response.data; // The actual data from backend
+            const { productId } = variables;
+            console.log(`[useUpdateProduct] onSuccess START: Product ID ${productId}, Updated Data from PATCH:`, updatedProduct);
 
-            // Invalidate the specific product details query (good for detail pages)
-            queryClient.invalidateQueries({ queryKey: queryKeys.productDetails(variables.productId) });
-
-            // Invalidate ALL product lists to ensure the table refreshes.
-            // The key ['products', 'list'] will match all queries starting with it,
-            // such as ['products', 'list', { page: 1, ... }]
-            queryClient.invalidateQueries({ queryKey: [queryKeys.PRODUCTS_BASE_KEY, 'list'] });
-            // queryKeys.PRODUCTS_BASE_KEY is 'products'
-
-            // If there was a global onSuccess passed when calling useUpdateProduct (not common for this setup)
-            if (options.onSuccess) {
-                options.onSuccess(responseData, variables, context);
+            if (!updatedProduct || typeof updatedProduct.id === 'undefined') {
+                console.error("[useUpdateProduct] onSuccess: updatedProduct data from PATCH is missing or invalid.", updatedProduct);
+                if (options.onSuccess) {
+                    options.onSuccess(response, variables, context);
+                }
+                return;
             }
+
+            try {
+                // 1. Update single product details cache (good practice)
+                console.log(`[useUpdateProduct] onSuccess: Updating productDetails cache for ${productId}`);
+                queryClient.setQueryData(queryKeys.productDetails(productId), updatedProduct); // Use the direct updated product data
+
+                // 2. Invalidate all product list queries.
+                // This will cause useProducts to refetch with its current queryParams.
+                const invalidationKey = [PRODUCTS_BASE_KEY, 'list']; // CORRECTLY USE THE IMPORTED CONSTANT
+                console.log(`[useUpdateProduct] onSuccess: Invalidating all product list queries starting with key:`, invalidationKey);
+
+                queryClient.invalidateQueries({
+                    queryKey: invalidationKey,
+                    exact: false, // Match all queries starting with this base
+                });
+                console.log(`[useUpdateProduct] onSuccess: Product list queries invalidated for product ${productId}. Refetch should occur.`);
+
+                if (options.onSuccess) {
+                    options.onSuccess(response, variables, context);
+                }
+            } catch (e) {
+                console.error(`[useUpdateProduct] onSuccess: CRITICAL ERROR during cache operations for ${productId}:`, e);
+            }
+            console.log(`[useUpdateProduct] onSuccess END for ${productId}`);
         },
 
         onError: (error, variables, context) => {
-            console.error("Error updating product in useUpdateProduct:", error);
+            console.error(`[useUpdateProduct] onError Invoked: Product ID ${variables?.productId}, Error:`, error.response?.data || error.message, error);
             if (options.onError) {
                 options.onError(error, variables, context);
             }
         },
-
         ...options,
     });
 };
