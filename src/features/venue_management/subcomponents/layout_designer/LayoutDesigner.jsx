@@ -1,534 +1,228 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-// eslint-disable-next-line no-unused-vars
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion'; // For main action buttons or overall page transition
 
-import Icon from '../../../../components/common/Icon'; // Adjusted path
 import Modal from '../../../../components/animated_alerts/Modal.jsx';
+import Icon from '../../../../components/common/Icon.jsx'; // Ensure correct path
 
-import DraggableGenericTool from './DraggableGenericTool';
-import PlacedItem from './PlacedItem';
-import DroppableGridCell from './DroppableGridCell';
+// New Hooks
+import useLayoutDesignerStateManagement from '../../hooks/useLayoutDesignerStateManagement';
+import useDesignerInteractions from '../../hooks/useDesignerInteractions';
+import useQrCodeManager from '../../hooks/useQrCodeManager'; // Existing, but used here
 
-import useQrCodeManager from '../../hooks/useQrCodeManager.js';
-import useHistory from '../../hooks/useHistory'; // New Hook
+// New UI Components
+import LayoutDesignerSidebar from './LayoutDesignerSidebar';
+import LayoutDesignerToolbar from './LayoutDesignerToolbar';
+import LayoutDesignerGrid from './grid_system/LayoutDesignerGrid.jsx';
 
+// Constants
 import {
-    DEFAULT_INITIAL_GRID_ROWS,
-    DEFAULT_INITIAL_GRID_COLS,
-    MIN_GRID_ROWS,
-    MAX_GRID_ROWS,
-    MIN_GRID_COLS,
-    MAX_GRID_COLS,
-    CELL_SIZE_REM,
     ItemTypes,
+    CELL_SIZE_REM,
     tableToolsConfig,
-    obstacleToolsConfig, // Added
-    // kitchenToolConfig, // Not directly used as a draggable tool in the same way
-} from '../../utils/layoutConstants.jsx';
+    // obstacleToolsConfig, // If using obstacles
+    DEFAULT_INITIAL_GRID_ROWS, // For default if no currentLayout
+    DEFAULT_INITIAL_GRID_COLS, // For default if no currentLayout
+    MIN_GRID_ROWS, MAX_GRID_ROWS, MIN_GRID_COLS, MAX_GRID_COLS, // For toolbar
+} from '../../constants/layoutConstants';
 
-import {
-    getDefaultSeatsForSize,
-    getToolConfigByType,
-    canPlaceItem as canPlaceItemUtil,
-    checkItemsInBounds as checkItemsInBoundsUtil,
-    getEffectiveDimensions, // Added
-    getNextAvailableTableNumber,
-} from '../../utils/layoutUtils.js';
-import { constructQrDataValue } from '../../utils/commonUtils.js';
-// commonUtils like constructQrDataValue and downloadBlob are now used within useQrCodeManager
+const STABLE_EMPTY_ARRAY = Object.freeze([]); // Stable empty array for initial state
+
+// Utilities - some might be used directly for QR code data if not handled by hooks/sidebar
+// import { constructQrDataValue } from '../../utils/commonUtils.js';
+
 
 const LayoutDesigner = ({
-    currentLayout, // existing tables, if any
-    initialGridRows = DEFAULT_INITIAL_GRID_ROWS,
-    initialGridCols = DEFAULT_INITIAL_GRID_COLS,
-    onSaveLayout,
-    onCancel
+    currentLayout, // Prop: existing layout data { tables, gridDimensions, kitchenArea, obstacles }
+    // initialGridRows, initialGridCols are now part of currentLayout.gridDimensions or defaults
+    onSaveLayout,  // Prop: (layoutToSave) => void
+    onCancel,      // Prop: () => void
 }) => {
-    // State managed by useHistory for Undo/Redo
-    const {
-        state: layoutSnapshot,
-        setState: setLayoutSnapshot, // Renamed for clarity
-        undo,
-        redo,
-        canUndo,
-        canRedo,
-        resetHistory: resetLayoutHistory
-    } = useHistory({
-        designedTables: [],
-        gridRows: initialGridRows,
-        gridCols: initialGridCols,
-    });
-
-    const { designedTables, designedObstacles, gridRows, gridCols, definedKitchenArea } = layoutSnapshot;
-
-    const [isDefiningKitchen, setIsDefiningKitchen] = useState(false);
-    const [kitchenCorner1, setKitchenCorner1] = useState(null);
-
-    const [isEraserActive, setIsEraserActive] = useState(false);
+    // --- Alert Modal State ---
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertModalContent, setAlertModalContent] = useState({ title: '', message: '', type: 'info' });
 
-    const [draggedItemPreview, setDraggedItemPreview] = useState(null); // { r, c, w, h, isValid }
-
     const openAlertModal = useCallback((title, message, type = 'info') => {
+        // Optional: Prevent spamming identical error modals
         if (isAlertModalOpen && alertModalContent.title === title && alertModalContent.message === message && type === 'error') return;
         setAlertModalContent({ title, message, type });
         setIsAlertModalOpen(true);
     }, [isAlertModalOpen, alertModalContent.title, alertModalContent.message]);
-
     const closeAlertModal = useCallback(() => setIsAlertModalOpen(false), []);
 
-    const {
-        fetchQrCodeForTable,
-        downloadSingleQr,
-        downloadAllQrs,
-        clearQrDataForTable,
-        clearAllQrData,
-        getQrStatus,
-    } = useQrCodeManager(openAlertModal);
+    // --- Initialize Hooks ---
+    const initialLayoutConfig = useMemo(() => ({ // <-- USE useMemo
+        initialTables: currentLayout?.tables || STABLE_EMPTY_ARRAY, // <-- USE STABLE_EMPTY_ARRAY
+        initialGridRows: currentLayout?.gridDimensions?.rows || DEFAULT_INITIAL_GRID_ROWS,
+        initialGridCols: currentLayout?.gridDimensions?.cols || DEFAULT_INITIAL_GRID_COLS,
+        // initialObstacles: currentLayout?.obstacles || STABLE_EMPTY_ARRAY, // If using obstacles
+        // initialKitchenArea: currentLayout?.kitchenArea || null,
+    }), [currentLayout]);
 
-    const parseInitialTables = (layout) => layout.map(table => ({
-        ...table,
-        id: table.id || `generated_id_${Math.random().toString(36).substr(2, 9)}`,
-        itemType: ItemTypes.PLACED_TABLE,
-        number: table.number || getNextAvailableTableNumber(layout.filter(t => t.id !== table.id)),
-        size: table.size || 'square',
-        seats: table.seats !== undefined ? table.seats : getDefaultSeatsForSize(table.size),
-        rotation: table.rotation || 0,
-    }));
+    const layoutManager = useLayoutDesignerStateManagement(initialLayoutConfig, openAlertModal);
+    const interactionsManager = useDesignerInteractions();
+    const qrManager = useQrCodeManager(openAlertModal);
 
+
+    // --- QR Code Fetching Effect ---
+    // Fetch QR codes for newly added or modified tables
     useEffect(() => {
-        const initialTablesParsed = currentLayout?.length ? parseInitialTables(currentLayout) : [];
-        // Number re-assignment logic (simplified for brevity, original was more complex)
-        const finalTables = initialTablesParsed.map((table, index, arr) => ({
-            ...table,
-            number: table.number === 0 || arr.find(t => t.id !== table.id && t.number === table.number)
-                ? getNextAvailableTableNumber(arr.filter(t => t.id !== table.id))
-                : table.number
-        }));
-
-
-        resetLayoutHistory({
-            designedTables: finalTables,
-            gridRows: initialGridRows,
-            gridCols: initialGridCols,
-        });
-    }, [currentLayout, initialGridRows, initialGridCols, resetLayoutHistory]);
-
-    useEffect(() => {
-        designedTables.filter(t => t && t.id).forEach(table => {
-            const status = getQrStatus(table.id);
-            if (!status.url && !status.loading && status.url !== 'error') {
-                fetchQrCodeForTable(table, "red", "blue");
+        layoutManager.designedTables.filter(t => t && t.id).forEach(table => {
+            const status = qrManager.getQrStatus(table.id);
+            // Fetch if no URL, not loading, not an error, and table number exists (QR data depends on it)
+            if (table.number && !status.url && !status.loading && !status.error && status.url !== 'error') {
+                // Assuming default QR colors. Pass from config if customizable.
+                qrManager.fetchQrCodeForTable(table, "red", "blue");
             }
         });
-    }, [designedTables, fetchQrCodeForTable, getQrStatus]);
-
-    const updateDraggedItemPreviewCallback = useCallback((previewData) => {
-        setDraggedItemPreview(previewData);
-    }, []);
-
-    const canPlaceItemAtCoords = useCallback((row, col, itemW, itemH, itemToExcludeId = null) => {
-        return canPlaceItemUtil(row, col, itemW, itemH, designedTables, gridRows, gridCols, itemToExcludeId);
-    }, [designedTables, gridRows, gridCols]);
-
-    const canPlaceItem = useCallback((row, col, w, h, itemToExcludeId = null, itemTypeBeingPlaced = ItemTypes.PLACED_TABLE) => {
-        return canPlaceItemUtil(row, col, w, h, designedTables, designedObstacles, definedKitchenArea, gridRows, gridCols, itemToExcludeId, itemTypeBeingPlaced);
-    }, [designedTables, designedObstacles, definedKitchenArea, gridRows, gridCols]);
-
-    const addItem = useCallback((itemFromTool, row, col, itemTypeFromTool) => { // itemTypeFromTool is ItemTypes.TABLE_TOOL
-        // itemFromTool: { type (tool.type), w, h, size }
-        const { w, h, size: toolSizeIdentifier } = itemFromTool;
-
-        if (!canPlaceItemAtCoords(row, col, w, h, null)) {
-            openAlertModal("Placement Error", `Cannot place ${toolSizeIdentifier}: space occupied or out of bounds.`, "error");
-            return;
-        }
-        setLayoutSnapshot(prev => {
-            const newTableNumber = getNextAvailableTableNumber(prev.designedTables);
-            const newItem = {
-                id: `table_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-                itemType: ItemTypes.PLACED_TABLE,
-                number: newTableNumber,
-                gridPosition: { rowStart: row, colStart: col },
-                size: toolSizeIdentifier, // e.g., 'square', 'rectangle'
-                seats: getDefaultSeatsForSize(toolSizeIdentifier),
-                rotation: 0, // New items are not rotated
-            };
-            return { ...prev, designedTables: [...prev.designedTables, newItem] };
-        });
-    }, [canPlaceItemAtCoords, setLayoutSnapshot, openAlertModal]);
-
-    const moveItem = useCallback((itemId, toRow, toCol) => { // Renamed from moveTable
-        const itemToMove = designedTables.find(t => t.id === itemId);
-        if (!itemToMove) return;
-
-        const { w: effectiveW, h: effectiveH } = getEffectiveDimensions(itemToMove);
-
-        if (!canPlaceItemAtCoords(toRow, toCol, effectiveW, effectiveH, itemId)) {
-            // openAlertModal("Placement Error", "Cannot move item: space occupied or out of bounds.", "error"); // Can be too noisy for drag
-            return;
-        }
-        setLayoutSnapshot(prev => ({
-            ...prev,
-            designedTables: prev.designedTables.map(t =>
-                t.id === itemId ? { ...t, gridPosition: { ...t.gridPosition, rowStart: toRow, colStart: toCol } } : t
-            )
-        }));
-    }, [designedTables, canPlaceItemAtCoords, setLayoutSnapshot]);
-
-    const eraseDesignerItem = useCallback((idOrRow, colCoordinate) => {
-        if (!isEraserActive) return;
-        let itemIdToRemove = null;
-
-        if (typeof idOrRow === 'string' && colCoordinate === undefined) { // Erasing a specific item by ID (from PlacedItem click)
-            itemIdToRemove = idOrRow;
-        } else if (typeof idOrRow === 'number' && typeof colCoordinate === 'number') { // Erasing by clicking a cell
-            const rowClicked = idOrRow;
-            const colClicked = colCoordinate;
-
-            const item = designedTables.find(t => {
-                if (!t || !t.gridPosition) return false;
-                const { w: itemW, h: itemH } = getEffectiveDimensions(t);
-                return rowClicked >= t.gridPosition.rowStart && rowClicked < t.gridPosition.rowStart + itemH &&
-                    colClicked >= t.gridPosition.colStart && colClicked < t.gridPosition.colStart + itemW;
-            });
-            if (item) itemIdToRemove = item.id;
-        }
-
-        if (itemIdToRemove) {
-            setLayoutSnapshot(prev => ({
-                ...prev,
-                designedTables: prev.designedTables.filter(t => t.id !== itemIdToRemove),
-            }));
-            clearQrDataForTable(itemIdToRemove);
-        }
-    }, [isEraserActive, designedTables, clearQrDataForTable, setLayoutSnapshot]);
-
-    const handleUpdateTableNumber = useCallback((tableId, newNumberString) => {
-        const newNumber = parseInt(newNumberString, 10);
-        if (isNaN(newNumber) || newNumber <= 0) {
-            openAlertModal("Invalid Input", "Table number must be a positive integer.", "error"); return false;
-        }
-        if (designedTables.some(t => t.id !== tableId && t.number === newNumber)) {
-            openAlertModal("Duplicate Number", `Table number ${newNumber} is already in use.`, "warning"); return false;
-        }
-        setLayoutSnapshot(prev => ({
-            ...prev,
-            designedTables: prev.designedTables.map(t => {
-                if (t.id === tableId) {
-                    const updatedTable = { ...t, number: newNumber };
-                    fetchQrCodeForTable(updatedTable, "red", "blue");
-                    return updatedTable;
-                }
-                return t;
-            })
-        }));
-        return true;
-    }, [openAlertModal, designedTables, fetchQrCodeForTable, setLayoutSnapshot]);
-
-    const handleRotateTable = useCallback((tableId) => {
-        setLayoutSnapshot(prev => {
-            const tableToRotate = prev.designedTables.find(t => t.id === tableId);
-            if (!tableToRotate) return prev;
-
-            const newRotation = tableToRotate.rotation === 0 ? 90 : 0;
-            const tentativeRotatedTable = { ...tableToRotate, rotation: newRotation };
-            const { w: effW, h: effH } = getEffectiveDimensions(tentativeRotatedTable);
-
-            // Check if it can be placed in its *current* position with the *new* rotation
-            if (!canPlaceItemUtil(tableToRotate.gridPosition.rowStart, tableToRotate.gridPosition.colStart, effW, effH, prev.designedTables, prev.gridRows, prev.gridCols, tableId)) {
-                openAlertModal("Rotation Error", "Cannot rotate table: new orientation conflicts with other items or boundaries.", "error");
-                return prev;
-            }
-
-            // If QR needs update on rotation because effective dimensions change QR data (unlikely for this app)
-            // fetchQrCodeForTable(tentativeRotatedTable, "red", "blue");
-
-            return {
-                ...prev,
-                designedTables: prev.designedTables.map(t =>
-                    t.id === tableId ? tentativeRotatedTable : t
-                )
-            };
-        });
-    }, [setLayoutSnapshot, openAlertModal]);
+    }, [layoutManager.designedTables, qrManager]);
 
 
-    const handleUpdateTableSeats = useCallback((tableId, newSeatsString) => {
-        const newSeats = parseInt(newSeatsString, 10);
-        if (isNaN(newSeats) || newSeats < 0) {
-            openAlertModal("Invalid Input", "Number of seats must be a non-negative integer.", "error"); return false;
-        }
-        setLayoutSnapshot(prev => ({
-            ...prev,
-            designedTables: prev.designedTables.map(t => {
-                if (t.id === tableId) {
-                    const updatedTable = { ...t, seats: newSeats };
-                    fetchQrCodeForTable(updatedTable, "red", "blue");
-                    return updatedTable;
-                }
-                return t;
-            })
-        }));
-        return true;
-    }, [openAlertModal, fetchQrCodeForTable, setLayoutSnapshot]);
-
+    // --- Save Handler ---
     const handleSave = useCallback(() => {
-        // Validation logic remains similar...
-        const validTables = designedTables.filter(t => t && typeof t.number === 'number' && t.number > 0);
+        // Perform final validation before saving
+        const tablesToSave = layoutManager.designedTables;
+        const validTables = tablesToSave.filter(t => t && typeof t.number === 'number' && t.number > 0);
         const numbers = validTables.map(t => t.number);
         const uniqueNumbers = new Set(numbers);
-        if (numbers.length !== uniqueNumbers.size || validTables.length !== designedTables.length) {
-            openAlertModal("Validation Error", "Ensure all tables have unique, positive numbers.", "error"); return;
+
+        if (numbers.length !== uniqueNumbers.size || validTables.length !== tablesToSave.length) {
+            openAlertModal("Validation Error", "Ensure all tables have unique, positive numbers before saving.", "error");
+            return;
         }
+
         const layoutToSave = {
-            tables: JSON.parse(JSON.stringify(validTables)),
-            // obstacles: JSON.parse(JSON.stringify(designedObstacles)), // Removed
-            gridDimensions: { rows: gridRows, cols: gridCols },
-            // kitchenArea: definedKitchenArea ? JSON.parse(JSON.stringify(definedKitchenArea)) : null, // Removed
+            tables: JSON.parse(JSON.stringify(validTables)), // Deep copy for safety
+            // obstacles: JSON.parse(JSON.stringify(layoutManager.designedObstacles)), // If active
+            gridDimensions: { rows: layoutManager.gridRows, cols: layoutManager.gridCols },
+            // kitchenArea: layoutManager.definedKitchenArea ? JSON.parse(JSON.stringify(layoutManager.definedKitchenArea)) : null, // If active
         };
         onSaveLayout(layoutToSave);
-    }, [designedTables, gridRows, gridCols, onSaveLayout, openAlertModal]);
+    }, [
+        layoutManager.designedTables,
+        // layoutManager.designedObstacles,
+        layoutManager.gridRows,
+        layoutManager.gridCols,
+        // layoutManager.definedKitchenArea,
+        onSaveLayout,
+        openAlertModal
+    ]);
 
-    const handleGridDimensionChange = useCallback((dim, valueStr) => {
-        const newValue = parseInt(valueStr, 10);
-        const MIN = dim === 'rows' ? MIN_GRID_ROWS : MIN_GRID_COLS;
-        const MAX = dim === 'rows' ? MAX_GRID_ROWS : MAX_GRID_COLS;
-        const currentDimValue = dim === 'rows' ? gridRows : gridCols;
-
-        if (isNaN(newValue) || newValue < MIN || newValue > MAX) {
-            openAlertModal("Invalid Dimension", `${dim.charAt(0).toUpperCase() + dim.slice(1)} must be between ${MIN} and ${MAX}.`, "warning");
-            return;
-        }
-        const newRows = dim === 'rows' ? newValue : gridRows;
-        const newCols = dim === 'cols' ? newValue : gridCols;
-
-        if (newValue < currentDimValue && !checkItemsInBoundsUtil(newRows, newCols, designedTables)) { // Simplified checkItemsInBoundsUtil call
-            openAlertModal("Resize Error", `Cannot reduce ${dim}. Tables would be out of bounds.`, "error");
-            return;
-        }
-        setLayoutSnapshot(prev => ({
-            ...prev,
-            gridRows: dim === 'rows' ? newValue : prev.gridRows,
-            gridCols: dim === 'cols' ? newValue : prev.gridCols,
-        }));
-    }, [openAlertModal, gridRows, gridCols, designedTables, setLayoutSnapshot]);
-
-    const handleDefineKitchenArea = useCallback(() => {
-        if (isDefiningKitchen) {
-            setIsDefiningKitchen(false);
-            setKitchenCorner1(null);
-        } else {
-            setIsDefiningKitchen(true);
-            setKitchenCorner1(null);
-            setLayoutSnapshot(prev => ({ ...prev, definedKitchenArea: null })); // Clear existing kitchen when starting to define new
-            setIsEraserActive(false); // Ensure eraser is off
-        }
-    }, [isDefiningKitchen, setLayoutSnapshot]);
-
-    const handleCellClickForKitchen = useCallback((r, c) => {
-        if (!isDefiningKitchen || isEraserActive) {
-            setIsDefiningKitchen(false);
-            setKitchenCorner1(null);
-            return;
-        }
-
-        if (!kitchenCorner1) {
-            setKitchenCorner1({ r, c });
-        } else {
-            const rowStart = Math.min(kitchenCorner1.r, r);
-            const colStart = Math.min(kitchenCorner1.c, c);
-            const rowEnd = Math.max(kitchenCorner1.r, r);
-            const colEnd = Math.max(kitchenCorner1.c, c);
-            const newKitchenDef = { rowStart, colStart, rowEnd, colEnd };
-
-            // Check for overlap with existing items
-            for (let i = rowStart; i <= rowEnd; i++) {
-                for (let j = colStart; j <= colEnd; j++) {
-                    // Using canPlaceItemUtil directly as we are checking for any item in general
-                    if (canPlaceItemUtil(i, j, 1, 1, designedTables, designedObstacles, null, gridRows, gridCols, null, ItemTypes.PLACED_KITCHEN) === false) {
-                        openAlertModal("Placement Error", "Kitchen area cannot overlap with existing items.", "error");
-                        setKitchenCorner1(null); // Reset selection
-                        setIsDefiningKitchen(true); // Keep in defining mode
-                        return;
-                    }
-                }
-            }
-            setLayoutSnapshot(prev => ({ ...prev, definedKitchenArea: newKitchenDef }));
-            setIsDefiningKitchen(false);
-            setKitchenCorner1(null);
-        }
-    }, [isDefiningKitchen, isEraserActive, kitchenCorner1, designedTables, designedObstacles, gridRows, gridCols, openAlertModal, setLayoutSnapshot]);
-
+    // --- Clear All Handler ---
     const handleClearAll = () => {
-        resetLayoutHistory({
-            designedTables: [],
-            gridRows: DEFAULT_INITIAL_GRID_ROWS,
-            gridCols: DEFAULT_INITIAL_GRID_COLS,
-        });
-        setIsEraserActive(false);
-        clearAllQrData();
-        if (openAlertModal) openAlertModal("Cleared", "Designer canvas has been cleared and grid reset.", "info");
+        layoutManager.clearFullLayout(); // This will also trigger the alert from within the hook
+        qrManager.clearAllQrData();      // Clear any cached QR blob URLs
     };
 
-    const toolsSection = (
-        <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-3 text-center sm:text-left">Tools</h3>
-            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3">
-                {tableToolsConfig.map(tool => <DraggableGenericTool key={tool.type} tool={tool} itemType={ItemTypes.TABLE_TOOL} />)}
-                {/* Obstacle and Kitchen tools removed */}
-                <div className="border-l border-gray-300 h-10 mx-1 hidden sm:block"></div>
-                <button onClick={() => setIsEraserActive(!isEraserActive)} className={`p-3 border rounded-xl flex flex-col items-center shadow transition-colors duration-150 ${isEraserActive ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-400' : 'bg-white hover:bg-gray-100 text-gray-600'}`} title={isEraserActive ? "Eraser Active" : "Activate Eraser"}>
-                    <Icon name="ink_eraser" className="w-6 h-6 text-gray-500" /> <span className="text-xs mt-1">{isEraserActive ? 'Active' : 'Eraser'}</span>
-                </button>
-                <div className="border-l border-gray-300 h-10 mx-1 hidden sm:block"></div>
-                <button onClick={undo} disabled={!canUndo} className="p-2 border rounded-md shadow bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" title="Undo"><Icon name="undo" className="w-5 h-5 text-gray-600" /></button>
-                <button onClick={redo} disabled={!canRedo} className="p-2 border rounded-md shadow bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" title="Redo"><Icon name="redo" className="w-5 h-5 text-gray-600" /></button>
-            </div>
-        </div>
-    );
+    // --- Update table properties (combining number/seats/rotation for PlacedItem) ---
+    // PlacedItem might call this for number and rotation. Sidebar calls for seats.
+    const handleUpdateTableDetails = useCallback((tableId, details) => {
+        // `details` could be { number: newNum }, { seats: newSeats }, or { rotation: true }
+        // The `updateTableProperties` hook method handles figuring out which prop to update.
+        const success = layoutManager.updateTableProperties(tableId, details);
+        if (success && (details.number !== undefined || details.seats !== undefined)) {
+            // If number or seats changed, refetch QR as data might have changed
+            const updatedTable = layoutManager.designedTables.find(t => t.id === tableId);
+            if (updatedTable) {
+                qrManager.fetchQrCodeForTable(updatedTable, "red", "blue");
+            }
+        }
+        return success; // For PlacedItem to know if update was successful
+    }, [layoutManager, qrManager]);
+
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className="flex flex-col h-screen font-sans">
-                <aside className="w-80 bg-slate-100 border-r border-slate-300 flex flex-col shadow-lg fixed top-0 left-0 h-full z-20">
-                    <div className="p-4 border-b border-slate-300">
-                        <h3 className="text-xl font-semibold text-indigo-700 tracking-tight">Table Properties</h3>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                        {designedTables.filter(t => t && t.id).length === 0 ? (
-                            <p className="text-sm text-gray-500 text-center mt-4">No tables placed on the grid yet.</p>
-                        ) : (
-                             designedTables.filter(t => t && t.id)
-                                 .sort((a, b) => (a.number || Infinity) - (b.number || Infinity))
-                                 .map(table => {
-                                     const qrStatus = getQrStatus(table.id);
-                                     // const qrDataStr = qrStatus.url !== 'error' ? constructQrDataValue(table) : 'Error generating data';
-
-                                     return (
-                                         <div key={table.id} className="p-3 bg-white rounded-lg shadow border border-slate-200">
-                                             <h4 className="font-semibold text-indigo-600 mb-2">Table {table.number ?? 'N/A'} <span className="text-xs text-gray-500">({table.size ?? 'N/A'})</span></h4>
-                                             <div className="mb-2">
-                                                 <label htmlFor={`seats-${table.id}`} className="block text-xs font-medium text-gray-700 mb-1">Seats:</label>
-                                                 <input
-                                                     type="number" id={`seats-${table.id}`} min="0"
-                                                     value={table.seats ?? ''}
-                                                     onChange={(e) => handleUpdateTableSeats(table.id, e.target.value)}
-                                                     className="w-full p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                                 />
-                                             </div>
-                                             <div>
-                                                 <label className="block text-xs font-medium text-gray-700 mb-1">QR Code:</label>
-                                                 <div className="flex items-center space-x-2">
-                                                     <div className="p-1 border border-gray-300 rounded-md inline-block bg-white w-24 h-24 flex items-center justify-center">
-                                                         {qrStatus.loading && <span className="text-xs text-gray-500">Loading...</span>}
-                                                         {!qrStatus.loading && qrStatus.url && qrStatus.url !== 'error' && (
-                                                             <img src={qrStatus.url} alt={`QR Code for Table ${table.number ?? 'N/A'}`} className="max-w-full max-h-full" />
-                                                         )}
-                                                         {!qrStatus.loading && (qrStatus.url === 'error' || !qrStatus.url) && <span className="text-xs text-red-500">Error/None</span>}
-                                                     </div>
-                                                     <button
-                                                         onClick={() => downloadSingleQr(table)}
-                                                         title={`Download QR for Table ${table.number ?? 'N/A'}`}
-                                                         className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-xs"
-                                                         disabled={qrStatus.loading || !qrStatus.url || qrStatus.url === 'error'}
-                                                     >
-                                                         <Icon name="download" className="w-4 h-4" />
-                                                     </button>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                     );
-                                 })
-                         )}
-                     </div>
-                     <div className="p-4 border-t border-slate-300 mt-auto">
-                         <button    
-                             onClick={() => downloadAllQrs(designedTables)}
-                             disabled={designedTables.filter(t => t && t.id).length === 0}
-                             className="w-full px-4 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-md flex items-center justify-center text-sm font-medium disabled:bg-gray-300 disabled:cursor-not-allowed">
-                             <Icon name="qr_code_scanner" className="w-5 h-5 mr-2" /> Download All QR Codes
-                         </button>
-                     </div>
-                </aside>
+            <div className="flex flex-col h-screen font-sans bg-gradient-to-tr from-indigo-50 via-white to-pink-50"> {/* Overall background */}
+                <LayoutDesignerSidebar
+                    designedTables={layoutManager.designedTables}
+                    getQrStatus={qrManager.getQrStatus}
+                    downloadSingleQr={qrManager.downloadSingleQr}
+                    downloadAllQrs={qrManager.downloadAllQrs}
+                    onUpdateTableSeats={(tableId, seats) => handleUpdateTableDetails(tableId, { seats })}
+                />
 
                 <main className="flex-1 overflow-auto ml-80"> {/* Ensure ml-80 matches sidebar width */}
-                    <div className="p-6 min-h-full bg-gradient-to-tr from-indigo-50 via-white to-pink-50">
-                        <h2 className="text-4xl font-bold text-indigo-700 mb-8 text-center tracking-tight">Layout Designer</h2>
-                        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.3 }} className="mb-8 p-6 bg-white rounded-xl shadow-lg">
-                            <div className="mb-6 pb-4 border-b border-gray-200">
-                                <h3 className="text-lg font-semibold text-gray-700 mb-3 text-center sm:text-left">Grid Dimensions</h3>
-                                <div className="flex flex-col sm:flex-row items-center sm:justify-start gap-4 sm:gap-6">
-                                    <div className="flex items-center space-x-2"><label htmlFor="gridRows" className="text-sm font-medium text-gray-600">Rows:</label><input type="number" id="gridRows" name="gridRows" value={gridRows} onChange={(e) => handleGridDimensionChange('rows', e.target.value)} min={MIN_GRID_ROWS} max={MAX_GRID_ROWS} className="w-20 p-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" /></div>
-                                    <div className="flex items-center space-x-2"><label htmlFor="gridCols" className="text-sm font-medium text-gray-600">Cols:</label><input type="number" id="gridCols" name="gridCols" value={gridCols} onChange={(e) => handleGridDimensionChange('cols', e.target.value)} min={MIN_GRID_COLS} max={MAX_GRID_COLS} className="w-20 p-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" /></div>
-                                </div>
-                            </div>
-                            {toolsSection}
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.2, duration: 0.3 }}
-                            className="mx-auto bg-gray-50 rounded-xl shadow-xl relative overflow-hidden border border-gray-300"
-                            style={{
-                                display: 'grid',
-                                gridTemplateRows: `repeat(${gridRows}, ${CELL_SIZE_REM}rem)`,
-                                gridTemplateColumns: `repeat(${gridCols}, ${CELL_SIZE_REM}rem)`,
-                                width: `${gridCols * CELL_SIZE_REM}rem`,
-                                height: `${gridRows * CELL_SIZE_REM}rem`,
-                                minWidth: '300px'
-                            }}
-                            onMouseLeave={() => updateDraggedItemPreviewCallback(null)}
+                    <div className="p-6 min-h-full"> {/* Removed inner gradient, applied to parent */}
+                        <motion.h2
+                            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+                            className="text-4xl font-bold text-indigo-700 mb-8 text-center tracking-tight"
                         >
-                            {/* Grid Cells for dropping */}
-                            {Array.from({ length: gridRows }).flatMap((_, rIndex) =>
-                                Array.from({ length: gridCols }).map((_, cIndex) => (
-                                    <DroppableGridCell
-                                        key={`cell-${rIndex + 1}-${cIndex + 1}`}
-                                        r={rIndex + 1} // 1-based
-                                        c={cIndex + 1} // 1-based
-                                        isEraserActive={isEraserActive}
-                                        eraseDesignerItem={eraseDesignerItem}
-                                        addItem={addItem}
-                                        moveItem={moveItem}
-                                        canPlaceItemAtCoords={canPlaceItemAtCoords}
-                                        draggedItemPreview={draggedItemPreview}
-                                        updateDraggedItemPreview={updateDraggedItemPreviewCallback}
-                                        ItemTypes={ItemTypes}
-                                    />
-                                ))
-                            )}
-                             <AnimatePresence>
-                                {designedTables.filter(t => t && t.id).map(table => (
-                                    <PlacedItem
-                                        key={table.id}
-                                        item={table}
-                                        itemType={ItemTypes.PLACED_TABLE}
-                                        isEraserActive={isEraserActive}
-                                        onUpdateTableNumber={handleUpdateTableNumber}
-                                        onRotateTable={handleRotateTable}
-                                        eraseDesignerItem={eraseDesignerItem}
-                                        CELL_SIZE_REM={CELL_SIZE_REM}
-                                        ItemTypes={ItemTypes}
-                                    />
-                                ))}
-                            </AnimatePresence>
-                        </motion.div>
+                            Layout Designer
+                        </motion.h2>
 
-                        <div className="mt-10 flex justify-center space-x-4">
-                            <button onClick={handleSave} className="px-8 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors shadow-md">Save Layout</button>
-                            <button onClick={handleClearAll} className="px-8 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors shadow-md">Clear All & Reset Grid</button>
-                            <button onClick={onCancel} className="px-8 py-3 bg-rose-400 text-white rounded-xl hover:bg-rose-500 transition-colors shadow-md">Cancel & Exit</button>
+                        <LayoutDesignerToolbar
+                            majorGridRows={layoutManager.gridRows} // Passed from layoutManager
+                            majorGridCols={layoutManager.gridCols} // Passed from layoutManager
+                            currentGridSubdivision={layoutManager.gridSubdivision} // New state from layoutManager
+                            onGridDimensionChange={layoutManager.setGridDimensions} // For major dimensions
+                            onGridSubdivisionChange={layoutManager.setGridSubdivision} // New callback
+
+                            tableToolsConfig={tableToolsConfig}
+                            ItemTypes={ItemTypes}
+                            isEraserActive={interactionsManager.isEraserActive}
+                            onToggleEraser={interactionsManager.toggleEraser}
+                            onUndo={layoutManager.undo}
+                            onRedo={layoutManager.redo}
+                            canUndo={layoutManager.canUndo}
+                            canRedo={layoutManager.canRedo}
+                        />
+
+                        <LayoutDesignerGrid
+                            majorGridRows={layoutManager.gridRows} // This is already correct (gridRows from hook IS major)
+                            majorGridCols={layoutManager.gridCols} // This is already correct (gridCols from hook IS major)
+                            gridSubdivision={layoutManager.gridSubdivision} // NEW: Pass this down
+                            designedTables={layoutManager.designedTables}
+                            ItemTypes={ItemTypes}
+                            CELL_SIZE_REM={CELL_SIZE_REM} // This is the MAJOR_CELL_SIZE_REM
+
+                            // Callbacks are already correctly set up to use minor coordinates from layoutManager
+                            onAddItem={layoutManager.addItemToLayout}
+                            onMoveItem={layoutManager.moveExistingItem}
+                            onEraseDesignerItemFromCell={layoutManager.removeItemAtCoords} // Expects minor coords
+                            onEraseDesignerItemById={(itemId) => {
+                                layoutManager.removeItemById(itemId);
+                                qrManager.clearQrDataForTable(itemId);
+                            }}
+                            onUpdateTableNumber={(tableId, number) => handleUpdateTableDetails(tableId, { number })}
+                            onRotateTable={(tableId) => handleUpdateTableDetails(tableId, { rotation: true })}
+                            canPlaceItem={layoutManager.canPlaceItem} // Expects minor coords and minor dimensions
+
+                            draggedItemPreview={interactionsManager.draggedItemPreview} // Preview coords/dims are minor
+                            onUpdateDraggedItemPreview={interactionsManager.updateDraggedItemPreview}
+                            isEraserActive={interactionsManager.isEraserActive}
+                        />
+
+                        {/* Main Action Buttons */}
+                        <div className="mt-10 flex flex-col sm:flex-row justify-center items-center sm:space-x-4 space-y-3 sm:space-y-0">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                                onClick={handleSave}
+                                className="px-8 py-3 w-full sm:w-auto bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors shadow-md font-medium"
+                            >
+                                <Icon name="save" className="w-5 h-5 mr-2 inline-block" /> Save Layout
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                                onClick={handleClearAll}
+                                className="px-8 py-3 w-full sm:w-auto bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors shadow-md font-medium"
+                            >
+                                <Icon name="delete_sweep" className="w-5 h-5 mr-2 inline-block" /> Clear All & Reset
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                                onClick={onCancel}
+                                className="px-8 py-3 w-full sm:w-auto bg-rose-400 text-white rounded-xl hover:bg-rose-500 transition-colors shadow-md font-medium"
+                            >
+                                <Icon name="cancel" className="w-5 h-5 mr-2 inline-block" /> Cancel & Exit
+                            </motion.button>
                         </div>
                     </div>
                 </main>
 
                 <Modal isOpen={isAlertModalOpen} onClose={closeAlertModal} title={alertModalContent.title} type={alertModalContent.type}>
-                    <p>{alertModalContent.message}</p>
+                    <p className="text-sm">{alertModalContent.message}</p> {/* Ensure modal content is text-sm for consistency */}
                 </Modal>
             </div>
         </DndProvider>

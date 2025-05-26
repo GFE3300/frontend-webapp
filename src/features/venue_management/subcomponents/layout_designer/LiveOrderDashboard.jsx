@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Modal from '../../../../components/animated_alerts/Modal.jsx';
-import Icon from '../../../../components/common/Icon'; // Adjusted path
-import LayoutDesigner from '../layout_designer/LayoutDesigner'; // Adjusted path
+import Icon from '../../../../components/common/Icon.jsx'; // Adjusted path
+import LayoutDesigner from './LayoutDesigner.jsx'; // Adjusted path
 
 import TableCard from '../live_view/TableCard.jsx';
 import OrderDetailsModalContent from '../live_view/OrderDetailsModalContent.jsx';

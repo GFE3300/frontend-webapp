@@ -1,46 +1,49 @@
-import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDrag } from 'react-dnd';
 import { motion } from 'framer-motion';
-import Icon from '../../../../components/common/Icon'; // Assuming Icon component exists and is used
-import { getEffectiveDimensions } from '../../utils/layoutUtils'; // Import helper
-
-// ItemTypes and CELL_SIZE_REM will be passed as props from LayoutDesigner
+import Icon from '../../../../components/common/Icon';
+import { getEffectiveDimensions as getEffectiveDimensionsUtil } from '../../utils/layoutUtils'; // Util expects item.w/h in minor cells
 
 const PlacedItem = ({
-    item,
-    itemType, // e.g., ItemTypes.PLACED_TABLE from props
+    item, // item.gridPosition (minor coords), item.w (minor units), item.h (minor units), item.rotation, item.size (tool type)
+    itemType, // e.g., ItemTypes.PLACED_TABLE
+
     isEraserActive,
-    onUpdateTableNumber, // (tableId, newNumberString) => boolean
-    onRotateTable, // (tableId) => void - New prop
     eraseDesignerItem,   // (itemId) => void
-    CELL_SIZE_REM,
-    ItemTypes, // Passed from LayoutDesigner
+    onUpdateTableNumber, // (tableId, newNumberString) => boolean
+    onRotateTable,       // (tableId) => void (triggers updateTableProperties with {rotation: true})
+
+    CELL_SIZE_REM,       // This is now MINOR_CELL_SIZE_REM, passed from LayoutDesignerGrid
+    ItemTypes,           // Constant object { PLACED_TABLE, TABLE_TOOL }
 }) => {
     const [isEditingNumber, setIsEditingNumber] = useState(false);
     const [currentNumberInput, setCurrentNumberInput] = useState(
         itemType === ItemTypes.PLACED_TABLE && item ? String(item.number ?? '') : ""
     );
 
-    const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
-        type: ItemTypes.PLACED_TABLE, // This item is always a PLACED_TABLE once on grid
-        item: () => ({ // item is a function to ensure fresh data on drag start
+    // Calculate effective dimensions in minor cell units using the utility.
+    // item.w and item.h are already in minor cell units.
+    const effectiveDimensionsInMinorUnits = useMemo(() => getEffectiveDimensionsUtil(item), [item]);
+
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: itemType, // Use the passed itemType (e.g., PLACED_TABLE)
+        item: () => ({
             id: item.id,
-            itemType: ItemTypes.PLACED_TABLE,
-            size: item.size,     // e.g., 'rectangle-tall' - fundamental property
-            rotation: item.rotation, // e.g., 0 or 90 - fundamental property
+            itemType: itemType,
+            // Base dimensions (in minor cells) and rotation are needed for recalculating effective dims on hover/drop
+            w: item.w,          // Base width in minor cells (before rotation)
+            h: item.h,          // Base height in minor cells (before rotation)
+            rotation: item.rotation,
+            size: item.size,    // Original tool type/size identifier (e.g., 'square', 'rectangle')
+
+            // Include current effective dimensions directly in the payload for DroppableGridCell's hover/canDrop
+            // These are also in minor cell units.
+            effW_minor: effectiveDimensionsInMinorUnits.w,
+            effH_minor: effectiveDimensionsInMinorUnits.h,
         }),
         canDrag: () => !isEditingNumber && !isEraserActive,
         collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
-    }), [item, isEditingNumber, isEraserActive, ItemTypes]); // Dependencies for useDrag
-
-    useEffect(() => {
-        // Connect the drag preview to an empty image
-        // This is important if you want to render a custom drag layer or just hide the default browser preview
-        // For this specific case, we might not need a custom drag layer if the highlighting on grid cells is sufficient.
-        // If you want the item itself to follow the cursor, dragPreview(getEmptyImage()) is not what you want.
-        // The default behavior of react-dnd will make a snapshot of the item follow the cursor.
-        // To customize that, you'd use a DragLayer. For now, we'll let the default work.
-    }, [dragPreview]);
+    }), [item, itemType, isEditingNumber, isEraserActive, ItemTypes, effectiveDimensionsInMinorUnits]);
 
 
     useEffect(() => {
@@ -60,27 +63,22 @@ const PlacedItem = ({
 
     const saveNumber = useCallback(() => {
         const success = onUpdateTableNumber(item.id, currentNumberInput);
-        if (!success && item.number !== undefined) {
+        if (!success && item.number !== undefined) { // Revert if save failed
             setCurrentNumberInput(String(item.number));
         }
         setIsEditingNumber(false);
     }, [item?.id, item?.number, currentNumberInput, onUpdateTableNumber]);
 
     const cancelEdit = useCallback(() => {
-        if (item.number === undefined) return;
-        setCurrentNumberInput(String(item.number));
+        if (item.number !== undefined) {
+            setCurrentNumberInput(String(item.number));
+        }
         setIsEditingNumber(false);
     }, [item?.number]);
 
-
     const handleInputKeyDown = useCallback((e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            saveNumber();
-        } else if (e.key === 'Escape') {
-            e.preventDefault();
-            cancelEdit();
-        }
+        if (e.key === 'Enter') { e.preventDefault(); saveNumber(); }
+        else if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
     }, [saveNumber, cancelEdit]);
 
     const handleRotateClick = useCallback((e) => {
@@ -91,33 +89,43 @@ const PlacedItem = ({
     }, [item?.id, onRotateTable, isEditingNumber, isEraserActive]);
 
 
-    if (!item || !item.gridPosition) return null;
+    if (!item || !item.gridPosition || typeof item.w !== 'number' || typeof item.h !== 'number') {
+        console.warn("PlacedItem: Invalid item data", item);
+        return null;
+    }
 
-    const { w: effectiveW, h: effectiveH } = getEffectiveDimensions(item);
+    // item.gridPosition is in MINOR cell coordinates (e.g., { rowStart: 5, colStart: 9 })
+    // effectiveDimensionsInMinorUnits.w and .h are in MINOR cell units
+    // CELL_SIZE_REM is the size of one MINOR cell in rems.
 
     const style = {
         position: 'absolute',
         top: `${(item.gridPosition.rowStart - 1) * CELL_SIZE_REM}rem`,
         left: `${(item.gridPosition.colStart - 1) * CELL_SIZE_REM}rem`,
-        width: `${effectiveW * CELL_SIZE_REM}rem`,
-        height: `${effectiveH * CELL_SIZE_REM}rem`,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 100 : (isEraserActive ? 20 : (isEditingNumber ? 25 : 10)),
-        // pointerEvents: isEraserActive && !isEditingNumber ? 'auto' : (isDragging ? 'none' : 'auto'),
-        transformOrigin: 'center center', // For smoother visual rotation if CSS rotation is applied
+        width: `${effectiveDimensionsInMinorUnits.w * CELL_SIZE_REM}rem`,
+        height: `${effectiveDimensionsInMinorUnits.h * CELL_SIZE_REM}rem`,
+        opacity: isDragging ? 0.4 : 1,
+        zIndex: isDragging ? 100 : (isEditingNumber ? 25 : (isEraserActive ? 20 : 10)), // Ensure eraser click doesn't go through if not intended
+        transformOrigin: 'center center',
     };
 
-    let baseClasses = `flex flex-col items-center justify-center text-xs overflow-hidden p-0.5 select-none relative group`; // Added group for hover effects on children
-    let shapeClass = item.size === 'round' ? 'rounded-full' : 'rounded-lg';
-    baseClasses += ` border border-indigo-400 bg-indigo-100 text-indigo-800`;
+    let baseClasses = `flex flex-col items-center justify-center text-xs overflow-hidden p-0.5 select-none relative group shadow-md`;
+    let shapeClass = item.size === 'round' ? 'rounded-[50%]' : 'rounded-md';
 
-    let title = isEditingNumber ? `Editing number (Original: ${item.number ?? 'N/A'})`
-        : (isEraserActive ? `Click to erase Table ${item.number ?? 'N/A'}`
-            : `Table ${item.number ?? 'N/A'} (${item.size?.replace('-', ' ') ?? 'N/A'}) - Seats: ${item.seats ?? 'N/A'}. Rotation: ${item.rotation}°`);
+    if (itemType === ItemTypes.PLACED_TABLE) {
+        baseClasses += ` border border-indigo-500 bg-indigo-200 text-indigo-900`;
+    }
+    // else if (itemType === ItemTypes.PLACED_OBSTACLE) { /* Style for obstacles */ }
+
+
+    let title = `T${item.number ?? 'N/A'} (${item.size?.replace('-', ' ')}) S:${item.seats ?? 'N/A'} R:${item.rotation}°`;
+    if (isEditingNumber) title = `Editing T${item.number ?? 'N/A'}`;
+    if (isEraserActive) title = `Click to erase T${item.number ?? 'N/A'}`;
+
 
     const content = (
         <>
-            {isEditingNumber ? (
+            {isEditingNumber && itemType === ItemTypes.PLACED_TABLE ? (
                 <input
                     type="number"
                     value={currentNumberInput}
@@ -125,53 +133,58 @@ const PlacedItem = ({
                     onBlur={saveNumber}
                     onKeyDown={handleInputKeyDown}
                     autoFocus
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-12 text-center bg-white text-indigo-700 rounded border border-indigo-500 text-sm py-0.5 z-30"
+                    onClick={(e) => e.stopPropagation()} // Prevent item click when editing input
+                    className="w-11 text-center bg-white text-indigo-700 rounded border border-indigo-500 text-xs py-0 z-30"
                     min="1"
                 />
-            ) : (
+            ) : itemType === ItemTypes.PLACED_TABLE && (
                 <span
-                    className="font-bold text-sm cursor-text hover:text-indigo-500"
+                    className="font-semibold text-[10px] sm:text-xs cursor-pointer hover:text-indigo-600"
                     onClick={handleNumberTextClick}
-                    title={`Click to edit Table ${item.number ?? 'N/A'} number`}
+                    title={`Edit Table ${item.number ?? 'N/A'} Number`}
                 >
-                    {item.number ?? 'N/A'}
+                    T{item.number ?? 'N/A'}
                 </span>
             )}
-            <span className="text-xxs leading-tight text-center w-full break-words px-0.5">{item.size?.replace('-', ' ') ?? 'N/A'}</span>
-            {item.seats !== undefined && <span className="text-xxs leading-tight opacity-80 text-center w-full break-words px-0.5">Seats: {item.seats}</span>}
+            {itemType === ItemTypes.PLACED_TABLE && (
+                <>
+                    <span className="text-[8px] sm:text-[10px] leading-tight opacity-80">{item.size?.replace('-', ' ')}</span>
+                    {item.seats !== undefined && <span className="text-[8px] sm:text-[10px] leading-tight opacity-70">S: {item.seats}</span>}
+                </>
+            )}
 
-            {/* Rotate Button - shown on hover when not dragging/editing/erasing */}
-            {!isDragging && !isEditingNumber && !isEraserActive && (
+            {itemType === ItemTypes.PLACED_TABLE && onRotateTable && !isDragging && !isEditingNumber && !isEraserActive && (
                 <button
                     onClick={handleRotateClick}
-                    className="absolute top-0 right-0 mt-0.5 mr-0.5 p-0.5 bg-indigo-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
+                    className="absolute top-0.5 right-0.5 p-0.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                     title={`Rotate Table ${item.number ?? 'N/A'}`}
                 >
-                    <Icon name="rotate_90_degrees_cw" className="w-3 h-3" />
+                    <Icon name="rotate_90_degrees_cw" className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                 </button>
             )}
         </>
     );
 
-    baseClasses += ` ${!isEraserActive && !isDragging && !isEditingNumber ? 'cursor-grab hover:shadow-lg' : ''}`;
+    baseClasses += ` ${!isEraserActive && !isDragging && !isEditingNumber && itemType !== ItemTypes.PLACED_OBSTACLE ? 'cursor-grab hover:shadow-lg' : ''}`;
     baseClasses += ` ${isEraserActive && !isEditingNumber ? 'cursor-pointer hover:bg-rose-300 hover:border-rose-500' : ''}`;
     baseClasses += ` ${isDragging ? 'cursor-grabbing' : ''}`;
 
     return (
         <motion.div
-            layout // Animate layout changes
+            layout // Animate layout changes (position, size due to rotation)
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            ref={drag} // Apply drag to the motion.div
+            transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+            ref={drag}
             style={style}
             onClick={e => {
                 if (isEraserActive && !isEditingNumber) {
-                    e.stopPropagation();
+                    e.stopPropagation(); // Prevent grid cell click if eraser is for this item
                     eraseDesignerItem(item.id);
                 }
+                // If not editing number and not eraser, clicking the item itself doesn't do anything extra
+                // (text for number editing has its own click handler)
             }}
             className={`${baseClasses} ${shapeClass}`}
             title={title}
