@@ -1,11 +1,10 @@
-// src/features/add_product_modal/components/AppliedDiscountRow.jsx
-
-// 1. Imports
 import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { InputField } from '../../register/subcomponents'; // Assuming path is correct
 import Icon from '../../../components/common/Icon';
+import scriptLines from '../utils/script_lines'; // IMPORTED scriptLines
 
 /**
  * @component AppliedDiscountRow
@@ -35,9 +34,8 @@ const AppliedDiscountRow = ({
     // Configuration
     // ===========================================================================
 
-    // Framer Motion animation variants for the row
     const rowAnimationVariants = {
-        layout: "position", // Enables layout animation
+        layout: "position",
         initial: { opacity: 0, x: -20 },
         animate: { opacity: 1, x: 0 },
         exit: { opacity: 0, x: 20, transition: { duration: 0.2 } },
@@ -47,32 +45,15 @@ const AppliedDiscountRow = ({
     const inputId = `discount-percentage-${appliedDiscount.id}`;
 
     // ===========================================================================
-    // Validation
-    // ===========================================================================
-    // Core validation is handled by PropTypes (e.g., `appliedDiscount` structure, required functions).
-    // No specific runtime validation needed here for rendering, as the component can gracefully handle
-    // missing optional fields like `description` or `discountPercentage`.
-
-    // ===========================================================================
     // Event Handlers & Callbacks
     // ===========================================================================
 
-    /**
-     * Handles the change event of the percentage input field.
-     * Parses the value to a float and calls `onPercentageChange`.
-     */
     const handlePercentageChange = useCallback((e) => {
         const value = e.target.value;
-        // Allow empty string for user to clear input, otherwise parse as float.
-        // The parent/validation logic should handle empty string vs. 0 vs. actual number.
         const newPercentage = value === '' ? '' : parseFloat(value);
         onPercentageChange(appliedDiscount.id, newPercentage);
     }, [onPercentageChange, appliedDiscount.id]);
 
-    /**
-     * Handles the click event of the remove button.
-     * Calls `onRemove` with the applied discount's ID.
-     */
     const handleRemove = useCallback(() => {
         onRemove(appliedDiscount.id);
     }, [onRemove, appliedDiscount.id]);
@@ -86,48 +67,44 @@ const AppliedDiscountRow = ({
             className="flex items-center gap-x-3 p-3 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700/40 shadow-sm"
             data-testid={`applied-discount-row-${appliedDiscount.id}`}
         >
-            {/* Discount Information Section */}
             <div className="flex-grow">
                 <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100" data-testid="discount-code-name">
                     {appliedDiscount.codeName}
                 </p>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400" data-testid="discount-description">
-                    {appliedDiscount.description || 'General discount code'}
+                    {appliedDiscount.description || scriptLines.appliedDiscountRow_defaultDescription}
                 </p>
             </div>
 
-            {/* Percentage Input Section */}
             <div className="w-45 flex-shrink-0">
-                {/* Wrapper to align InputField if it has internal margins/paddings affecting alignment */}
                 <div className='flex h-15 items-end w-full'>
                     <InputField
-                        id={inputId} // Added ID for label association
-                        label="Discount Percentage" // Used for accessibility even if visually hidden
-                        className="w-full" // Class for the InputField's own wrapper
+                        id={inputId}
+                        label={scriptLines.appliedDiscountRow_percentageLabel}
+                        className="w-full"
                         type="number"
                         value={appliedDiscount.discountPercentage === null || appliedDiscount.discountPercentage === undefined ? '' : appliedDiscount.discountPercentage}
                         onChange={handlePercentageChange}
-                        placeholder="e.g., 10"
+                        placeholder={scriptLines.appliedDiscountRow_percentagePlaceholder}
                         min="0"
                         max="100"
-                        step="0.01" // Allow for decimal percentages if needed, adjust as per requirements
-                        required // HTML5 required, actual validation should be more robust
+                        step="0.01"
+                        required
                         error={error}
                         suffix="%"
-                        hideLabel // Visually hide the label, but it's there for screen readers
-                        classNameWrapper="mb-0 w-full" // Ensure wrapper takes full width and no bottom margin
+                        hideLabel
+                        classNameWrapper="mb-0 w-full"
                         aria-describedby={error ? `error-${inputId}` : undefined}
                     />
                 </div>
             </div>
 
-            {/* Remove Button Section */}
             <button
                 type="button"
                 onClick={handleRemove}
                 className="p-1.5 w-9 h-9 flex items-center justify-center text-neutral-500 hover:text-red-500 dark:text-neutral-500 dark:hover:text-red-400 rounded-full transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-700"
-                aria-label={`Remove discount ${appliedDiscount.codeName}`}
-                title={`Remove ${appliedDiscount.codeName}`}
+                aria-label={scriptLines.appliedDiscountRow_remove_ariaLabel.replace('{discountName}', appliedDiscount.codeName)}
+                title={scriptLines.appliedDiscountRow_remove_title.replace('{discountName}', appliedDiscount.codeName)}
                 data-testid="remove-discount-button"
             >
                 <Icon name="remove_circle" className="w-6 h-6" />
@@ -142,7 +119,7 @@ AppliedDiscountRow.propTypes = {
         discountCodeId: PropTypes.string.isRequired,
         codeName: PropTypes.string.isRequired,
         description: PropTypes.string,
-        discountPercentage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]), // Allow string for empty input
+        discountPercentage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }).isRequired,
     onPercentageChange: PropTypes.func.isRequired,
     onRemove: PropTypes.func.isRequired,
@@ -151,10 +128,6 @@ AppliedDiscountRow.propTypes = {
 
 AppliedDiscountRow.defaultProps = {
     error: null,
-    // `appliedDiscount.description` and `appliedDiscount.discountPercentage` can be undefined/null
-    // and are handled in rendering.
 };
 
-// Export with memo as props are objects/functions and might not change frequently
-// if parent manages state immutably.
 export default memo(AppliedDiscountRow);

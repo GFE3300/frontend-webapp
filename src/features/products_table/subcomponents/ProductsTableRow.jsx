@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import ProductsTableCell from './ProductsTableCell';
 import { motion } from 'framer-motion';
 
-const ProductsTableRow = ({ product, columns, onUpdateProductField }) => {
+const ProductsTableRow = ({ product, columns, onUpdateProductField, onCellSave, updatingStatusProductId }) => {
     return (
-        <motion.tr 
+        <motion.tr
             layout // Animate if row order changes
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -17,7 +17,9 @@ const ProductsTableRow = ({ product, columns, onUpdateProductField }) => {
                     key={`${product.id}-${col.id}`}
                     product={product}
                     column={col}
+                    onSave={onCellSave}
                     onUpdateProductField={onUpdateProductField}
+                    updatingStatusProductId={updatingStatusProductId}
                 />
             ))}
         </motion.tr>
@@ -28,6 +30,7 @@ ProductsTableRow.propTypes = {
     product: PropTypes.object.isRequired,
     columns: PropTypes.array.isRequired,
     onUpdateProductField: PropTypes.func.isRequired,
+    updatingStatusProductId: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
 };
 
 export default ProductsTableRow;

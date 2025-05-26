@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 import RecipeComponentRow from './RecipeComponentRow';
-import { convertToBaseUnit, formatCurrency, getBaseUnit, categorizedUnits, calculateRawRecipeCost } from '../utils/unitUtils';
+import { formatCurrency, categorizedUnits, calculateRawRecipeCost } from '../utils/unitUtils';
+import scriptLines from '../utils/script_lines'; // Added import
 
 // ===========================================================================
 // Component Documentation
@@ -36,14 +37,14 @@ const RecipeBuilder = ({
     // Configuration
     // ===========================================================================
     const CONFIG = {
-        TEXT: {
-            TITLE: "Recipe Ingredients",
-            SUBTITLE: "Define ingredients for one batch. Drag to reorder.",
-            ESTIMATED_COST_PREFIX: "Est. Recipe Cost:",
-            EMPTY_STATE_TITLE: "Recipe is Empty",
-            EMPTY_STATE_SUBTITLE: "Add ingredients to build your product's recipe.",
-            ADD_FIRST_BUTTON: "Add First Ingredient",
-            ADD_ANOTHER_BUTTON: "Add Another Ingredient",
+        TEXT: { // Sourced from scriptLines, with fallbacks
+            TITLE: scriptLines.recipeBuilderTitle || "Recipe Ingredients",
+            SUBTITLE: scriptLines.recipeBuilderSubtitle || "Define ingredients for one batch. Drag to reorder.",
+            ESTIMATED_COST_PREFIX: scriptLines.recipeBuilderEstCostPrefix || "Est. Recipe Cost:",
+            EMPTY_STATE_TITLE: scriptLines.recipeBuilderEmptyTitle || "Recipe is Empty",
+            EMPTY_STATE_SUBTITLE: scriptLines.recipeBuilderEmptySubtitle || "Add ingredients to build your product's recipe.",
+            ADD_FIRST_BUTTON: scriptLines.recipeBuilderAddFirstButton || "Add First Ingredient",
+            ADD_ANOTHER_BUTTON: scriptLines.recipeBuilderAddAnotherButton || "Add Another Ingredient",
         },
         ANIMATION: {
             LAYOUT_CONTAINER: {
@@ -77,12 +78,10 @@ const RecipeBuilder = ({
     // Memoized Values
     // ===========================================================================
     const totalRecipeCost = useMemo(() => {
-        // RecipeBuilder is typically used for 'made_in_house' products,
-        // so calculateRawRecipeCost is appropriate here.
         return calculateRawRecipeCost(components, availableInventoryItems);
     }, [components, availableInventoryItems]);
 
-    console.log("[RecipeBuilder] totalRecipeCost:", totalRecipeCost);
+    // console.log("[RecipeBuilder] totalRecipeCost:", totalRecipeCost); // Kept for debugging if needed
 
     const arrayLevelError = useMemo(() => (typeof errors?.recipeComponents === 'string' ? errors.recipeComponents : null), [errors]);
 
@@ -95,23 +94,21 @@ const RecipeBuilder = ({
     };
 
     const handleRemoveComponent = (idToRemove) => {
-        // The original implementation used index, but ID is safer with reordering
         onComponentsChange(components.filter(comp => comp.id !== idToRemove));
     };
 
     const handleComponentChange = (componentId, updates) => {
-        console.log("[RecipeBuilder] handleComponentChange - componentId:", componentId, "updates:", updates); // ADD THIS LOG
+        // console.log("[RecipeBuilder] handleComponentChange - componentId:", componentId, "updates:", updates); // Kept for debugging if needed
 
         const newComponents = components.map((comp) => {
             if (comp.id === componentId) {
-                let updatedComp = { ...comp, ...updates }; // Key line: spread existing, then new updates
+                let updatedComp = { ...comp, ...updates };
 
                 if (Object.prototype.hasOwnProperty.call(updates, 'inventoryItemId')) {
-                    const newItemId = updates.inventoryItemId; // This should be the ID from selected item
+                    const newItemId = updates.inventoryItemId;
                     const selectedItem = availableInventoryItems.find(item => item.id === newItemId);
 
                     if (selectedItem) {
-                        // If inventoryItemName wasn't in `updates`, set it from selectedItem
                         if (!Object.prototype.hasOwnProperty.call(updates, 'inventoryItemName')) {
                             updatedComp.inventoryItemName = selectedItem.name;
                         }
@@ -120,7 +117,6 @@ const RecipeBuilder = ({
                         const newMeasurementType = selectedItem.measurement_type;
                         const currentUnitInUpdateCycle = Object.prototype.hasOwnProperty.call(updates, 'unit') ? updates.unit : comp.unit;
 
-                        // Only set default unit if 'unit' wasn't part of this specific `updates` batch
                         if (!Object.prototype.hasOwnProperty.call(updates, 'unit')) {
                             if (backendDefaultUnit) {
                                 updatedComp.unit = backendDefaultUnit;
@@ -133,10 +129,10 @@ const RecipeBuilder = ({
                                 updatedComp.unit = '';
                             }
                         }
-                    } else if (!newItemId) { // If inventoryItemId is being cleared
+                    } else if (!newItemId) {
                         if (!Object.prototype.hasOwnProperty.call(updates, 'inventoryItemName')) updatedComp.inventoryItemName = '';
                         if (!Object.prototype.hasOwnProperty.call(updates, 'unit')) updatedComp.unit = '';
-                        if (!Object.prototype.hasOwnProperty.call(updates, 'quantity')) updatedComp.quantity = ''; // Also clear quantity
+                        if (!Object.prototype.hasOwnProperty.call(updates, 'quantity')) updatedComp.quantity = '';
                     }
                 }
                 return updatedComp;
@@ -160,7 +156,7 @@ const RecipeBuilder = ({
         );
         return (
             <div className="p-4 text-sm text-red-600 dark:text-red-400 border border-red-500 rounded-lg bg-red-50 dark:bg-red-900/30">
-                Error: Recipe Builder is misconfigured. Please check console for details.
+                {scriptLines.recipeBuilderErrorMisconfigured || "Error: Recipe Builder is misconfigured. Please check console for details."}
             </div>
         );
     }
@@ -236,11 +232,10 @@ const RecipeBuilder = ({
                     axis="y"
                     values={components}
                     onReorder={onComponentsChange}
-                    className="space-y-3" // Spacing between component rows
+                    className="space-y-3"
                 >
                     <AnimatePresence initial={false}>
                         {components.map((component, index) => {
-                            // Error handling for individual rows
                             let rowErrors = {};
                             let generalRowError = null;
                             if (errors && Array.isArray(errors.recipeComponents) && errors.recipeComponents[index]) {
@@ -255,17 +250,16 @@ const RecipeBuilder = ({
                             return (
                                 <Reorder.Item
                                     key={component.id}
-                                    value={component} // This is what `onReorder` receives
-                                    dragListener={true} // Allow dragging only by drag handle in RecipeComponentRow
+                                    value={component}
+                                    dragListener={true}
                                     onDragStart={() => setDraggingRowId(component.id)}
                                     onDragEnd={() => setDraggingRowId(null)}
-                                    className="bg-transparent" // Let row style itself for rounded corners etc.
+                                    className="bg-transparent"
                                 >
                                     <RecipeComponentRow
-                                        // Props for RecipeComponentRow
                                         component={component}
-                                        index={index} // index still useful for direct error mapping
-                                        onComponentChange={(idx, updatesObj) => handleComponentChange(component.id, updatesObj)} // Pass component.id and the updates object
+                                        index={index}
+                                        onComponentChange={(idx, updatesObj) => handleComponentChange(component.id, updatesObj)}
                                         onRemoveComponent={(id) => handleRemoveComponent(id)}
                                         availableInventoryItems={availableInventoryItems}
                                         errors={errorsForThisRow}
@@ -317,16 +311,16 @@ RecipeBuilder.propTypes = {
     })).isRequired,
     errors: PropTypes.shape({
         recipeComponents: PropTypes.oneOfType([
-            PropTypes.string, // For array-level errors
-            PropTypes.arrayOf( // For row-level errors
+            PropTypes.string,
+            PropTypes.arrayOf(
                 PropTypes.oneOfType([
-                    PropTypes.string, // General error for the row
-                    PropTypes.shape({ // Specific field errors
+                    PropTypes.string,
+                    PropTypes.shape({
                         inventoryItemId: PropTypes.string,
                         quantity: PropTypes.string,
                         unit: PropTypes.string,
                     }),
-                    PropTypes.oneOf([null]) // If no error for this row
+                    PropTypes.oneOf([null])
                 ])
             ),
         ]),

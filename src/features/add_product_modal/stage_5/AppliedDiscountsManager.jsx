@@ -1,12 +1,11 @@
-// src/features/add_product_modal/components/AppliedDiscountsManager.jsx
-
-// 1. Imports
 import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import DiscountCodeSelector from './DiscountCodeSelector'; // Assuming path
 import AppliedDiscountRow from './AppliedDiscountRow';     // Assuming path
 import Icon from '../../../components/common/Icon';
+import scriptLines from '../utils/script_lines'; // Added import
 
 /**
  * @component AppliedDiscountsManager
@@ -43,7 +42,6 @@ const AppliedDiscountsManager = ({
     // ===========================================================================
     // Configuration
     // ===========================================================================
-    // Framer Motion animation for array-level error message
     const errorTextAnimation = {
         initial: { opacity: 0, y: -10 },
         animate: { opacity: 1, y: 0 },
@@ -55,20 +53,12 @@ const AppliedDiscountsManager = ({
     // Derived State & Memoization
     // ===========================================================================
 
-    // Memoize the list of IDs of already applied discount codes to optimize DiscountCodeSelector
     const appliedCodeMasterIds = useMemo(() =>
         appliedDiscounts.map(ad => ad.discountCodeId),
         [appliedDiscounts]
     );
 
-    // Determine array-level error (e.g., "max 5 discounts")
     const arrayLevelError = errors && typeof errors === 'string' ? errors : null;
-
-    // ===========================================================================
-    // Validation
-    // ===========================================================================
-    // Core validation is handled by PropTypes. The component is designed to be robust
-    // even with empty arrays or null errors.
 
     // ===========================================================================
     // Rendering Logic
@@ -78,13 +68,13 @@ const AppliedDiscountsManager = ({
             {/* Discount Code Selector Component */}
             <DiscountCodeSelector
                 availableCodes={availableMasterCodes}
-                appliedCodeIds={appliedCodeMasterIds} // Pass master IDs of applied codes
+                appliedCodeIds={appliedCodeMasterIds}
                 onSelectCode={onApplyCode}
                 onCreateNew={onTriggerCreateNewCode}
-                error={errors && errors.selector} // Specific error for the selector component
+                error={errors && errors.selector}
             />
 
-            {/* Display Array-Level Error (e.g., max discounts reached) */}
+            {/* Display Array-Level Error */}
             <AnimatePresence>
                 {arrayLevelError && (
                     <motion.p
@@ -107,10 +97,10 @@ const AppliedDiscountsManager = ({
                 >
                     <Icon name="local_offer" className="w-10 h-10 mx-auto text-neutral-400 dark:text-neutral-500 mb-3" />
                     <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                        No discounts applied to this product yet.
+                        {scriptLines.appliedDiscountsManagerNoDiscountsPrimary || "No discounts applied to this product yet."}
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                        Select a code above or create a new one.
+                        {scriptLines.appliedDiscountsManagerNoDiscountsSecondary || "Select a code above or create a new one."}
                     </p>
                 </div>
             )}
@@ -119,17 +109,16 @@ const AppliedDiscountsManager = ({
             {appliedDiscounts.length > 0 && (
                 <div className="space-y-3 pt-2">
                     <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 px-1">
-                        Applied Discounts ({appliedDiscounts.length}):
+                        {(scriptLines.appliedDiscountsManagerListHeaderPattern || "Applied Discounts ({count}):")
+                            .replace('{count}', appliedDiscounts.length)}
                     </h4>
-                    {/* AnimatePresence handles enter/exit animations for list items */}
                     <AnimatePresence initial={false}>
                         {appliedDiscounts.map((appliedDiscountItem, index) => (
                             <AppliedDiscountRow
-                                key={appliedDiscountItem.id} // CRITICAL: Use the unique ID of the applied discount instance
+                                key={appliedDiscountItem.id}
                                 appliedDiscount={appliedDiscountItem}
                                 onPercentageChange={onUpdateAppliedPercentage}
                                 onRemove={onRemoveAppliedCode}
-                                // Access error for a specific field within an indexed item
                                 error={errors && errors[index] && errors[index].discountPercentage}
                             />
                         ))}
@@ -143,28 +132,26 @@ const AppliedDiscountsManager = ({
 AppliedDiscountsManager.propTypes = {
     appliedDiscounts: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.string.isRequired, // ID of the applied instance
-            discountCodeId: PropTypes.string.isRequired, // ID of the master code
+            id: PropTypes.string.isRequired,
+            discountCodeId: PropTypes.string.isRequired,
             codeName: PropTypes.string.isRequired,
             description: PropTypes.string,
             discountPercentage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         })
     ).isRequired,
-    availableMasterCodes: PropTypes.arrayOf(PropTypes.object).isRequired, // Shape depends on DiscountCodeSelector
+    availableMasterCodes: PropTypes.arrayOf(PropTypes.object).isRequired,
     onApplyCode: PropTypes.func.isRequired,
     onUpdateAppliedPercentage: PropTypes.func.isRequired,
     onRemoveAppliedCode: PropTypes.func.isRequired,
     onTriggerCreateNewCode: PropTypes.func.isRequired,
     errors: PropTypes.oneOfType([
-        PropTypes.string, // For array-level errors
-        PropTypes.shape({ // For object-based errors (selector or item-specific)
-            selector: PropTypes.string, // Error for the DiscountCodeSelector
-            // ... potentially other top-level errors
+        PropTypes.string,
+        PropTypes.shape({
+            selector: PropTypes.string,
         }),
-        PropTypes.arrayOf( // For errors specific to items in appliedDiscounts array
+        PropTypes.arrayOf(
             PropTypes.shape({
-                discountPercentage: PropTypes.string, // Error for discountPercentage of a specific item
-                // ... other field errors for an item
+                discountPercentage: PropTypes.string,
             })
         )
     ]),

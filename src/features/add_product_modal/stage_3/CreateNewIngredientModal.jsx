@@ -1,13 +1,11 @@
-// frontend/src/features/add_product_modal/stage_3/CreateNewIngredientModal.jsx
-
-// 1. Imports
 import React, { useState, useEffect, memo, useCallback, useMemo, useId, useRef } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { InputField, Dropdown } from '../../register/subcomponents'; // Assuming correct path
-import Icon from '../../../components/common/Icon'; // Assuming correct path
-import { categorizedUnits as allCategorizedUnits, getBaseUnit } from '../utils/unitUtils'; // Assuming correct path
+import { InputField, Dropdown } from '../../register/subcomponents';
+import Icon from '../../../components/common/Icon';
+import { categorizedUnits as allCategorizedUnits, getBaseUnit } from '../utils/unitUtils';
+import scriptLines from '../utils/script_lines';
 
 /**
  * A modal component for creating a new inventory item (ingredient).
@@ -24,6 +22,7 @@ import { categorizedUnits as allCategorizedUnits, getBaseUnit } from '../utils/u
  * @param {Array<Object>} props.availableInventoryItems - An array of existing inventory items, used to check for duplicate names. Each item must have a `name` property. (Required)
  * @param {string} [props.themeColor="rose"] - Theme color for accents.
  */
+
 const CreateNewIngredientModal = ({
     isOpen,
     onClose,
@@ -35,30 +34,29 @@ const CreateNewIngredientModal = ({
     // ===========================================================================
     // Configuration
     // ===========================================================================
-    const prefersReducedMotion = useReducedMotion();
-    const generatedIdBase = useId(); // Base for unique IDs within this modal instance
+    const generatedIdBase = useId();
     const modalTitleId = `${generatedIdBase}-create-ingredient-title`;
 
+    const prefersReducedMotion = useReducedMotion();
+
     const MEASUREMENT_TYPES = [
-        { value: 'mass', label: 'Mass (e.g., g, kg, oz, lb)' },
-        { value: 'volume', label: 'Volume (e.g., ml, L, tsp, cup)' },
-        { value: 'pieces', label: 'Pieces (e.g., pcs, unit, slice)' },
+        { value: 'mass', label: scriptLines.createNewIngredientModal_measurementType_mass },
+        { value: 'volume', label: scriptLines.createNewIngredientModal_measurementType_volume },
+        { value: 'pieces', label: scriptLines.createNewIngredientModal_measurementType_pieces },
     ];
 
-    // Base units for cost calculation, tied to measurement type
     const BASE_UNITS_FOR_COST = {
-        mass: getBaseUnit('mass') || 'g',       // e.g., 'g'
-        volume: getBaseUnit('volume') || 'ml',   // e.g., 'ml'
-        pieces: getBaseUnit('pieces') || 'pcs', // e.g., 'pcs'
+        mass: getBaseUnit('mass') || 'g',
+        volume: getBaseUnit('volume') || 'ml',
+        pieces: getBaseUnit('pieces') || 'pcs',
     };
 
     const THEME_CLASSES = {
         rose: {
             submitButtonBg: 'bg-rose-600 hover:bg-rose-700',
             submitButtonRing: 'focus-visible:ring-rose-500',
-            closeButtonRing: 'focus-visible:ring-rose-500', // Consistent focus for close
+            closeButtonRing: 'focus-visible:ring-rose-500',
         },
-        // Add other themes if needed
     };
     const currentTheme = THEME_CLASSES[themeColor] || THEME_CLASSES.rose;
 
@@ -81,6 +79,12 @@ const CreateNewIngredientModal = ({
             exit: { opacity: 0, height: 0, marginTop: 0, transition: { duration: 0.2 } }
         }
     };
+    
+    animationVariants.backdrop.transition = { duration: 0.3, ease: "easeInOut" };
+    animationVariants.modalCard.transition = { type: "spring", stiffness: 280, damping: 25, duration: 0.3 };
+    animationVariants.formFieldEnter.animate.transition = { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] };
+    animationVariants.formFieldEnter.exit.transition = { duration: 0.2 };
+
 
     // ===========================================================================
     // State & Refs
@@ -92,12 +96,11 @@ const CreateNewIngredientModal = ({
     const [errors, setErrors] = useState({});
     const [isCreating, setIsCreating] = useState(false);
 
-    const nameInputRef = useRef(null); // For focusing on open or after error
+    const nameInputRef = useRef(null);
 
     // ===========================================================================
     // Effects
     // ===========================================================================
-    // Reset form state when modal opens or `initialName` changes while open
     useEffect(() => {
         if (isOpen) {
             setName(initialName);
@@ -106,20 +109,18 @@ const CreateNewIngredientModal = ({
             setCostPerBaseUnitValue('');
             setErrors({});
             setIsCreating(false);
-            // Optionally focus the first field
-            setTimeout(() => nameInputRef.current?.focus(), 100); // Delay for modal animation
+            setTimeout(() => nameInputRef.current?.focus(), 100);
         }
     }, [isOpen, initialName]);
 
-    // Clear defaultUnit if measurementType changes and the current defaultUnit is no longer valid for it
     useEffect(() => {
         if (measurementType) {
             const validUnitsForType = allCategorizedUnits[measurementType]?.map(u => u.value) || [];
             if (!validUnitsForType.includes(defaultUnit)) {
-                setDefaultUnit(''); // Reset if current default unit is not in the new type's list
+                setDefaultUnit('');
             }
         } else {
-            setDefaultUnit(''); // Clear if no measurement type
+            setDefaultUnit('');
         }
     }, [measurementType, defaultUnit]);
 
@@ -131,33 +132,27 @@ const CreateNewIngredientModal = ({
         const newErrors = {};
         const trimmedName = name.trim();
         if (!trimmedName) {
-            newErrors.name = 'Ingredient name is required.';
+            newErrors.name = scriptLines.createNewIngredientModal_error_nameRequired;
         } else if (availableInventoryItems.some(item => item.name.toLowerCase() === trimmedName.toLowerCase())) {
-            newErrors.name = 'An ingredient with this name already exists.';
+            newErrors.name = scriptLines.createNewIngredientModal_error_nameExists;
         }
 
-        if (!measurementType) newErrors.measurementType = 'Primary measurement type is required.';
-        if (!defaultUnit && measurementType) newErrors.defaultUnit = 'Default unit for this item is required.'; // Only require if type is selected
+        if (!measurementType) newErrors.measurementType = scriptLines.createNewIngredientModal_error_measurementTypeRequired;
+        if (!defaultUnit && measurementType) newErrors.defaultUnit = scriptLines.createNewIngredientModal_error_defaultUnitRequired;
 
         const costVal = parseFloat(costPerBaseUnitValue);
         if (costPerBaseUnitValue === '' || isNaN(costVal) || costVal < 0) {
-            newErrors.costPerBaseUnitValue = 'Valid cost (e.g., 0.05 or 0) is required.';
+            newErrors.costPerBaseUnitValue = scriptLines.createNewIngredientModal_error_costRequired;
         }
-        // Potentially add max value validation for cost if needed
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     }, [name, measurementType, defaultUnit, costPerBaseUnitValue, availableInventoryItems]);
 
-    // handleSubmit now does not take 'e' as it's not from a form's onSubmit
-    const handleSubmit = useCallback(async () => { // Removed 'e' parameter
+    const handleSubmit = useCallback(async () => {
         if (!validateForm()) {
-            // Focus the first field with an error
             if (errors.name) nameInputRef.current?.focus();
-            // Add more specific focusing if needed for other fields
             return;
         }
-
         setIsCreating(true);
         try {
             const newItemData = {
@@ -172,12 +167,11 @@ const CreateNewIngredientModal = ({
             await onCreate(newItemData);
             onClose();
         } catch (err) {
-            setErrors(prev => ({ ...prev, form: err.message || 'Failed to create ingredient. Please try again.' }));
-            console.error("Ingredient creation submit error:", err);
+            setErrors(prev => ({ ...prev, form: err.message || scriptLines.createNewIngredientModal_error_creationFailed }));
+            console.error("Ingredient creation submit error:", err); // Dev log
         } finally {
             setIsCreating(false);
         }
-        // Added errors.name to dependencies for completeness, though validateForm already reads `name` state.
     }, [validateForm, name, measurementType, defaultUnit, costPerBaseUnitValue, onCreate, onClose, BASE_UNITS_FOR_COST, errors.name]);
 
     // ===========================================================================
@@ -190,8 +184,15 @@ const CreateNewIngredientModal = ({
 
     const isSubmitDisabled = isCreating || !name.trim() || !measurementType || (measurementType && !defaultUnit) || costPerBaseUnitValue === '' || parseFloat(costPerBaseUnitValue) < 0;
 
+    // Placeholder for cost input field. A more robust solution might involve `Intl.NumberFormat` or similar.
+    // For simplicity, we'll use a placeholder key that can be adapted.
+    // This assumes USD is the primary context for the placeholder example.
+    // It can be made more generic if needed or tied to a currency setting.
+    const costInputPlaceholder = scriptLines.createNewIngredientModal_costPerBaseUnitPlaceholder_USD || "e.g., 0.02";
+
+
     // ===========================================================================
-    // Validation Logic (Props Validation) - Critical props for component to function
+    // Validation Logic (Props Validation)
     // ===========================================================================
     if (typeof isOpen !== 'boolean') {
         console.error('CreateNewIngredientModal: `isOpen` prop is required and must be a boolean.');
@@ -199,11 +200,11 @@ const CreateNewIngredientModal = ({
     }
     if (typeof onClose !== 'function' || typeof onCreate !== 'function') {
         console.error('CreateNewIngredientModal: `onClose` and `onCreate` props are required functions.');
-        return isOpen ? <div role="alert" className="fixed inset-0 bg-black/50 flex items-center justify-center"><p className="text-white bg-red-700 p-4 rounded">Modal Error: Critical handlers missing.</p></div> : null;
+        return isOpen ? <div role="alert" className="fixed inset-0 bg-black/50 flex items-center justify-center"><p className="text-white bg-red-700 p-4 rounded">{scriptLines.modalError_criticalHandlersMissing}</p></div> : null;
     }
     if (!Array.isArray(availableInventoryItems)) {
         console.error('CreateNewIngredientModal: `availableInventoryItems` prop is required and must be an array.');
-        return isOpen ? <div role="alert" className="fixed inset-0 bg-black/50 flex items-center justify-center"><p className="text-white bg-red-700 p-4 rounded">Modal Error: Inventory data missing.</p></div> : null;
+        return isOpen ? <div role="alert" className="fixed inset-0 bg-black/50 flex items-center justify-center"><p className="text-white bg-red-700 p-4 rounded">{scriptLines.modalError_inventoryDataMissing}</p></div> : null;
     }
 
     // ===========================================================================
@@ -231,35 +232,32 @@ const CreateNewIngredientModal = ({
                         aria-labelledby={modalTitleId}
                         aria-describedby={errors.form ? `${generatedIdBase}-form-error` : undefined}
                     >
-                        {/* REMOVED <form> tag here. The submit button will call handleSubmit directly. */}
-                        {/* Modal Header */}
                         <div className="px-6 pt-5 pb-4 sm:px-8 sm:pt-6 sm:pb-5 border-b border-neutral-200 dark:border-neutral-700">
                             <div className="flex justify-between items-start">
                                 <h2 id={modalTitleId} className="text-lg sm:text-xl font-semibold text-neutral-800 dark:text-neutral-100">
-                                    Create New Inventory Item
+                                    {scriptLines.createNewIngredientModal_title}
                                 </h2>
                                 <button
                                     type="button"
                                     onClick={onClose}
                                     className={`p-2 w-10 h-10 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-150 focus:outline-none focus-visible:ring-2 ${currentTheme.closeButtonRing} focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800`}
-                                    aria-label="Close modal"
+                                    aria-label={scriptLines.common_closeModal_ariaLabel || scriptLines.createNewIngredientModal_close_ariaLabel}
                                 >
                                     <Icon name="close" className="w-6 h-6 sm:w-6 sm:h-6" />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Modal Body with Form Fields */}
                         <div className="px-6 py-5 sm:px-8 sm:py-6 space-y-12 max-h-[calc(90vh-150px)]">
                             <motion.div layout="position" key="form-fields-container">
                                 <InputField
                                     ref={nameInputRef}
-                                    className="mt-6" // Adjusted from original; may need specific class if not mt-12
+                                    className="mt-6"
                                     id={`${generatedIdBase}-name`}
-                                    label="Inventory Item Name"
+                                    label={scriptLines.createNewIngredientModal_itemNameLabel}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="e.g., Organic Almond Flour, Whole Milk"
+                                    placeholder={scriptLines.createNewIngredientModal_itemNamePlaceholder}
                                     required
                                     autoFocus
                                     error={errors.name}
@@ -268,8 +266,8 @@ const CreateNewIngredientModal = ({
                                 <div className="mt-12">
                                     <Dropdown
                                         id={`${generatedIdBase}-measurementType`}
-                                        label="Primary Measurement Type"
-                                        options={[{ value: '', label: 'Select type...' }, ...MEASUREMENT_TYPES]}
+                                        label={scriptLines.createNewIngredientModal_measurementTypeLabel}
+                                        options={[{ value: '', label: scriptLines.createNewIngredientModal_measurementTypePlaceholder }, ...MEASUREMENT_TYPES]}
                                         value={measurementType}
                                         onChange={setMeasurementType}
                                         required
@@ -281,8 +279,8 @@ const CreateNewIngredientModal = ({
                                         <motion.div variants={animationVariants.formFieldEnter} initial="initial" animate="animate" exit="exit">
                                             <Dropdown
                                                 id={`${generatedIdBase}-defaultUnit`}
-                                                label="Default Unit (for this item)"
-                                                options={[{ value: '', label: 'Select unit...' }, ...currentUnitOptions]}
+                                                label={scriptLines.createNewIngredientModal_defaultUnitLabel}
+                                                options={[{ value: '', label: scriptLines.createNewIngredientModal_defaultUnitPlaceholder }, ...currentUnitOptions]}
                                                 value={defaultUnit}
                                                 onChange={setDefaultUnit}
                                                 required
@@ -297,16 +295,16 @@ const CreateNewIngredientModal = ({
                                         <motion.div variants={animationVariants.formFieldEnter} initial="initial" animate="animate" exit="exit">
                                             <InputField
                                                 id={`${generatedIdBase}-cost`}
-                                                label={`Cost per ${BASE_UNITS_FOR_COST[measurementType]}`}
+                                                label={scriptLines.createNewIngredientModal_costPerBaseUnitLabel.replace('{baseUnit}', BASE_UNITS_FOR_COST[measurementType])}
                                                 type="number"
                                                 value={costPerBaseUnitValue}
                                                 onChange={(e) => setCostPerBaseUnitValue(e.target.value)}
-                                                placeholder="e.g., 0.02 (for USD)"
+                                                placeholder={costInputPlaceholder}
                                                 min="0"
                                                 step="any"
                                                 required
                                                 error={errors.costPerBaseUnitValue}
-                                                helptext={`Enter the cost for one base unit (${BASE_UNITS_FOR_COST[measurementType]}) of this item.`}
+                                                helptext={scriptLines.createNewIngredientModal_costPerBaseUnitHelpText.replace('{baseUnit}', BASE_UNITS_FOR_COST[measurementType])}
                                             />
                                         </motion.div>
                                     )}
@@ -319,7 +317,6 @@ const CreateNewIngredientModal = ({
                             </motion.div>
                         </div>
 
-                        {/* Modal Footer with Action Buttons */}
                         <div className="px-6 py-4 sm:px-8 sm:py-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-b-xl flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-3 border-t border-neutral-200 dark:border-neutral-700">
                             <button
                                 type="button"
@@ -327,20 +324,19 @@ const CreateNewIngredientModal = ({
                                 disabled={isCreating}
                                 className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-200 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-500 rounded-full transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900/50"
                             >
-                                Cancel
+                                {scriptLines.common_cancel || scriptLines.createNewIngredientModal_button_cancel}
                             </button>
                             <button
-                                type="button" // CHANGED from "submit" to "button"
-                                onClick={handleSubmit} // Call handleSubmit directly
+                                type="button"
+                                onClick={handleSubmit}
                                 disabled={isSubmitDisabled}
                                 className={`w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white ${currentTheme.submitButtonBg} rounded-full shadow-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${currentTheme.submitButtonRing} dark:focus-visible:ring-offset-neutral-900/50 disabled:opacity-60 disabled:cursor-not-allowed`}
                             >
                                 {isCreating
-                                    ? <><Icon name="progress_activity" className="w-6 h-6 animate-spin inline mr-2 align-text-bottom" />Creating...</>
-                                    : "Create Item"}
+                                    ? <><Icon name="progress_activity" className="w-6 h-6 animate-spin inline mr-2 align-text-bottom" />{scriptLines.createNewIngredientModal_button_creating}</>
+                                    : scriptLines.createNewIngredientModal_button_createItem}
                             </button>
                         </div>
-                        {/* END OF REMOVED <form> tag */}
                     </motion.div>
                 </motion.div>
             )}

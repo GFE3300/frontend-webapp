@@ -153,8 +153,7 @@ const CustomColumnDropdown = ({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.98, transition: { duration: 0.15 } }}
                         transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.7 }}
-                        className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-neutral-800 rounded-xl shadow-2xl ring-1 ring-neutral-200 dark:ring-neutral-700 ring-opacity-5 z-30 flex flex-col"
-                        style={{ maxHeight: 'calc(100vh - 120px)' }}
+                        className="absolute right-0 mt-2 max-h-120 w-80 sm:w-96 bg-white dark:bg-neutral-800 rounded-xl shadow-2xl ring-1 ring-neutral-200 dark:ring-neutral-700 ring-opacity-5 z-30 flex flex-col"
                     >
                         <header className="p-4 border-b border-neutral-200 dark:border-neutral-700">
                             <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-100">
@@ -191,7 +190,7 @@ const CustomColumnDropdown = ({
                                     }}
                                     className="w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-neutral-700/60 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 focus-visible:ring-rose-500 transition-colors group"
                                 >
-                                    <Icon name="restart_alt" className="w-4 h-4 mr-1.5 group-hover:rotate-[-60deg] transition-transform duration-200" />
+                                    <Icon name="restart_alt" className="w-4 h-4 mr-1.5 group-hover:rotate-[-60deg] transition-transform duration-200" style={{ fontSize: '1rem' }} />
                                     Reset to Default
                                 </button>
                             </footer>

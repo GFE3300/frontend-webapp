@@ -5,21 +5,25 @@ import CustomColumnDropdown from './CustomColumnDropdown';
 import AnimatedSearchBar from './AnimatedSearchBar';
 import ToolbarDropdown from './ToolbarDropdown';
 import { useCategories } from '../../../contexts/ProductDataContext';
-import { filterOptions as defaultFilterOptions, sortOptions } from '../utils/tableConfig';
+import { filterOptions as defaultFilterOptions, sortOptions, COLUMN_KEYS } from '../utils/tableConfig'; // Added COLUMN_KEYS
 
 const ProductsToolbar = ({
     filters,
     onFilterChange,
-    sort,
+    sort, // Contains sort.id and sort.desc
     onSortChange,
-    columnVisibility, 
-    onColumnVisibilityChange, // This is passed directly
+    columnVisibility,
+    onColumnVisibilityChange,
     columnOrder,
-    onColumnOrderChange,      // This is passed directly
+    onColumnOrderChange,
     allColumns,
     onAddProduct,
     onRefresh,
-    onResetTableSettings // Assuming this comes from useTableSettings via ProductsTable
+    onResetTableSettings,
+    // These new props are passed from ProductsTable.jsx
+    // onClearFilters, 
+    // hasActiveFilters 
+    // These are already used if they were part of the old code, ensure they are passed from parent if needed by this component
 }) => {
     const { data: categoriesData } = useCategories();
     const [currentFilterOptions, setCurrentFilterOptions] = useState(defaultFilterOptions);
@@ -56,8 +60,15 @@ const ProductsToolbar = ({
         }
     };
 
-    // Local handleColumnToggle and handleColumnReorder are removed.
-    // onColumnVisibilityChange and onColumnOrderChange props are passed directly.
+    // Map sorted column ID to the corresponding filter key
+    const filterKeyMap = {
+        [COLUMN_KEYS.NAME]: 'search',
+        [COLUMN_KEYS.SKU]: 'search',
+        [COLUMN_KEYS.CATEGORY]: 'category',
+        [COLUMN_KEYS.TYPE]: 'product_type',
+        [COLUMN_KEYS.STATUS]: 'is_active',
+    };
+    const activeFilterKeyForSortedColumn = sort.id ? filterKeyMap[sort.id] : null;
 
     return (
         <div className="p-4 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -65,6 +76,7 @@ const ProductsToolbar = ({
                 initialSearchTerm={filters.search || ''}
                 onSearchSubmit={handleActualSearchSubmit}
                 placeholder="Search name, SKU, tags..."
+                isSortActiveTarget={activeFilterKeyForSortedColumn === 'search'}
             />
 
             <ToolbarDropdown
@@ -74,6 +86,7 @@ const ProductsToolbar = ({
                 onChange={(newValue) => handleDropdownFilterChange('category', newValue)}
                 placeholder="Category"
                 className="min-w-[150px]"
+                isSortActiveTarget={activeFilterKeyForSortedColumn === 'category'}
             />
             <ToolbarDropdown
                 ariaLabel="Filter by product type"
@@ -82,6 +95,7 @@ const ProductsToolbar = ({
                 onChange={(newValue) => handleDropdownFilterChange('product_type', newValue)}
                 placeholder="Type"
                 className="min-w-[150px]"
+                isSortActiveTarget={activeFilterKeyForSortedColumn === 'product_type'}
             />
             <ToolbarDropdown
                 ariaLabel="Filter by status"
@@ -90,8 +104,9 @@ const ProductsToolbar = ({
                 onChange={(newValue) => handleDropdownFilterChange('is_active', newValue)}
                 placeholder="Status"
                 className="min-w-[150px]"
+                isSortActiveTarget={activeFilterKeyForSortedColumn === 'is_active'}
             />
-            <ToolbarDropdown
+            <ToolbarDropdown // This is the Sort By dropdown, usually not highlighted as a "filter"
                 ariaLabel="Sort by"
                 iconName="sort"
                 options={sortOptions}
@@ -106,24 +121,24 @@ const ProductsToolbar = ({
             <CustomColumnDropdown
                 allTableColumns={allColumns}
                 visibleColumnKeys={columnVisibility}
-                columnOrderKeys={columnOrder}    
-                onVisibilityChange={onColumnVisibilityChange} // Pass directly
-                onOrderChange={onColumnOrderChange}         // Pass directly
-                onResetColumns={onResetTableSettings} 
+                columnOrderKeys={columnOrder}
+                onVisibilityChange={onColumnVisibilityChange}
+                onOrderChange={onColumnOrderChange}
+                onResetColumns={onResetTableSettings}
             />
-            
+
             <button
                 onClick={onRefresh}
-                className="p-2 h-9 text-sm font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-300 rounded-full flex items-center"
+                className="p-2 h-9 text-sm font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-200 dark:text-neutral-800 dark:hover:bg-neutral-300 rounded-full flex items-center"
                 title="Refresh Data"
             >
-                <Icon name="refresh" className="w-5 h-5" style={{ fontSize: '1.25rem'}}/>
+                <Icon name="refresh" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
             </button>
             <button
                 onClick={onAddProduct}
-                className="px-4 h-10 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg flex items-center"
+                className="px-2 pr-4 h-9 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-full flex items-center"
             >
-                <Icon name="add_circle" className="w-5 h-5 mr-2" />
+                <Icon name="add_circle" className="w-5 h-5 mr-2" style={{ fontSize: '1.25rem' }} />
                 Add Product
             </button>
         </div>
@@ -135,14 +150,16 @@ ProductsToolbar.propTypes = {
     onFilterChange: PropTypes.func.isRequired,
     sort: PropTypes.object.isRequired,
     onSortChange: PropTypes.func.isRequired,
-    columnVisibility: PropTypes.instanceOf(Set).isRequired, 
-    onColumnVisibilityChange: PropTypes.func.isRequired, // Expects (updaterFn) => void
-    columnOrder: PropTypes.arrayOf(PropTypes.string).isRequired, 
-    onColumnOrderChange: PropTypes.func.isRequired,      // Expects (newOrderArray) => void
+    columnVisibility: PropTypes.instanceOf(Set).isRequired,
+    onColumnVisibilityChange: PropTypes.func.isRequired,
+    columnOrder: PropTypes.arrayOf(PropTypes.string).isRequired,
+    onColumnOrderChange: PropTypes.func.isRequired,
     allColumns: PropTypes.array.isRequired,
     onAddProduct: PropTypes.func.isRequired,
     onRefresh: PropTypes.func.isRequired,
     onResetTableSettings: PropTypes.func,
+    // onClearFilters: PropTypes.func, // Ensure these are passed from parent if logic relies on them
+    // hasActiveFilters: PropTypes.bool,
 };
 
 export default ProductsToolbar;

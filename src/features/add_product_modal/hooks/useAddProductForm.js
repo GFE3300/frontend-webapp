@@ -371,5 +371,6 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
         navigationDirection: formData.navigationDirection,
         goToStep,
         isEditMode,
+        schemas,
     };
 };

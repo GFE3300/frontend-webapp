@@ -22,6 +22,7 @@ import { AuthProvider } from './contexts/AuthContext'; // Crucial import
 import { DndProvider } from 'react-dnd';
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
 import { ThemeProvider } from './utils/ThemeProvider.jsx';
+import { VenueManagementPage } from './features/venue_management/subcomponents/index.js';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -37,7 +38,7 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <HomePage />,
+		element: <VenueManagementPage />,
 		errorElement: <NotFoundPage />,
 	},
 	{
@@ -81,24 +82,22 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-	return (
-		<React.StrictMode>
-			<QueryClientProvider client={queryClient}>
-				<DndProvider backend={HTML5Backend}>
-					<AuthProvider>
-						<FlyingImageProvider>
-							<ThemeProvider>
-
-							<ThemeToggleButton />
-							<RouterProvider router={router} />
-
-							</ThemeProvider>
-						</FlyingImageProvider>
-					</AuthProvider>
-				</ DndProvider>
-			</QueryClientProvider>
-		</React.StrictMode>
-	);
+    return (
+        <React.StrictMode>
+            <QueryClientProvider client={queryClient}>
+                <DndProvider backend={HTML5Backend}>
+                    <AuthProvider>
+                        <FlyingImageProvider>
+                            <ThemeProvider>
+                                <ThemeToggleButton />
+                                <RouterProvider router={router} /> {/* All routed components are children */}
+                            </ThemeProvider>
+                        </FlyingImageProvider>
+                    </AuthProvider>
+                </DndProvider>
+            </QueryClientProvider>
+        </React.StrictMode>
+    );
 }
 
 export default App;
