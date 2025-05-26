@@ -17,7 +17,7 @@ const LayoutDesignerToolbar = ({
     onGridDimensionChange, // (dimension: 'rows'|'cols', value: string) => void (for MAJOR grid)
     onGridSubdivisionChange, // (newSubdivisionValue: number) => void
 
-    tableToolsConfig,
+    toolDefinitions,
     ItemTypes,
 
     isEraserActive,
@@ -98,11 +98,11 @@ const LayoutDesignerToolbar = ({
             <div>
                 <h3 className="text-md font-semibold text-gray-700 mb-2">Tools</h3>
                 <div className="flex flex-wrap items-center gap-2.5">
-                    {tableToolsConfig.map(tool => (
+                    {toolDefinitions.map(tool => (
                         <DraggableGenericTool
                             key={tool.type}
                             tool={tool} // tool.w and tool.h are in MAJOR cell units
-                            itemType={ItemTypes.TABLE_TOOL}
+                            itemType={tool.toolItemType}
                         />
                     ))}
 

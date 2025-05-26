@@ -6,7 +6,7 @@ import Icon from '../../../../components/common/Icon'; // Adjusted path
 // import { constructQrDataValue } from '../../utils/commonUtils';
 
 const LayoutDesignerSidebar = ({
-    designedTables,        // Array of table objects
+    designItems,        // Array of table objects
     getQrStatus,           // (tableId) => { url, loading, error }
     downloadSingleQr,      // (table) => void
     downloadAllQrs,        // (tables) => void
@@ -14,13 +14,13 @@ const LayoutDesignerSidebar = ({
     // Optional: onUpdateTableNumber, if number editing is managed here
 }) => {
 
-    const sortedTables = [...designedTables]
+    const sortedTables = [...designItems]
         .filter(t => t && t.id) // Ensure table and id exist
         .sort((a, b) => (a.number || Infinity) - (b.number || Infinity));
 
     const handleSeatsChange = (tableId, value) => {
         onUpdateTableSeats(tableId, value);
-        // The input will re-render with the new value from designedTables if successful,
+        // The input will re-render with the new value from designItems if successful,
         // or revert if onUpdateTableSeats returns false and handles state reversion.
     };
 

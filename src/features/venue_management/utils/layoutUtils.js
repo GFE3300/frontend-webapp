@@ -1,156 +1,165 @@
-import { tableToolsConfig, ItemTypes } from '../constants/layoutConstants'; // Path to your constants
+// features/venue_management/utils/layoutUtils.js
 
-export const getDefaultSeatsForSize = (size) => {
-    // This logic remains the same as it's based on the table's 'type' or 'size' identifier
-    switch (size) {
-        case 'square': return 2;
-        case 'rectangle': return 4;
-        case 'rectangle-tall': return 2;
-        case 'round': return 4;
-        default: return 2;
-    }
-};
-
-export const getToolConfigByType = (type) => {
-    // This logic remains the same
-    const tableTool = tableToolsConfig.find(tool => tool.type === type);
-    if (tableTool) return tableTool;
-    return null;
-};
+// Import ItemTypes to filter items if necessary (e.g., for table numbering)
+import { ItemTypes } from '../constants/itemConfigs'; // Assuming ItemTypes is here
 
 /**
- * Calculates the effective dimensions (width and height) of an item,
+ * Calculates the effective dimensions (width and height) of an item in MINOR_CELL_UNITS,
  * considering its rotation.
- * Assumes item.w and item.h are already in the desired unit system (e.g., minor cells).
- * @param {object} item - The item object (e.g., a placed table).
- *                        Expected to have item.w, item.h (in minor cells), and item.rotation (0 or 90).
- * @returns {object} { w, h } - Effective width and height in minor cells.
+ * @param {object} item - The item object. Expected to have:
+ *                        - item.w_minor: base width in minor cells (pre-rotation)
+ *                        - item.h_minor: base height in minor cells (pre-rotation)
+ *                        - item.rotation: 0 or 90 (can be extended for 180, 270)
+ * @returns {object} { w: effectiveWidth_minor, h: effectiveHeight_minor } in minor cell units.
  */
 export const getEffectiveDimensions = (item) => {
-    if (!item || typeof item.w === 'undefined' || typeof item.h === 'undefined') {
-        console.warn("getEffectiveDimensions: Invalid item or missing w/h", item);
-        return { w: 1, h: 1 }; // Fallback
+    if (!item || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
+        // console.warn("getEffectiveDimensions: Invalid item or missing w_minor/h_minor properties.", item);
+        return { w: 1, h: 1 }; // Fallback to prevent errors downstream
     }
-    // item.w and item.h are assumed to be in minor cells already
-    if (item.rotation === 90) {
-        return { w: item.h, h: item.w }; // Swap for rotation
+
+    if (item.rotation === 90 || item.rotation === 270) { // Rotations that swap w and h
+        return { w: item.h_minor, h: item.w_minor };
     }
-    return { w: item.w, h: item.h };
+    return { w: item.w_minor, h: item.h_minor }; // Default, no swap
 };
 
-
 /**
- * Checks if a specific minor grid cell is occupied by any part of an existing table.
- * @param {number} minorRow - The minor row index to check.
- * @param {number} minorCol - The minor column index to check.
- * @param {Array} tables - Array of placed table objects.
- * @param {string|null} excludeId - ID of a table to exclude from the check (e.g., the table being moved).
- * @param {function} getEffectiveDimensionsFn - Function to get effective dimensions of a table.
+ * Checks if a specific minor grid cell is occupied by any part of an existing design item.
+ * @param {number} minorRowToCheck - The minor row index to check.
+ * @param {number} minorColToCheck - The minor column index to check.
+ * @param {Array} designItems - Array of all placed design item objects.
+ * @param {string|null} excludeId - ID of an item to exclude from the check (e.g., the item being moved).
  * @returns {boolean} True if the cell is occupied, false otherwise.
  */
-const isMinorCellOccupiedByTable = (minorRow, minorCol, tables, excludeId, getEffectiveDimensionsFn) => {
-    for (const table of tables.filter(t => t && t.gridPosition)) {
-        if (table.id === excludeId) continue;
+const isMinorCellOccupied = (minorRowToCheck, minorColToCheck, designItems, excludeId) => {
+    for (const item of designItems) {
+        if (!item || !item.gridPosition || item.id === excludeId) continue;
 
-        // getEffectiveDimensionsFn is expected to return dimensions in minor cells
-        const { w: tableW_minor, h: tableH_minor } = getEffectiveDimensionsFn(table);
-        const { rowStart: tableMinorRowStart, colStart: tableMinorColStart } = table.gridPosition;
+        const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(item);
+        const { rowStart: itemMinorRowStart, colStart: itemMinorColStart } = item.gridPosition;
 
         if (
-            minorRow >= tableMinorRowStart && minorRow < tableMinorRowStart + tableH_minor &&
-            minorCol >= tableMinorColStart && minorCol < tableMinorColStart + tableW_minor
+            minorRowToCheck >= itemMinorRowStart &&
+            minorRowToCheck < itemMinorRowStart + effH_minor &&
+            minorColToCheck >= itemMinorColStart &&
+            minorColToCheck < itemMinorColStart + effW_minor
         ) {
-            return true;
+            return true; // Cell is occupied by this item
         }
     }
-    return false;
+    return false; // Cell is not occupied by any relevant item
 };
 
 /**
- * Determines if an item can be placed at the specified minor grid coordinates.
- * @param {number} targetMinorRow - Target top-left minor row for the item.
- * @param {number} targetMinorCol - Target top-left minor col for the item.
- * @param {number} itemW_minor - Width of the item in minor cells.
- * @param {number} itemH_minor - Height of the item in minor cells.
- * @param {Array} currentTables - Array of existing placed tables.
- * @param {number} totalMinorRows - Total number of minor rows in the grid.
- * @param {number} totalMinorCols - Total number of minor columns in the grid.
- * @param {string|null} itemToExcludeId - ID of an item to exclude from collision checks (for moving).
- * @param {function} getEffectiveDimensionsFn - Function to get effective dimensions for collision checks.
+ * Determines if an item can be placed at the specified minor grid coordinates without overlapping
+ * existing items or going out of bounds.
+ * @param {number} targetMinorRow - Target top-left minor row for the item's placement.
+ * @param {number} targetMinorCol - Target top-left minor col for the item's placement.
+ * @param {number} itemW_minor - Width of the item in minor cells (effective, after rotation).
+ * @param {number} itemH_minor - Height of the item in minor cells (effective, after rotation).
+ * @param {Array} designItems - Array of all existing placed design items.
+ * @param {number} totalMinorGridRows - Total number of minor rows available on the grid.
+ * @param {number} totalMinorGridCols - Total number of minor columns available on the grid.
+ * @param {string|null} itemToExcludeId - ID of an item to exclude from collision checks (used when moving an item).
  * @returns {boolean} True if the item can be placed, false otherwise.
  */
 export const canPlaceItem = (
     targetMinorRow, targetMinorCol,
     itemW_minor, itemH_minor,
-    currentTables,
-    totalMinorRows, totalMinorCols,
-    itemToExcludeId = null,
-    getEffectiveDimensionsFn = getEffectiveDimensions // Default to the one in this file
+    designItems,
+    totalMinorGridRows, totalMinorGridCols,
+    itemToExcludeId = null
 ) => {
-    // Check grid boundaries (using minor grid dimensions)
+    // 1. Check grid boundaries
     if (
-        targetMinorRow < 1 || targetMinorCol < 1 ||
-        targetMinorRow + itemH_minor - 1 > totalMinorRows ||
-        targetMinorCol + itemW_minor - 1 > totalMinorCols
+        targetMinorRow < 1 ||
+        targetMinorCol < 1 ||
+        targetMinorRow + itemH_minor - 1 > totalMinorGridRows ||
+        targetMinorCol + itemW_minor - 1 > totalMinorGridCols
     ) {
+        // console.log("Placement fail: Out of bounds");
         return false;
     }
 
-    // Check for overlap with other tables (on the minor grid)
+    // 2. Check for overlap with other items
     for (let rOffset = 0; rOffset < itemH_minor; rOffset++) {
         for (let cOffset = 0; cOffset < itemW_minor; cOffset++) {
             const checkMinorRow = targetMinorRow + rOffset;
             const checkMinorCol = targetMinorCol + cOffset;
-            if (isMinorCellOccupiedByTable(checkMinorRow, checkMinorCol, currentTables, itemToExcludeId, getEffectiveDimensionsFn)) {
+            if (isMinorCellOccupied(checkMinorRow, checkMinorCol, designItems, itemToExcludeId)) {
+                // console.log(`Placement fail: Cell (${checkMinorRow}, ${checkMinorCol}) occupied`);
                 return false;
             }
         }
     }
-    return true;
+
+    return true; // Can be placed
 };
 
 /**
- * Checks if all provided items (tables) are within the new total minor grid dimensions.
- * @param {number} newTotalMinorRows - The new total number of minor rows.
- * @param {number} newTotalMinorCols - The new total number of minor columns.
- * @param {Array} tables - Array of table objects to check.
- * @param {function} getEffectiveDimensionsFn - Function to get effective dimensions of a table.
+ * Checks if all provided design items are within the new total minor grid dimensions.
+ * Useful when resizing the major grid.
+ * @param {number} newTotalMinorRows - The new total number of minor rows for the grid.
+ * @param {number} newTotalMinorCols - The new total number of minor columns for the grid.
+ * @param {Array} designItems - Array of design item objects to check.
  * @returns {boolean} True if all items are in bounds, false otherwise.
  */
-export const checkItemsInBounds = (newTotalMinorRows, newTotalMinorCols, tables, getEffectiveDimensionsFn = getEffectiveDimensions) => {
-    for (const table of tables.filter(t => t && t.gridPosition)) {
-        // Dimensions are already in minor cells from item.w, item.h via getEffectiveDimensionsFn
-        const { w: itemW_minor, h: itemH_minor } = getEffectiveDimensionsFn(table);
-        const { rowStart: minorRowStart, colStart: minorColStart } = table.gridPosition;
+export const checkItemsInBounds = (newTotalMinorRows, newTotalMinorCols, designItems) => {
+    for (const item of designItems) {
+        if (!item || !item.gridPosition) continue;
+
+        const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(item);
+        const { rowStart: minorRowStart, colStart: minorColStart } = item.gridPosition;
 
         if (
-            minorRowStart + itemH_minor - 1 > newTotalMinorRows ||
-            minorColStart + itemW_minor - 1 > newTotalMinorCols
+            minorRowStart < 1 || minorColStart < 1 || // Should not happen if items are placed correctly
+            minorRowStart + effH_minor - 1 > newTotalMinorRows ||
+            minorColStart + effW_minor - 1 > newTotalMinorCols
         ) {
-            return false;
+            return false; // This item is out of the new bounds
         }
     }
-    return true;
+    return true; // All items are within bounds
 };
 
-export const getNextAvailableTableNumber = (tables) => {
-    // This logic remains the same, as it's based on table numbers, not positions
-    if (!tables || tables.length === 0) return 1;
-    const existingNumbers = tables
-        .map(t => t.number)
-        .filter(n => typeof n === 'number' && !isNaN(n))
-        .sort((a, b) => a - b); // Sort for predictable numbering
-    if (existingNumbers.length === 0) return 1;
+/**
+ * Gets the next available table number from an array of design items.
+ * @param {Array} designItems - Array of all design items.
+ * @returns {number} The next available table number.
+ */
+export const getNextAvailableTableNumber = (designItems) => {
+    const tableNumbers = designItems
+        .filter(item => item.itemType === ItemTypes.PLACED_TABLE && typeof item.number === 'number' && !isNaN(item.number))
+        .map(table => table.number)
+        .sort((a, b) => a - b); // Sort for predictable numbering and efficient finding
+
+    if (tableNumbers.length === 0) return 1;
+
     let num = 1;
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-        if (!existingNumbers.includes(num)) {
+    for (const existingNum of tableNumbers) {
+        if (num < existingNum) {
             return num;
         }
-        num++;
-        if (num > existingNumbers.length + 1 && num > 1000) { // Safety break for very sparse large numbers
-            console.warn("getNextAvailableTableNumber: High table number reached, check for issues or reset numbering.", num);
-            return num; // Or throw an error
+        if (num === existingNum) {
+            num++;
         }
+    }
+    return num; // Next number after the highest existing one
+};
+
+// Note: getDefaultSeatsForSize and getToolConfigByType might be better suited
+// inside itemConfigs.js or directly used by useLayoutDesignerStateManagement's
+// generateDefaultItemProps if their logic becomes highly coupled with ITEM_CONFIGS.
+// For now, if itemConfigs.js imports getDefaultSeatsForSize from here, that's fine.
+
+export const getDefaultSeatsForSize = (sizeIdentifier) => {
+    // Based on the 'size_identifier' from toolDefinitions (e.g., 'square', 'rectangle')
+    switch (sizeIdentifier) {
+        case 'square': return 2;
+        case 'rectangle': return 4;
+        case 'rectangle-tall': return 2;
+        case 'round': return 4; // Round tables often vary, this is a default
+        default: return 2; // Default for unknown or other types
     }
 };

@@ -1,150 +1,145 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { motion } from 'framer-motion'; // For main action buttons or overall page transition
+import { motion } from 'framer-motion';
 
 import Modal from '../../../../components/animated_alerts/Modal.jsx';
-import Icon from '../../../../components/common/Icon.jsx'; // Ensure correct path
+import Icon from '../../../../components/common/Icon.jsx';
 
-// New Hooks
+// Hooks
 import useLayoutDesignerStateManagement from '../../hooks/useLayoutDesignerStateManagement';
 import useDesignerInteractions from '../../hooks/useDesignerInteractions';
-import useQrCodeManager from '../../hooks/useQrCodeManager'; // Existing, but used here
+import useQrCodeManager from '../../hooks/useQrCodeManager';
 
-// New UI Components
+// UI Components
 import LayoutDesignerSidebar from './LayoutDesignerSidebar';
 import LayoutDesignerToolbar from './LayoutDesignerToolbar';
-import LayoutDesignerGrid from './grid_system/LayoutDesignerGrid.jsx';
+import LayoutDesignerGrid from './grid_system/LayoutDesignerGrid.jsx'; // Correct path to grid system
 
 // Constants
 import {
-    ItemTypes,
-    CELL_SIZE_REM,
-    tableToolsConfig,
-    // obstacleToolsConfig, // If using obstacles
-    DEFAULT_INITIAL_GRID_ROWS, // For default if no currentLayout
-    DEFAULT_INITIAL_GRID_COLS, // For default if no currentLayout
-    MIN_GRID_ROWS, MAX_GRID_ROWS, MIN_GRID_COLS, MAX_GRID_COLS, // For toolbar
+    CELL_SIZE_REM, // This is MAJOR_CELL_SIZE_REM
+    DEFAULT_INITIAL_GRID_ROWS,
+    DEFAULT_INITIAL_GRID_COLS,
+    DEFAULT_GRID_SUBDIVISION, // For initialLayoutConfig default
+    MIN_GRID_ROWS, MAX_GRID_ROWS, MIN_GRID_COLS, MAX_GRID_COLS, // For toolbar props
 } from '../../constants/layoutConstants';
 
-const STABLE_EMPTY_ARRAY = Object.freeze([]); // Stable empty array for initial state
+import { // Item specific constants and tool definitions
+    ItemTypes,
+    toolDefinitions, // This is the new source for tools
+    ITEM_CONFIGS,
+} from '../../constants/itemConfigs';
 
-// Utilities - some might be used directly for QR code data if not handled by hooks/sidebar
-// import { constructQrDataValue } from '../../utils/commonUtils.js';
-
+const STABLE_EMPTY_DESIGN_ITEMS = Object.freeze([]);
 
 const LayoutDesigner = ({
-    currentLayout, // Prop: existing layout data { tables, gridDimensions, kitchenArea, obstacles }
-    // initialGridRows, initialGridCols are now part of currentLayout.gridDimensions or defaults
-    onSaveLayout,  // Prop: (layoutToSave) => void
-    onCancel,      // Prop: () => void
+    currentLayout, // Prop: { designItems, gridDimensions: { rows, cols, gridSubdivision } }
+    onSaveLayout,
+    onCancel,
 }) => {
     // --- Alert Modal State ---
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertModalContent, setAlertModalContent] = useState({ title: '', message: '', type: 'info' });
 
     const openAlertModal = useCallback((title, message, type = 'info') => {
-        // Optional: Prevent spamming identical error modals
         if (isAlertModalOpen && alertModalContent.title === title && alertModalContent.message === message && type === 'error') return;
         setAlertModalContent({ title, message, type });
         setIsAlertModalOpen(true);
     }, [isAlertModalOpen, alertModalContent.title, alertModalContent.message]);
+
     const closeAlertModal = useCallback(() => setIsAlertModalOpen(false), []);
 
     // --- Initialize Hooks ---
-    const initialLayoutConfig = useMemo(() => ({ // <-- USE useMemo
-        initialTables: currentLayout?.tables || STABLE_EMPTY_ARRAY, // <-- USE STABLE_EMPTY_ARRAY
+    const initialLayoutConfig = useMemo(() => ({
+        initialDesignItems: currentLayout?.designItems || STABLE_EMPTY_DESIGN_ITEMS,
         initialGridRows: currentLayout?.gridDimensions?.rows || DEFAULT_INITIAL_GRID_ROWS,
         initialGridCols: currentLayout?.gridDimensions?.cols || DEFAULT_INITIAL_GRID_COLS,
-        // initialObstacles: currentLayout?.obstacles || STABLE_EMPTY_ARRAY, // If using obstacles
-        // initialKitchenArea: currentLayout?.kitchenArea || null,
+        initialGridSubdivision: currentLayout?.gridDimensions?.gridSubdivision || DEFAULT_GRID_SUBDIVISION,
     }), [currentLayout]);
 
     const layoutManager = useLayoutDesignerStateManagement(initialLayoutConfig, openAlertModal);
     const interactionsManager = useDesignerInteractions();
     const qrManager = useQrCodeManager(openAlertModal);
 
-
     // --- QR Code Fetching Effect ---
-    // Fetch QR codes for newly added or modified tables
     useEffect(() => {
-        layoutManager.designedTables.filter(t => t && t.id).forEach(table => {
-            const status = qrManager.getQrStatus(table.id);
-            // Fetch if no URL, not loading, not an error, and table number exists (QR data depends on it)
-            if (table.number && !status.url && !status.loading && !status.error && status.url !== 'error') {
-                // Assuming default QR colors. Pass from config if customizable.
-                qrManager.fetchQrCodeForTable(table, "red", "blue");
+        layoutManager.designItems.forEach(item => {
+            // Check if item is a table and needs QR
+            if (item.itemType === ItemTypes.PLACED_TABLE && item.id && item.number) {
+                const status = qrManager.getQrStatus(item.id);
+                if (!status.url && !status.loading && !status.error && status.url !== 'error') {
+                    qrManager.fetchQrCodeForTable(item, "red", "blue"); // Default colors
+                }
             }
         });
-    }, [layoutManager.designedTables, qrManager]);
-
+    }, [layoutManager.designItems, qrManager]); // Rerun if designItems or qrManager instance changes
 
     // --- Save Handler ---
     const handleSave = useCallback(() => {
-        // Perform final validation before saving
-        const tablesToSave = layoutManager.designedTables;
-        const validTables = tablesToSave.filter(t => t && typeof t.number === 'number' && t.number > 0);
+        const itemsToValidate = layoutManager.designItems.filter(item => item.itemType === ItemTypes.PLACED_TABLE);
+        const validTables = itemsToValidate.filter(t => t && typeof t.number === 'number' && t.number > 0);
         const numbers = validTables.map(t => t.number);
         const uniqueNumbers = new Set(numbers);
 
-        if (numbers.length !== uniqueNumbers.size || validTables.length !== tablesToSave.length) {
+        if (itemsToValidate.length > 0 && (numbers.length !== uniqueNumbers.size || validTables.length !== itemsToValidate.length)) {
             openAlertModal("Validation Error", "Ensure all tables have unique, positive numbers before saving.", "error");
             return;
         }
 
         const layoutToSave = {
-            tables: JSON.parse(JSON.stringify(validTables)), // Deep copy for safety
-            // obstacles: JSON.parse(JSON.stringify(layoutManager.designedObstacles)), // If active
-            gridDimensions: { rows: layoutManager.gridRows, cols: layoutManager.gridCols },
-            // kitchenArea: layoutManager.definedKitchenArea ? JSON.parse(JSON.stringify(layoutManager.definedKitchenArea)) : null, // If active
+            designItems: JSON.parse(JSON.stringify(layoutManager.designItems)), // Deep copy
+            gridDimensions: {
+                rows: layoutManager.gridRows,
+                cols: layoutManager.gridCols,
+                gridSubdivision: layoutManager.gridSubdivision,
+            },
         };
         onSaveLayout(layoutToSave);
     }, [
-        layoutManager.designedTables,
-        // layoutManager.designedObstacles,
+        layoutManager.designItems,
         layoutManager.gridRows,
         layoutManager.gridCols,
-        // layoutManager.definedKitchenArea,
+        layoutManager.gridSubdivision,
         onSaveLayout,
         openAlertModal
     ]);
 
     // --- Clear All Handler ---
     const handleClearAll = () => {
-        layoutManager.clearFullLayout(); // This will also trigger the alert from within the hook
-        qrManager.clearAllQrData();      // Clear any cached QR blob URLs
+        layoutManager.clearFullLayout();
+        qrManager.clearAllQrData();
     };
 
-    // --- Update table properties (combining number/seats/rotation for PlacedItem) ---
-    // PlacedItem might call this for number and rotation. Sidebar calls for seats.
-    const handleUpdateTableDetails = useCallback((tableId, details) => {
-        // `details` could be { number: newNum }, { seats: newSeats }, or { rotation: true }
-        // The `updateTableProperties` hook method handles figuring out which prop to update.
-        const success = layoutManager.updateTableProperties(tableId, details);
-        if (success && (details.number !== undefined || details.seats !== undefined)) {
-            // If number or seats changed, refetch QR as data might have changed
-            const updatedTable = layoutManager.designedTables.find(t => t.id === tableId);
-            if (updatedTable) {
-                qrManager.fetchQrCodeForTable(updatedTable, "red", "blue");
-            }
+    // --- Update Item Properties (Generic) ---
+    const handleUpdateItemDetails = useCallback((itemId, details) => {
+        // `details` is an object of properties to update, e.g., { tableNumber: newNum }, { seats: newSeats }, { rotation: true }
+        const success = layoutManager.updateItemProperties(itemId, details);
+
+        // If properties affecting QR code data (like tableNumber or seats for a table) change, refetch QR.
+        const item = layoutManager.designItems.find(it => it.id === itemId);
+        if (item && item.itemType === ItemTypes.PLACED_TABLE && success && (details.tableNumber !== undefined || details.seats !== undefined)) {
+            qrManager.fetchQrCodeForTable(item, "red", "blue");
         }
-        return success; // For PlacedItem to know if update was successful
+        return success;
     }, [layoutManager, qrManager]);
 
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className="flex flex-col h-screen font-sans bg-gradient-to-tr from-indigo-50 via-white to-pink-50"> {/* Overall background */}
+            <div className="flex flex-col h-screen font-sans bg-gradient-to-tr from-indigo-50 via-white to-pink-50">
                 <LayoutDesignerSidebar
-                    designedTables={layoutManager.designedTables}
+                    designItems={layoutManager.designItems} // Pass generic designItems
                     getQrStatus={qrManager.getQrStatus}
                     downloadSingleQr={qrManager.downloadSingleQr}
                     downloadAllQrs={qrManager.downloadAllQrs}
-                    onUpdateTableSeats={(tableId, seats) => handleUpdateTableDetails(tableId, { seats })}
+                    onUpdateItemProperties={handleUpdateItemDetails} // Generic update function
+                    ItemTypes={ItemTypes} // Pass ItemTypes for conditional rendering in sidebar
+                    ITEM_CONFIGS={ITEM_CONFIGS} // Pass ITEM_CONFIGS for sidebar logic
                 />
 
                 <main className="flex-1 overflow-auto ml-80"> {/* Ensure ml-80 matches sidebar width */}
-                    <div className="p-6 min-h-full"> {/* Removed inner gradient, applied to parent */}
+                    <div className="p-6 min-h-full">
                         <motion.h2
                             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
                             className="text-4xl font-bold text-indigo-700 mb-8 text-center tracking-tight"
@@ -153,13 +148,14 @@ const LayoutDesigner = ({
                         </motion.h2>
 
                         <LayoutDesignerToolbar
-                            majorGridRows={layoutManager.gridRows} // Passed from layoutManager
-                            majorGridCols={layoutManager.gridCols} // Passed from layoutManager
-                            currentGridSubdivision={layoutManager.gridSubdivision} // New state from layoutManager
-                            onGridDimensionChange={layoutManager.setGridDimensions} // For major dimensions
-                            onGridSubdivisionChange={layoutManager.setGridSubdivision} // New callback
-
-                            tableToolsConfig={tableToolsConfig}
+                            majorGridRows={layoutManager.gridRows}
+                            majorGridCols={layoutManager.gridCols}
+                            currentGridSubdivision={layoutManager.gridSubdivision}
+                            onGridDimensionChange={layoutManager.setGridDimensions}
+                            onGridSubdivisionChange={layoutManager.setGridSubdivision}
+                            minGridRows={MIN_GRID_ROWS} maxGridRows={MAX_GRID_ROWS}
+                            minGridCols={MIN_GRID_COLS} maxGridCols={MAX_GRID_COLS}
+                            toolDefinitions={toolDefinitions} // Use new toolDefinitions
                             ItemTypes={ItemTypes}
                             isEraserActive={interactionsManager.isEraserActive}
                             onToggleEraser={interactionsManager.toggleEraser}
@@ -170,31 +166,34 @@ const LayoutDesigner = ({
                         />
 
                         <LayoutDesignerGrid
-                            majorGridRows={layoutManager.gridRows} // This is already correct (gridRows from hook IS major)
-                            majorGridCols={layoutManager.gridCols} // This is already correct (gridCols from hook IS major)
-                            gridSubdivision={layoutManager.gridSubdivision} // NEW: Pass this down
-                            designedTables={layoutManager.designedTables}
+                            majorGridRows={layoutManager.gridRows}
+                            majorGridCols={layoutManager.gridCols}
+                            gridSubdivision={layoutManager.gridSubdivision}
+                            designedTables={layoutManager.designItems.filter(item => item.itemType === ItemTypes.PLACED_TABLE)} // Example: filter for tables
+                            // Or pass all designItems and let PlacedItem/factory handle rendering
+                            // designedItems={layoutManager.designItems} // Preferred for true generic grid
                             ItemTypes={ItemTypes}
-                            CELL_SIZE_REM={CELL_SIZE_REM} // This is the MAJOR_CELL_SIZE_REM
+                            CELL_SIZE_REM={CELL_SIZE_REM} // This is MAJOR_CELL_SIZE_REM
 
-                            // Callbacks are already correctly set up to use minor coordinates from layoutManager
                             onAddItem={layoutManager.addItemToLayout}
                             onMoveItem={layoutManager.moveExistingItem}
-                            onEraseDesignerItemFromCell={layoutManager.removeItemAtCoords} // Expects minor coords
+                            onEraseDesignerItemFromCell={layoutManager.removeItemAtCoords}
                             onEraseDesignerItemById={(itemId) => {
                                 layoutManager.removeItemById(itemId);
                                 qrManager.clearQrDataForTable(itemId);
                             }}
-                            onUpdateTableNumber={(tableId, number) => handleUpdateTableDetails(tableId, { number })}
-                            onRotateTable={(tableId) => handleUpdateTableDetails(tableId, { rotation: true })}
-                            canPlaceItem={layoutManager.canPlaceItem} // Expects minor coords and minor dimensions
+                            // Pass generic update function to PlacedItem, it will know what property to update
+                            onUpdateItemProperty={(itemId, propertyUpdate) => handleUpdateItemDetails(itemId, propertyUpdate)}
+                            // Specific handlers can be derived or PlacedItem can call onUpdateItemProperty with specific payloads
+                            // e.g., onUpdateTableNumber={(id, num) => handleUpdateItemDetails(id, { tableNumber: num })}
+                            // e.g., onRotateTable={(id) => handleUpdateItemDetails(id, { rotation: true })} -- 'rotation:true' is a trigger
 
-                            draggedItemPreview={interactionsManager.draggedItemPreview} // Preview coords/dims are minor
+                            canPlaceItem={layoutManager.canPlaceItem}
+                            draggedItemPreview={interactionsManager.draggedItemPreview}
                             onUpdateDraggedItemPreview={interactionsManager.updateDraggedItemPreview}
                             isEraserActive={interactionsManager.isEraserActive}
                         />
 
-                        {/* Main Action Buttons */}
                         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center sm:space-x-4 space-y-3 sm:space-y-0">
                             <motion.button
                                 whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
@@ -222,7 +221,7 @@ const LayoutDesigner = ({
                 </main>
 
                 <Modal isOpen={isAlertModalOpen} onClose={closeAlertModal} title={alertModalContent.title} type={alertModalContent.type}>
-                    <p className="text-sm">{alertModalContent.message}</p> {/* Ensure modal content is text-sm for consistency */}
+                    <p className="text-sm">{alertModalContent.message}</p>
                 </Modal>
             </div>
         </DndProvider>

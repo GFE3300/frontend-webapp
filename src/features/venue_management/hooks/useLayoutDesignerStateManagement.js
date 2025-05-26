@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo } from 'react'; // Added useMemo
+import { useCallback, useEffect, useMemo } from 'react';
 import useHistory from './useHistory';
 
+// Constants from the main layout constants file
 import {
     DEFAULT_INITIAL_GRID_ROWS,
     DEFAULT_INITIAL_GRID_COLS,
@@ -8,101 +9,114 @@ import {
     MAX_GRID_ROWS,
     MIN_GRID_COLS,
     MAX_GRID_COLS,
-    ItemTypes,
-    DEFAULT_GRID_SUBDIVISION, // New constant
-    // AVAILABLE_SUBDIVISIONS, // Not directly used in this hook, but good to know it exists
-} from '../constants/layoutConstants'; // Path to your constants file
+    DEFAULT_GRID_SUBDIVISION,
+} from '../constants/layoutConstants';
 
+// Item specific configurations and types
+import { ItemTypes, ITEM_CONFIGS } from '../constants/itemConfigs';
+
+// Utilities
 import {
-    getDefaultSeatsForSize,
     canPlaceItem as canPlaceItemUtil,
     checkItemsInBounds as checkItemsInBoundsUtil,
-    getEffectiveDimensions as getEffectiveDimensionsUtil, // Renamed to avoid conflict
-    getNextAvailableTableNumber,
+    getEffectiveDimensions as getEffectiveDimensionsUtil,
+    getNextAvailableTableNumber, // Assuming this is specifically for tables for now
 } from '../utils/layoutUtils';
+
+const STABLE_EMPTY_ARRAY_DESIGN_ITEMS = Object.freeze([]);
 
 const useLayoutDesignerStateManagement = (
     initialLayoutConfig = {},
     openAlertModal = (title, message, type) => console.warn(`Alert Modal not provided: ${type} - ${title}: ${message}`)
 ) => {
     const {
-        initialTables = [],
+        initialDesignItems = STABLE_EMPTY_ARRAY_DESIGN_ITEMS, // Expecting an array of generic design items
         initialGridRows = DEFAULT_INITIAL_GRID_ROWS,
         initialGridCols = DEFAULT_INITIAL_GRID_COLS,
-        initialGridSubdivision = DEFAULT_GRID_SUBDIVISION, // New initial prop
+        initialGridSubdivision = DEFAULT_GRID_SUBDIVISION,
     } = initialLayoutConfig;
 
-    // Helper to generate default table properties, now aware of minor grid scaling for w/h
-    const generateDefaultTableProps = useCallback((tableArray, partialTableData, currentSubdivision) => {
-        const baseId = partialTableData.id || `item_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-        const baseSize = partialTableData.size || 'square'; // From tool.type or item.size
 
-        // If w_major and h_major are from tool (representing major cell span)
-        // then actual w/h in minor cells needs to be calculated.
-        // Let's assume PlacedItem stores its dimensions in minor cells.
-        // If partialTableData comes from a tool, its w/h are in MAJOR cells.
-        let widthInMinorCells = partialTableData.w; // Assume this is passed as minor cell dim if from existing item
-        let heightInMinorCells = partialTableData.h; // Assume this is passed as minor cell dim if from existing item
+    const generateDefaultItemProps = useCallback((
+        existingDesignItems,
+        toolPayloadFromDrag, // { toolItemType, createsPlacedItemType, w_major, h_major, size_identifier }
+        targetMinorRow,
+        targetMinorCol,
+        currentSubdivision
+    ) => {
+        const placedItemType = toolPayloadFromDrag.createsPlacedItemType;
+        const config = ITEM_CONFIGS[placedItemType];
 
-        if (partialTableData.isFromTool) { // A flag to indicate if w/h are major cell units
-            widthInMinorCells = partialTableData.w * currentSubdivision;
-            heightInMinorCells = partialTableData.h * currentSubdivision;
+        if (!config) {
+            console.error(`[generateDefaultItemProps] No config found for placedItemType: ${placedItemType}`);
+            openAlertModal("Error", `Configuration missing for item type: ${placedItemType}. Cannot add item.`, "error");
+            return null;
+        }
+
+        const baseId = `item_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+
+        // Tool's w_major/h_major define span in MAJOR grid cells. Convert to MINOR cell span.
+        const w_minor = toolPayloadFromDrag.w_major * currentSubdivision;
+        const h_minor = toolPayloadFromDrag.h_major * currentSubdivision;
+
+        let typeSpecificDefaults = {};
+        if (config.defaultPropsFactory) {
+            // Pass relevant parts of toolPayload and context to the factory
+            const factoryPayload = {
+                size_identifier: toolPayloadFromDrag.size_identifier, // e.g., 'square', 'wall-segment'
+                // Pass other tool-specific data from toolPayloadFromDrag if needed by factories
+            };
+            typeSpecificDefaults = config.defaultPropsFactory(factoryPayload, currentSubdivision, existingDesignItems);
+        }
+
+        // Ensure table number is assigned if it's a table and defaultPropsFactory didn't set it
+        if (placedItemType === ItemTypes.PLACED_TABLE && typeSpecificDefaults.tableNumber === undefined) {
+            typeSpecificDefaults.tableNumber = getNextAvailableTableNumber(
+                existingDesignItems.filter(item => item.itemType === ItemTypes.PLACED_TABLE)
+            );
         }
 
         return {
             id: baseId,
-            itemType: ItemTypes.PLACED_TABLE,
-            number: partialTableData.number || getNextAvailableTableNumber(tableArray.filter(t => t.id !== baseId)),
-            size: baseSize, // e.g., 'square', 'rectangle' - refers to the tool type for visual rendering
-            seats: partialTableData.seats !== undefined ? partialTableData.seats : getDefaultSeatsForSize(baseSize),
-            rotation: partialTableData.rotation || 0,
-            // gridPosition is always in MINOR cell coordinates
-            gridPosition: partialTableData.gridPosition || { rowStart: 1, colStart: 1 },
-            // Store intrinsic dimensions in MINOR cells.
-            // These are the dimensions based on the tool's definition and current subdivision at time of placement.
-            // Rotation will swap these in getEffectiveDimensions.
-            w: widthInMinorCells,  // Width in minor cells
-            h: heightInMinorCells, // Height in minor cells
-            ...partialTableData,
-            isFromTool: undefined, // Clear the flag
+            itemType: placedItemType,
+            gridPosition: { rowStart: targetMinorRow, colStart: targetMinorCol }, // MINOR coords
+            w_minor: w_minor, // Base width in MINOR cells (pre-rotation)
+            h_minor: h_minor, // Base height in MINOR cells (pre-rotation)
+            rotation: 0,      // Default rotation
+            isFixed: false,   // Default common property
+            layer: 1,         // Default common property
+            ...typeSpecificDefaults, // Apply/override with type-specific defaults
         };
+    }, [openAlertModal]); // getNextAvailableTableNumber is pure, ITEM_CONFIGS is stable
+
+
+    // Parses items (e.g., from storage). For now, assumes they are mostly in the correct new format.
+    // More robust parsing would handle missing fields or old formats using ITEM_CONFIGS.
+    const parseAndPrepareInitialItems = useCallback((itemsToParse, currentSubdivision) => {
+        if (!itemsToParse || itemsToParse.length === 0) return STABLE_EMPTY_ARRAY_DESIGN_ITEMS;
+
+        // Basic pass-through for now. Future: use ITEM_CONFIGS to validate/migrate old data.
+        // This current version assumes saved items already have w_minor, h_minor, and gridPosition in minor units
+        // relative to their *saved* subdivision. If the currentSubdivision on load is different,
+        // a more complex conversion would be needed. For now, we assume they match or are compatible.
+        return itemsToParse.map(item => ({
+            rotation: 0, // Ensure default rotation if not present
+            isFixed: false,
+            layer: 1,
+            ...item, // Spread existing item props
+            // If item was saved with w_major/h_major and saved_subdivision, convert here:
+            // w_minor: item.w_major * currentSubdivision, (if item had w_major)
+            // h_minor: item.h_major * currentSubdivision, (if item had h_major)
+        }));
     }, []);
 
 
-    const parseAndPrepareInitialTables = useCallback((tablesToParse, subdivision) => {
-        let processedTables = [];
-        tablesToParse.forEach(table => {
-            // When parsing initial tables, they might already have w/h in minor cells OR major cells.
-            // This needs a clear contract. Let's assume initialTables prop provides w/h in MAJOR cells if not specified.
-            // Or better, ensure initialTables (from storage) *always* store w/h in MINOR cells relative to the subdivision they were saved with.
-            // For now, let's assume initialTables from `currentLayout` might have `w_major`, `h_major`
-            // and `saved_subdivision` to correctly parse them.
-            // Simpler: Assume w,h in initialTables are already in minor cells for *their* saved subdivision.
-            // If subdivision changes, these might need re-evaluation (complex).
-            // For this iteration, let's assume w,h in initialTables are what they should be.
-            const tableDataForProps = { ...table };
-            if (table.w_major && table.h_major && subdivision) { // If initial data uses major cell units
-                tableDataForProps.w = table.w_major * subdivision;
-                tableDataForProps.h = table.h_major * subdivision;
-                delete tableDataForProps.w_major;
-                delete tableDataForProps.h_major;
-            }
-            processedTables.push(generateDefaultTableProps(processedTables, tableDataForProps, subdivision));
-        });
-        return processedTables.map(table => ({
-            ...table,
-            number: processedTables.filter(t => t.id !== table.id && t.number === table.number).length > 0
-                ? getNextAvailableTableNumber(processedTables.filter(t => t.id !== table.id))
-                : table.number,
-        }));
-    }, [generateDefaultTableProps]);
-
     const initialSnapshot = useMemo(() => ({
-        designedTables: parseAndPrepareInitialTables(initialTables, initialGridSubdivision),
+        designItems: parseAndPrepareInitialItems(initialDesignItems, initialGridSubdivision),
         gridRows: initialGridRows, // Major grid rows
         gridCols: initialGridCols, // Major grid cols
         gridSubdivision: initialGridSubdivision,
-    }), [initialTables, initialGridRows, initialGridCols, initialGridSubdivision, parseAndPrepareInitialTables]);
+    }), [initialDesignItems, initialGridRows, initialGridCols, initialGridSubdivision, parseAndPrepareInitialItems]);
 
     const {
         state: layoutSnapshot,
@@ -114,32 +128,33 @@ const useLayoutDesignerStateManagement = (
         resetHistory,
     } = useHistory(initialSnapshot);
 
-    const { designedTables, gridRows, gridCols, gridSubdivision } = layoutSnapshot;
+    const { designItems, gridRows, gridCols, gridSubdivision } = layoutSnapshot;
 
     useEffect(() => {
+        // This effect re-initializes the entire designer state if the top-level 'currentLayout' prop changes.
+        const newParsedItems = parseAndPrepareInitialItems(
+            initialLayoutConfig.initialDesignItems || STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
+            initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION
+        );
         const newSnapshot = {
-            designedTables: parseAndPrepareInitialTables(
-                initialLayoutConfig.initialTables || [],
-                initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION
-            ),
+            designItems: newParsedItems,
             gridRows: initialLayoutConfig.initialGridRows || DEFAULT_INITIAL_GRID_ROWS,
             gridCols: initialLayoutConfig.initialGridCols || DEFAULT_INITIAL_GRID_COLS,
             gridSubdivision: initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION,
         };
         resetHistory(newSnapshot);
     }, [
-        initialLayoutConfig.initialTables,
+        initialLayoutConfig.initialDesignItems,
         initialLayoutConfig.initialGridRows,
         initialLayoutConfig.initialGridCols,
         initialLayoutConfig.initialGridSubdivision,
         resetHistory,
-        parseAndPrepareInitialTables
+        parseAndPrepareInitialItems
     ]);
 
     const getEffectiveDimensions = useCallback((item) => {
-        // Uses getEffectiveDimensionsUtil which should now primarily care about rotation
-        // as item.w and item.h are already in minor cells.
-        return getEffectiveDimensionsUtil(item); // Pass item directly
+        // item.w_minor and item.h_minor are base dimensions in minor cells
+        return getEffectiveDimensionsUtil(item); // Util handles rotation
     }, []);
 
     const canPlaceItem = useCallback((minorRow, minorCol, itemW_minor, itemH_minor, itemToExcludeId = null) => {
@@ -148,175 +163,171 @@ const useLayoutDesignerStateManagement = (
         return canPlaceItemUtil(
             minorRow, minorCol,
             itemW_minor, itemH_minor,
-            designedTables,
-            totalMinorRows, totalMinorCols, // Pass total minor dimensions
+            designItems, // Use generic designItems
+            totalMinorRows, totalMinorCols,
             itemToExcludeId,
-            getEffectiveDimensions // Pass the local getEffectiveDimensions
+            getEffectiveDimensions // Pass the memoized version from this hook
         );
-    }, [designedTables, gridRows, gridCols, gridSubdivision, getEffectiveDimensions]);
+    }, [designItems, gridRows, gridCols, gridSubdivision, getEffectiveDimensions]);
 
-    const addItemToLayout = useCallback((itemFromTool, minorTargetRow, minorTargetCol, itemTypeFromTool) => {
-        // itemFromTool: { type (tool.type/size), w (major), h (major) }
-        const majorCellW = itemFromTool.w;
-        const majorCellH = itemFromTool.h;
-
-        const itemW_minor = majorCellW * gridSubdivision;
-        const itemH_minor = majorCellH * gridSubdivision;
+    const addItemToLayout = useCallback((
+        toolPayloadFromDrag, // { toolItemType, createsPlacedItemType, w_major, h_major, size_identifier }
+        minorTargetRow,
+        minorTargetCol
+    ) => {
+        // Calculate item dimensions in minor cells based on tool's major cell span and current subdivision
+        const itemW_minor = toolPayloadFromDrag.w_major * gridSubdivision;
+        const itemH_minor = toolPayloadFromDrag.h_major * gridSubdivision;
 
         if (!canPlaceItem(minorTargetRow, minorTargetCol, itemW_minor, itemH_minor, null)) {
-            openAlertModal("Placement Error", `Cannot place ${itemFromTool.size || 'item'}: space occupied or out of bounds.`, "error");
+            openAlertModal("Placement Error", `Cannot place item: space occupied or out of bounds.`, "error");
             return;
         }
 
         setLayoutSnapshotWithHistory(prev => {
-            if (itemTypeFromTool === ItemTypes.TABLE_TOOL) {
-                const newItem = generateDefaultTableProps(
-                    prev.designedTables,
-                    {
-                        size: itemFromTool.size, // Tool's 'type' or 'size' identifier
-                        gridPosition: { rowStart: minorTargetRow, colStart: minorTargetCol },
-                        w: itemW_minor, // Store dimensions in minor cells
-                        h: itemH_minor, // Store dimensions in minor cells
-                        // No 'isFromTool' needed here as generateDefaultTableProps handles it
-                    },
-                    prev.gridSubdivision // Pass current subdivision for context if needed by generateDefault
-                );
-                return { ...prev, designedTables: [...prev.designedTables, newItem] };
+            const newItem = generateDefaultItemProps(
+                prev.designItems,
+                toolPayloadFromDrag,
+                minorTargetRow,
+                minorTargetCol,
+                prev.gridSubdivision // Use subdivision from prev state for consistency during update
+            );
+            if (newItem) {
+                return { ...prev, designItems: [...prev.designItems, newItem] };
             }
-            return prev;
+            return prev; // If newItem is null due to config error
         });
-    }, [canPlaceItem, gridSubdivision, setLayoutSnapshotWithHistory, openAlertModal, generateDefaultTableProps]);
+    }, [canPlaceItem, gridSubdivision, setLayoutSnapshotWithHistory, openAlertModal, generateDefaultItemProps]);
 
     const moveExistingItem = useCallback((itemId, toMinorRow, toMinorCol) => {
         setLayoutSnapshotWithHistory(prev => {
-            const itemToMove = prev.designedTables.find(t => t.id === itemId);
+            const itemToMove = prev.designItems.find(it => it.id === itemId);
             if (!itemToMove) return prev;
 
-            // Effective dimensions are already in minor cells because item.w/h are stored in minor cells.
             const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(itemToMove);
 
             if (!canPlaceItem(toMinorRow, toMinorCol, effW_minor, effH_minor, itemId)) {
-                return prev;
+                return prev; // Invalid move
             }
             return {
                 ...prev,
-                designedTables: prev.designedTables.map(t =>
-                    t.id === itemId ? { ...t, gridPosition: { rowStart: toMinorRow, colStart: toMinorCol } } : t
+                designItems: prev.designItems.map(it =>
+                    it.id === itemId ? { ...it, gridPosition: { rowStart: toMinorRow, colStart: toMinorCol } } : it
                 ),
             };
         });
     }, [canPlaceItem, setLayoutSnapshotWithHistory, getEffectiveDimensions]);
 
+    const removeItemById = useCallback((itemId) => {
+        setLayoutSnapshotWithHistory(prev => ({
+            ...prev,
+            designItems: prev.designItems.filter(it => it.id !== itemId),
+        }));
+    }, [setLayoutSnapshotWithHistory]);
 
     const removeItemAtCoords = useCallback((minorRowClicked, minorColClicked) => {
         setLayoutSnapshotWithHistory(prev => {
-            const itemToRemove = prev.designedTables.find(t => {
-                if (!t || !t.gridPosition) return false;
-                const { w: itemW_minor, h: itemH_minor } = getEffectiveDimensions(t); // Already minor
-                return minorRowClicked >= t.gridPosition.rowStart &&
-                       minorRowClicked < t.gridPosition.rowStart + itemH_minor &&
-                       minorColClicked >= t.gridPosition.colStart &&
-                       minorColClicked < t.gridPosition.colStart + itemW_minor;
+            const itemToRemove = prev.designItems.find(it => {
+                if (!it || !it.gridPosition) return false;
+                const { w: itemW_minor, h: itemH_minor } = getEffectiveDimensions(it);
+                return minorRowClicked >= it.gridPosition.rowStart &&
+                    minorRowClicked < it.gridPosition.rowStart + itemH_minor &&
+                    minorColClicked >= it.gridPosition.colStart &&
+                    minorColClicked < it.gridPosition.colStart + itemW_minor;
             });
 
             if (itemToRemove) {
-                return {
-                    ...prev,
-                    designedTables: prev.designedTables.filter(t => t.id !== itemToRemove.id),
-                };
+                return { ...prev, designItems: prev.designItems.filter(it => it.id !== itemToRemove.id) };
             }
             return prev;
         });
     }, [setLayoutSnapshotWithHistory, getEffectiveDimensions]);
 
-
-    const updateTableProperties = useCallback((tableId, { number, seats, rotation }) => {
-        // rotation is a boolean flag indicating a desire to rotate
+    const updateItemProperties = useCallback((itemId, newProps) => {
         let validationPassed = true;
         setLayoutSnapshotWithHistory(prev => {
-            const currentTable = prev.designedTables.find(t => t.id === tableId);
-            if (!currentTable) return prev;
+            const itemIndex = prev.designItems.findIndex(item => item.id === itemId);
+            if (itemIndex === -1) return prev;
 
-            const updatedProps = {};
-            if (number !== undefined) { /* ... (same number validation logic) ... */
-                const newNumberNum = parseInt(number, 10);
-                if (isNaN(newNumberNum) || newNumberNum <= 0) {
+            const currentItem = prev.designItems[itemIndex];
+            const itemConfig = ITEM_CONFIGS[currentItem.itemType];
+            let accumulatedChanges = { ...newProps }; // Start with newProps
+
+            // Handle Table Number Uniqueness (if applicable for this itemType and newProps)
+            if (currentItem.itemType === ItemTypes.PLACED_TABLE && newProps.tableNumber !== undefined) {
+                const newNum = parseInt(newProps.tableNumber, 10);
+                if (isNaN(newNum) || newNum <= 0) {
                     openAlertModal("Invalid Input", "Table number must be a positive integer.", "error");
                     validationPassed = false;
-                } else if (prev.designedTables.some(t => t.id !== tableId && t.number === newNumberNum)) {
-                    openAlertModal("Duplicate Number", `Table number ${newNumberNum} is already in use.`, "warning");
+                } else if (prev.designItems.some(it => it.id !== itemId && it.itemType === ItemTypes.PLACED_TABLE && it.number === newNum)) {
+                    openAlertModal("Duplicate Number", `Table number ${newNum} is already in use.`, "warning");
                     validationPassed = false;
-                } else {
-                    updatedProps.number = newNumberNum;
                 }
+                // If validation fails, don't include tableNumber in accumulatedChanges or revert it
+                if (!validationPassed) delete accumulatedChanges.tableNumber;
             }
-            if (seats !== undefined) { /* ... (same seats validation logic) ... */
-                const newSeatsNum = parseInt(seats, 10);
+            // Handle Seats (if applicable)
+            if (currentItem.itemType === ItemTypes.PLACED_TABLE && newProps.seats !== undefined) {
+                const newSeatsNum = parseInt(newProps.seats, 10);
                 if (isNaN(newSeatsNum) || newSeatsNum < 0) {
                     openAlertModal("Invalid Input", "Number of seats must be a non-negative integer.", "error");
-                    validationPassed = false;
-                } else {
-                    updatedProps.seats = newSeatsNum;
+                    validationPassed = false; delete accumulatedChanges.seats;
                 }
             }
 
-            if (rotation === true) { // If rotation is requested
-                const newRotationValue = currentTable.rotation === 0 ? 90 : 0;
-                const tentativeRotatedTable = { ...currentTable, ...updatedProps, rotation: newRotationValue };
-                const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(tentativeRotatedTable); // Already minor
+            // Handle Rotation (if applicable and requested)
+            if (newProps.rotation === true && itemConfig?.isRotatable) { // rotation prop is a trigger
+                const newRotationValue = currentItem.rotation === 0 ? 90 : 0; // Simple toggle for now
+                const tempItemWithNewRotation = { ...currentItem, ...accumulatedChanges, rotation: newRotationValue };
+                const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(tempItemWithNewRotation);
 
                 const totalMinorRows = prev.gridRows * prev.gridSubdivision;
                 const totalMinorCols = prev.gridCols * prev.gridSubdivision;
 
                 if (!canPlaceItemUtil(
-                    currentTable.gridPosition.rowStart, currentTable.gridPosition.colStart,
+                    currentItem.gridPosition.rowStart, currentItem.gridPosition.colStart,
                     effW_minor, effH_minor,
-                    prev.designedTables,
-                    totalMinorRows, totalMinorCols,
-                    tableId,
-                    getEffectiveDimensions // Pass the utility
+                    prev.designItems, totalMinorRows, totalMinorCols, itemId, getEffectiveDimensions
                 )) {
-                    openAlertModal("Rotation Error", "Cannot rotate table: new orientation conflicts or out of bounds.", "error");
-                    validationPassed = false;
+                    openAlertModal("Rotation Error", "Cannot rotate: new orientation conflicts or out of bounds.", "error");
+                    validationPassed = false; // Keep original rotation
                 } else {
-                    updatedProps.rotation = newRotationValue;
+                    accumulatedChanges.rotation = newRotationValue; // Apply new rotation
                 }
+            } else if (newProps.rotation === true && !itemConfig?.isRotatable) {
+                // Rotation requested for non-rotatable item, remove trigger
+                delete accumulatedChanges.rotation;
             }
 
-            if (!validationPassed || Object.keys(updatedProps).length === 0) return prev;
 
-            return {
-                ...prev,
-                designedTables: prev.designedTables.map(t =>
-                    t.id === tableId ? { ...t, ...updatedProps } : t
-                ),
-            };
+            if (!validationPassed && Object.keys(newProps).length === 1 && (newProps.tableNumber !== undefined || newProps.seats !== undefined)) return prev; // Only one prop failed, revert
+            if (Object.keys(accumulatedChanges).length === 0) return prev; // No valid changes to apply
+
+            const updatedItem = { ...currentItem, ...accumulatedChanges };
+            const newDesignItems = [...prev.designItems];
+            newDesignItems[itemIndex] = updatedItem;
+            return { ...prev, designItems: newDesignItems };
         });
         return validationPassed;
     }, [setLayoutSnapshotWithHistory, openAlertModal, getEffectiveDimensions]);
 
 
-    const setGridDimensions = useCallback(({ rows: newMajorRows, cols: newMajorCols }) => {
-        // rows and cols here refer to MAJOR grid dimensions
+    const setGridDimensions = useCallback(({ rows, cols }) => { // These are MAJOR rows/cols
         setLayoutSnapshotWithHistory(prev => {
-            const targetMajorRows = newMajorRows !== undefined ? parseInt(newMajorRows, 10) : prev.gridRows;
-            const targetMajorCols = newMajorCols !== undefined ? parseInt(newMajorCols, 10) : prev.gridCols;
-            // ... (validation for MIN/MAX major rows/cols remains the same) ...
-            if (newMajorRows !== undefined && (isNaN(targetMajorRows) || targetMajorRows < MIN_GRID_ROWS || targetMajorRows > MAX_GRID_ROWS)) {
-                 openAlertModal("Invalid Dimension", `Rows must be between ${MIN_GRID_ROWS} and ${MAX_GRID_ROWS}.`, "warning"); return prev;
-            }
-            if (newMajorCols !== undefined && (isNaN(targetMajorCols) || targetMajorCols < MIN_GRID_COLS || targetMajorCols > MAX_GRID_COLS)) {
-                 openAlertModal("Invalid Dimension", `Cols must be between ${MIN_GRID_COLS} and ${MAX_GRID_COLS}.`, "warning"); return prev;
+            const targetMajorRows = rows !== undefined ? parseInt(rows, 10) : prev.gridRows;
+            const targetMajorCols = cols !== undefined ? parseInt(cols, 10) : prev.gridCols;
+
+            if ((rows !== undefined && (isNaN(targetMajorRows) || targetMajorRows < MIN_GRID_ROWS || targetMajorRows > MAX_GRID_ROWS)) ||
+                (cols !== undefined && (isNaN(targetMajorCols) || targetMajorCols < MIN_GRID_COLS || targetMajorCols > MAX_GRID_COLS))) {
+                openAlertModal("Invalid Dimension", `Major grid dimensions out of range (${MIN_GRID_ROWS}-${MAX_GRID_ROWS}R, ${MIN_GRID_COLS}-${MAX_GRID_COLS}C).`, "warning");
+                return prev;
             }
 
-            // Check bounds against total MINOR dimensions
-            const totalNewMinorRows = targetMajorRows * prev.gridSubdivision;
-            const totalNewMinorCols = targetMajorCols * prev.gridSubdivision;
+            const newTotalMinorRows = targetMajorRows * prev.gridSubdivision;
+            const newTotalMinorCols = targetMajorCols * prev.gridSubdivision;
 
-            if (
-                (newMajorRows !== undefined && targetMajorRows < prev.gridRows && !checkItemsInBoundsUtil(totalNewMinorRows, prev.gridCols * prev.gridSubdivision, prev.designedTables, getEffectiveDimensions)) ||
-                (newMajorCols !== undefined && targetMajorCols < prev.gridCols && !checkItemsInBoundsUtil(prev.gridRows * prev.gridSubdivision, totalNewMinorCols, prev.designedTables, getEffectiveDimensions))
-            ) {
+            if ((rows !== undefined && targetMajorRows < prev.gridRows && !checkItemsInBoundsUtil(newTotalMinorRows, prev.gridCols * prev.gridSubdivision, prev.designItems, getEffectiveDimensions)) ||
+                (cols !== undefined && targetMajorCols < prev.gridCols && !checkItemsInBoundsUtil(prev.gridRows * prev.gridSubdivision, newTotalMinorCols, prev.designItems, getEffectiveDimensions))) {
                 openAlertModal("Resize Error", "Cannot reduce dimensions. Items would be out of bounds.", "error");
                 return prev;
             }
@@ -324,70 +335,57 @@ const useLayoutDesignerStateManagement = (
         });
     }, [setLayoutSnapshotWithHistory, openAlertModal, getEffectiveDimensions]);
 
-
     const setGridSubdivision = useCallback((newSubdivisionValue) => {
         const newSubdivision = parseInt(newSubdivisionValue, 10);
-        if (isNaN(newSubdivision) || newSubdivision < 1) { // Basic validation
-            openAlertModal("Invalid Subdivision", "Grid subdivision level is invalid.", "error");
-            return;
+        if (isNaN(newSubdivision) || newSubdivision < 1) {
+            openAlertModal("Invalid Subdivision", "Grid subdivision level is invalid.", "error"); return;
         }
 
         setLayoutSnapshotWithHistory(prev => {
-            // **CRITICAL DECISION POINT: How to handle existing items?**
-            // Option 1: Clear items (simplest for now)
-            if (prev.designedTables.length > 0) {
-                openAlertModal("Layout Cleared", "Changing grid subdivision has cleared existing items.", "info");
+            if (prev.designItems.length > 0) {
+                openAlertModal("Layout Cleared", "Changing grid subdivision has cleared existing items for simplicity. Future versions might support conversion.", "info");
             }
-            // Option 2: Try to convert (very complex, requires items to store their original major cell span)
-            // For now, let's go with clearing.
             return {
                 ...prev,
                 gridSubdivision: newSubdivision,
-                designedTables: [], // Clear tables when subdivision changes
+                designItems: STABLE_EMPTY_ARRAY_DESIGN_ITEMS, // Clear items
             };
         });
     }, [setLayoutSnapshotWithHistory, openAlertModal]);
 
-    // removeItemById and clearFullLayout remain largely the same logic,
-    // just ensure they operate on the correct item arrays.
-    const removeItemById = useCallback((itemId) => {
-        setLayoutSnapshotWithHistory(prev => ({
-            ...prev,
-            designedTables: prev.designedTables.filter(t => t.id !== itemId),
-        }));
-    }, [setLayoutSnapshotWithHistory]);
-
     const clearFullLayout = useCallback(() => {
-        const clearedSnapshot = {
-            designedTables: [],
+        resetHistory({
+            designItems: STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
             gridRows: DEFAULT_INITIAL_GRID_ROWS,
             gridCols: DEFAULT_INITIAL_GRID_COLS,
             gridSubdivision: DEFAULT_GRID_SUBDIVISION,
-        };
-        resetHistory(clearedSnapshot);
+        });
         openAlertModal("Cleared", "Designer canvas has been cleared and grid reset.", "info");
     }, [resetHistory, openAlertModal]);
 
-
     return {
-        designedTables,
+        // State
+        designItems,
         gridRows, // Major grid rows
         gridCols, // Major grid cols
         gridSubdivision,
 
+        // History
         undo, redo, canUndo, canRedo,
         resetLayoutHistory: resetHistory,
 
+        // Mutators
         addItemToLayout,
         moveExistingItem,
         removeItemById,
         removeItemAtCoords,
-        updateTableProperties,
-        setGridDimensions, // For major grid
+        updateItemProperties, // Generic updater
+        setGridDimensions,    // For major grid
         setGridSubdivision,
         clearFullLayout,
 
-        canPlaceItem, // Operates on minor grid coordinates
+        // Validators/Utils
+        canPlaceItem, // Operates on minor grid
         getEffectiveDimensions, // Returns dimensions in minor cells
     };
 };
