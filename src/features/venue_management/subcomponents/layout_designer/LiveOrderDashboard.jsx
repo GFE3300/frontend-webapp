@@ -31,7 +31,7 @@ const LiveOrderDashboard = () => {
         updateTableStatusAndOrder,
         clearTableOrder,
         placeSimulatedOrder,
-        // resetLayoutToDefaults, // We can add a button for this if needed
+        resetLayoutToDefaults,
         tables, // Derived from layoutData in the hook
         currentGridDimensions,
         kitchenArea,
@@ -105,10 +105,11 @@ const LiveOrderDashboard = () => {
     if (isDesigningLayout) {
         return (
             <LayoutDesigner
-                currentLayout={tables} // Pass current tables for editing
-                initialGridRows={currentGridDimensions.rows}
-                initialGridCols={currentGridDimensions.cols}
-                initialKitchenArea={kitchenArea}
+                currentLayout={{ // Pass as an object
+                    designItems: tables, // The actual items from useLayoutData's 'tables' property
+                    gridDimensions: currentGridDimensions, // The current grid dimensions
+                    // kitchenArea could also be passed if LayoutDesigner is expected to manage it
+                }}
                 onSaveLayout={handleSaveDesignedLayout}
                 onCancel={() => setIsDesigningLayout(false)}
             />

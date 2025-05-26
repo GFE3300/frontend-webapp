@@ -1,21 +1,23 @@
-import React from 'react';
+// features/venue_management/subcomponents/layout_designer/LayoutDesignerToolbar.jsx
+import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import DraggableGenericTool from './DraggableGenericTool';
 import Icon from '../../../../components/common/Icon';
+import { useDebounce } from '../../../../hooks/useDebounce'; // Assuming this path is correct
 
 import {
-    MIN_GRID_ROWS, // These refer to MAJOR grid rows/cols
+    MIN_GRID_ROWS,
     MAX_GRID_ROWS,
     MIN_GRID_COLS,
     MAX_GRID_COLS,
-    AVAILABLE_SUBDIVISIONS, // Import for the dropdown
+    AVAILABLE_SUBDIVISIONS,
 } from '../../constants/layoutConstants';
 
 const LayoutDesignerToolbar = ({
-    majorGridRows,       // Current major grid rows
-    majorGridCols,       // Current major grid cols
-    currentGridSubdivision, // Current selected subdivision level (e.g., 1, 2, 4)
-    onGridDimensionChange, // (dimension: 'rows'|'cols', value: string) => void (for MAJOR grid)
-    onGridSubdivisionChange, // (newSubdivisionValue: number) => void
+    majorGridRows: initialMajorGridRows, // Rename prop to avoid conflict
+    majorGridCols: initialMajorGridCols, // Rename prop to avoid conflict
+    currentGridSubdivision,
+    onGridDimensionChange, // This will now receive debounced values
+    onGridSubdivisionChange,
 
     toolDefinitions,
     ItemTypes,
@@ -27,9 +29,52 @@ const LayoutDesignerToolbar = ({
     canUndo,
     canRedo,
 }) => {
+    // Local state for immediate input updates
+    const [localMajorRows, setLocalMajorRows] = useState(initialMajorGridRows);
+    const [localMajorCols, setLocalMajorCols] = useState(initialMajorGridCols);
 
-    const handleMajorDimChange = (e, dimension) => {
-        onGridDimensionChange(dimension, e.target.value);
+    // Update local state if initial props change (e.g., on reset or load)
+    useEffect(() => {
+        setLocalMajorRows(initialMajorGridRows);
+    }, [initialMajorGridRows]);
+
+    useEffect(() => {
+        setLocalMajorCols(initialMajorGridCols);
+    }, [initialMajorGridCols]);
+
+    // Debounce the local state values
+    const debouncedMajorRows = useDebounce(localMajorRows, 500); // 500ms delay
+    const debouncedMajorCols = useDebounce(localMajorCols, 500);
+
+    // Effect to call the expensive update function with debounced values
+    useEffect(() => {
+        // Only call if the debounced value is different from the initial prop
+        // to avoid unnecessary calls on initial render or if prop changed due to external reset
+        if (debouncedMajorRows !== initialMajorGridRows) {
+            // And ensure it's a valid number before calling
+            const rowsNum = parseInt(debouncedMajorRows, 10);
+            if (!isNaN(rowsNum)) {
+                onGridDimensionChange('rows', String(rowsNum)); // Pass as string as before
+            }
+        }
+    }, [debouncedMajorRows, onGridDimensionChange, initialMajorGridRows]);
+
+    useEffect(() => {
+        if (debouncedMajorCols !== initialMajorGridCols) {
+            const colsNum = parseInt(debouncedMajorCols, 10);
+            if (!isNaN(colsNum)) {
+                onGridDimensionChange('cols', String(colsNum));
+            }
+        }
+    }, [debouncedMajorCols, onGridDimensionChange, initialMajorGridCols]);
+
+    const handleLocalMajorDimChange = (e, dimension) => {
+        const value = e.target.value;
+        if (dimension === 'rows') {
+            setLocalMajorRows(value);
+        } else if (dimension === 'cols') {
+            setLocalMajorCols(value);
+        }
     };
 
     const handleSubdivisionSelect = (e) => {
@@ -52,8 +97,8 @@ const LayoutDesignerToolbar = ({
                                 type="number"
                                 id="majorGridRowsInput"
                                 name="majorGridRows"
-                                value={majorGridRows}
-                                onChange={(e) => handleMajorDimChange(e, 'rows')}
+                                value={localMajorRows} // Use local state for input value
+                                onChange={(e) => handleLocalMajorDimChange(e, 'rows')} // Update local state
                                 min={MIN_GRID_ROWS}
                                 max={MAX_GRID_ROWS}
                                 className="w-20 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500"
@@ -65,8 +110,8 @@ const LayoutDesignerToolbar = ({
                                 type="number"
                                 id="majorGridColsInput"
                                 name="majorGridCols"
-                                value={majorGridCols}
-                                onChange={(e) => handleMajorDimChange(e, 'cols')}
+                                value={localMajorCols} // Use local state
+                                onChange={(e) => handleLocalMajorDimChange(e, 'cols')} // Update local state
                                 min={MIN_GRID_COLS}
                                 max={MAX_GRID_COLS}
                                 className="w-20 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500"
@@ -75,7 +120,7 @@ const LayoutDesignerToolbar = ({
                     </div>
                 </div>
                 <div>
-                    <h3 className="text-md font-semibold text-gray-700 mb-2">Cell Subdivision</h3> {/* Changed title */}
+                    <h3 className="text-md font-semibold text-gray-700 mb-2">Cell Subdivision</h3>
                     <div className="flex items-center">
                         <select
                             id="gridSubdivisionSelect"
@@ -100,8 +145,8 @@ const LayoutDesignerToolbar = ({
                 <div className="flex flex-wrap items-center gap-2.5">
                     {toolDefinitions.map(tool => (
                         <DraggableGenericTool
-                            key={tool.type}
-                            tool={tool} // tool.w and tool.h are in MAJOR cell units
+                            key={tool.name}
+                            tool={tool}
                             itemType={tool.toolItemType}
                         />
                     ))}

@@ -1,4 +1,5 @@
 const scriptLines = {
+
     // General
     error_unknownValidation: "An unknown validation error occurred.",
 
