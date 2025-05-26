@@ -8,7 +8,7 @@ const ProductsTableHeader = ({
     currentSort,
 }) => {
     return (
-        <thead className="bg-neutral-50 dark:bg-neutral-700 sticky top-0 z-10">
+        <thead className="bg-neutral-50 dark:bg-neutral-700 sticky top-0 z-10 font-montserrat text-xs"> 
             <tr>
                 {columns.map((col) => {
                     const isActiveSortColumn = currentSort.id === col.id;
