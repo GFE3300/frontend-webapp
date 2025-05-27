@@ -131,7 +131,7 @@ const LayoutDesignerGrid = ({
 
             const droppedMinorC = Math.max(1, Math.min(totalMinorCols, Math.floor(mouseX_on_unscaled_grid_px / minorCellSizePx) + 1));
             const droppedMinorR = Math.max(1, Math.min(totalMinorRows, Math.floor(mouseY_on_unscaled_grid_px / minorCellSizePx) + 1));
-
+            
             let { gridPosition: origPos, w_minor: origW, h_minor: origH, rotation: origRot } = originalItem;
             let finalRowStart = origPos.rowStart;
             let finalColStart = origPos.colStart;
@@ -146,7 +146,7 @@ const LayoutDesignerGrid = ({
                     case 'E': finalWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, droppedMinorC - origPos.colStart + 1); break;
                     default: break;
                 }
-            } else {
+            } else { 
                 switch (direction) {
                     case 'N': finalWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.rowStart + origW) - droppedMinorR); finalRowStart = (origPos.rowStart + origW) - finalWMinor; break;
                     case 'S': finalWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, droppedMinorR - origPos.rowStart + 1); break;
@@ -204,11 +204,11 @@ const LayoutDesignerGrid = ({
 
     if (!ItemTypes || typeof ItemTypes.RESIZE_HANDLE !== 'string') {
         console.error('LayoutDesignerGrid: Critical prop error. ItemTypes.RESIZE_HANDLE is missing or not a string.');
-        return <div style={{ color: 'red', padding: '20px' }}>Configuration Error: RESIZE_HANDLE not defined.</div>;
+        return <div style={{color: 'red', padding: '20px'}}>Configuration Error: RESIZE_HANDLE not defined.</div>;
     }
 
     return (
-        <motion.div
+        <div
             ref={gridRef} // Attach ref for bounding box calculations and main drop target
             initial={{ opacity: 0, scale: 0.98 }} // Initial animation for the grid container itself
             animate={{ opacity: 1, scale: 1 }}   // Note: this scale is for the wrapper, not the zoom
@@ -295,7 +295,7 @@ const LayoutDesignerGrid = ({
                     );
                 })}
             </AnimatePresence>
-        </motion.div>
+        </div>
     );
 };
 
