@@ -1,6 +1,6 @@
-// features/venue_management/subcomponents/layout_designer/PlacedItemWrapper.jsx
-import React, { useMemo, useCallback } from 'react';
-import { useDrag } from 'react-dnd';
+import React, { useMemo, useCallback, useEffect } from 'react';
+import { useDrag, DndProvider } from 'react-dnd'; // DndProvider not strictly needed here if already at top level
+import { getEmptyImage } from 'react-dnd-html5-backend'; // For hiding default drag preview for handles
 import { motion } from 'framer-motion';
 
 // Import specific item renderers
@@ -21,46 +21,117 @@ const DefaultItemRenderer = ({ item }) => (
     </div>
 );
 
-const PlacedItemWrapper = ({
-    item, // The full design item object: { id, itemType, gridPosition, w_minor, h_minor, rotation, shape, ...otherProps }
-    isEraserActive,
-    eraseDesignerItemById,  // (itemId) => void
-    onUpdateItemProperty,   // Generic: (itemId, { property: value }) => boolean
-    onSelectItem,           // (itemId) => void, to set selected item for sidebar
-    isSelected,             // boolean: true if this item is currently selected
+// New ResizeHandle sub-component
+const ResizeHandle = ({
+    item,
+    direction,
+    ItemTypes, // Passed from PlacedItemWrapper
+}) => {
+    const [{ isDragging }, drag, preview] = useDrag(() => ({
+        type: ItemTypes.RESIZE_HANDLE,
+        item: () => ({ // This is the drag payload for a resize handle
+            type: ItemTypes.RESIZE_HANDLE,
+            itemId: item.id,
+            direction: direction,
+            originalItem: { // Snapshot of item state at drag start
+                id: item.id,
+                gridPosition: { ...item.gridPosition },
+                w_minor: item.w_minor,
+                h_minor: item.h_minor,
+                rotation: item.rotation,
+                itemType: item.itemType,
+                decorType: item.decorType, // For counters
+            }
+        }),
+        collect: (monitor) => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+    }));
 
-    CELL_SIZE_REM,          // This is MINOR_CELL_SIZE_REM, passed from LayoutDesignerGrid
-    ItemTypes,              // Constant object { PLACED_TABLE, PLACED_WALL, TABLE_TOOL etc. }
-    ITEM_CONFIGS,           // Main configuration for all PlacedItemTypes
+    // Hide default browser drag preview for handles
+    useEffect(() => {
+        preview(getEmptyImage(), { captureDraggingState: true });
+    }, [preview]);
+
+    const getHandleStyle = () => {
+        const handleSize = '8px'; // Size of the handle dot
+        const offset = `calc(-${handleSize} / 2)`; // To center the handle on the edge
+
+        // Base style for all handles
+        let style = {
+            position: 'absolute',
+            width: handleSize,
+            height: handleSize,
+            backgroundColor: 'rgb(59 130 246)', // Tailwind blue-500
+            borderRadius: '50%',
+            border: '1px solid white',
+            cursor: 'grab', // Changed based on direction below
+            zIndex: 25, // Above item, below potential modals
+            opacity: isDragging ? 0.7 : 1,
+        };
+
+        switch (direction) {
+            case 'N':
+                style = { ...style, top: offset, left: '50%', transform: 'translateX(-50%)', cursor: 'ns-resize' };
+                break;
+            case 'S':
+                style = { ...style, bottom: offset, left: '50%', transform: 'translateX(-50%)', cursor: 'ns-resize' };
+                break;
+            case 'E':
+                style = { ...style, top: '50%', right: offset, transform: 'translateY(-50%)', cursor: 'ew-resize' };
+                break;
+            case 'W':
+                style = { ...style, top: '50%', left: offset, transform: 'translateY(-50%)', cursor: 'ew-resize' };
+                break;
+            default: break;
+        }
+        return style;
+    };
+
+    return (
+        <div
+            ref={drag}
+            style={getHandleStyle()}
+            className="resize-handle-dot" // For any additional global styling
+            title={`Resize ${direction}`}
+            onClick={(e) => e.stopPropagation()} // Prevent item selection when clicking handle
+        />
+    );
+};
+
+
+const PlacedItemWrapper = ({
+    item,
+    isEraserActive,
+    eraseDesignerItemById,
+    onUpdateItemProperty,
+    onSelectItem,
+    isSelected,
+
+    CELL_SIZE_REM, // This is MINOR_CELL_SIZE_REM, passed from LayoutDesignerGrid
+    ItemTypes,
+    ITEM_CONFIGS,
 }) => {
 
-    // Calculate effective dimensions in minor cell units.
     const effectiveDimensionsInMinorUnits = useMemo(() => getEffectiveDimensionsUtil(item), [item]);
 
-    const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
-        type: item.itemType, // Use the item's specific placed type (e.g., PLACED_TABLE, PLACED_WALL)
-        item: () => ({ // This is the drag payload for an existing placed item
+    const [{ isDragging: isItemDragging }, dragItemBody] = useDrag(() => ({
+        type: item.itemType,
+        item: () => ({
             id: item.id,
             itemType: item.itemType,
-            w_minor: item.w_minor,         // Base width in minor cells (before rotation)
-            h_minor: item.h_minor,         // Base height in minor cells (before rotation)
+            w_minor: item.w_minor,
+            h_minor: item.h_minor,
             rotation: item.rotation,
-            shape: item.shape,             // Pass shape (formerly size_identifier) for preview consistency
-            // Effective dimensions are useful for DroppableGridCell's hover/canDrop logic
+            shape: item.shape,
             effW_minor: effectiveDimensionsInMinorUnits.w,
             effH_minor: effectiveDimensionsInMinorUnits.h,
         }),
-        canDrag: () => !isEraserActive && !item.isFixed, // Cannot drag if eraser is active or item is fixed
+        canDrag: () => !isEraserActive && !item.isFixed,
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
     }), [item, isEraserActive, ItemTypes, effectiveDimensionsInMinorUnits]);
-
-
-    if (!item || !item.gridPosition || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
-        console.warn("PlacedItemWrapper: Invalid item data. Required: id, gridPosition, w_minor, h_minor. Received:", item);
-        return null; // Or some error placeholder
-    }
 
     const style = {
         position: 'absolute',
@@ -68,73 +139,83 @@ const PlacedItemWrapper = ({
         left: `${(item.gridPosition.colStart - 1) * CELL_SIZE_REM}rem`,
         width: `${effectiveDimensionsInMinorUnits.w * CELL_SIZE_REM}rem`,
         height: `${effectiveDimensionsInMinorUnits.h * CELL_SIZE_REM}rem`,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 100 : (isSelected ? 15 : (isEraserActive ? 20 : 10)), // Higher z-index if selected
+        opacity: isItemDragging ? 0.5 : 1,
+        zIndex: isItemDragging ? 100 : (isSelected ? 15 : (isEraserActive ? 20 : 10)),
         transformOrigin: 'center center',
-        cursor: isEraserActive ? 'pointer' : (item.isFixed ? 'default' : (isDragging ? 'grabbing' : 'grab')),
+        cursor: isEraserActive ? 'pointer' : (item.isFixed ? 'default' : (isItemDragging ? 'grabbing' : 'grab')),
     };
 
     const handleWrapperClick = useCallback((e) => {
-        e.stopPropagation(); // Prevent grid cell click from firing underneath
-        if (isEraserActive && !item.isFixed) { // Cannot erase fixed items with eraser tool
+        e.stopPropagation();
+        if (isEraserActive && !item.isFixed) {
             eraseDesignerItemById(item.id);
         } else if (onSelectItem) {
             onSelectItem(item.id);
         }
     }, [isEraserActive, item.id, item.isFixed, eraseDesignerItemById, onSelectItem]);
 
-    // --- Dynamic Renderer Dispatch Logic ---
-    let SpecificItemRenderer = DefaultItemRenderer; // Fallback
-    const rendererKey = ITEM_CONFIGS[item.itemType]?.PlacedComponent;
+    let SpecificItemRenderer = DefaultItemRenderer;
+    const itemConfig = ITEM_CONFIGS[item.itemType];
+    const rendererKey = itemConfig?.PlacedComponent;
 
     switch (rendererKey) {
         case 'PlacedTableItem': SpecificItemRenderer = PlacedTableItem; break;
         case 'PlacedWallItem': SpecificItemRenderer = PlacedWallItem; break;
         case 'PlacedDoorItem': SpecificItemRenderer = PlacedDoorItem; break;
         case 'PlacedDecorItem': SpecificItemRenderer = PlacedDecorItem; break;
-        // No default needed as DefaultItemRenderer is assigned initially
     }
 
-    let wrapperClassName = "group"; // For group-hover effects in children
+    let wrapperClassName = "group relative"; // Added 'relative' for handle positioning
     if (isSelected && !isEraserActive) {
         wrapperClassName += " ring-2 ring-blue-500 ring-offset-1 ring-offset-gray-100 shadow-lg";
     } else if (isEraserActive && !item.isFixed) {
         wrapperClassName += " hover:ring-2 hover:ring-rose-400 hover:ring-offset-1 hover:ring-offset-gray-100";
     }
 
+    // Determine if item is resizable based on ITEM_CONFIGS
+    const canResize = typeof itemConfig?.isResizable === 'function' ? itemConfig.isResizable(item) : itemConfig?.isResizable === true;
+
+    if (!item || !item.gridPosition || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
+        console.warn("PlacedItemWrapper: Invalid item data. Required: id, gridPosition, w_minor, h_minor. Received:", item);
+        return null;
+    }
 
     return (
         <motion.div
-            ref={drag} // Apply drag ref to the motion div
+            ref={dragItemBody} // Apply drag ref to the motion div for moving the item body
             style={style}
             onClick={handleWrapperClick}
-            layout // Animate layout changes (position, size due to rotation)
+            layout
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className={wrapperClassName}
             title={
-                isEraserActive && !item.isFixed ? `Click to erase this ${ITEM_CONFIGS[item.itemType]?.displayName || item.itemType}` :
-                    item.isFixed ? `${ITEM_CONFIGS[item.itemType]?.displayName || item.itemType} (Fixed)` :
-                        `Drag to move, Click to select ${ITEM_CONFIGS[item.itemType]?.displayName || item.itemType}`
+                isEraserActive && !item.isFixed ? `Click to erase this ${itemConfig?.displayName || item.itemType}` :
+                    item.isFixed ? `${itemConfig?.displayName || item.itemType} (Fixed)` :
+                        `Drag to move, Click to select ${itemConfig?.displayName || item.itemType}`
             }
         >
-            {/* dragPreview is used by react-dnd to show a custom drag preview if needed.
-                For now, the default browser preview (semi-transparent version of the item) is fine.
-                If you use dragPreview( <YourCustomPreviewComponent /> ), then the drag ref should be on a different element.
-                Typically, the drag ref itself is sufficient for the default preview.
-            */}
             <SpecificItemRenderer
                 item={item}
-                // Pass down relevant interaction handlers if the specific renderer needs them.
-                // Most interactions (select, erase) are handled by this wrapper.
-                // Property updates specific to the item type (e.g., table number edit) are managed within the renderer
-                // by calling onUpdateItemProperty with the correct payload.
                 onUpdateItemProperty={onUpdateItemProperty}
-                // isSelected might be useful for internal styling of the renderer
                 isSelected={isSelected}
             />
+            {/* Render Resize Handles */}
+            {isSelected && !isEraserActive && !item.isFixed && canResize && (
+                <>
+                    {['N', 'S', 'E', 'W'].map(dir => (
+                        <ResizeHandle
+                            key={`${item.id}-handle-${dir}`}
+                            item={item}
+                            direction={dir}
+                            ItemTypes={ItemTypes}
+                            minorCellSizeRem={CELL_SIZE_REM} // Pass minor cell size for context if needed
+                        />
+                    ))}
+                </>
+            )}
         </motion.div>
     );
 };

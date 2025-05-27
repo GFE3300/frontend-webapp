@@ -238,6 +238,7 @@ const LayoutDesigner = ({
                                 if (selectedItemId === itemId) setSelectedItemId(null); // Deselect if erased
                             }}
                             onUpdateItemProperty={handleUpdateItemDetails} // Generic update
+                            selectedItemId={selectedItemId}
                             onSelectItem={handleSelectItem} // Pass down the selection handler
 
                             canPlaceItem={layoutManager.canPlaceItem}

@@ -24,6 +24,12 @@ export const AVAILABLE_SUBDIVISIONS = [
     // { label: '8x8', value: 8 }, // Example: Can be added for more granularity
 ];
 
+// ------------- ZOOM Levels -------------
+// Defines the zoom levels for the layout designer.
+export const DEFAULT_ZOOM_LEVEL = 1.0;
+export const MIN_ZOOM_LEVEL = 0.25;
+export const MAX_ZOOM_LEVEL = 2.0;
+export const ZOOM_STEP = 0.1;
 // Note:
 // Specific ItemTypes (e.g., TABLE_TOOL, PLACED_TABLE) and detailed tool configurations
 // (like tableToolsConfig, obstacleToolsConfig) will now be defined in a new file,
