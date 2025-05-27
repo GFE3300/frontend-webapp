@@ -3,7 +3,7 @@ import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { motion, AnimatePresence } from 'framer-motion'; // motion is used for PlacedItemWrapper, AnimatePresence for items
 import DroppableGridCell from './DroppableGridCell';
-import PlacedItemWrapper from '../PlacedItemWrapper';
+import PlacedItemWrapper from '../PlacedItem';
 import { getEffectiveDimensions as getEffectiveDimensionsUtil } from '../../../utils/layoutUtils';
 
 // Define a minimum dimension for items in minor cells.
