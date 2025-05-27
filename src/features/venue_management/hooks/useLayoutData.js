@@ -39,18 +39,26 @@ const useLayoutData = (openAlertModal) => {
     }, [layoutData, openAlertModal]);
 
     const saveDesignedLayout = useCallback((newDesignedLayoutData) => {
-        // Sanitize tables: ensure status is 'empty' and no 'order' for a fresh layout
-        const sanitizedTables = newDesignedLayoutData.tables.map(t => ({
+        // newDesignedLayoutData comes from LayoutDesigner and has { designItems, gridDimensions }
+        const sanitizedItems = (newDesignedLayoutData.designItems || []).map(t => ({
             ...t,
             status: 'empty',
             order: null,
         }));
         const dataToSave = {
-            tables: sanitizedTables,
+            tables: sanitizedItems,
             gridDimensions: newDesignedLayoutData.gridDimensions || defaultLayout.gridDimensions,
             kitchenArea: newDesignedLayoutData.kitchenArea || null,
         };
-        setLayoutData(dataToSave);
+        setLayoutData(prevLayoutData => {
+            const dataToSave = {
+                tables: sanitizedItems, // Store the designItems as 'tables' internally in useLayoutData
+                gridDimensions: newDesignedLayoutData.gridDimensions || defaultLayout.gridDimensions,
+                // Preserve existing kitchenArea if LayoutDesigner doesn't send it back.
+                kitchenArea: newDesignedLayoutData.kitchenArea !== undefined ? newDesignedLayoutData.kitchenArea : prevLayoutData.kitchenArea,
+            };
+            return dataToSave;
+        });
         if (openAlertModal) {
             openAlertModal("Layout Saved", "The new table layout has been saved successfully.", "success");
         }

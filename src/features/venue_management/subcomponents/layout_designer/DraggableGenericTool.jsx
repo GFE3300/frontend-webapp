@@ -6,8 +6,14 @@ import { useDrag } from 'react-dnd';
 
 const DraggableGenericTool = ({ tool, itemType }) => {
     const [{ isDragging }, drag] = useDrag(() => ({
-        type: itemType, // This should match the accept type in DroppableGridCell
-        item: { type: tool.type, w: tool.w, h: tool.h, size: tool.size, itemType: itemType /* may not be needed if type implies it */ },
+        type: itemType,
+        item: {
+            toolItemType: tool.toolItemType,
+            createsPlacedItemType: tool.createsPlacedItemType,
+            w_major: tool.w_major,
+            h_major: tool.h_major,
+            size_identifier: tool.size_identifier,
+        },
         collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
     }));
 

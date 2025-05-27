@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Modal from '../../../../components/animated_alerts/Modal.jsx';
-import Icon from '../../../../components/common/Icon'; // Adjusted path
-import LayoutDesigner from '../layout_designer/LayoutDesigner'; // Adjusted path
+import Icon from '../../../../components/common/Icon.jsx'; // Adjusted path
+import LayoutDesigner from './LayoutDesigner.jsx'; // Adjusted path
 
 import TableCard from '../live_view/TableCard.jsx';
 import OrderDetailsModalContent from '../live_view/OrderDetailsModalContent.jsx';
@@ -31,7 +31,7 @@ const LiveOrderDashboard = () => {
         updateTableStatusAndOrder,
         clearTableOrder,
         placeSimulatedOrder,
-        // resetLayoutToDefaults, // We can add a button for this if needed
+        resetLayoutToDefaults,
         tables, // Derived from layoutData in the hook
         currentGridDimensions,
         kitchenArea,
@@ -105,10 +105,11 @@ const LiveOrderDashboard = () => {
     if (isDesigningLayout) {
         return (
             <LayoutDesigner
-                currentLayout={tables} // Pass current tables for editing
-                initialGridRows={currentGridDimensions.rows}
-                initialGridCols={currentGridDimensions.cols}
-                initialKitchenArea={kitchenArea}
+                currentLayout={{ // Pass as an object
+                    designItems: tables, // The actual items from useLayoutData's 'tables' property
+                    gridDimensions: currentGridDimensions, // The current grid dimensions
+                    // kitchenArea could also be passed if LayoutDesigner is expected to manage it
+                }}
                 onSaveLayout={handleSaveDesignedLayout}
                 onCancel={() => setIsDesigningLayout(false)}
             />
