@@ -1,5 +1,5 @@
 // features/venue_management/subcomponents/layout_designer/grid_system/LayoutDesignerGrid.jsx
-import React, { useMemo, useRef, useEffect, useState } from 'react'; // Added useState
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { motion, AnimatePresence } from 'framer-motion';
 import DroppableGridCell from './DroppableGridCell';
@@ -7,7 +7,6 @@ import PlacedItemWrapper from '../PlacedItemWrapper';
 import { getEffectiveDimensions as getEffectiveDimensionsUtil } from '../../../utils/layoutUtils';
 
 // Define a minimum dimension for items in minor cells.
-// Can be 1 for max granularity, or `gridSubdivision` to enforce items are at least 1 major cell equivalent.
 const MIN_ITEM_DIMENSION_MINOR_CELLS = 1;
 
 const LayoutDesignerGrid = ({
@@ -25,13 +24,15 @@ const LayoutDesignerGrid = ({
     onUpdateItemProperty,
     onSelectItem,
     selectedItemId,
-    canPlaceItem, // The validation function from useLayoutDesignerStateManagement
+    canPlaceItem,
     draggedItemPreview,
     onUpdateDraggedItemPreview,
     isEraserActive,
+    zoomLevel, // New prop for zoom
 }) => {
 
     const gridRef = useRef(null);
+    // minorCellSizePx should represent the UNZOOMED size of a minor cell in pixels
     const [minorCellSizePx, setMinorCellSizePx] = useState(16); // Default/fallback
 
     const totalMinorRows = useMemo(() => majorGridRows * gridSubdivision, [majorGridRows, gridSubdivision]);
@@ -39,17 +40,21 @@ const LayoutDesignerGrid = ({
     const minorCellSizeRem = useMemo(() => CELL_SIZE_REM / gridSubdivision, [CELL_SIZE_REM, gridSubdivision]);
 
     useEffect(() => {
+        // Calculate the unzoomed size of a minor cell in pixels
         if (typeof window !== 'undefined' && gridRef.current) {
-            const currentREMValue = parseFloat(getComputedStyle(document.documentElement).fontSize);
-            setMinorCellSizePx((CELL_SIZE_REM / gridSubdivision) * currentREMValue);
+            const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+            setMinorCellSizePx((CELL_SIZE_REM / gridSubdivision) * rootFontSize);
         }
-    }, [CELL_SIZE_REM, gridSubdivision]);
+    }, [CELL_SIZE_REM, gridSubdivision]); // Recalculate if base REM or subdivision changes
 
-
-    const [{ isOverGrid }, dropOnGrid] = useDrop(() => ({
-        accept: [ItemTypes.RESIZE_HANDLE], // Only handles resize drops directly on the grid container
+    // useDrop hook for handling RESIZE_HANDLE drops directly on the grid container
+    const [{ isOverGrid }, dropOnGridRef] = useDrop(() => ({
+        accept: [ItemTypes.RESIZE_HANDLE],
         hover: (dragPayload, monitor) => {
-            if (!monitor.isOver({ shallow: true }) || !gridRef.current || minorCellSizePx === 0) return;
+            // Ensure this hover is for the grid itself and necessary refs/values are available
+            if (!monitor.isOver({ shallow: true }) || !gridRef.current || minorCellSizePx === 0 || zoomLevel === 0) {
+                return;
+            }
 
             const { type: handleType, itemId, direction, originalItem } = dragPayload;
             if (handleType !== ItemTypes.RESIZE_HANDLE) return;
@@ -58,90 +63,74 @@ const LayoutDesignerGrid = ({
             if (!clientOffset) return;
 
             const gridRect = gridRef.current.getBoundingClientRect();
-            const mouseX_px = clientOffset.x - gridRect.left;
-            const mouseY_px = clientOffset.y - gridRect.top;
 
-            const hoveredMinorC = Math.max(1, Math.min(totalMinorCols, Math.floor(mouseX_px / minorCellSizePx) + 1));
-            const hoveredMinorR = Math.max(1, Math.min(totalMinorRows, Math.floor(mouseY_px / minorCellSizePx) + 1));
+            // 1. Mouse position relative to the SCALED grid's top-left corner (visual position on screen)
+            const mouseX_on_scaled_grid_px = clientOffset.x - gridRect.left;
+            const mouseY_on_scaled_grid_px = clientOffset.y - gridRect.top;
 
+            // 2. Convert to mouse position relative to the UN-SCALED grid
+            const mouseX_on_unscaled_grid_px = mouseX_on_scaled_grid_px / zoomLevel;
+            const mouseY_on_unscaled_grid_px = mouseY_on_scaled_grid_px / zoomLevel;
+
+            // 3. Calculate hovered minor cell based on UN-SCALED grid coordinates
+            const hoveredMinorC = Math.max(1, Math.min(totalMinorCols, Math.floor(mouseX_on_unscaled_grid_px / minorCellSizePx) + 1));
+            const hoveredMinorR = Math.max(1, Math.min(totalMinorRows, Math.floor(mouseY_on_unscaled_grid_px / minorCellSizePx) + 1));
+
+            // The rest of this logic calculates the new proposed dimensions based on the unscaled hover coordinates
             let { gridPosition: origPos, w_minor: origW, h_minor: origH, rotation: origRot } = originalItem;
             let newRowStart = origPos.rowStart;
             let newColStart = origPos.colStart;
             let newWMinor = origW;
             let newHMinor = origH;
 
-            // Determine new dimensions and position based on handle direction and item rotation
-            if (origRot === 0 || origRot === 180) { // Item is aligned with grid axes or flipped
+            if (origRot === 0 || origRot === 180) { // Item aligned with grid axes or flipped
                 switch (direction) {
-                    case 'N':
-                        newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.rowStart + origH) - hoveredMinorR);
-                        newRowStart = (origPos.rowStart + origH) - newHMinor;
-                        break;
-                    case 'S':
-                        newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorR - origPos.rowStart + 1);
-                        break;
-                    case 'W':
-                        newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.colStart + origW) - hoveredMinorC);
-                        newColStart = (origPos.colStart + origW) - newWMinor;
-                        break;
-                    case 'E':
-                        newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorC - origPos.colStart + 1);
-                        break;
+                    case 'N': newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.rowStart + origH) - hoveredMinorR); newRowStart = (origPos.rowStart + origH) - newHMinor; break;
+                    case 'S': newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorR - origPos.rowStart + 1); break;
+                    case 'W': newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.colStart + origW) - hoveredMinorC); newColStart = (origPos.colStart + origW) - newWMinor; break;
+                    case 'E': newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorC - origPos.colStart + 1); break;
                     default: break;
                 }
-            } else { // Item is rotated 90 or 270 degrees (width and height are swapped visually)
+            } else { // Item rotated 90 or 270 degrees
                 switch (direction) {
-                    case 'N': // Visual top, affects base width
-                        newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.rowStart + origW) - hoveredMinorR);
-                        newRowStart = (origPos.rowStart + origW) - newWMinor;
-                        break;
-                    case 'S': // Visual bottom, affects base width
-                        newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorR - origPos.rowStart + 1);
-                        break;
-                    case 'W': // Visual left, affects base height
-                        newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.colStart + origH) - hoveredMinorC);
-                        newColStart = (origPos.colStart + origH) - newHMinor;
-                        break;
-                    case 'E': // Visual right, affects base height
-                        newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorC - origPos.colStart + 1);
-                        break;
+                    case 'N': newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.rowStart + origW) - hoveredMinorR); newRowStart = (origPos.rowStart + origW) - newWMinor; break;
+                    case 'S': newWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorR - origPos.rowStart + 1); break;
+                    case 'W': newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.colStart + origH) - hoveredMinorC); newColStart = (origPos.colStart + origH) - newHMinor; break;
+                    case 'E': newHMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, hoveredMinorC - origPos.colStart + 1); break;
                     default: break;
                 }
             }
 
             const tempItemForValidation = { ...originalItem, w_minor: newWMinor, h_minor: newHMinor, rotation: origRot };
             const { w: effW_check, h: effH_check } = getEffectiveDimensionsUtil(tempItemForValidation);
-
             const isValid = canPlaceItem(newRowStart, newColStart, effW_check, effH_check, itemId);
 
             onUpdateDraggedItemPreview({
                 type: 'resize', itemId,
                 gridPosition: { rowStart: newRowStart, colStart: newColStart },
                 w_minor: newWMinor, h_minor: newHMinor,
-                effW_minor: effW_check, effH_minor: effH_check, // Pass effective dimensions for preview
+                effW_minor: effW_check, effH_minor: effH_check,
                 rotation: origRot, isValid,
             });
         },
         drop: (dragPayload, monitor) => {
-            if (!gridRef.current || minorCellSizePx === 0 || !monitor.didDrop()) { // Ensure drop is on this target
-                onUpdateDraggedItemPreview(null); // Clear preview if drop conditions not met
-                return;
+            if (!gridRef.current || minorCellSizePx === 0 || zoomLevel === 0 || !monitor.didDrop()) {
+                onUpdateDraggedItemPreview(null); return;
             }
             const { type: handleType, itemId, direction, originalItem } = dragPayload;
             if (handleType !== ItemTypes.RESIZE_HANDLE) return;
 
-            // Recalculate final position and dimensions (similar to hover, but based on drop point)
             const clientOffset = monitor.getClientOffset();
-            if (!clientOffset) {
-                onUpdateDraggedItemPreview(null);
-                return;
-            }
+            if (!clientOffset) { onUpdateDraggedItemPreview(null); return; }
 
             const gridRect = gridRef.current.getBoundingClientRect();
-            const mouseX_px = clientOffset.x - gridRect.left;
-            const mouseY_px = clientOffset.y - gridRect.top;
-            const droppedMinorC = Math.max(1, Math.min(totalMinorCols, Math.floor(mouseX_px / minorCellSizePx) + 1));
-            const droppedMinorR = Math.max(1, Math.min(totalMinorRows, Math.floor(mouseY_px / minorCellSizePx) + 1));
+            const mouseX_on_scaled_grid_px = clientOffset.x - gridRect.left;
+            const mouseY_on_scaled_grid_px = clientOffset.y - gridRect.top;
+            const mouseX_on_unscaled_grid_px = mouseX_on_scaled_grid_px / zoomLevel;
+            const mouseY_on_unscaled_grid_px = mouseY_on_scaled_grid_px / zoomLevel;
+
+            const droppedMinorC = Math.max(1, Math.min(totalMinorCols, Math.floor(mouseX_on_unscaled_grid_px / minorCellSizePx) + 1));
+            const droppedMinorR = Math.max(1, Math.min(totalMinorRows, Math.floor(mouseY_on_unscaled_grid_px / minorCellSizePx) + 1));
 
             let { gridPosition: origPos, w_minor: origW, h_minor: origH, rotation: origRot } = originalItem;
             let finalRowStart = origPos.rowStart;
@@ -157,7 +146,7 @@ const LayoutDesignerGrid = ({
                     case 'E': finalWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, droppedMinorC - origPos.colStart + 1); break;
                     default: break;
                 }
-            } else { // 90 or 270
+            } else {
                 switch (direction) {
                     case 'N': finalWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, (origPos.rowStart + origW) - droppedMinorR); finalRowStart = (origPos.rowStart + origW) - finalWMinor; break;
                     case 'S': finalWMinor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, droppedMinorR - origPos.rowStart + 1); break;
@@ -176,71 +165,66 @@ const LayoutDesignerGrid = ({
                     w_minor: finalWMinor,
                     h_minor: finalHMinor,
                 });
-            } // else: The state hook's validation will provide an alert if needed.
-            onUpdateDraggedItemPreview(null); // Clear preview after drop
+            }
+            onUpdateDraggedItemPreview(null);
         },
         collect: monitor => ({
             isOverGrid: !!monitor.isOver({ shallow: true }),
-            // draggingResizeItem: monitor.getItem(), // Not strictly needed if type check is done
         }),
     }), [
-        totalMinorRows, totalMinorCols, minorCellSizePx,
-        canPlaceItem, onUpdateItemProperty, onUpdateDraggedItemPreview,
-        ItemTypes, // Critical for `accept` and type checking
-        // designItems, gridSubdivision not directly used in these callbacks, but are deps for canPlaceItem
+        totalMinorRows, totalMinorCols, minorCellSizePx, zoomLevel, // Added zoomLevel
+        canPlaceItem, onUpdateItemProperty, onUpdateDraggedItemPreview, ItemTypes,
     ]);
 
     // Connect the drop target to the grid div
     useEffect(() => {
         if (gridRef.current) {
-            dropOnGrid(gridRef);
+            dropOnGridRef(gridRef); // Correctly use the ref from useDrop
         }
-    }, [dropOnGrid]);
+    }, [dropOnGridRef]);
 
 
     const gridWrapperStyle = useMemo(() => ({
         display: 'grid',
         gridTemplateRows: `repeat(${totalMinorRows}, ${minorCellSizeRem}rem)`,
         gridTemplateColumns: `repeat(${totalMinorCols}, ${minorCellSizeRem}rem)`,
+        // These width/height define the unscaled size of the grid.
+        // The visual size will be this * zoomLevel.
         width: `${majorGridCols * CELL_SIZE_REM}rem`,
         height: `${majorGridRows * CELL_SIZE_REM}rem`,
-        minWidth: '300px',
-        backgroundColor: 'var(--color-background-grid, #f9fafb)', // Ensure this CSS var is defined
-        touchAction: 'none',
-        position: 'relative', // Ensure it's a positioning context for absolutely positioned children
-    }), [totalMinorRows, totalMinorCols, minorCellSizeRem, majorGridCols, majorGridRows, CELL_SIZE_REM]);
+        minWidth: '300px', // An arbitrary minimum to prevent excessive shrinking
+        backgroundColor: 'var(--color-background-grid, #f9fafb)', // Make sure this CSS var is defined
+        touchAction: 'none', // Prevent page scroll on touch devices when dragging items
+        position: 'relative', // For absolutely positioned children like PlacedItemWrapper
+        transform: `scale(${zoomLevel})`,
+        transformOrigin: 'top left',
+        // Transition for smoother zoom (optional, can impact performance on complex grids)
+        // transition: 'transform 0.15s ease-out',
+    }), [totalMinorRows, totalMinorCols, minorCellSizeRem, majorGridCols, majorGridRows, CELL_SIZE_REM, zoomLevel]);
 
-    // --- Prop Validation ---
     if (!ItemTypes || typeof ItemTypes.RESIZE_HANDLE !== 'string') {
-        console.error(
-            'LayoutDesignerGrid: Critical prop error. ItemTypes.RESIZE_HANDLE is missing or not a string.',
-            'Received ItemTypes:', ItemTypes
-        );
-        return (
-            <div style={{ padding: '20px', color: 'red', border: '1px solid red', margin: '20px', backgroundColor: 'white' }}>
-                <h2>Configuration Error in LayoutDesignerGrid</h2>
-                <p><code>ItemTypes.RESIZE_HANDLE</code> is not correctly defined. Please check the console.</p>
-            </div>
-        );
+        console.error('LayoutDesignerGrid: Critical prop error. ItemTypes.RESIZE_HANDLE is missing or not a string.');
+        return <div style={{ color: 'red', padding: '20px' }}>Configuration Error: RESIZE_HANDLE not defined.</div>;
     }
 
     return (
         <motion.div
-            ref={gridRef} // Attach ref for bounding box and drop target
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
+            ref={gridRef} // Attach ref for bounding box calculations and main drop target
+            initial={{ opacity: 0, scale: 0.98 }} // Initial animation for the grid container itself
+            animate={{ opacity: 1, scale: 1 }}   // Note: this scale is for the wrapper, not the zoom
             transition={{ delay: 0.1, duration: 0.3 }}
-            className="mx-auto rounded-lg shadow-md overflow-hidden border border-gray-300" // Removed relative from here as gridWrapperStyle has it
-            style={gridWrapperStyle}
+            className="mx-auto rounded-lg shadow-md border border-gray-300" // Styles for the immediate container of the scaled grid
+            // The actual scaled grid div is inside this motion.div
+            // The direct style with transform is applied to the grid div itself
+            style={gridWrapperStyle} // This style includes the transform: scale()
             onMouseLeave={() => {
-                // If a drag preview is active when mouse leaves grid, clear it.
-                // Drop handlers will also clear it on successful drop.
+                // Clear preview if mouse leaves the grid area AND a drag operation is in progress
                 if (draggedItemPreview) {
                     onUpdateDraggedItemPreview(null);
                 }
             }}
         >
-            {/* Render Minor Grid Cells */}
+            {/* Render Minor Grid Cells (DroppableGridCell represents a minor cell) */}
             {Array.from({ length: totalMinorRows }).flatMap((_, rIndex) =>
                 Array.from({ length: totalMinorCols }).map((_, cIndex) => {
                     const minorRow = rIndex + 1;
@@ -250,7 +234,7 @@ const LayoutDesignerGrid = ({
                     const isGridEdgeRow = minorRow === totalMinorRows;
                     const isGridEdgeCol = minorCol === totalMinorCols;
 
-                    // Suppress cell-level preview if a resize operation is active
+                    // Suppress cell-level preview if a resize operation is active and showing its own preview
                     const showCellLevelPreview = !(draggedItemPreview && draggedItemPreview.type === 'resize');
 
                     return (
@@ -280,19 +264,20 @@ const LayoutDesignerGrid = ({
                     left: `${(draggedItemPreview.gridPosition.colStart - 1) * minorCellSizeRem}rem`,
                     width: `${draggedItemPreview.effW_minor * minorCellSizeRem}rem`,
                     height: `${draggedItemPreview.effH_minor * minorCellSizeRem}rem`,
-                    backgroundColor: draggedItemPreview.isValid ? 'rgba(74, 222, 128, 0.4)' : 'rgba(248, 113, 113, 0.4)', // Green/Red with alpha
-                    border: `2px dashed ${draggedItemPreview.isValid ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}`, // Darker Green/Red
-                    zIndex: 50, // Above cells, potentially below item being dragged if visual issues
-                    pointerEvents: 'none', // Preview should not interfere with mouse events
-                    borderRadius: '4px', // Optional: match item's border radius
+                    backgroundColor: draggedItemPreview.isValid ? 'rgba(74, 222, 128, 0.4)' : 'rgba(248, 113, 113, 0.4)',
+                    border: `2px dashed ${draggedItemPreview.isValid ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}`,
+                    zIndex: 50,
+                    pointerEvents: 'none',
+                    borderRadius: '4px',
                 }} />
             )}
 
-            {/* Render All Placed Design Items */}
+            {/* Render All Placed Design Items using PlacedItemWrapper */}
             <AnimatePresence>
                 {designItems.filter(item => item && item.id && item.gridPosition).map(item => {
                     const isCurrentlySelected = selectedItemId === item.id;
-                    const isBeingResized = draggedItemPreview?.type === 'resize' && draggedItemPreview?.itemId === item.id;
+                    // Don't show resize handles on the item if this very item is the one being previewed for resize
+                    const isThisItemBeingResizedPreview = draggedItemPreview?.type === 'resize' && draggedItemPreview?.itemId === item.id;
 
                     return (
                         <PlacedItemWrapper
@@ -302,7 +287,7 @@ const LayoutDesignerGrid = ({
                             eraseDesignerItemById={onEraseDesignerItemById}
                             onUpdateItemProperty={onUpdateItemProperty}
                             onSelectItem={onSelectItem}
-                            isSelected={isCurrentlySelected && !isBeingResized} // Show handles if selected, but not if it's this item being actively resized
+                            isSelected={isCurrentlySelected && !isThisItemBeingResizedPreview}
                             CELL_SIZE_REM={minorCellSizeRem} // Pass MINOR cell size for wrapper's calculations
                             ItemTypes={ItemTypes}
                             ITEM_CONFIGS={ITEM_CONFIGS}
