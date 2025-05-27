@@ -1,0 +1,62 @@
+// src/data/mockCategoriesData.js
+// Removed: import { v4 as uuidv4 } from 'uuid';
+
+export const mockCategoriesData = [
+  {
+    id: 'cat-design-tools', // Using a simple string ID
+    name: 'Design Tools',
+    color_class: 'bg-pink-500',
+    display_order: 0,
+    value: 227459,
+    percentage: 43,
+  },
+  {
+    id: 'cat-social-media', // Using a simple string ID
+    name: 'Social Media',
+    color_class: 'bg-purple-600',
+    display_order: 1,
+    value: 142823,
+    percentage: 27,
+  },
+  {
+    id: 'cat-portfolio-platforms', // Using a simple string ID
+    name: 'Portfolio Platforms',
+    color_class: 'bg-blue-500',
+    display_order: 2,
+    value: 89935,
+    percentage: 11,
+  },
+  {
+    id: 'cat-search-ads', // Using a simple string ID
+    name: 'Search & Ads',
+    color_class: 'bg-green-500',
+    display_order: 3,
+    value: 37028,
+    percentage: 7,
+  },
+  {
+    id: 'cat-software-sales', // Using a simple string ID
+    name: 'Software Sales',
+    color_class: 'bg-sky-500',
+    display_order: 4,
+    value: 55000,
+    percentage: 12,
+  },
+  {
+    id: 'cat-e-commerce', // Using a simple string ID
+    name: 'E-commerce',
+    color_class: 'bg-orange-500',
+    display_order: 5,
+    value: 78500,
+    percentage: 15,
+  },
+  {
+    id: 'cat-consulting', // Using a simple string ID
+    name: 'Consulting',
+    color_class: 'bg-indigo-500',
+    display_order: 6,
+    value: 15000,
+    percentage: 3,
+  },
+];
+// MODIFIED: Removed extraneous console log text from the end of this file.
