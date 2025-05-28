@@ -3,28 +3,48 @@
 // ItemTypes is used by getNextAvailableTableNumber for filtering
 import { ItemTypes } from '../constants/itemConfigs';
 
+
 /**
- * Calculates the effective dimensions (width and height) of an item in MINOR_CELL_UNITS,
- * considering its rotation.
+ * Calculates the effective dimensions (Axis-Aligned Bounding Box - AABB)
+ * of an item in MINOR_CELL_UNITS, considering its rotation.
  * @param {object} item - The item object. Expected to have:
  *                        - item.w_minor: base width in minor cells (pre-rotation)
  *                        - item.h_minor: base height in minor cells (pre-rotation)
- *                        - item.rotation: 0, 90, 180, 270
+ *                        - item.rotation: angle in degrees
  * @returns {object} { w: effectiveWidth_minor, h: effectiveHeight_minor } in minor cell units.
  */
 export const getEffectiveDimensions = (item) => {
     if (!item || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
-        // This warning is important. If it appears, it means item data is malformed upstream.
         console.warn("getEffectiveDimensions: Invalid item or missing w_minor/h_minor. Item:", JSON.stringify(item), "Defaulting to 1x1.");
-        return { w: 1, h: 1 }; // Fallback to prevent errors downstream
+        return { w: 1, h: 1 }; // Fallback
     }
 
-    // Only 90 and 270 degree rotations swap width and height
-    if (item.rotation === 90 || item.rotation === 270) {
-        return { w: item.h_minor, h: item.w_minor };
+    const { w_minor, h_minor, rotation = 0 } = item;
+
+    if (rotation === 0 || rotation === 180) {
+        return { w: w_minor, h: h_minor };
     }
-    // For 0 and 180 degrees, width and height remain as defined
-    return { w: item.w_minor, h: item.h_minor };
+    if (rotation === 90 || rotation === 270) {
+        return { w: h_minor, h: w_minor };
+    }
+
+    // For arbitrary rotations, calculate AABB
+    const angleRad = (rotation * Math.PI) / 180;
+    const cosA = Math.cos(angleRad);
+    const sinA = Math.sin(angleRad);
+
+    // Calculate the coordinates of the 4 corners of the unrotated rectangle
+    // (0,0), (w,0), (w,h), (0,h) relative to its top-left.
+    // Then rotate them around (w/2, h/2) or handle world coordinates if preferred.
+    // For simplicity, let's use a common method:
+    // project the item's width and height onto the x and y axes.
+    const effW = Math.abs(w_minor * cosA) + Math.abs(h_minor * sinA);
+    const effH = Math.abs(w_minor * sinA) + Math.abs(h_minor * cosA);
+
+    return {
+        w: Math.max(1, Math.round(effW)), // Ensure at least 1x1, round to nearest cell
+        h: Math.max(1, Math.round(effH))
+    };
 };
 
 /**

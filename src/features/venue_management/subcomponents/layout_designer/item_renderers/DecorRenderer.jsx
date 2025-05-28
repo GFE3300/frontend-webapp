@@ -35,12 +35,12 @@ const DecorRenderer = ({ item }) => {
     switch (item.decorType) {
         case 'plant':
             styleClasses = `${DECOR_RENDERER_STYLES.plantGradientLight} ${DECOR_RENDERER_STYLES.plantGradientDark} border ${DECOR_RENDERER_STYLES.plantBorderLight} ${DECOR_RENDERER_STYLES.plantBorderDark}`;
-            content = <Icon name="potted_plant" className={`w-3/5 h-3/5 ${DECOR_RENDERER_STYLES.plantIconColorLight} ${DECOR_RENDERER_STYLES.plantIconColorDark}`} />;
+            content = <Icon name="potted_plant" className={`w-6 h-6 ${DECOR_RENDERER_STYLES.plantIconColorLight} ${DECOR_RENDERER_STYLES.plantIconColorDark}`} style={{ fontSize: '1.5rem' }} />;
             break;
         case 'rug':
             styleClasses = `${DECOR_RENDERER_STYLES.rugGradientLight} ${DECOR_RENDERER_STYLES.rugGradientDark} border ${DECOR_RENDERER_STYLES.rugBorderLight} ${DECOR_RENDERER_STYLES.rugBorderDark}`;
             // For a rug, we might want a pattern or just color. An icon can represent it.
-            content = <Icon name="texture" className={`w-1/2 h-1/2 opacity-70 ${DECOR_RENDERER_STYLES.rugIconColorLight} ${DECOR_RENDERER_STYLES.rugIconColorDark}`} />;
+            content = <Icon name="texture" className={`w-6 h-6 opacity-70 ${DECOR_RENDERER_STYLES.rugIconColorLight} ${DECOR_RENDERER_STYLES.rugIconColorDark}`} style={{ fontSize: '1.5rem' }} />;
             break;
         default: // Generic decor
             styleClasses = `${DECOR_RENDERER_STYLES.defaultGradientLight} ${DECOR_RENDERER_STYLES.defaultGradientDark} border ${DECOR_RENDERER_STYLES.defaultBorderLight} ${DECOR_RENDERER_STYLES.defaultBorderDark}`;

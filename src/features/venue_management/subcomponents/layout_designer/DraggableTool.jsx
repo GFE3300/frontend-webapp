@@ -44,6 +44,7 @@ const DraggableTool = ({
             w_major: tool.w_major,
             h_major: tool.h_major,
             size_identifier: tool.size_identifier,
+            decorType: tool.decorType, // If applicable
             // Include any other props from 'tool' that the drop target might need
             // For example, if defaultPropsFactory in useLayoutDesignerStateManagement
             // needs more info from the tool definition.
