@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import Modal from '../../../../components/animated_alerts/Modal.jsx';
 import Icon from '../../../../components/common/Icon.jsx'; // Adjusted path
-import LayoutDesigner from './LayoutDesigner.jsx'; // Adjusted path
+import LayoutEditor from './LayoutEditor.jsx'; // Adjusted path
 
 import TableCard from '../live_view/TableCard.jsx';
 import OrderDetailsModalContent from '../live_view/OrderDetailsModalContent.jsx';
@@ -104,11 +104,11 @@ const LiveOrderDashboard = () => {
 
     if (isDesigningLayout) {
         return (
-            <LayoutDesigner
+            <LayoutEditor
                 currentLayout={{ // Pass as an object
                     designItems: tables, // The actual items from useLayoutData's 'tables' property
                     gridDimensions: currentGridDimensions, // The current grid dimensions
-                    // kitchenArea could also be passed if LayoutDesigner is expected to manage it
+                    // kitchenArea could also be passed if LayoutEditor is expected to manage it
                 }}
                 onSaveLayout={handleSaveDesignedLayout}
                 onCancel={() => setIsDesigningLayout(false)}

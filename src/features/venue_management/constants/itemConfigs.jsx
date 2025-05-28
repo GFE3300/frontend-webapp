@@ -1,5 +1,5 @@
-import React from 'react';
-// These utilities will be used by defaultPropsFactory for tables
+// features/venue_management/constants/itemConfigs.jsx
+import React from 'react'; // Keep React if you plan to use custom JSX/SVG for some visuals
 import { getDefaultSeatsForSize, getNextAvailableTableNumber } from '../utils/layoutUtils';
 
 /**
@@ -7,168 +7,183 @@ import { getDefaultSeatsForSize, getNextAvailableTableNumber } from '../utils/la
  * for items once they are placed on the design grid.
  */
 export const ItemTypes = {
-    // --- Tool Types (used as `type` in useDrag for DraggableGenericTool) ---
+    // --- Tool Types ---
     TABLE_TOOL: 'tableTool',
     WALL_TOOL: 'wallTool',
     DOOR_TOOL: 'doorTool',
     DECOR_TOOL: 'decorTool',
-    // Add more tool types as needed (e.g., WINDOW_TOOL, STAIR_TOOL)
+    COUNTER_TOOL: 'counterTool',
 
-    // --- Placed Item Types (used as `item.itemType` on the actual design items) ---
+    // --- Placed Item Types ---
     PLACED_TABLE: 'placedTable',
     PLACED_WALL: 'placedWall',
     PLACED_DOOR: 'placedDoor',
-    PLACED_DECOR: 'placedDecor',
-    // Add more placed item types as needed
+    PLACED_DECOR: 'placedDecor', // Generic decor (e.g., plants, rugs)
+    PLACED_COUNTER: 'placedCounter', // Specific for counters
+
+    // --- Interaction Types ---
+    RESIZE_HANDLE: 'resizeHandle',
+    ROTATION_HANDLE: 'rotationHandle',
 };
 
 /**
  * Configuration for each PLACED item type.
- * This defines properties, default behaviors, and associated components.
  */
 export const ITEM_CONFIGS = {
     [ItemTypes.PLACED_TABLE]: {
-        toolItemType: ItemTypes.TABLE_TOOL, // Which tool creates this?
+        toolItemType: ItemTypes.TABLE_TOOL,
         displayName: 'Table',
         isRotatable: true,
-        canHaveQr: true,
-        // Default properties when this item is created from a tool
+        isResizable: true,
+        canHaveQr: true, // Assuming QR is for tables
         defaultPropsFactory: (toolPayload, currentSubdivision, existingItems) => {
             const tables = existingItems.filter(item => item.itemType === ItemTypes.PLACED_TABLE && typeof item.number !== 'undefined');
             return {
-                shape: toolPayload.size_identifier, // e.g., 'square-1x1', 'rectangle-2x1'
-                seats: getDefaultSeatsForSize(toolPayload.size_identifier),
+                shape: toolPayload.size_identifier, // e.g., 'square-1x1', 'round-1x1'
+                seats: getDefaultSeatsForSize(toolPayload.size_identifier, toolPayload.w_major, toolPayload.h_major),
                 number: getNextAvailableTableNumber(tables),
+                isProvisional: true, // Tables start as provisional until number is confirmed
             };
         },
-        // String key for the component that renders this item on the grid
-        PlacedComponent: 'PlacedTableItem',
-        // String key for the component that renders its properties in the sidebar
-        SidebarEditorComponent: 'TablePropertiesEditor',
+        PlacedComponent: 'TableRenderer',
+        SidebarEditorComponent: 'TableEditor',
     },
     [ItemTypes.PLACED_WALL]: {
         toolItemType: ItemTypes.WALL_TOOL,
         displayName: 'Wall',
-        isRotatable: true, // Can be horizontal or vertical
+        isRotatable: true,
+        isResizable: true,
         canHaveQr: false,
-        // isResizable: true, // Phase 2: For stretching walls
-        defaultPropsFactory: (toolPayload /*, currentSubdivision, existingItems */) => ({
+        defaultPropsFactory: (toolPayload) => ({
             shape: toolPayload.size_identifier, // e.g., 'wall-segment'
-            thickness_minor: 1, // Default thickness in minor grid cells
-            // material: 'drywall', // Example future property
+            thickness_minor: toolPayload.thickness_minor || 1,
         }),
-        PlacedComponent: 'PlacedWallItem',
-        SidebarEditorComponent: 'WallPropertiesEditor',
+        PlacedComponent: 'WallRenderer',
+        SidebarEditorComponent: 'WallEditor',
     },
     [ItemTypes.PLACED_DOOR]: {
         toolItemType: ItemTypes.DOOR_TOOL,
         displayName: 'Door',
-        isRotatable: true, // To orient with wall and set swing
+        isRotatable: true,
+        isResizable: false, // Doors are typically fixed size from tool
         canHaveQr: false,
-        // placementConstraint: 'RequiresWall', // Phase 2/3: For advanced placement rules
-        defaultPropsFactory: (toolPayload /*, currentSubdivision, existingItems */) => ({
+        defaultPropsFactory: (toolPayload) => ({
             shape: toolPayload.size_identifier, // e.g., 'standard-door'
-            swingDirection: 'left', // 'left', 'right'
-            isOpen: false, // Visual state
+            swingDirection: 'left',
+            isOpen: false, // Visual state for designer
         }),
-        PlacedComponent: 'PlacedDoorItem',
-        SidebarEditorComponent: 'DoorPropertiesEditor',
+        PlacedComponent: 'DoorRenderer',
+        SidebarEditorComponent: 'DoorEditor',
     },
-    [ItemTypes.PLACED_DECOR]: {
+    [ItemTypes.PLACED_DECOR]: { // For generic decor like plants, rugs
         toolItemType: ItemTypes.DECOR_TOOL,
-        displayName: 'Decor', // Can be made more specific by the item renderer using item.decorType
-        isRotatable: true, // Most decor items can be rotated
+        displayName: 'Decor',
+        isRotatable: true,
+        // Resizable can be a function based on decorType
+        isResizable: (item) => {console.log(item); return (item.decorType == 'rug')}, // Example: only rugs are resizable generic decor
         canHaveQr: false,
-        defaultPropsFactory: (toolPayload /*, currentSubdivision, existingItems */) => ({
-            shape: toolPayload.size_identifier, // e.g., 'plant', 'counter-small'
-            decorType: toolPayload.size_identifier, // Specific type of decor
-            // label: '', // Example future property
+        defaultPropsFactory: (toolPayload) => ({
+            shape: toolPayload.size_identifier, // e.g., 'plant-pot-small', 'rug-medium-rect'
+            decorType: toolPayload.decorType, // MUST be provided by toolDefinition
         }),
-        PlacedComponent: 'PlacedDecorItem',
-        SidebarEditorComponent: 'DecorPropertiesEditor',
+        PlacedComponent: 'DecorRenderer',
+        SidebarEditorComponent: 'DecorEditor',
+    },
+    [ItemTypes.PLACED_COUNTER]: {
+        toolItemType: ItemTypes.COUNTER_TOOL,
+        displayName: 'Counter',
+        isRotatable: true,
+        isResizable: true,
+        canHaveQr: false,
+        defaultPropsFactory: (toolPayload) => ({
+            shape: toolPayload.size_identifier, // e.g., 'counter-straight-2x1'
+            // decorType is implicitly 'counter' by using PLACED_COUNTER type
+            label: toolPayload.label || '', // Optional label from tool, or default
+            length_units: toolPayload.w_major || 1, // Default length in major units
+        }),
+        PlacedComponent: 'CounterRenderer',
+        SidebarEditorComponent: 'CounterEditor',
     },
 };
 
 /**
- * Definitions for the tools available in the LayoutDesignerToolbar.
- * - name: Display name for the tool.
- * - toolItemType: The ItemType for the draggable tool itself.
- * - createsPlacedItemType: The ItemType of the item it creates on the grid.
- * - w_major, h_major: Base dimensions in MAJOR grid cells (before rotation).
- * - size_identifier: A unique string identifying the tool's specific size/shape variant.
- *                    Used by defaultPropsFactory and PlacedComponent for specific logic.
- * - visual: JSX element for the tool's icon in the toolbar.
+ * Definitions for the tools available in the EditorToolbar.
+ * - visual: Material Icon name string.
+ * - category: For grouping in the toolbar.
  */
 export const toolDefinitions = [
-    // --- Table Tools ---
+    // --- Furniture ---
     {
-        name: 'Square Table (1x1)',
+        name: 'Square Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
-        w_major: 1,
-        h_major: 1,
-        size_identifier: 'square-1x1',
-        visual: <div className="w-6 h-6 bg-indigo-200 border border-indigo-400 rounded-md shadow-sm"></div>
+        w_major: 1, h_major: 1, size_identifier: 'square-1x1',
+        category: 'Furniture',
+        visual: 'square_foot', // Abstract representation
     },
     {
-        name: 'Rectangle Table (2x1)', // Base orientation
+        name: 'Rect. Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
-        w_major: 2,
-        h_major: 1,
-        size_identifier: 'rectangle-2x1',
-        visual: <div className="w-12 h-6 bg-indigo-200 border border-indigo-400 rounded-md shadow-sm"></div>
+        w_major: 2, h_major: 1, size_identifier: 'rectangle-2x1',
+        category: 'Furniture',
+        visual: 'table_restaurant', // Abstract representation
     },
     {
-        name: 'Round Table (2x2 major)',
+        name: 'Round Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
-        w_major: 2, // Occupies a 2x2 major cell square
-        h_major: 2,
-        size_identifier: 'round-2x2',
-        visual: <div className="w-10 h-10 bg-indigo-200 border border-indigo-400 rounded-full shadow-sm flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-indigo-300"></div></div>
+        w_major: 1, h_major: 1, size_identifier: 'round-1x1', // Smaller default round table
+        category: 'Furniture',
+        visual: 'table_bar', // Abstract representation
+    },
+    {
+        name: 'Counter',
+        toolItemType: ItemTypes.COUNTER_TOOL,
+        createsPlacedItemType: ItemTypes.PLACED_COUNTER,
+        w_major: 2, h_major: 1, size_identifier: 'counter-straight-2x1',
+        label: '', // Default label if any
+        category: 'Furniture',
+        visual: 'countertops',
     },
 
-    // --- Wall Tools ---
+    // --- Structure ---
     {
-        name: 'Wall Segment (2x1 major)', // Default length, can be rotated to 1x2
+        name: 'Wall',
         toolItemType: ItemTypes.WALL_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_WALL,
-        w_major: 2, // e.g., 2 major cells long
-        h_major: 1, // 1 major cell thick (visual representation, actual thickness is in minor cells)
-        size_identifier: 'wall-segment-2major',
-        visual: <div className="w-12 h-2 bg-gray-400 border border-gray-500 rounded-sm shadow-sm my-2"></div> // Visual for a horizontal wall segment
+        w_major: 1, h_major: 1, // Default to 1 major unit long, can be resized
+        size_identifier: 'wall-segment',
+        thickness_minor: 1, // Default visual thickness in minor cells
+        category: 'Structure',
+        visual: 'horizontal_rule', // More generic for a segment
     },
-
-    // --- Door Tools ---
     {
-        name: 'Standard Door (1x1 major)',
+        name: 'Door',
         toolItemType: ItemTypes.DOOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DOOR,
-        w_major: 1,
-        h_major: 1, // Doors usually fit within a 1x1 major cell (representing a doorway in a wall)
-        size_identifier: 'standard-door',
-        visual: <div className="w-6 h-6 border-2 border-amber-500 rounded-sm shadow-sm flex items-center justify-end pr-0.5"><div className="w-1 h-4 bg-amber-500 rounded-sm"></div></div> // Simple door visual
+        w_major: 1, h_major: 1, size_identifier: 'standard-door',
+        category: 'Structure',
+        visual: 'door_front',
     },
 
-    // --- Decor Tools ---
+    // --- Decor ---
     {
-        name: 'Plant (1x1 major)',
+        name: 'Plant',
         toolItemType: ItemTypes.DECOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DECOR,
-        w_major: 1,
-        h_major: 1,
-        size_identifier: 'plant-decor',
-        visual: <div className="w-6 h-6 text-green-600 flex items-center justify-center text-xl">🪴</div> // Using an emoji as a placeholder
+        w_major: 1, h_major: 1, size_identifier: 'plant-pot-small',
+        decorType: 'plant', // Crucial for DecorRenderer
+        category: 'Decor',
+        visual: 'potted_plant',
     },
     {
-        name: 'Counter (2x1 major)',
+        name: 'Rug',
         toolItemType: ItemTypes.DECOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DECOR,
-        w_major: 2,
-        h_major: 1,
-        size_identifier: 'counter-2x1',
-        visual: <div className="w-12 h-4 bg-orange-300 border border-orange-500 rounded-sm shadow-sm my-1"></div>
+        w_major: 2, h_major: 3, size_identifier: 'rug-medium-rect', // Example size
+        decorType: 'rug', // Crucial for DecorRenderer
+        category: 'Decor',
+        visual: 'texture', // Or 'style' or other abstract icon
     },
-    // Add more tools as needed
 ];

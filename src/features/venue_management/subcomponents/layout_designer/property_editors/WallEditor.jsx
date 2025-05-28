@@ -1,4 +1,3 @@
-// features/venue_management/subcomponents/layout_designer/property_editors/WallPropertiesEditor.jsx
 import React from 'react';
 
 const WallPropertiesEditor = ({
