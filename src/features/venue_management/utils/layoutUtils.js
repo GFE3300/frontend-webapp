@@ -3,47 +3,42 @@
 // ItemTypes is used by getNextAvailableTableNumber for filtering
 import { ItemTypes } from '../constants/itemConfigs';
 
-
 /**
  * Calculates the effective dimensions (Axis-Aligned Bounding Box - AABB)
  * of an item in MINOR_CELL_UNITS, considering its rotation.
  * @param {object} item - The item object. Expected to have:
  *                        - item.w_minor: base width in minor cells (pre-rotation)
  *                        - item.h_minor: base height in minor cells (pre-rotation)
- *                        - item.rotation: angle in degrees
- * @returns {object} { w: effectiveWidth_minor, h: effectiveHeight_minor } in minor cell units.
+ *                        - item.rotation: angle in degrees (0, 90, 180, 270 for simple AABB, or arbitrary)
+ * @returns {{ w: number, h: number }} Object containing effectiveWidth_minor (w) and effectiveHeight_minor (h) in minor cell units.
  */
 export const getEffectiveDimensions = (item) => {
     if (!item || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
-        console.warn("getEffectiveDimensions: Invalid item or missing w_minor/h_minor. Item:", JSON.stringify(item), "Defaulting to 1x1.");
-        return { w: 1, h: 1 }; // Fallback
+        console.warn("getEffectiveDimensions: Invalid item or missing w_minor/h_minor. Item:", item, "Defaulting to 1x1.");
+        return { w: 1, h: 1 }; // Fallback for malformed items
     }
 
     const { w_minor, h_minor, rotation = 0 } = item;
+    const normalizedRotation = (parseInt(String(rotation), 10) % 360 + 360) % 360; // Normalize to 0-359
 
-    if (rotation === 0 || rotation === 180) {
+    if (normalizedRotation === 0 || normalizedRotation === 180) {
         return { w: w_minor, h: h_minor };
     }
-    if (rotation === 90 || rotation === 270) {
-        return { w: h_minor, h: w_minor };
+    if (normalizedRotation === 90 || normalizedRotation === 270) {
+        return { w: h_minor, h: w_minor }; // Swap width and height for 90/270 deg rotations
     }
 
-    // For arbitrary rotations, calculate AABB
-    const angleRad = (rotation * Math.PI) / 180;
-    const cosA = Math.cos(angleRad);
-    const sinA = Math.sin(angleRad);
+    // For arbitrary rotations, calculate the AABB
+    const angleRad = (normalizedRotation * Math.PI) / 180;
+    const cosA = Math.abs(Math.cos(angleRad)); // Use absolute values for AABB
+    const sinA = Math.abs(Math.sin(angleRad));
 
-    // Calculate the coordinates of the 4 corners of the unrotated rectangle
-    // (0,0), (w,0), (w,h), (0,h) relative to its top-left.
-    // Then rotate them around (w/2, h/2) or handle world coordinates if preferred.
-    // For simplicity, let's use a common method:
-    // project the item's width and height onto the x and y axes.
-    const effW = Math.abs(w_minor * cosA) + Math.abs(h_minor * sinA);
-    const effH = Math.abs(w_minor * sinA) + Math.abs(h_minor * cosA);
+    const effectiveWidth = w_minor * cosA + h_minor * sinA;
+    const effectiveHeight = w_minor * sinA + h_minor * cosA;
 
     return {
-        w: Math.max(1, Math.round(effW)), // Ensure at least 1x1, round to nearest cell
-        h: Math.max(1, Math.round(effH))
+        w: Math.max(1, Math.round(effectiveWidth)),  // Ensure at least 1x1, round to nearest whole cell
+        h: Math.max(1, Math.round(effectiveHeight))
     };
 };
 
@@ -51,36 +46,32 @@ export const getEffectiveDimensions = (item) => {
  * Checks if a specific minor grid cell is occupied by any part of an existing design item.
  * @param {number} minorRowToCheck - The 1-based minor row index to check.
  * @param {number} minorColToCheck - The 1-based minor column index to check.
- * @param {Array} designItems - Array of all placed design item objects.
- * @param {string|null} excludeItemId - ID of an item to exclude from the check (e.g., the item being moved).
+ * @param {Array<object>} designItems - Array of all placed design item objects.
+ * @param {string | null} excludeItemId - ID of an item to exclude from the check (e.g., the item being moved).
  * @returns {boolean} True if the cell is occupied, false otherwise.
  */
 const isMinorCellOccupied = (minorRowToCheck, minorColToCheck, designItems, excludeItemId) => {
-    // console.log(`[isMinorCellOccupied] Checking cell (${minorRowToCheck}, ${minorColToCheck}), excluding ${excludeItemId}`);
     for (const item of designItems) {
         if (!item || !item.gridPosition || typeof item.gridPosition.rowStart !== 'number' || typeof item.gridPosition.colStart !== 'number') {
-            // console.warn("[isMinorCellOccupied] Skipping malformed item:", item);
-            continue;
+            continue; // Skip malformed items
         }
         if (item.id === excludeItemId) {
-            // console.log(`[isMinorCellOccupied] Skipping excluded item ID: ${excludeItemId}`);
-            continue;
+            continue; // Skip the item being excluded (e.g., when moving it)
         }
 
         const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(item);
         const { rowStart: itemMinorRowStart, colStart: itemMinorColStart } = item.gridPosition;
 
+        // Check if the cell (minorRowToCheck, minorColToCheck) falls within the item's AABB
         if (
             minorRowToCheck >= itemMinorRowStart &&
-            minorRowToCheck < itemMinorRowStart + effH_minor && // Use < because it's 0-indexed extent from a 1-indexed start
+            minorRowToCheck < itemMinorRowStart + effH_minor && // Max row extent is start + height - 1
             minorColToCheck >= itemMinorColStart &&
-            minorColToCheck < itemMinorColStart + effW_minor
+            minorColToCheck < itemMinorColStart + effW_minor   // Max col extent is start + width - 1
         ) {
-            // console.log(`[isMinorCellOccupied] Cell (${minorRowToCheck}, ${minorColToCheck}) IS OCCUPIED by item ${item.id} at (${itemMinorRowStart},${itemMinorColStart}) with effDims (${effW_minor}x${effH_minor})`);
             return true; // Cell is occupied by this item
         }
     }
-    // console.log(`[isMinorCellOccupied] Cell (${minorRowToCheck}, ${minorColToCheck}) is NOT occupied.`);
     return false; // Cell is not occupied by any relevant item
 };
 
@@ -91,20 +82,28 @@ const isMinorCellOccupied = (minorRowToCheck, minorColToCheck, designItems, excl
  * @param {number} targetMinorCol - Target 1-based top-left minor col for the item's placement.
  * @param {number} itemEffW_minor - Effective width of the item in minor cells (after considering rotation).
  * @param {number} itemEffH_minor - Effective height of the item in minor cells (after considering rotation).
- * @param {Array} designItems - Array of all existing placed design items.
+ * @param {Array<object>} designItems - Array of all existing placed design items.
  * @param {number} totalMinorGridRows - Total number of minor rows available on the grid.
  * @param {number} totalMinorGridCols - Total number of minor columns available on the grid.
- * @param {string|null} itemToExcludeId - ID of an item to exclude from collision checks (used when moving an item).
+ * @param {string | null} [itemToExcludeId=null] - ID of an item to exclude from collision checks.
  * @returns {boolean} True if the item can be placed, false otherwise.
  */
 export const canPlaceItem = (
     targetMinorRow, targetMinorCol,
-    itemEffW_minor, itemEffH_minor, // Effective dimensions passed directly
+    itemEffW_minor, itemEffH_minor,
     designItems,
     totalMinorGridRows, totalMinorGridCols,
     itemToExcludeId = null
 ) => {
-    // console.log(`[canPlaceItem] Attempting to place item (effDims ${itemEffW_minor}x${itemEffH_minor}) at (${targetMinorRow},${targetMinorCol}) on grid (${totalMinorGridRows}x${totalMinorGridCols}), excluding ID: ${itemToExcludeId}`);
+    // Ensure target coordinates and dimensions are valid numbers
+    if (
+        isNaN(targetMinorRow) || isNaN(targetMinorCol) ||
+        isNaN(itemEffW_minor) || isNaN(itemEffH_minor) ||
+        itemEffW_minor < 1 || itemEffH_minor < 1 // Effective dimensions must be at least 1x1
+    ) {
+        console.error("canPlaceItem: Invalid input parameters for target position or dimensions.");
+        return false;
+    }
 
     // 1. Check grid boundaries (1-based indexing for targetRow/Col and totalRows/Cols)
     if (
@@ -113,22 +112,19 @@ export const canPlaceItem = (
         targetMinorRow + itemEffH_minor - 1 > totalMinorGridRows || // Max row item occupies
         targetMinorCol + itemEffW_minor - 1 > totalMinorGridCols    // Max col item occupies
     ) {
-        // console.log(`[canPlaceItem] Placement fail: Out of bounds. Item ends at (${targetMinorRow + itemEffH_minor - 1}, ${targetMinorCol + itemEffW_minor - 1})`);
-        return false;
+        return false; // Out of bounds
     }
 
-    // 2. Check for overlap with other items
+    // 2. Check for overlap with other items by iterating through each cell the new item would occupy
     for (let rOffset = 0; rOffset < itemEffH_minor; rOffset++) {
         for (let cOffset = 0; cOffset < itemEffW_minor; cOffset++) {
             const checkMinorRow = targetMinorRow + rOffset;
             const checkMinorCol = targetMinorCol + cOffset;
             if (isMinorCellOccupied(checkMinorRow, checkMinorCol, designItems, itemToExcludeId)) {
-                // console.log(`[canPlaceItem] Placement fail: Cell (${checkMinorRow}, ${checkMinorCol}) is occupied.`);
-                return false;
+                return false; // Collision detected
             }
         }
     }
-    // console.log(`[canPlaceItem] Placement success for item at (${targetMinorRow},${targetMinorCol})`);
     return true; // Can be placed
 };
 
@@ -137,14 +133,13 @@ export const canPlaceItem = (
  * Useful when resizing the major grid.
  * @param {number} newTotalMinorRows - The new total number of minor rows for the grid.
  * @param {number} newTotalMinorCols - The new total number of minor columns for the grid.
- * @param {Array} designItems - Array of design item objects to check.
+ * @param {Array<object>} designItems - Array of design item objects to check.
  * @returns {boolean} True if all items are in bounds, false otherwise.
  */
 export const checkItemsInBounds = (newTotalMinorRows, newTotalMinorCols, designItems) => {
     for (const item of designItems) {
         if (!item || !item.gridPosition || typeof item.gridPosition.rowStart !== 'number' || typeof item.gridPosition.colStart !== 'number') {
-            // console.warn("[checkItemsInBounds] Skipping malformed item:", item);
-            continue;
+            continue; // Skip malformed items
         }
 
         const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(item);
@@ -155,24 +150,25 @@ export const checkItemsInBounds = (newTotalMinorRows, newTotalMinorCols, designI
             minorRowStart + effH_minor - 1 > newTotalMinorRows ||
             minorColStart + effW_minor - 1 > newTotalMinorCols
         ) {
-            // console.log(`[checkItemsInBounds] Item ${item.id} is OUT of new bounds (${newTotalMinorRows}x${newTotalMinorCols}). Item ends at (${minorRowStart + effH_minor - 1}, ${minorColStart + effW_minor - 1})`);
             return false; // This item is out of the new bounds
         }
     }
-    // console.log(`[checkItemsInBounds] All items are WITHIN new bounds (${newTotalMinorRows}x${newTotalMinorCols})`);
     return true; // All items are within bounds
 };
 
 /**
  * Gets the next available table number from an array of design items.
  * It finds the smallest positive integer not currently used as a table number.
- * @param {Array} designItems - Array of all design items.
+ * @param {Array<object>} designItems - Array of all design items.
  * @returns {number} The next available table number (e.g., 1, 2, 3...).
  */
 export const getNextAvailableTableNumber = (designItems) => {
     const tableNumbersInUse = new Set(
         designItems
-            .filter(item => item.itemType === ItemTypes.PLACED_TABLE && typeof item.number === 'number' && item.number > 0 && !isNaN(item.number))
+            .filter(item => item.itemType === ItemTypes.PLACED_TABLE &&
+                typeof item.number === 'number' &&
+                !isNaN(item.number) && // Ensure it's not NaN after parsing
+                item.number > 0)
             .map(table => table.number)
     );
 
@@ -184,7 +180,6 @@ export const getNextAvailableTableNumber = (designItems) => {
     while (tableNumbersInUse.has(nextNumber)) {
         nextNumber++;
     }
-    // console.log(`[getNextAvailableTableNumber] Existing numbers: ${[...tableNumbersInUse].sort((a,b)=>a-b)}. Next available: ${nextNumber}`);
     return nextNumber;
 };
 
@@ -202,6 +197,8 @@ export const getDefaultSeatsForSize = (toolSizeIdentifier, toolW_major, toolH_ma
             return 2;
         case 'rectangle-2x1': // Typically a 2-person or 4-person table (2x1 major cells)
             return 4;
+        case 'round-1x1': // Added from itemConfigs.jsx for consistency
+            return 2;
         case 'round-2x2': // A 2x2 major cell round table
             return 4;
         // Add more specific cases if needed
