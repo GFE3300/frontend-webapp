@@ -91,7 +91,7 @@ const useLayoutDesignerStateManagement = (
                 if (!item.decorType && item.shape?.startsWith('plant-')) item.decorType = 'plant';
             }
 
-            item.rotation = typeof item.rotation === 'number' ? (item.rotation % 360 + 360) % 360 : 0;
+            item.rotation = typeof item.rotation === 'number' ? (parseInt(String(item.rotation), 10) % 360 + 360) % 360 : 0;
             item.isFixed = typeof item.isFixed === 'boolean' ? item.isFixed : false;
             item.layer = typeof item.layer === 'number' ? item.layer : 1;
 
@@ -223,17 +223,24 @@ const useLayoutDesignerStateManagement = (
     }, [setLayoutSnapshotWithHistory, getEffectiveDimensions]);
 
     const updateItemProperties = useCallback((itemId, newProps) => {
-        let overallValidationPassed = true;
+        let overallValidationPassedThisCall = true; // Specific to this call
 
         setLayoutSnapshotWithHistory(prev => {
+            let overallValidationPassedInSnapshot = true; // For logic within this snapshot update
+
             const itemIndex = prev.designItems.findIndex(item => item.id === itemId);
-            if (itemIndex === -1) { console.warn(`[updateItemProperties] Item ${itemId} not found.`); return prev; }
+            if (itemIndex === -1) {
+                console.warn(`[updateItemProperties] Item ${itemId} not found.`);
+                overallValidationPassedThisCall = false; // Reflects failure of this call
+                return prev;
+            }
 
             const currentItem = prev.designItems[itemIndex];
             const itemConfig = ITEM_CONFIGS[currentItem.itemType];
-            let accumulatedChanges = { ...newProps };
+            let accumulatedChanges = { ...newProps }; // Start with newProps
 
-            // --- Stage 1: Handle explicit dimensional/positional changes (e.g., from resize handles) ---
+            // --- Stage 1: Handle explicit dimensional/positional changes ---
+            // (This part remains the same as your previous correct version)
             let pendingGridPosition = newProps.gridPosition ? { ...newProps.gridPosition } : { ...currentItem.gridPosition };
             let pendingWMinor = newProps.w_minor !== undefined ? parseInt(String(newProps.w_minor), 10) : currentItem.w_minor;
             let pendingHMinor = newProps.h_minor !== undefined ? parseInt(String(newProps.h_minor), 10) : currentItem.h_minor;
@@ -245,43 +252,67 @@ const useLayoutDesignerStateManagement = (
                     openAlertModal("Invalid Dimension", `Dimensions cannot be less than ${MIN_ITEM_DIMENSION_MINOR_CELLS} minor cell(s).`, "error");
                     if (newProps.w_minor !== undefined) delete accumulatedChanges.w_minor;
                     if (newProps.h_minor !== undefined) delete accumulatedChanges.h_minor;
-                    overallValidationPassed = false;
+                    overallValidationPassedInSnapshot = false;
                 }
 
+                // Update pendingWMinor and pendingHMinor based on what's left in accumulatedChanges
                 pendingWMinor = accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor;
                 pendingHMinor = accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor;
 
-                if (overallValidationPassed) {
-                    const itemForCheck = { ...currentItem, gridPosition: pendingGridPosition, w_minor: pendingWMinor, h_minor: pendingHMinor, rotation: accumulatedChanges.rotation !== undefined ? accumulatedChanges.rotation : currentItem.rotation };
+                if (overallValidationPassedInSnapshot) {
+                    const itemForCheck = { 
+                        ...currentItem, 
+                        gridPosition: pendingGridPosition, 
+                        w_minor: pendingWMinor, 
+                        h_minor: pendingHMinor, 
+                        // Use rotation from newProps if available, else currentItem's, for this check
+                        rotation: newProps.rotation !== undefined && typeof newProps.rotation === 'number' 
+                                    ? newProps.rotation // If a specific number is passed for rotation
+                                    : (newProps.rotation === true // If it's a step signal
+                                        ? (parseInt(String(currentItem.rotation || 0), 10) + 90) % 360 // Calculate next step for check
+                                        : currentItem.rotation) // Else, current rotation
+                    };
                     const { w: effW_check, h: effH_check } = getEffectiveDimensionsUtil(itemForCheck);
                     if (!canPlaceItemUtil(pendingGridPosition.rowStart, pendingGridPosition.colStart, effW_check, effH_check, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
                         openAlertModal("Placement Error", "Resized/moved item conflicts or is out of bounds.", "error");
                         if (newProps.gridPosition) delete accumulatedChanges.gridPosition;
                         if (newProps.w_minor !== undefined) delete accumulatedChanges.w_minor;
                         if (newProps.h_minor !== undefined) delete accumulatedChanges.h_minor;
-                        overallValidationPassed = false;
+                        overallValidationPassedInSnapshot = false;
                     }
                 }
             }
 
-            // --- Stage 2: Handle rotation (Revised for strict validation) ---
-            if (newProps.rotation !== undefined && overallValidationPassed) { // Only proceed if item is still valid so far
+
+            // --- Stage 2: Handle rotation ---
+            if (newProps.rotation !== undefined && overallValidationPassedInSnapshot) { // Check overallValidationPassedInSnapshot from Stage 1
                 if (itemConfig?.isRotatable) {
                     let newRotationValue;
-                    const currentRotationVal = accumulatedChanges.rotation !== undefined ? accumulatedChanges.rotation : (currentItem.rotation || 0);
+                    // Base rotation is always from the current item's state before this update operation
+                    const currentActualRotation = parseInt(String(currentItem.rotation || 0), 10);
 
-                    if (newProps.rotation === true) { // Trigger for 90-degree step
-                        newRotationValue = (currentRotationVal + 90) % 360;
+                    if (isNaN(currentActualRotation)) {
+                        console.error("Rotation base value (currentItem.rotation) is NaN:", currentItem.rotation);
+                        delete accumulatedChanges.rotation; // Remove the offending prop from changes
+                        overallValidationPassedInSnapshot = false;
+                    } else if (newProps.rotation === true) { // Signal for 90-degree step
+                        newRotationValue = (currentActualRotation + 90) % 360;
                     } else if (typeof newProps.rotation === 'number') { // Direct angle update
-                        newRotationValue = ((parseInt(String(newProps.rotation), 10) % 360) + 360) % 360; // Normalize
-                        if (isNaN(newRotationValue)) newRotationValue = undefined; // Handle parsing errors
-                    } else {
-                        // Invalid rotation prop value
-                        if (newProps.rotation !== undefined) delete accumulatedChanges.rotation;
+                        newRotationValue = ((parseInt(String(newProps.rotation), 10) % 360) + 360) % 360;
+                        if (isNaN(newRotationValue)) {
+                            newRotationValue = undefined; // Mark as invalid if parsing failed
+                            openAlertModal("Invalid Input", "Invalid rotation angle provided.", "error");
+                            overallValidationPassedInSnapshot = false;
+                        }
+                    } else { // Invalid rotation prop value type (e.g., neither boolean true nor number)
+                        openAlertModal("Invalid Input", "Invalid rotation type provided.", "error");
+                        delete accumulatedChanges.rotation; // Remove the offending prop
                         newRotationValue = undefined;
+                        overallValidationPassedInSnapshot = false;
                     }
 
-                    if (newRotationValue !== undefined) {
+                    if (newRotationValue !== undefined && overallValidationPassedInSnapshot) {
+                        // Use position and dimensions potentially modified by Stage 1
                         const posToUse = accumulatedChanges.gridPosition || currentItem.gridPosition;
                         const wToUse = accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor;
                         const hToUse = accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor;
@@ -291,52 +322,57 @@ const useLayoutDesignerStateManagement = (
 
                         if (!canPlaceItemUtil(posToUse.rowStart, posToUse.colStart, effW_rot, effH_rot, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
                             openAlertModal("Rotation Error", "Cannot rotate: new orientation conflicts or is out of bounds.", "error");
-                            delete accumulatedChanges.rotation; // Remove rotation from changes as it's invalid
-                            overallValidationPassed = false; // Mark operation as failed due to rotation
+                            delete accumulatedChanges.rotation;
+                            overallValidationPassedInSnapshot = false;
                         } else {
-                            accumulatedChanges.rotation = newRotationValue; // Rotation is valid
+                            accumulatedChanges.rotation = newRotationValue; // Rotation is valid, commit it to changes
                         }
+                    } else if (newProps.rotation !== undefined && accumulatedChanges.rotation !== undefined) {
+                        // If newRotationValue became undefined due to an issue but was requested, remove from changes
+                        delete accumulatedChanges.rotation;
                     }
                 } else { // Not rotatable
-                    if (newProps.rotation !== undefined) delete accumulatedChanges.rotation;
+                    if (newProps.rotation !== undefined) delete accumulatedChanges.rotation; // Remove if rotation was attempted
                 }
             }
 
-
-            // --- Stage 3 & 4: Handle Counter Sizing (length_units) ---
-            if (overallValidationPassed) {
+            // --- Stage 3 & 4: Handle Counter Sizing (This part remains the same) ---
+            if (overallValidationPassedInSnapshot) {
                 const isCounterItem = currentItem.itemType === ItemTypes.PLACED_COUNTER ||
                     (currentItem.itemType === ItemTypes.PLACED_DECOR && currentItem.decorType?.startsWith('counter-'));
 
                 if (isCounterItem) {
                     if (newProps.length !== undefined) {
                         const newLengthUnits = parseInt(String(newProps.length).trim(), 10);
-                        delete accumulatedChanges.length;
+                        delete accumulatedChanges.length; // Remove the 'length' prop, use 'length_units'
 
                         if (isNaN(newLengthUnits) || newLengthUnits < 1) {
                             openAlertModal("Invalid Input", "Counter length must be a positive integer.", "error");
-                            overallValidationPassed = false;
+                            overallValidationPassedInSnapshot = false;
                         } else {
                             const baseUnitMinor = 1 * prev.gridSubdivision;
+                             // Use rotation potentially modified by Stage 2
                             const rotationToUse = accumulatedChanges.rotation !== undefined ? accumulatedChanges.rotation : currentItem.rotation;
                             const isHorizontal = (rotationToUse === 0 || rotationToUse === 180);
 
                             let new_semantic_w_minor, new_semantic_h_minor;
                             if (isHorizontal) {
                                 new_semantic_w_minor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, newLengthUnits * baseUnitMinor);
-                                new_semantic_h_minor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, currentItem.h_minor);
-                            } else {
+                                // Use height potentially modified by Stage 1 or currentItem's
+                                new_semantic_h_minor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor);
+                            } else { // Vertical
                                 new_semantic_h_minor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, newLengthUnits * baseUnitMinor);
-                                new_semantic_w_minor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, currentItem.w_minor);
+                                // Use width potentially modified by Stage 1 or currentItem's
+                                new_semantic_w_minor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor);
                             }
-
+                             // Use position potentially modified by Stage 1
                             const posToCheck = accumulatedChanges.gridPosition || currentItem.gridPosition;
                             const itemForCheck = { ...currentItem, ...accumulatedChanges, gridPosition: posToCheck, w_minor: new_semantic_w_minor, h_minor: new_semantic_h_minor, rotation: rotationToUse };
                             const { w: effW_check, h: effH_check } = getEffectiveDimensionsUtil(itemForCheck);
 
                             if (!canPlaceItemUtil(posToCheck.rowStart, posToCheck.colStart, effW_check, effH_check, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
                                 openAlertModal("Resize Error", "Cannot change counter length: New size conflicts or is out of bounds.", "error");
-                                overallValidationPassed = false;
+                                overallValidationPassedInSnapshot = false;
                             } else {
                                 accumulatedChanges.w_minor = new_semantic_w_minor;
                                 accumulatedChanges.h_minor = new_semantic_h_minor;
@@ -354,6 +390,7 @@ const useLayoutDesignerStateManagement = (
                         if (typeof lengthDimensionMinor === 'number' && lengthDimensionMinor >= baseUnitMinor && baseUnitMinor > 0) {
                             accumulatedChanges.length_units = Math.max(1, Math.round(lengthDimensionMinor / baseUnitMinor));
                         } else {
+                             // Default to 1 if calculation is not possible (should ideally not happen with MIN_ITEM_DIMENSION_MINOR_CELLS)
                             accumulatedChanges.length_units = 1;
                         }
                     }
@@ -361,7 +398,8 @@ const useLayoutDesignerStateManagement = (
             }
 
             // --- Stage 5: Other property validations (table number, seats) ---
-            if (overallValidationPassed && currentItem.itemType === ItemTypes.PLACED_TABLE) {
+            // (This part remains the same as your previous correct version)
+            if (overallValidationPassedInSnapshot && currentItem.itemType === ItemTypes.PLACED_TABLE) {
                 if (newProps.number !== undefined) {
                     const newNumStr = String(newProps.number).trim();
                     if (newNumStr === "") { accumulatedChanges.number = null; accumulatedChanges.isProvisional = true; }
@@ -369,12 +407,12 @@ const useLayoutDesignerStateManagement = (
                         const newNum = parseInt(newNumStr, 10);
                         if (isNaN(newNum) || newNum <= 0) {
                             openAlertModal("Invalid Input", "Table number must be a positive integer or empty.", "error");
-                            delete accumulatedChanges.number; if (newProps.isProvisional === false) delete accumulatedChanges.isProvisional;
-                            overallValidationPassed = false;
+                            delete accumulatedChanges.number; if (newProps.isProvisional === false && accumulatedChanges.isProvisional !== undefined) delete accumulatedChanges.isProvisional;
+                            overallValidationPassedInSnapshot = false;
                         } else if (prev.designItems.some(it => it.id !== itemId && it.itemType === ItemTypes.PLACED_TABLE && it.number === newNum)) {
                             openAlertModal("Duplicate Number", `Table number ${newNum} is already in use.`, "warning");
-                            delete accumulatedChanges.number; if (newProps.isProvisional === false) delete accumulatedChanges.isProvisional;
-                            overallValidationPassed = false;
+                            delete accumulatedChanges.number; if (newProps.isProvisional === false && accumulatedChanges.isProvisional !== undefined) delete accumulatedChanges.isProvisional;
+                            overallValidationPassedInSnapshot = false;
                         } else {
                             accumulatedChanges.number = newNum;
                             accumulatedChanges.isProvisional = false;
@@ -389,7 +427,7 @@ const useLayoutDesignerStateManagement = (
                         if (isNaN(newSeatsNum) || newSeatsNum < 0) {
                             openAlertModal("Invalid Input", "Seats must be a non-negative integer or empty.", "error");
                             delete accumulatedChanges.seats;
-                            overallValidationPassed = false;
+                            overallValidationPassedInSnapshot = false;
                         } else {
                             accumulatedChanges.seats = newSeatsNum;
                         }
@@ -397,23 +435,35 @@ const useLayoutDesignerStateManagement = (
                 }
             }
 
-            // --- Final Step: Apply if overall validation passed ---
-            if (!overallValidationPassed) {
-                console.warn("[updateItemProperties] Overall validation failed. Some changes might not have been applied.", newProps, "Current accumulated changes:", accumulatedChanges);
-                // We return prev here to prevent partial updates if a sub-operation failed,
-                // but accumulatedChanges might still hold some valid changes from prior stages.
-                // The individual validation steps should remove offending props from accumulatedChanges.
-                // If after all stages, overallValidationPassed is false, we effectively roll back the entire attempt for this call.
+            // --- Final Step: Apply if overall validation passed (within snapshot logic) ---
+            if (!overallValidationPassedInSnapshot) {
+                overallValidationPassedThisCall = false; // Reflect failure for the outer function's return
+                return prev; 
+            }
+
+            let hasActualChanges = false;
+            for (const key in accumulatedChanges) {
+                if (key === 'gridPosition') {
+                    if (accumulatedChanges.gridPosition.rowStart !== currentItem.gridPosition.rowStart ||
+                        accumulatedChanges.gridPosition.colStart !== currentItem.gridPosition.colStart) {
+                        hasActualChanges = true; break;
+                    }
+                } else if (JSON.stringify(accumulatedChanges[key]) !== JSON.stringify(currentItem[key])) {
+                    hasActualChanges = true; break;
+                }
+            }
+            
+            if (!hasActualChanges) {
                 return prev;
             }
-            if (Object.keys(accumulatedChanges).length === 0) return prev;
-
+            
             const updatedItem = { ...currentItem, ...accumulatedChanges };
             const newDesignItems = [...prev.designItems];
             newDesignItems[itemIndex] = updatedItem;
             return { ...prev, designItems: newDesignItems };
         });
-        return overallValidationPassed;
+
+        return overallValidationPassedThisCall; 
     }, [setLayoutSnapshotWithHistory, openAlertModal, getEffectiveDimensionsUtil, canPlaceItemUtil]);
 
     const setGridDimensions = useCallback(({ rows, cols }) => {

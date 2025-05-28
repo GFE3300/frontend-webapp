@@ -1,8 +1,7 @@
 // features/venue_management/subcomponents/layout_designer/PlacedItem.jsx
 import React, { useMemo, useCallback, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
-import { getEmptyImage } from 'react-dnd-html5-backend'; // Still needed for ResizeHandle drag preview
-// eslint-disable-next-line no-unused-vars
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { motion } from 'framer-motion';
 
 // Item Renderers
@@ -17,12 +16,11 @@ import Icon from '../../../../components/common/Icon';
 
 // --- Design Guideline Variables ---
 const PLACED_ITEM_CLASSES = {
-    base: "group absolute cursor-grab focus-visible:outline-none transform-gpu", // transform-gpu for better perf on transforms
-    dragging: "!cursor-grabbing opacity-60 shadow-2xl scale-105",
+    base: "group absolute cursor-grab focus-visible:outline-none",
+    dragging: "!cursor-grabbing opacity-60 shadow-2xl",
     fixed: "!cursor-default",
-    selectedLight: "ring-2 ring-rose-500 shadow-lg", // Base selection ring color
-    selectedDark: "dark:ring-rose-400",             // Dark mode selection ring color
-    // Ring offset color classes will be added directly below based on theme
+    selectedLight: "ring-2 ring-rose-500 shadow-lg",
+    selectedDark: "dark:ring-rose-400",
     eraserHoverLight: "hover:ring-2 hover:ring-red-500/70",
     eraserHoverDark: "dark:hover:ring-red-400/70",
 };
@@ -31,11 +29,11 @@ const HANDLE_CLASSES = {
     base: "absolute rounded-full shadow-md transition-opacity duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100",
     bgLight: "bg-rose-500",
     bgDark: "dark:bg-rose-400",
-    border: "border-2 border-white dark:border-neutral-800", // Handle border should contrast with its own bg and canvas
-    resizeSize: "w-2.5 h-2.5", // 10px
-    rotationSize: "w-6 h-6 p-0.5", // 24px container for a 16px icon
-    rotationIconSize: "w-4 h-4", // 16px icon
-    rotationIconColor: "text-white dark:text-neutral-900", // Icon color for rotation handle
+    border: "border-2 border-white dark:border-neutral-800",
+    resizeSize: "w-2.5 h-2.5",
+    rotationSize: "w-6 h-6 p-0.5",
+    rotationIconSize: "w-4 h-4",
+    rotationIconColor: "text-white dark:text-neutral-900",
 };
 // --- End Design Guideline Variables ---
 
@@ -48,28 +46,25 @@ const DefaultItemRenderer = ({ item }) => (
 );
 
 const ResizeHandle = ({ item, direction, ItemTypes }) => {
-    // isDragging renamed to avoid potential naming conflicts if this component were less isolated.
     const [{ isDragging: isResizeDragging }, dragResizeRef, previewResizeRef] = useDrag(() => ({
         type: ItemTypes.RESIZE_HANDLE,
         item: () => ({
             type: ItemTypes.RESIZE_HANDLE,
             itemId: item.id,
             direction: direction,
-            originalItem: { ...item }, // Pass a snapshot of the item at drag start
+            originalItem: { ...item },
         }),
         collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
     }));
 
-    // Use an empty image as drag preview for handles
     useEffect(() => { previewResizeRef(getEmptyImage(), { captureDraggingState: true }); }, [previewResizeRef]);
 
     const handleSize = HANDLE_CLASSES.resizeSize;
-    const offset = `-translate-x-1/2 -translate-y-1/2`; // For centering the handle on the edge
+    const offset = `-translate-x-1/2 -translate-y-1/2`;
 
     let positionClasses = "";
     let cursorClass = "";
 
-    // Determine position and cursor based on handle direction
     switch (direction) {
         case 'N': positionClasses = `top-0 left-1/2 ${offset}`; cursorClass = 'cursor-ns-resize'; break;
         case 'S': positionClasses = `bottom-0 left-1/2 ${offset} translate-y-full`; cursorClass = 'cursor-ns-resize'; break;
@@ -87,32 +82,31 @@ const ResizeHandle = ({ item, direction, ItemTypes }) => {
                 ${isResizeDragging ? 'opacity-70' : ''}
             `}
             title={`Resize ${direction}`}
-            onClick={(e) => e.stopPropagation()} // Prevent PlacedItem click when handle is clicked
-            style={{ zIndex: 25 }} // Handles should be above the item content
+            onClick={(e) => e.stopPropagation()}
+            style={{ zIndex: 25 }}
         />
     );
 };
 
 const RotationHandle = ({ item, onUpdateItemProperty }) => {
     const handleRotateClick = useCallback((e) => {
-        e.stopPropagation(); // Prevent PlacedItem click
+        e.stopPropagation();
         if (item && item.id && onUpdateItemProperty) {
-            // Signal a 90-degree step rotation to the state management hook
             onUpdateItemProperty(item.id, { rotation: true });
         }
     }, [item, onUpdateItemProperty]);
 
     return (
-        <button // Using a button element for better accessibility with click interactions
+        <button
             type="button"
             onClick={handleRotateClick}
             className={`
                 ${HANDLE_CLASSES.base} ${HANDLE_CLASSES.rotationSize}
                 ${HANDLE_CLASSES.bgLight} ${HANDLE_CLASSES.bgDark} ${HANDLE_CLASSES.border}
                 flex items-center justify-center cursor-pointer
-                -top-2 -right-2 transform translate-x-1/2 -translate-y-1/2
-            `} // Positioned off the top-right corner
-            style={{ zIndex: 26 }} // Rotation handle typically above resize handles visually
+                -top-2 -right-2 transform translate-x-1/2 -translate-y-1/2 
+            `}
+            style={{ zIndex: 26 }}
             title="Rotate Item (90°)"
             aria-label="Rotate Item by 90 degrees"
         >
@@ -129,34 +123,37 @@ const PlacedItem = ({
     onSelectItem,
     isSelected,
     minorCellSizeRem,
-    ItemTypes, // Still needed for ResizeHandle and main item drag type
+    ItemTypes,
     ITEM_CONFIGS,
-    zoomLevel, // Passed for potential internal use by renderers or handles
+    zoomLevel,
 }) => {
 
     const effectiveDimensions = useMemo(() => getEffectiveDimensionsUtil(item), [item]);
 
-    // isDragging renamed to avoid potential naming conflicts
     const [{ isDragging: isItemDragging }, dragItemBodyRef] = useDrag(() => ({
-        type: item.itemType, // This is the PLACED_ITEM type (e.g., PLACED_TABLE)
-        item: () => ({ ...item, effW_minor: effectiveDimensions.w, effH_minor: effectiveDimensions.h }), // Payload for drag
+        type: item.itemType,
+        item: () => ({ ...item, effW_minor: effectiveDimensions.w, effH_minor: effectiveDimensions.h }),
         canDrag: () => !isEraserActive && !item.isFixed,
         collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
     }), [item, isEraserActive, ItemTypes, effectiveDimensions]);
 
-    const dynamicStyle = useMemo(() => ({
-        position: 'absolute',
-        top: `${(item.gridPosition.rowStart - 1) * minorCellSizeRem}rem`,
-        left: `${(item.gridPosition.colStart - 1) * minorCellSizeRem}rem`,
-        width: `${item.w_minor * minorCellSizeRem}rem`,
-        height: `${item.h_minor * minorCellSizeRem}rem`,
-        zIndex: isItemDragging ? 200 : (isSelected ? 15 : (isEraserActive && !item.isFixed ? 20 : 10)),
-        transform: `rotate(${item.rotation || 0}deg)`,
-        transformOrigin: 'center center', // Crucial for rotation on its own axis
-    }), [item, minorCellSizeRem, isItemDragging, isSelected, isEraserActive]);
+    // This style object now only contains layout-related CSS properties (top, left, width, height, zIndex).
+    // Transform properties (rotate, scale) will be handled by Framer Motion's animate prop.
+    const dynamicPositionAndSizeStyle = useMemo(() => {
+        return {
+            position: 'absolute',
+            top: `${(item.gridPosition.rowStart - 1) * minorCellSizeRem}rem`,
+            left: `${(item.gridPosition.colStart - 1) * minorCellSizeRem}rem`,
+            width: `${item.w_minor * minorCellSizeRem}rem`,
+            height: `${item.h_minor * minorCellSizeRem}rem`,
+            zIndex: isItemDragging ? 200 : (isSelected ? 15 : (isEraserActive && !item.isFixed ? 20 : 10)),
+            // transformOrigin: 'center center', // Framer Motion typically defaults to center for rotate with explicit W/H.
+            // Can be added if specific origin is needed and not handled by Framer.
+        };
+    }, [item.gridPosition, item.w_minor, item.h_minor, minorCellSizeRem, isItemDragging, isSelected, isEraserActive]);
 
     const handleClick = useCallback((e) => {
-        e.stopPropagation(); // Prevent event bubbling to canvas
+        e.stopPropagation();
         if (isEraserActive && !item.isFixed) {
             onEraseItemById(item.id);
         } else if (onSelectItem) {
@@ -167,76 +164,82 @@ const PlacedItem = ({
     const handleContextMenu = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
-        // Placeholder for custom context menu; for now, just selects the item
         if (onSelectItem) onSelectItem(item.id);
-        // console.log("Context menu for item:", item.id); // Optional: for debugging
     }, [item.id, onSelectItem]);
 
     const itemConfig = ITEM_CONFIGS[item.itemType];
-    let SpecificItemRenderer = DefaultItemRenderer; // Fallback renderer
+    let SpecificItemRenderer = DefaultItemRenderer;
     const rendererKey = itemConfig?.PlacedComponent;
 
-    // Dispatch to the correct renderer based on item configuration
     switch (rendererKey) {
         case 'TableRenderer': SpecificItemRenderer = TableRenderer; break;
         case 'WallRenderer': SpecificItemRenderer = WallRenderer; break;
         case 'DoorRenderer': SpecificItemRenderer = DoorRenderer; break;
         case 'DecorRenderer': SpecificItemRenderer = DecorRenderer; break;
         case 'CounterRenderer': SpecificItemRenderer = CounterRenderer; break;
-        // default: SpecificItemRenderer remains DefaultItemRenderer
     }
 
-    // Base classes for the PlacedItem
-    let combinedClassName = `${PLACED_ITEM_CLASSES.base} ${item.isFixed ? PLACED_ITEM_CLASSES.fixed : ''}`;
+    const classList = [PLACED_ITEM_CLASSES.base];
+    if (item.isFixed) {
+        classList.push(PLACED_ITEM_CLASSES.fixed);
+    }
 
-    // Standard Tailwind classes for ring offset based on assumed canvas background colors
-    // (white in light mode, neutral-800 in dark mode for the grid background where items are placed)
     const selectionRingOffsetClasses = "ring-offset-1 ring-offset-white dark:ring-offset-neutral-800";
 
     if (isItemDragging) {
-        combinedClassName += ` ${PLACED_ITEM_CLASSES.dragging}`;
+        classList.push(PLACED_ITEM_CLASSES.dragging);
     } else if (isSelected && !isEraserActive) {
-        combinedClassName += ` ${PLACED_ITEM_CLASSES.selectedLight} ${PLACED_ITEM_CLASSES.selectedDark} ${selectionRingOffsetClasses}`;
+        classList.push(PLACED_ITEM_CLASSES.selectedLight, PLACED_ITEM_CLASSES.selectedDark, selectionRingOffsetClasses);
     } else if (isEraserActive && !item.isFixed) {
-        combinedClassName += ` ${PLACED_ITEM_CLASSES.eraserHoverLight} ${PLACED_ITEM_CLASSES.eraserHoverDark} ${selectionRingOffsetClasses}`;
+        classList.push(PLACED_ITEM_CLASSES.eraserHoverLight, PLACED_ITEM_CLASSES.eraserHoverDark, selectionRingOffsetClasses);
     }
+
+    const combinedClassName = classList.join(' ');
 
     const canResize = typeof itemConfig?.isResizable === 'function' ? itemConfig.isResizable(item) : itemConfig?.isResizable === true;
     const canRotate = itemConfig?.isRotatable === true;
 
-    // Safeguard for invalid item data to prevent rendering errors
     if (!item || !item.gridPosition || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
         console.warn("PlacedItem: Invalid item data received. Rendering null.", item);
         return null;
     }
 
+    // Simplified log to check rotation value passed to Framer Motion
+    // console.log(`PlacedItem ${item.id} rendering. Rotation for animate: ${item.rotation || 0}`);
+
     return (
         <motion.div
-            ref={dragItemBodyRef} // Ref for dragging the item body
-            style={dynamicStyle}
+            ref={dragItemBodyRef}
+            style={dynamicPositionAndSizeStyle} // Apply position and size styles directly
             onClick={handleClick}
             onContextMenu={handleContextMenu}
-            layout // Framer Motion prop to animate layout changes (position, size)
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            layout // Enable Framer Motion layout animations for position and size
+            initial={{
+                opacity: 0,
+                scale: 0.9, // Initial scale
+            }}
+            animate={{ // Target state for animation
+                opacity: 1,
+                scale: isItemDragging ? 1.05 : 1, // Animate scale based on dragging state
+                rotate: item.rotation || 0,      // Animate rotation based on item.rotation
+            }}
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }} // Animation physics
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }} // Default transition for all animated props
             className={combinedClassName}
             title={isEraserActive && !item.isFixed ? `Click to erase ${itemConfig?.displayName || item.itemType}` :
                 item.isFixed ? `${itemConfig?.displayName || item.itemType} (Fixed)` :
                     `Drag to move, Click to select ${itemConfig?.displayName || item.itemType}`
             }
-            role="button" // Semantically a button as it's clickable
-            tabIndex={isEraserActive || item.isFixed ? -1 : 0} // Focusable if interactive
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(e); }} // Keyboard activation
+            role="button"
+            tabIndex={isEraserActive || item.isFixed ? -1 : 0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(e); }}
         >
             <SpecificItemRenderer
                 item={item}
-                onUpdateItemProperty={onUpdateItemProperty} // Pass down for in-renderer edits (e.g., TableNumber)
+                onUpdateItemProperty={onUpdateItemProperty}
                 isSelected={isSelected}
-                zoomLevel={zoomLevel} // Pass zoom for potential use in specific item renderers
+                zoomLevel={zoomLevel}
             />
-            {/* Handles are only shown if the item is selected, not fixed, and eraser is not active */}
             {isSelected && !isEraserActive && !item.isFixed && (
                 <>
                     {canResize && ['N', 'S', 'E', 'W'].map(dir => (
