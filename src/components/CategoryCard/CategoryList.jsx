@@ -3,10 +3,10 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CategoryItem from '../components/CategoryComponents/CategoryItem';
-import AddCategoryForm from '../components/CategoryComponents/AddCategoryForm';
-import EditCategoryForm from '../components/CategoryComponents/EditCategoryForm';
-import Modal from '../components/CategoryComponents/Modal';
+import CategoryItem from './Subcomponents/CategoryItem';
+import AddCategoryForm from './Subcomponents/AddCategoryForm';
+import EditCategoryForm from '../components/CategoryCard/EditCategoryForm';
+import Modal from './Subcomponents/Modal';
 
 // --- Icons --- (Keep existing icons: DropdownArrowIcon, PlusIcon, SearchIcon, SortAscIcon, SortDescIcon, TrashIcon)
 // ... (your icon definitions remain here) ...

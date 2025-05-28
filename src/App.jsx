@@ -15,6 +15,18 @@ import { VenueManagementPage } from './features/venue_management/subcomponents/i
 // Components
 import CartDrawer from './components/store/CartDrawer.jsx'; // Original import, kept for consistency
 import PrivateRoute from './components/common/PrivateRoute.jsx';
+<<<<<<< HEAD
+=======
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HTML5Backend } from 'react-dnd-html5-backend'; // Import HTML5Backend
+import CategoryList from './components/CategoryCard/CategoryList.jsx';
+
+// Contexts
+import { CartProvider } from './contexts/CartContext';
+import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
+import { AuthProvider } from './contexts/AuthContext'; // Crucial import
+import { DndProvider } from 'react-dnd';
+>>>>>>> ac8a9cb0d0823630e7b2fd647b913153113d7b54
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
 
 // Contexts & Providers
@@ -111,6 +123,16 @@ const router = createBrowserRouter([
 		errorElement: <NotFoundPage />,
 	},
 	{
+		path: "/dashboard/categories",
+		element: (
+			<PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
+				<CategoryList />
+			</PrivateRoute>
+		),
+		errorElement: <NotFoundPage />,
+	},
+	{
+		// Example of an unauthorized page route
 		path: "/dashboard/unauthorized",
 		element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>,
 	}

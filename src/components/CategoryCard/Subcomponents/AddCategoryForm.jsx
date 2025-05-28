@@ -1,6 +1,6 @@
 // FILE: C:/Users/maxda/Desktop/dads/data_cards/src/Category editor\AddCategoryForm.jsx
 import React, { useState } from 'react';
-import TailwindColorPicker from './TailwindColorPicker';
+import TailwindColorPicker from '../TailwindColorPicker';
 import { availableColorClasses } from './colorConstants'; // MODIFIED IMPORT
 
 const AddCategoryForm = ({ onAddCategory, onCancel }) => {
