@@ -80,7 +80,7 @@ export const ITEM_CONFIGS = {
         displayName: 'Decor',
         isRotatable: true,
         // Resizable can be a function based on decorType
-        isResizable: (item) => {console.log(item); return (item.decorType == 'rug')}, // Example: only rugs are resizable generic decor
+        isResizable: (item) => {return (item.decorType == 'rug')}, // Example: only rugs are resizable generic decor
         canHaveQr: false,
         defaultPropsFactory: (toolPayload) => ({
             shape: toolPayload.size_identifier, // e.g., 'plant-pot-small', 'rug-medium-rect'

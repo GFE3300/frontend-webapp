@@ -1,3 +1,4 @@
+// features\venue_management\subcomponents\layout_designer\LayoutEditor.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -26,7 +27,7 @@ import ConfirmationModal from '../../../../components/common/ConfirmationModal';
 // --- Design Guideline Variables ---
 const EDITOR_MAIN_AREA_BG_LIGHT = 'bg-neutral-100'; // Slightly off-white for the area around the canvas
 const EDITOR_MAIN_AREA_BG_DARK = 'dark:bg-neutral-900';
-const EDITOR_PADDING_WHEN_INSPECTOR_OPEN = 'pr-80'; // width of PropertiesInspector
+// const EDITOR_PADDING_WHEN_INSPECTOR_OPEN = 'pr-80'; // width of PropertiesInspector // Not strictly needed if motion.main handles layout
 
 const LayoutEditor = ({
     initialLayout,
@@ -43,8 +44,6 @@ const LayoutEditor = ({
     const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL);
     const [isClearConfirmationOpen, setIsClearConfirmationOpen] = useState(false);
 
-    // Memoize initialLayoutConfig to stabilize `useLayoutDesignerStateManagement` dependency
-    // This ensures the hook doesn't re-initialize unnecessarily if `initialLayout` object reference changes but content is same.
     const initialLayoutConfig = useMemo(() => ({
         initialDesignItems: initialLayout?.designItems ? JSON.parse(JSON.stringify(initialLayout.designItems)) : Object.freeze([]),
         initialGridRows: initialLayout?.gridDimensions?.rows,
@@ -52,13 +51,10 @@ const LayoutEditor = ({
         initialGridSubdivision: initialLayout?.gridDimensions?.gridSubdivision,
     }), [initialLayout]);
 
-    // Core State Management Hook for layout items, grid, history
     const layoutManager = useLayoutDesignerStateManagement(initialLayoutConfig, openAlert);
-    // Interaction State Hook for eraser, drag previews
     const interactionsManager = useDesignerInteractions();
 
     // --- Effects ---
-    // Notify parent (VenueDesignerPage) about content changes
     useEffect(() => {
         const currentDesignerStateSnapshot = {
             designItems: layoutManager.designItems,
@@ -68,11 +64,10 @@ const LayoutEditor = ({
                 gridSubdivision: layoutManager.gridSubdivision,
             }
         };
-        // Compare current state with the effectively initial state that was used to set up the hook
         const initialHookSnapshot = {
             designItems: initialLayoutConfig.initialDesignItems,
             gridDimensions: {
-                rows: initialLayoutConfig.initialGridRows || DEFAULT_INITIAL_GRID_ROWS, // Use defaults if not provided
+                rows: initialLayoutConfig.initialGridRows || DEFAULT_INITIAL_GRID_ROWS,
                 cols: initialLayoutConfig.initialGridCols || DEFAULT_INITIAL_GRID_COLS,
                 gridSubdivision: initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION,
             }
@@ -86,7 +81,6 @@ const LayoutEditor = ({
         initialLayoutConfig, onContentChange
     ]);
 
-    // Deselect item if it's removed (e.g., by undo, eraser, or clear all)
     useEffect(() => {
         if (selectedItemId && !layoutManager.designItems.find(item => item.id === selectedItemId)) {
             setSelectedItemId(null);
@@ -94,7 +88,6 @@ const LayoutEditor = ({
         }
     }, [layoutManager.designItems, selectedItemId]);
 
-    // Global keydown listener for 'Escape' key
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'Escape') {
@@ -105,14 +98,17 @@ const LayoutEditor = ({
                     interactionsManager.toggleEraser();
                 }
                 if (interactionsManager.draggedItemPreview) {
-                    interactionsManager.updateDraggedItemPreview(null); // Clear any active drag preview
+                    interactionsManager.updateDraggedItemPreview(null);
                 }
-                // Potentially close other modals if active and appropriate
             }
+            // Additional shortcuts can be handled here, e.g., Ctrl+S for save, Ctrl+Z/Y for undo/redo
+            // if (event.ctrlKey && event.key === 's') { event.preventDefault(); handleSave(); }
+            // if (event.ctrlKey && event.key === 'z') { event.preventDefault(); layoutManager.undo(); }
+            // if (event.ctrlKey && event.key === 'y') { event.preventDefault(); layoutManager.redo(); }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedItemId, interactionsManager]);
+    }, [selectedItemId, interactionsManager, layoutManager /* handleSave if added to shortcuts */]);
 
     // --- Callbacks ---
     const handleSelectItem = useCallback((itemId) => {
@@ -122,7 +118,7 @@ const LayoutEditor = ({
             return newId;
         });
         if (interactionsManager.isEraserActive) {
-            interactionsManager.toggleEraser(); // Deactivate eraser when selecting an item
+            interactionsManager.toggleEraser();
         }
     }, [interactionsManager]);
 
@@ -132,20 +128,15 @@ const LayoutEditor = ({
     }, []);
 
     const handleCanvasClick = useCallback((event) => {
-        // Only deselect if the click is on the canvas background itself,
-        // not on a placed item (which would be handled by PlacedItem's onClick).
-        // EditorCanvas's outer div will call this.
         if (event.target === event.currentTarget && selectedItemId) {
             deselectAndCloseInspector();
         }
     }, [selectedItemId, deselectAndCloseInspector]);
 
-    // Zoom handlers
     const handleZoomIn = useCallback(() => setZoomLevel(prev => Math.min(MAX_ZOOM_LEVEL, parseFloat((prev + ZOOM_STEP).toFixed(2)))), []);
     const handleZoomOut = useCallback(() => setZoomLevel(prev => Math.max(MIN_ZOOM_LEVEL, parseFloat((prev - ZOOM_STEP).toFixed(2)))), []);
     const handleResetZoom = useCallback(() => setZoomLevel(DEFAULT_ZOOM_LEVEL), []);
 
-    // Layout Validation
     const validateLayoutForSave = useCallback(() => {
         const tablesToValidate = layoutManager.designItems.filter(item => item.itemType === ItemTypes.PLACED_TABLE);
         const hasInvalidTables = tablesToValidate.some(t => t.isProvisional || typeof t.number !== 'number' || t.number <= 0);
@@ -162,9 +153,8 @@ const LayoutEditor = ({
             return false;
         }
         return true;
-    }, [layoutManager.designItems, openAlert]);
+    }, [layoutManager.designItems, openAlert, ItemTypes.PLACED_TABLE]);
 
-    // Get current layout state for saving
     const getCurrentLayoutSnapshot = useCallback(() => ({
         designItems: JSON.parse(JSON.stringify(layoutManager.designItems)),
         gridDimensions: {
@@ -172,15 +162,13 @@ const LayoutEditor = ({
             cols: layoutManager.gridCols,
             gridSubdivision: layoutManager.gridSubdivision,
         },
-        // kitchenArea: layoutManager.kitchenArea, // Include if managed by layoutManager
     }), [layoutManager]);
 
-    // Save handlers
     const handleSave = useCallback(async () => {
         if (!validateLayoutForSave()) return false;
         if (onSaveTrigger) {
             const layoutToSave = getCurrentLayoutSnapshot();
-            return await onSaveTrigger(layoutToSave); // Propagate success/failure
+            return await onSaveTrigger(layoutToSave);
         }
         return false;
     }, [validateLayoutForSave, getCurrentLayoutSnapshot, onSaveTrigger]);
@@ -188,24 +176,22 @@ const LayoutEditor = ({
     const handleSaveAndExit = useCallback(async () => {
         const saved = await handleSave();
         if (saved && onSaveAndExitTrigger) {
-            // No need to get snapshot again, handleSave already did and called parent.
-            // Parent (VenueDesignerPage) will handle navigation after successful save.
-            onSaveAndExitTrigger(getCurrentLayoutSnapshot()); // Call parent's trigger which will navigate
+            onSaveAndExitTrigger(getCurrentLayoutSnapshot());
         }
     }, [handleSave, onSaveAndExitTrigger, getCurrentLayoutSnapshot]);
 
-
-    // Clear All handlers
     const attemptClearAll = useCallback(() => setIsClearConfirmationOpen(true), []);
+
     const confirmClearAll = useCallback(() => {
         setIsClearConfirmationOpen(false);
-        layoutManager.clearFullLayout(); // Shows its own alert via openAlert
+        // Use resetToDefaults to clear items, reset grid settings, and reset history
+        // This aligns with the modal message: "clear the entire layout and reset grid settings...cannot be undone"
+        layoutManager.resetToDefaults();
         deselectAndCloseInspector();
         setZoomLevel(DEFAULT_ZOOM_LEVEL);
-        // onContentChange will be triggered by layoutManager changes
+        // onContentChange will be triggered by layoutManager changes (due to resetHistory)
     }, [layoutManager, deselectAndCloseInspector]);
 
-    // Item Property Update handler
     const handleUpdateItemProperties = useCallback((itemId, propertyUpdates) => {
         return layoutManager.updateItemProperties(itemId, propertyUpdates);
     }, [layoutManager]);
@@ -213,7 +199,7 @@ const LayoutEditor = ({
     // --- Render ---
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className="flex flex-col h-full w-full" role="application"> {/* Main editor container */}
+            <div className="flex flex-col h-full w-full" role="application">
                 <EditorToolbar
                     majorGridRows={layoutManager.gridRows}
                     majorGridCols={layoutManager.gridCols}
@@ -233,13 +219,11 @@ const LayoutEditor = ({
 
                 <div
                     className={`flex-1 flex overflow-hidden relative ${EDITOR_MAIN_AREA_BG_LIGHT} ${EDITOR_MAIN_AREA_BG_DARK} transition-all duration-300 ease-in-out`}
-                // Adjust right padding if inspector is open to prevent content shift, or let motion.div handle it.
-                // style={{ paddingRight: isPropertiesInspectorOpen ? '20rem' : '0' }} // 20rem = w-80
                 >
                     <motion.main
-                        layout // Animate layout changes when PropertiesInspector appears/disappears
+                        layout
                         className="flex-1 overflow-auto flex items-center justify-center p-4 sm:p-6 md:p-8"
-                        onClick={handleCanvasClick} // Click on empty space around the canvas to deselect
+                        onClick={handleCanvasClick}
                         role="region"
                         aria-label="Layout Design Canvas Area"
                     >
@@ -260,7 +244,7 @@ const LayoutEditor = ({
                             onUpdateDraggedItemPreview={interactionsManager.updateDraggedItemPreview}
                             isEraserActive={interactionsManager.isEraserActive}
                             zoomLevel={zoomLevel}
-                            onCanvasClick={handleCanvasClick} // Pass for clicks directly on the grid background
+                            onCanvasClick={handleCanvasClick}
                         />
                     </motion.main>
 
@@ -272,7 +256,6 @@ const LayoutEditor = ({
                         isOpen={isPropertiesInspectorOpen}
                         onClose={deselectAndCloseInspector}
                         gridSubdivision={layoutManager.gridSubdivision}
-                    // QR related props can be passed here if TableEditor needs them
                     />
                 </div>
             </div>
@@ -283,11 +266,10 @@ const LayoutEditor = ({
                 onConfirm={confirmClearAll}
                 title="Clear Entire Layout"
                 message="Are you sure you want to clear the entire layout and reset grid settings? This action cannot be undone using the history."
-                confirmText="Yes, Clear All"
+                confirmText="Yes, Clear All & Reset Grid" // Updated text for clarity
                 cancelText="Cancel"
                 type="danger"
             />
-            {/* Global AlertModal is handled by VenueDesignerPage */}
         </DndProvider>
     );
 };

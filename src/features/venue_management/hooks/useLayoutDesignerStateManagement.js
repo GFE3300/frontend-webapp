@@ -260,17 +260,17 @@ const useLayoutDesignerStateManagement = (
                 pendingHMinor = accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor;
 
                 if (overallValidationPassedInSnapshot) {
-                    const itemForCheck = { 
-                        ...currentItem, 
-                        gridPosition: pendingGridPosition, 
-                        w_minor: pendingWMinor, 
-                        h_minor: pendingHMinor, 
+                    const itemForCheck = {
+                        ...currentItem,
+                        gridPosition: pendingGridPosition,
+                        w_minor: pendingWMinor,
+                        h_minor: pendingHMinor,
                         // Use rotation from newProps if available, else currentItem's, for this check
-                        rotation: newProps.rotation !== undefined && typeof newProps.rotation === 'number' 
-                                    ? newProps.rotation // If a specific number is passed for rotation
-                                    : (newProps.rotation === true // If it's a step signal
-                                        ? (parseInt(String(currentItem.rotation || 0), 10) + 90) % 360 // Calculate next step for check
-                                        : currentItem.rotation) // Else, current rotation
+                        rotation: newProps.rotation !== undefined && typeof newProps.rotation === 'number'
+                            ? newProps.rotation // If a specific number is passed for rotation
+                            : (newProps.rotation === true // If it's a step signal
+                                ? (parseInt(String(currentItem.rotation || 0), 10) + 90) % 360 // Calculate next step for check
+                                : currentItem.rotation) // Else, current rotation
                     };
                     const { w: effW_check, h: effH_check } = getEffectiveDimensionsUtil(itemForCheck);
                     if (!canPlaceItemUtil(pendingGridPosition.rowStart, pendingGridPosition.colStart, effW_check, effH_check, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
@@ -285,54 +285,74 @@ const useLayoutDesignerStateManagement = (
 
 
             // --- Stage 2: Handle rotation ---
-            if (newProps.rotation !== undefined && overallValidationPassedInSnapshot) { // Check overallValidationPassedInSnapshot from Stage 1
+            if (newProps.rotation !== undefined && overallValidationPassedInSnapshot) {
                 if (itemConfig?.isRotatable) {
-                    let newRotationValue;
-                    // Base rotation is always from the current item's state before this update operation
+                    let newRotationAngle; // Changed from newRotationValue for clarity
                     const currentActualRotation = parseInt(String(currentItem.rotation || 0), 10);
 
                     if (isNaN(currentActualRotation)) {
                         console.error("Rotation base value (currentItem.rotation) is NaN:", currentItem.rotation);
-                        delete accumulatedChanges.rotation; // Remove the offending prop from changes
+                        delete accumulatedChanges.rotation;
                         overallValidationPassedInSnapshot = false;
                     } else if (newProps.rotation === true) { // Signal for 90-degree step
-                        newRotationValue = (currentActualRotation + 90) % 360;
+                        newRotationAngle = (currentActualRotation + 90) % 360;
                     } else if (typeof newProps.rotation === 'number') { // Direct angle update
-                        newRotationValue = ((parseInt(String(newProps.rotation), 10) % 360) + 360) % 360;
-                        if (isNaN(newRotationValue)) {
-                            newRotationValue = undefined; // Mark as invalid if parsing failed
+                        newRotationAngle = ((parseInt(String(newProps.rotation), 10) % 360) + 360) % 360;
+                        if (isNaN(newRotationAngle)) {
+                            newRotationAngle = undefined;
                             openAlertModal("Invalid Input", "Invalid rotation angle provided.", "error");
                             overallValidationPassedInSnapshot = false;
                         }
-                    } else { // Invalid rotation prop value type (e.g., neither boolean true nor number)
+                    } else {
                         openAlertModal("Invalid Input", "Invalid rotation type provided.", "error");
-                        delete accumulatedChanges.rotation; // Remove the offending prop
-                        newRotationValue = undefined;
+                        delete accumulatedChanges.rotation;
+                        newRotationAngle = undefined;
                         overallValidationPassedInSnapshot = false;
                     }
 
-                    if (newRotationValue !== undefined && overallValidationPassedInSnapshot) {
-                        // Use position and dimensions potentially modified by Stage 1
+                    if (newRotationAngle !== undefined && overallValidationPassedInSnapshot) {
+                        // Determine current and prospective dimensions before potential swap
+                        let prospectiveWMinor = accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor;
+                        let prospectiveHMinor = accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor;
                         const posToUse = accumulatedChanges.gridPosition || currentItem.gridPosition;
-                        const wToUse = accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor;
-                        const hToUse = accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor;
 
-                        const tempItemWithNewRotation = { ...currentItem, gridPosition: posToUse, w_minor: wToUse, h_minor: hToUse, rotation: newRotationValue };
-                        const { w: effW_rot, h: effH_rot } = getEffectiveDimensionsUtil(tempItemWithNewRotation);
+                        // Check if dimensions should be swapped based on rotation change
+                        const wasHorizontal = currentActualRotation === 0 || currentActualRotation === 180;
+                        const willBeHorizontal = newRotationAngle === 0 || newRotationAngle === 180;
+
+                        // If getEffectiveDimensions correctly gives AABB from base w/h and rotation:
+                        const tempItemWithNewRotationAndOriginalBaseDims = {
+                            ...currentItem,
+                            gridPosition: posToUse,
+                            w_minor: prospectiveWMinor, // base width before potential swap
+                            h_minor: prospectiveHMinor, // base height before potential swap
+                            rotation: newRotationAngle
+                        };
+                        const { w: effW_rot, h: effH_rot } = getEffectiveDimensionsUtil(tempItemWithNewRotationAndOriginalBaseDims);
+
 
                         if (!canPlaceItemUtil(posToUse.rowStart, posToUse.colStart, effW_rot, effH_rot, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
                             openAlertModal("Rotation Error", "Cannot rotate: new orientation conflicts or is out of bounds.", "error");
-                            delete accumulatedChanges.rotation;
+                            delete accumulatedChanges.rotation; // Do not apply rotation
                             overallValidationPassedInSnapshot = false;
                         } else {
-                            accumulatedChanges.rotation = newRotationValue; // Rotation is valid, commit it to changes
+                            // Rotation is valid, commit it to changes
+                            accumulatedChanges.rotation = newRotationAngle;
+                            // If orientation changed, swap the base dimensions in accumulatedChanges
+                            if (wasHorizontal !== willBeHorizontal) {
+                                accumulatedChanges.w_minor = prospectiveHMinor; // Swapped
+                                accumulatedChanges.h_minor = prospectiveWMinor; // Swapped
+                            } else {
+                                // Ensure w_minor and h_minor are still in accumulatedChanges if they were there from Stage 1
+                                if (newProps.w_minor !== undefined) accumulatedChanges.w_minor = prospectiveWMinor;
+                                if (newProps.h_minor !== undefined) accumulatedChanges.h_minor = prospectiveHMinor;
+                            }
                         }
                     } else if (newProps.rotation !== undefined && accumulatedChanges.rotation !== undefined) {
-                        // If newRotationValue became undefined due to an issue but was requested, remove from changes
                         delete accumulatedChanges.rotation;
                     }
-                } else { // Not rotatable
-                    if (newProps.rotation !== undefined) delete accumulatedChanges.rotation; // Remove if rotation was attempted
+                } else {
+                    if (newProps.rotation !== undefined) delete accumulatedChanges.rotation;
                 }
             }
 
@@ -351,7 +371,7 @@ const useLayoutDesignerStateManagement = (
                             overallValidationPassedInSnapshot = false;
                         } else {
                             const baseUnitMinor = 1 * prev.gridSubdivision;
-                             // Use rotation potentially modified by Stage 2
+                            // Use rotation potentially modified by Stage 2
                             const rotationToUse = accumulatedChanges.rotation !== undefined ? accumulatedChanges.rotation : currentItem.rotation;
                             const isHorizontal = (rotationToUse === 0 || rotationToUse === 180);
 
@@ -365,7 +385,7 @@ const useLayoutDesignerStateManagement = (
                                 // Use width potentially modified by Stage 1 or currentItem's
                                 new_semantic_w_minor = Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor);
                             }
-                             // Use position potentially modified by Stage 1
+                            // Use position potentially modified by Stage 1
                             const posToCheck = accumulatedChanges.gridPosition || currentItem.gridPosition;
                             const itemForCheck = { ...currentItem, ...accumulatedChanges, gridPosition: posToCheck, w_minor: new_semantic_w_minor, h_minor: new_semantic_h_minor, rotation: rotationToUse };
                             const { w: effW_check, h: effH_check } = getEffectiveDimensionsUtil(itemForCheck);
@@ -390,7 +410,7 @@ const useLayoutDesignerStateManagement = (
                         if (typeof lengthDimensionMinor === 'number' && lengthDimensionMinor >= baseUnitMinor && baseUnitMinor > 0) {
                             accumulatedChanges.length_units = Math.max(1, Math.round(lengthDimensionMinor / baseUnitMinor));
                         } else {
-                             // Default to 1 if calculation is not possible (should ideally not happen with MIN_ITEM_DIMENSION_MINOR_CELLS)
+                            // Default to 1 if calculation is not possible (should ideally not happen with MIN_ITEM_DIMENSION_MINOR_CELLS)
                             accumulatedChanges.length_units = 1;
                         }
                     }
@@ -438,7 +458,7 @@ const useLayoutDesignerStateManagement = (
             // --- Final Step: Apply if overall validation passed (within snapshot logic) ---
             if (!overallValidationPassedInSnapshot) {
                 overallValidationPassedThisCall = false; // Reflect failure for the outer function's return
-                return prev; 
+                return prev;
             }
 
             let hasActualChanges = false;
@@ -452,18 +472,18 @@ const useLayoutDesignerStateManagement = (
                     hasActualChanges = true; break;
                 }
             }
-            
+
             if (!hasActualChanges) {
                 return prev;
             }
-            
+
             const updatedItem = { ...currentItem, ...accumulatedChanges };
             const newDesignItems = [...prev.designItems];
             newDesignItems[itemIndex] = updatedItem;
             return { ...prev, designItems: newDesignItems };
         });
 
-        return overallValidationPassedThisCall; 
+        return overallValidationPassedThisCall;
     }, [setLayoutSnapshotWithHistory, openAlertModal, getEffectiveDimensionsUtil, canPlaceItemUtil]);
 
     const setGridDimensions = useCallback(({ rows, cols }) => {
