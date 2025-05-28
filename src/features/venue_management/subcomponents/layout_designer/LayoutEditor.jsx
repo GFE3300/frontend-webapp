@@ -1,7 +1,7 @@
 // features\venue_management\subcomponents\layout_designer\LayoutEditor.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+// REMOVE: import { DndProvider } from 'react-dnd';
+// REMOVE: import { HTML5Backend } from 'react-dnd-html5-backend';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 
@@ -24,10 +24,9 @@ import { ItemTypes, toolDefinitions, ITEM_CONFIGS } from '../../constants/itemCo
 // Common Components
 import ConfirmationModal from '../../../../components/common/ConfirmationModal';
 
-// --- Design Guideline Variables ---
-const EDITOR_MAIN_AREA_BG_LIGHT = 'bg-neutral-100'; // Slightly off-white for the area around the canvas
+// Design Guideline Variables
+const EDITOR_MAIN_AREA_BG_LIGHT = 'bg-neutral-100';
 const EDITOR_MAIN_AREA_BG_DARK = 'dark:bg-neutral-900';
-// const EDITOR_PADDING_WHEN_INSPECTOR_OPEN = 'pr-80'; // width of PropertiesInspector // Not strictly needed if motion.main handles layout
 
 const LayoutEditor = ({
     initialLayout,
@@ -46,69 +45,13 @@ const LayoutEditor = ({
 
     const initialLayoutConfig = useMemo(() => ({
         initialDesignItems: initialLayout?.designItems ? JSON.parse(JSON.stringify(initialLayout.designItems)) : Object.freeze([]),
-        initialGridRows: initialLayout?.gridDimensions?.rows,
-        initialGridCols: initialLayout?.gridDimensions?.cols,
-        initialGridSubdivision: initialLayout?.gridDimensions?.gridSubdivision,
+        initialGridRows: initialLayout?.gridDimensions?.rows ?? DEFAULT_INITIAL_GRID_ROWS, // Provide default
+        initialGridCols: initialLayout?.gridDimensions?.cols ?? DEFAULT_INITIAL_GRID_COLS, // Provide default
+        initialGridSubdivision: initialLayout?.gridDimensions?.gridSubdivision ?? DEFAULT_GRID_SUBDIVISION, // Provide default
     }), [initialLayout]);
 
     const layoutManager = useLayoutDesignerStateManagement(initialLayoutConfig, openAlert);
     const interactionsManager = useDesignerInteractions();
-
-    // --- Effects ---
-    useEffect(() => {
-        const currentDesignerStateSnapshot = {
-            designItems: layoutManager.designItems,
-            gridDimensions: {
-                rows: layoutManager.gridRows,
-                cols: layoutManager.gridCols,
-                gridSubdivision: layoutManager.gridSubdivision,
-            }
-        };
-        const initialHookSnapshot = {
-            designItems: initialLayoutConfig.initialDesignItems,
-            gridDimensions: {
-                rows: initialLayoutConfig.initialGridRows || DEFAULT_INITIAL_GRID_ROWS,
-                cols: initialLayoutConfig.initialGridCols || DEFAULT_INITIAL_GRID_COLS,
-                gridSubdivision: initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION,
-            }
-        };
-
-        if (JSON.stringify(currentDesignerStateSnapshot) !== JSON.stringify(initialHookSnapshot)) {
-            if (onContentChange) onContentChange();
-        }
-    }, [
-        layoutManager.designItems, layoutManager.gridRows, layoutManager.gridCols, layoutManager.gridSubdivision,
-        initialLayoutConfig, onContentChange
-    ]);
-
-    useEffect(() => {
-        if (selectedItemId && !layoutManager.designItems.find(item => item.id === selectedItemId)) {
-            setSelectedItemId(null);
-            setIsPropertiesInspectorOpen(false);
-        }
-    }, [layoutManager.designItems, selectedItemId]);
-
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.key === 'Escape') {
-                if (selectedItemId) {
-                    setSelectedItemId(null);
-                    setIsPropertiesInspectorOpen(false);
-                } else if (interactionsManager.isEraserActive) {
-                    interactionsManager.toggleEraser();
-                }
-                if (interactionsManager.draggedItemPreview) {
-                    interactionsManager.updateDraggedItemPreview(null);
-                }
-            }
-            // Additional shortcuts can be handled here, e.g., Ctrl+S for save, Ctrl+Z/Y for undo/redo
-            // if (event.ctrlKey && event.key === 's') { event.preventDefault(); handleSave(); }
-            // if (event.ctrlKey && event.key === 'z') { event.preventDefault(); layoutManager.undo(); }
-            // if (event.ctrlKey && event.key === 'y') { event.preventDefault(); layoutManager.redo(); }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedItemId, interactionsManager, layoutManager /* handleSave if added to shortcuts */]);
 
     // --- Callbacks ---
     const handleSelectItem = useCallback((itemId) => {
@@ -128,10 +71,13 @@ const LayoutEditor = ({
     }, []);
 
     const handleCanvasClick = useCallback((event) => {
-        if (event.target === event.currentTarget && selectedItemId) {
-            deselectAndCloseInspector();
+        // Only deselect if the click is directly on the canvas area, not on an item or handle within it.
+        if (event.target === event.currentTarget) { // currentTarget is the motion.main element
+            if (selectedItemId || isPropertiesInspectorOpen) {
+                deselectAndCloseInspector();
+            }
         }
-    }, [selectedItemId, deselectAndCloseInspector]);
+    }, [selectedItemId, isPropertiesInspectorOpen, deselectAndCloseInspector]);
 
     const handleZoomIn = useCallback(() => setZoomLevel(prev => Math.min(MAX_ZOOM_LEVEL, parseFloat((prev + ZOOM_STEP).toFixed(2)))), []);
     const handleZoomOut = useCallback(() => setZoomLevel(prev => Math.max(MIN_ZOOM_LEVEL, parseFloat((prev - ZOOM_STEP).toFixed(2)))), []);
@@ -168,9 +114,11 @@ const LayoutEditor = ({
         if (!validateLayoutForSave()) return false;
         if (onSaveTrigger) {
             const layoutToSave = getCurrentLayoutSnapshot();
-            return await onSaveTrigger(layoutToSave);
+            // Assuming onSaveTrigger is async and returns success status
+            const success = await onSaveTrigger(layoutToSave);
+            return success;
         }
-        return false;
+        return false; // Or true if save is considered successful by default if no trigger
     }, [validateLayoutForSave, getCurrentLayoutSnapshot, onSaveTrigger]);
 
     const handleSaveAndExit = useCallback(async () => {
@@ -184,80 +132,144 @@ const LayoutEditor = ({
 
     const confirmClearAll = useCallback(() => {
         setIsClearConfirmationOpen(false);
-        // Use resetToDefaults to clear items, reset grid settings, and reset history
-        // This aligns with the modal message: "clear the entire layout and reset grid settings...cannot be undone"
         layoutManager.resetToDefaults();
         deselectAndCloseInspector();
         setZoomLevel(DEFAULT_ZOOM_LEVEL);
-        // onContentChange will be triggered by layoutManager changes (due to resetHistory)
     }, [layoutManager, deselectAndCloseInspector]);
 
     const handleUpdateItemProperties = useCallback((itemId, propertyUpdates) => {
         return layoutManager.updateItemProperties(itemId, propertyUpdates);
     }, [layoutManager]);
 
-    // --- Render ---
+
+    // --- Effects ---
+    useEffect(() => {
+        const currentDesignerStateSnapshot = {
+            designItems: layoutManager.designItems,
+            gridDimensions: {
+                rows: layoutManager.gridRows,
+                cols: layoutManager.gridCols,
+                gridSubdivision: layoutManager.gridSubdivision,
+            }
+        };
+        // Use the defaults used in useMemo for initialLayoutConfig for a fair comparison
+        const initialHookSnapshot = {
+            designItems: initialLayoutConfig.initialDesignItems,
+            gridDimensions: {
+                rows: initialLayoutConfig.initialGridRows,
+                cols: initialLayoutConfig.initialGridCols,
+                gridSubdivision: initialLayoutConfig.initialGridSubdivision,
+            }
+        };
+
+        if (JSON.stringify(currentDesignerStateSnapshot) !== JSON.stringify(initialHookSnapshot)) {
+            if (onContentChange) onContentChange();
+        }
+    }, [
+        layoutManager.designItems, layoutManager.gridRows, layoutManager.gridCols, layoutManager.gridSubdivision,
+        initialLayoutConfig, onContentChange
+    ]);
+
+    useEffect(() => {
+        if (selectedItemId && !layoutManager.designItems.find(item => item.id === selectedItemId)) {
+            setSelectedItemId(null);
+            setIsPropertiesInspectorOpen(false);
+        }
+    }, [layoutManager.designItems, selectedItemId]);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                if (isPropertiesInspectorOpen) {
+                    deselectAndCloseInspector();
+                } else if (selectedItemId) {
+                    setSelectedItemId(null); // Deselect item if inspector is already closed
+                } else if (interactionsManager.isEraserActive) {
+                    interactionsManager.toggleEraser();
+                }
+                if (interactionsManager.draggedItemPreview) {
+                    interactionsManager.updateDraggedItemPreview(null);
+                }
+            }
+            // Example: Ctrl+S for save, ensure this doesn't conflict with browser save
+            if (event.ctrlKey && event.key.toLowerCase() === 's') {
+                event.preventDefault();
+                handleSave();
+            }
+            if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'z') {
+                event.preventDefault();
+                layoutManager.undo();
+            }
+            if (event.ctrlKey && (event.key.toLowerCase() === 'y' || (event.shiftKey && event.key.toLowerCase() === 'z'))) {
+                event.preventDefault();
+                layoutManager.redo();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedItemId, isPropertiesInspectorOpen, interactionsManager, layoutManager, handleSave, deselectAndCloseInspector]); // Added dependencies
+
     return (
-        <DndProvider backend={HTML5Backend}>
-            <div className="flex flex-col h-full w-full" role="application">
-                <EditorToolbar
-                    majorGridRows={layoutManager.gridRows}
-                    majorGridCols={layoutManager.gridCols}
-                    currentGridSubdivision={layoutManager.gridSubdivision}
-                    onGridDimensionChange={(dimension, value) => layoutManager.setGridDimensions({ [dimension]: value })}
-                    onGridSubdivisionChange={layoutManager.setGridSubdivision}
-                    zoomLevel={zoomLevel}
-                    onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom}
-                    toolDefinitions={toolDefinitions} ItemTypes={ItemTypes}
-                    isEraserActive={interactionsManager.isEraserActive}
-                    onToggleEraser={interactionsManager.toggleEraser}
-                    onUndo={layoutManager.undo} onRedo={layoutManager.redo}
-                    canUndo={layoutManager.canUndo} canRedo={layoutManager.canRedo}
-                    onSave={handleSave} onSaveAndExit={handleSaveAndExit} onClearAll={attemptClearAll}
-                    isZenMode={isZenMode} onToggleZenMode={onToggleZenMode}
-                />
+        <div className="flex flex-col h-full w-full" role="application">
+            <EditorToolbar
+                majorGridRows={layoutManager.gridRows}
+                majorGridCols={layoutManager.gridCols}
+                currentGridSubdivision={layoutManager.gridSubdivision}
+                onGridDimensionChange={(dimension, value) => layoutManager.setGridDimensions({ [dimension]: value })}
+                onGridSubdivisionChange={layoutManager.setGridSubdivision}
+                zoomLevel={zoomLevel}
+                onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom}
+                toolDefinitions={toolDefinitions} ItemTypes={ItemTypes}
+                isEraserActive={interactionsManager.isEraserActive}
+                onToggleEraser={interactionsManager.toggleEraser}
+                onUndo={layoutManager.undo} onRedo={layoutManager.redo}
+                canUndo={layoutManager.canUndo} canRedo={layoutManager.canRedo}
+                onSave={handleSave}
+                // onSaveAndExit={handleSaveAndExit} // This prop seems unused by EditorToolbar in the provided code.
+                onClearAll={attemptClearAll}
+                isZenMode={isZenMode} onToggleZenMode={onToggleZenMode}
+            />
 
-                <div
-                    className={`flex-1 flex overflow-hidden relative ${EDITOR_MAIN_AREA_BG_LIGHT} ${EDITOR_MAIN_AREA_BG_DARK} transition-all duration-300 ease-in-out`}
+            <div
+                className={`flex-1 flex overflow-hidden relative ${EDITOR_MAIN_AREA_BG_LIGHT} ${EDITOR_MAIN_AREA_BG_DARK} transition-all duration-300 ease-in-out`}
+            >
+                <motion.main
+                    layout // Enable layout animations for this container if its size changes (e.g., PropertiesInspector opens/closes)
+                    className="flex-1 overflow-auto flex items-center justify-center p-4 sm:p-6 md:p-8"
+                    onClick={handleCanvasClick} // Click on empty canvas area for deselect
+                    role="region"
+                    aria-label="Layout Design Canvas Area"
                 >
-                    <motion.main
-                        layout
-                        className="flex-1 overflow-auto flex items-center justify-center p-4 sm:p-6 md:p-8"
-                        onClick={handleCanvasClick}
-                        role="region"
-                        aria-label="Layout Design Canvas Area"
-                    >
-                        <EditorCanvas
-                            majorGridRows={layoutManager.gridRows}
-                            majorGridCols={layoutManager.gridCols}
-                            gridSubdivision={layoutManager.gridSubdivision}
-                            designItems={layoutManager.designItems}
-                            ItemTypes={ItemTypes} ITEM_CONFIGS={ITEM_CONFIGS}
-                            onAddItem={layoutManager.addItemToLayout}
-                            onMoveItem={layoutManager.moveExistingItem}
-                            onEraseDesignerItemFromCell={layoutManager.removeItemAtCoords}
-                            onEraseDesignerItemById={layoutManager.removeItemById}
-                            onUpdateItemProperty={handleUpdateItemProperties}
-                            onSelectItem={handleSelectItem} selectedItemId={selectedItemId}
-                            canPlaceItem={layoutManager.canPlaceItem}
-                            draggedItemPreview={interactionsManager.draggedItemPreview}
-                            onUpdateDraggedItemPreview={interactionsManager.updateDraggedItemPreview}
-                            isEraserActive={interactionsManager.isEraserActive}
-                            zoomLevel={zoomLevel}
-                            onCanvasClick={handleCanvasClick}
-                        />
-                    </motion.main>
-
-                    <PropertiesInspector
-                        designItems={layoutManager.designItems}
-                        selectedItemId={selectedItemId}
-                        onUpdateItemProperties={handleUpdateItemProperties}
-                        ITEM_CONFIGS={ITEM_CONFIGS} ItemTypes={ItemTypes}
-                        isOpen={isPropertiesInspectorOpen}
-                        onClose={deselectAndCloseInspector}
+                    <EditorCanvas
+                        majorGridRows={layoutManager.gridRows}
+                        majorGridCols={layoutManager.gridCols}
                         gridSubdivision={layoutManager.gridSubdivision}
+                        designItems={layoutManager.designItems}
+                        ItemTypes={ItemTypes} ITEM_CONFIGS={ITEM_CONFIGS}
+                        onAddItem={layoutManager.addItemToLayout}
+                        onMoveItem={layoutManager.moveExistingItem}
+                        onEraseDesignerItemFromCell={layoutManager.removeItemAtCoords}
+                        onEraseDesignerItemById={layoutManager.removeItemById}
+                        onUpdateItemProperty={handleUpdateItemProperties}
+                        onSelectItem={handleSelectItem} selectedItemId={selectedItemId}
+                        canPlaceItem={layoutManager.canPlaceItem}
+                        draggedItemPreview={interactionsManager.draggedItemPreview}
+                        onUpdateDraggedItemPreview={interactionsManager.updateDraggedItemPreview}
+                        isEraserActive={interactionsManager.isEraserActive}
+                        zoomLevel={zoomLevel}
+                        onCanvasClick={handleCanvasClick} // Pass again for direct canvas click if needed inside EditorCanvas
                     />
-                </div>
+                </motion.main>
+
+                <PropertiesInspector
+                    designItems={layoutManager.designItems}
+                    selectedItemId={selectedItemId}
+                    onUpdateItemProperties={handleUpdateItemProperties}
+                    ITEM_CONFIGS={ITEM_CONFIGS} ItemTypes={ItemTypes}
+                    isOpen={isPropertiesInspectorOpen}
+                    onClose={deselectAndCloseInspector}
+                    gridSubdivision={layoutManager.gridSubdivision}
+                />
             </div>
 
             <ConfirmationModal
@@ -266,11 +278,11 @@ const LayoutEditor = ({
                 onConfirm={confirmClearAll}
                 title="Clear Entire Layout"
                 message="Are you sure you want to clear the entire layout and reset grid settings? This action cannot be undone using the history."
-                confirmText="Yes, Clear All & Reset Grid" // Updated text for clarity
+                confirmText="Yes, Clear All & Reset Grid"
                 cancelText="Cancel"
                 type="danger"
             />
-        </DndProvider>
+        </div>
     );
 };
 
