@@ -14,6 +14,7 @@ import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
 import PrivateRoute from './components/common/PrivateRoute.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HTML5Backend } from 'react-dnd-html5-backend'; // Import HTML5Backend
+import CategoryList from './components/CategoryCard/CategoryList.jsx';
 
 // Contexts
 import { CartProvider } from './contexts/CartContext';
@@ -74,8 +75,17 @@ const router = createBrowserRouter([
 		),
 		errorElement: <NotFoundPage />, // Or a specific dashboard error boundary
 	},
-	// Example of an unauthorized page route
 	{
+		path: "/dashboard/categories",
+		element: (
+			<PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
+				<CategoryList />
+			</PrivateRoute>
+		),
+		errorElement: <NotFoundPage />,
+	},
+	{
+		// Example of an unauthorized page route
 		path: "/dashboard/unauthorized",
 		element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>, // Simple unauthorized page
 	}
