@@ -69,22 +69,22 @@ const VenueDesignerPage = () => {
     useEffect(() => {
         setIsPageLoading(true);
         if (layoutData) {
-            const designItems = layoutData.tables && layoutData.tables.length > 0
-                ? JSON.parse(JSON.stringify(layoutData.tables))
+            const designItems = layoutData.designItems // MODIFIED: Use layoutData.designItems directly
+                ? JSON.parse(JSON.stringify(layoutData.designItems))
                 : STABLE_EMPTY_DESIGN_ITEMS;
 
-            const gridDimensions = layoutData.currentGridDimensions
-                ? { ...layoutData.currentGridDimensions }
+            const gridDimensions = layoutData.gridDimensions // MODIFIED: Use layoutData.gridDimensions directly
+                ? { ...layoutData.gridDimensions }
                 : { ...DEFAULT_DESIGN_GRID_CONFIG };
 
             const fullLayout = {
                 designItems,
                 gridDimensions,
-                kitchenArea: layoutData.kitchenArea, // Pass kitchenArea if needed by preview
+                kitchenArea: layoutData.kitchenArea,
             };
 
-            setInitialLayoutForEditor(fullLayout); // Used when editor mode is activated
-            setCurrentLayoutDataForPreview(fullLayout); // Always reflects the latest data for preview
+            setInitialLayoutForEditor(fullLayout);
+            setCurrentLayoutDataForPreview(fullLayout);
 
         } else {
             const defaultFullLayout = {
@@ -96,8 +96,6 @@ const VenueDesignerPage = () => {
             setCurrentLayoutDataForPreview(defaultFullLayout);
         }
         setIsPageLoading(false);
-        // Reset unsaved changes flag when layoutData (from storage/initial load) changes.
-        // This means after a save, `layoutData` updates, and this effect will run, resetting `hasUnsavedChanges`.
         setHasUnsavedChanges(false);
     }, [layoutData]);
 
@@ -110,32 +108,23 @@ const VenueDesignerPage = () => {
         const success = await saveDesignedLayout(designedLayoutFromChild);
         if (success) {
             setHasUnsavedChanges(false);
-            // The useEffect above will update initialLayoutForEditor and currentLayoutDataForPreview
-            // because `layoutData` (dependency of useEffect) will change after save.
             openAlert("Layout Saved", "Your venue layout has been successfully saved.", "success");
         } else {
             openAlert("Save Failed", "Could not save the layout. Please try again.", "error");
         }
-        return success; // Propagate success
+        return success;
     }, [saveDesignedLayout, openAlert]);
 
     const handleToggleEditorMode = useCallback(() => {
         if (isEditorModeActive && hasUnsavedChanges) {
-            // If currently in editor mode and there are unsaved changes, prompt before switching.
-            // For now, let's just switch. A more robust solution would prompt.
-            // Or, rely on the fact that "Exit Designer" handles this prompting.
-            // If simply toggling, maybe we assume they want to preview what they have.
             openAlert("Previewing Changes", "You are now previewing. Changes are not saved yet.", "info");
         }
         setIsEditorModeActive(prev => !prev);
     }, [isEditorModeActive, hasUnsavedChanges, openAlert]);
 
     const handleNavigateToOperationalView = useCallback(() => {
-        // This route should be where users go after finishing design, perhaps a live dashboard.
-        // For now, let's assume it's just a different part of the app.
-        // If there's no specific operational view yet, it could go to a placeholder or app root.
         openAlert("Exited Designer", "You have left the Venue Layout Designer.", "info");
-        navigate('/'); // Example: Navigate to app root or a defined operational dashboard route
+        navigate('/');
     }, [navigate, openAlert]);
 
 
@@ -150,10 +139,9 @@ const VenueDesignerPage = () => {
     const confirmAndExitPage = useCallback((discardChanges) => {
         setIsExitConfirmationOpen(false);
         if (discardChanges) {
-            setHasUnsavedChanges(false); // Allow exit without saving
+            setHasUnsavedChanges(false);
             handleNavigateToOperationalView();
         }
-        // If discardChanges is false, user clicked "Stay on Page" or similar cancel action.
     }, [handleNavigateToOperationalView]);
 
     const toggleZenMode = useCallback(() => {
@@ -165,13 +153,11 @@ const VenueDesignerPage = () => {
         hidden: { opacity: 0, height: 0, y: "-100%", transition: { duration: 0.25, ease: "circIn" } },
     };
 
-    // Key for LayoutEditor: Forces re-initialization if the core structure of initial data changes.
     const layoutEditorKey = useMemo(() =>
         initialLayoutForEditor ? JSON.stringify(initialLayoutForEditor.gridDimensions) + (initialLayoutForEditor.designItems?.length || 0) : 'no-layout-editor-data',
         [initialLayoutForEditor]
     );
 
-    // --- Render Logic ---
     if (isPageLoading || !initialLayoutForEditor || !currentLayoutDataForPreview) {
         return (
             <div className="flex items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900">
@@ -186,7 +172,7 @@ const VenueDesignerPage = () => {
     return (
         <div className="h-screen w-screen flex flex-col fixed inset-0 overflow-hidden antialiased bg-neutral-100 dark:bg-neutral-900">
             <AnimatePresence>
-                {!isZenMode && ( // Header is hidden in Zen mode (handled by LayoutEditor's zen mode)
+                {!isZenMode && (
                     <motion.header
                         key="venue-designer-page-header"
                         initial="hidden"
@@ -245,11 +231,10 @@ const VenueDesignerPage = () => {
                         key={layoutEditorKey}
                         initialLayout={initialLayoutForEditor}
                         onSaveTrigger={handleSaveLayoutFromEditor}
-                        // onSaveAndExitTrigger is not directly used by LayoutEditor, handle via page-level buttons if needed
                         onContentChange={handleContentChangeInEditor}
                         openAlert={openAlert}
-                        isZenMode={isZenMode} // LayoutEditor manages its own Zen mode UI internally
-                        onToggleZenMode={toggleZenMode} // Allow LayoutEditor to toggle global ZenMode state
+                        isZenMode={isZenMode}
+                        onToggleZenMode={toggleZenMode}
                     />
                 ) : (
                     <VenueLayoutPreview
@@ -263,7 +248,7 @@ const VenueDesignerPage = () => {
             <ConfirmationModal
                 isOpen={isExitConfirmationOpen}
                 onClose={() => setIsExitConfirmationOpen(false)}
-                onConfirm={() => confirmAndExitPage(true)} // true = discard changes
+                onConfirm={() => confirmAndExitPage(true)}
                 title="Unsaved Changes"
                 message="You have unsaved changes. Are you sure you want to exit and discard them?"
                 confirmText="Discard & Exit"
@@ -271,13 +256,18 @@ const VenueDesignerPage = () => {
                 type="warning"
             />
 
+            {/* MODIFIED ConfirmationModal for alerts */}
             <ConfirmationModal
                 isOpen={isAlertModalOpen}
-                onClose={closeAlert}
+                onClose={closeAlert}      // Handles 'X' button, backdrop click, or Escape key
+                onConfirm={closeAlert}    // Explicitly wire the "OK" button to closeAlert
                 title={alertModalContent.title}
                 message={alertModalContent.message}
                 confirmText="OK"
                 type={alertModalContent.type}
+            // By not providing cancelText, the cancel button should be hidden by ConfirmationModal.
+            // If it's not, ConfirmationModal would need a prop like `hideCancelButton={true}`
+            // or ensure its internal "Cancel" button also calls `onClose`.
             />
         </div>
     );

@@ -42,7 +42,7 @@ export const ITEM_CONFIGS = {
                 shape: toolPayload.size_identifier, // e.g., 'square-1x1', 'round-1x1'
                 seats: getDefaultSeatsForSize(toolPayload.size_identifier, toolPayload.w_major, toolPayload.h_major),
                 number: getNextAvailableTableNumber(tables),
-                isProvisional: true, // Tables start as provisional until number is confirmed
+                isProvisional: false, // Tables start as provisional until number is confirmed
             };
         },
         PlacedComponent: 'TableRenderer',

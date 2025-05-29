@@ -6,10 +6,12 @@ import { ItemTypes } from '../constants/itemConfigs';
 /**
  * Calculates the effective dimensions (Axis-Aligned Bounding Box - AABB)
  * of an item in MINOR_CELL_UNITS, considering its rotation.
+ * Assumes item.w_minor and item.h_minor in the item's state have already been
+ * swapped if the item's orientation changed due to a 90/270 degree rotation.
  * @param {object} item - The item object. Expected to have:
- *                        - item.w_minor: base width in minor cells (pre-rotation)
- *                        - item.h_minor: base height in minor cells (pre-rotation)
- *                        - item.rotation: angle in degrees (0, 90, 180, 270 for simple AABB, or arbitrary)
+ *                        - item.w_minor: base width in minor cells (orientation-adjusted)
+ *                        - item.h_minor: base height in minor cells (orientation-adjusted)
+ *                        - item.rotation: angle in degrees
  * @returns {{ w: number, h: number }} Object containing effectiveWidth_minor (w) and effectiveHeight_minor (h) in minor cell units.
  */
 export const getEffectiveDimensions = (item) => {
@@ -21,14 +23,14 @@ export const getEffectiveDimensions = (item) => {
     const { w_minor, h_minor, rotation = 0 } = item;
     const normalizedRotation = (parseInt(String(rotation), 10) % 360 + 360) % 360; // Normalize to 0-359
 
-    if (normalizedRotation === 0 || normalizedRotation === 180) {
+    // If item.w_minor and item.h_minor in the state are already orientation-adjusted (swapped by useLayoutDesignerStateManagement),
+    // then for cardinal rotations, these current w_minor/h_minor ARE the AABB dimensions.
+    if (normalizedRotation === 0 || normalizedRotation === 90 || normalizedRotation === 180 || normalizedRotation === 270) {
         return { w: w_minor, h: h_minor };
     }
-    if (normalizedRotation === 90 || normalizedRotation === 270) {
-        return { w: h_minor, h: w_minor }; // Swap width and height for 90/270 deg rotations
-    }
 
-    // For arbitrary rotations, calculate the AABB
+    // For ARBITRARY (non-cardinal) rotations, calculate the AABB based on the current w_minor, h_minor.
+    // These w_minor, h_minor are the base dimensions of the item as if its current visual orientation were "0 degrees".
     const angleRad = (normalizedRotation * Math.PI) / 180;
     const cosA = Math.abs(Math.cos(angleRad)); // Use absolute values for AABB
     const sinA = Math.abs(Math.sin(angleRad));

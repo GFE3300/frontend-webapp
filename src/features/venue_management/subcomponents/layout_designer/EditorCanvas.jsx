@@ -1,4 +1,5 @@
 // features/venue_management/subcomponents/layout_designer/EditorCanvas.jsx
+// DEBUG VERSION + POTENTIAL FIX IMPLEMENTED
 import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import { useDrop } from 'react-dnd';
 // eslint-disable-next-line no-unused-vars
@@ -6,36 +7,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Child Components
 import CanvasCell from './CanvasCell';
-import PlacedItem from './PlacedItem';
+import PlacedItem from './PlacedItem'; // Assuming PlacedItem structure is adjusted as discussed
 
 // Utilities & Constants
 import { getEffectiveDimensions as getEffectiveDimensionsUtil } from '../../utils/layoutUtils';
 import { CELL_SIZE_REM as MAJOR_CELL_SIZE_REM } from '../../constants/layoutConstants';
 const MIN_ITEM_DIMENSION_MINOR_CELLS = 1; // Smallest an item can be in minor cells
 
-// Design Guideline Variables
-const CANVAS_CONTAINER_STYLES = {
-    bgLight: "bg-neutral-100",
-    bgDark: "dark:bg-neutral-900",
-    padding: "p-4 sm:p-6 md:p-8",
-};
+// Design Guideline Variables (assuming these are correctly defined)
+const CANVAS_CONTAINER_STYLES = { /* ... */ };
+const CANVAS_GRID_STYLES = { /* ... */ };
+const RESIZE_PREVIEW_STYLES = { /* ... */ };
 
-const CANVAS_GRID_STYLES = {
-    base: "relative mx-auto rounded-md shadow-lg",
-    borderLight: "border border-neutral-300",
-    borderDark: "dark:border-neutral-700",
-    bgLight: "bg-white",
-    bgDark: "dark:bg-neutral-800",
-};
+const DEBUG_PREFIX = "[EditorCanvas DEBUG] ";
+const ROTATION_RESIZE_DEBUG_PREFIX_EC = "[DEBUG ROTATION-RESIZE] [EditorCanvas] ";
 
-const RESIZE_PREVIEW_STYLES = {
-    validBg: "bg-rose-500/20",
-    validBorder: "border-rose-500",
-    invalidBg: "bg-red-500/20",
-    invalidBorder: "border-red-600",
-    borderStyle: "border-2 border-dashed",
-    borderRadius: "rounded-sm",
-};
 
 const EditorCanvas = ({
     majorGridRows, majorGridCols, gridSubdivision,
@@ -48,10 +34,10 @@ const EditorCanvas = ({
     draggedItemPreview, onUpdateDraggedItemPreview,
     isEraserActive,
     zoomLevel,
-    onCanvasClick, // For deselecting items
+    onCanvasClick,
 }) => {
     const canvasGridRef = useRef(null);
-    const [minorCellSizePx, setMinorCellSizePx] = useState(16); // Default/fallback
+    const [minorCellSizePx, setMinorCellSizePx] = useState(16);
 
     const totalMinorRows = useMemo(() => majorGridRows * gridSubdivision, [majorGridRows, gridSubdivision]);
     const totalMinorCols = useMemo(() => majorGridCols * gridSubdivision, [majorGridCols, gridSubdivision]);
@@ -64,34 +50,36 @@ const EditorCanvas = ({
                 setMinorCellSizePx((MAJOR_CELL_SIZE_REM / gridSubdivision) * rootFontSize);
             }
         }
-    }, [minorCellSizeRem, gridSubdivision, MAJOR_CELL_SIZE_REM]); // Added MAJOR_CELL_SIZE_REM
+    }, [minorCellSizeRem, gridSubdivision, MAJOR_CELL_SIZE_REM]);
 
-    // useDrop hook for the entire canvas grid, primarily to handle resize handle drops
-    // eslint-disable-next-line no-unused-vars
+    // useDrop for RESIZE_HANDLE
     const [collectedDropProps, dropTargetRefSetter] = useDrop(() => ({
-        accept: [ItemTypes.RESIZE_HANDLE], // Only accepts resize handles directly on the canvas
+        accept: [ItemTypes.RESIZE_HANDLE],
         hover: (dragPayload, monitor) => {
+            // console.log(DEBUG_PREFIX + "RESIZE HOVER triggered on EditorCanvas");
             if (!monitor.isOver({ shallow: true }) || !canvasGridRef.current || minorCellSizePx === 0 || zoomLevel === 0) {
-                onUpdateDraggedItemPreview(null); // Clear preview if conditions not met
                 return;
             }
 
             const { type: handleType, itemId, direction, originalItem: payloadOriginalItem } = dragPayload;
+
             if (handleType !== ItemTypes.RESIZE_HANDLE || !payloadOriginalItem) {
                 onUpdateDraggedItemPreview(null);
                 return;
             }
+
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE HOVER: ItemID=${itemId}, HandleDir=${direction}. PayloadOriginalItem: w=${payloadOriginalItem.w_minor}, h=${payloadOriginalItem.h_minor}, rot=${payloadOriginalItem.rotation}`);
 
             const currentItemFromState = designItems.find(it => it.id === itemId);
             if (!currentItemFromState) {
                 onUpdateDraggedItemPreview(null);
                 return;
             }
-            
-            const currentGridPos = currentItemFromState.gridPosition;
-            const baseW_before_resize = payloadOriginalItem.w_minor;
-            const baseH_before_resize = payloadOriginalItem.h_minor;
-            const rotation = payloadOriginalItem.rotation;
+
+            const currentGridPos = currentItemFromState.gridPosition; // Use current position from state for anchor
+            const baseW_from_payload = payloadOriginalItem.w_minor; // These are ALREADY SWAPPED if item was rotated 90/270
+            const baseH_from_payload = payloadOriginalItem.h_minor; // These are ALREADY SWAPPED if item was rotated 90/270
+            const item_rotation = payloadOriginalItem.rotation; // Item's actual rotation
 
             const clientOffset = monitor.getClientOffset();
             if (!clientOffset) {
@@ -108,55 +96,78 @@ const EditorCanvas = ({
 
             let newProposedAABBRowStart = currentGridPos.rowStart;
             let newProposedAABBColStart = currentGridPos.colStart;
-            let newProposedBaseWMinor = baseW_before_resize;
-            let newProposedBaseHMinor = baseH_before_resize;
+            let newProposedBaseWMinor = baseW_from_payload; // Start with base dimensions from payload
+            let newProposedBaseHMinor = baseH_from_payload; // Start with base dimensions from payload
             const MIN_DIM = MIN_ITEM_DIMENSION_MINOR_CELLS;
 
-            if (rotation === 0 || rotation === 180) {
-                switch (direction) {
-                    case 'N': newProposedBaseHMinor = Math.max(MIN_DIM, (currentGridPos.rowStart + baseH_before_resize) - hoveredMinorR); newProposedAABBRowStart = (currentGridPos.rowStart + baseH_before_resize) - newProposedBaseHMinor; break;
-                    case 'S': newProposedBaseHMinor = Math.max(MIN_DIM, hoveredMinorR - currentGridPos.rowStart + 1); break;
-                    case 'W': newProposedBaseWMinor = Math.max(MIN_DIM, (currentGridPos.colStart + baseW_before_resize) - hoveredMinorC); newProposedAABBColStart = (currentGridPos.colStart + baseW_before_resize) - newProposedBaseWMinor; break;
-                    case 'E': newProposedBaseWMinor = Math.max(MIN_DIM, hoveredMinorC - currentGridPos.colStart + 1); break;
-                    default: break;
-                }
-            } else { // Vertical rotation (90 or 270)
-                switch (direction) {
-                    case 'N': newProposedBaseWMinor = Math.max(MIN_DIM, (currentGridPos.rowStart + baseW_before_resize) - hoveredMinorR); newProposedAABBRowStart = (currentGridPos.rowStart + baseW_before_resize) - newProposedBaseWMinor; break;
-                    case 'S': newProposedBaseWMinor = Math.max(MIN_DIM, hoveredMinorR - currentGridPos.rowStart + 1); break;
-                    case 'W': newProposedBaseHMinor = Math.max(MIN_DIM, (currentGridPos.colStart + baseH_before_resize) - hoveredMinorC); newProposedAABBColStart = (currentGridPos.colStart + baseH_before_resize) - newProposedBaseHMinor; break;
-                    case 'E': newProposedBaseHMinor = Math.max(MIN_DIM, hoveredMinorC - currentGridPos.colStart + 1); break;
-                    default: break;
-                }
+            // --- SIMPLIFIED RESIZE LOGIC ---
+            // The 'direction' is visual. w_minor/h_minor in payload are already swapped to match base orientation.
+            // We are calculating the new base dimensions.
+            switch (direction) {
+                case 'N':
+                    newProposedBaseHMinor = Math.max(MIN_DIM, (currentGridPos.rowStart + baseH_from_payload) - hoveredMinorR);
+                    newProposedAABBRowStart = (currentGridPos.rowStart + baseH_from_payload) - newProposedBaseHMinor;
+                    break;
+                case 'S':
+                    newProposedBaseHMinor = Math.max(MIN_DIM, hoveredMinorR - currentGridPos.rowStart + 1);
+                    break;
+                case 'W':
+                    newProposedBaseWMinor = Math.max(MIN_DIM, (currentGridPos.colStart + baseW_from_payload) - hoveredMinorC);
+                    newProposedAABBColStart = (currentGridPos.colStart + baseW_from_payload) - newProposedBaseWMinor;
+                    break;
+                case 'E':
+                    newProposedBaseWMinor = Math.max(MIN_DIM, hoveredMinorC - currentGridPos.colStart + 1);
+                    break;
+                default: break;
             }
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE HOVER: Calculated new base dims for item: newW=${newProposedBaseWMinor}, newH=${newProposedBaseHMinor}`);
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE HOVER: Proposed AABB anchor for item: r=${newProposedAABBRowStart}, c=${newProposedAABBColStart}`);
 
-            const tempItemForValidation = { ...payloadOriginalItem, gridPosition: { rowStart: newProposedAABBRowStart, colStart: newProposedAABBColStart }, w_minor: newProposedBaseWMinor, h_minor: newProposedBaseHMinor, rotation };
+            // For validation, use the item's actual rotation and the PROPOSED NEW BASE dimensions
+            const tempItemForValidation = {
+                ...payloadOriginalItem, // Includes original rotation
+                gridPosition: { rowStart: newProposedAABBRowStart, colStart: newProposedAABBColStart },
+                w_minor: newProposedBaseWMinor, // Proposed new base width
+                h_minor: newProposedBaseHMinor, // Proposed new base height
+                // rotation: item_rotation // This is already in payloadOriginalItem
+            };
             const { w: previewAABB_W, h: previewAABB_H } = getEffectiveDimensionsUtil(tempItemForValidation);
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE HOVER: Effective Dims (AABB) for Preview based on new base and original rotation: previewAABB_W=${previewAABB_W}, previewAABB_H=${previewAABB_H}`);
+
             const isValid = canPlaceItem(newProposedAABBRowStart, newProposedAABBColStart, previewAABB_W, previewAABB_H, itemId);
 
-            onUpdateDraggedItemPreview({
+            const previewData = {
                 type: 'resize', itemId,
                 gridPosition: { rowStart: newProposedAABBRowStart, colStart: newProposedAABBColStart },
-                w_minor: previewAABB_W, h_minor: previewAABB_H,
-                rotation, isValid,
-            });
+                w_minor: previewAABB_W, // AABB width for preview div
+                h_minor: previewAABB_H, // AABB height for preview div
+                rotation: item_rotation, // Keep original rotation for context if needed by preview
+                isValid,
+            };
+            onUpdateDraggedItemPreview(previewData);
         },
         drop: (dragPayload, monitor) => {
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + "RESIZE DROP triggered");
             const { isValid: previewIsValid, type: previewType } = draggedItemPreview || {};
+
             if (!draggedItemPreview || previewType !== 'resize' || !previewIsValid) {
+                console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: Aborting. Preview invalid or not 'resize'. isValid=${previewIsValid}, type=${previewType}`);
                 onUpdateDraggedItemPreview(null); return;
             }
 
             const { itemId, direction, originalItem: payloadOriginalItem } = dragPayload;
             const currentItemFromState = designItems.find(it => it.id === itemId);
             if (!currentItemFromState) {
+                console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: Item ${itemId} not found. Aborting.`);
                 onUpdateDraggedItemPreview(null); return;
             }
-            
-            const currentGridPos = currentItemFromState.gridPosition;
-            const baseW_before_resize = payloadOriginalItem.w_minor;
-            const baseH_before_resize = payloadOriginalItem.h_minor;
-            const rotation = payloadOriginalItem.rotation;
+
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: ItemID=${itemId}, HandleDir=${direction}. PayloadOriginalItem: w=${payloadOriginalItem.w_minor}, h=${payloadOriginalItem.h_minor}, rot=${payloadOriginalItem.rotation}`);
+
+            const currentGridPos = currentItemFromState.gridPosition; // Item's current position in state
+            const baseW_from_payload = payloadOriginalItem.w_minor; // ALREADY SWAPPED if item was rotated
+            const baseH_from_payload = payloadOriginalItem.h_minor; // ALREADY SWAPPED if item was rotated
+            const item_rotation = payloadOriginalItem.rotation;
 
             const clientOffset = monitor.getClientOffset();
             if (!clientOffset || !canvasGridRef.current || minorCellSizePx === 0 || zoomLevel === 0) {
@@ -169,44 +180,62 @@ const EditorCanvas = ({
 
             const droppedMinorC = Math.max(1, Math.min(totalMinorCols, Math.floor(mouseX_on_unscaled_grid_px / minorCellSizePx) + 1));
             const droppedMinorR = Math.max(1, Math.min(totalMinorRows, Math.floor(mouseY_on_unscaled_grid_px / minorCellSizePx) + 1));
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: Dropped at minor cell r=${droppedMinorR}, c=${droppedMinorC}`);
 
             let finalAABBRowStart = currentGridPos.rowStart;
             let finalAABBColStart = currentGridPos.colStart;
-            let finalBaseWMinor = baseW_before_resize;
-            let finalBaseHMinor = baseH_before_resize;
+            let finalBaseWMinor = baseW_from_payload;
+            let finalBaseHMinor = baseH_from_payload;
             const MIN_DIM = MIN_ITEM_DIMENSION_MINOR_CELLS;
 
-            if (rotation === 0 || rotation === 180) {
-                switch (direction) {
-                    case 'N': finalBaseHMinor = Math.max(MIN_DIM, (currentGridPos.rowStart + baseH_before_resize) - droppedMinorR); finalAABBRowStart = (currentGridPos.rowStart + baseH_before_resize) - finalBaseHMinor; break;
-                    case 'S': finalBaseHMinor = Math.max(MIN_DIM, droppedMinorR - currentGridPos.rowStart + 1); break;
-                    case 'W': finalBaseWMinor = Math.max(MIN_DIM, (currentGridPos.colStart + baseW_before_resize) - droppedMinorC); finalAABBColStart = (currentGridPos.colStart + baseW_before_resize) - finalBaseWMinor; break;
-                    case 'E': finalBaseWMinor = Math.max(MIN_DIM, droppedMinorC - currentGridPos.colStart + 1); break;
-                    default: break;
-                }
-            } else { // Vertical rotation
-                switch (direction) {
-                    case 'N': finalBaseWMinor = Math.max(MIN_DIM, (currentGridPos.rowStart + baseW_before_resize) - droppedMinorR); finalAABBRowStart = (currentGridPos.rowStart + baseW_before_resize) - finalBaseWMinor; break;
-                    case 'S': finalBaseWMinor = Math.max(MIN_DIM, droppedMinorR - currentGridPos.rowStart + 1); break;
-                    case 'W': finalBaseHMinor = Math.max(MIN_DIM, (currentGridPos.colStart + baseH_before_resize) - droppedMinorC); finalAABBColStart = (currentGridPos.colStart + baseH_before_resize) - finalBaseHMinor; break;
-                    case 'E': finalBaseHMinor = Math.max(MIN_DIM, droppedMinorC - currentGridPos.colStart + 1); break;
-                    default: break;
-                }
+            // --- SIMPLIFIED RESIZE LOGIC FOR DROP ---
+            switch (direction) {
+                case 'N':
+                    finalBaseHMinor = Math.max(MIN_DIM, (currentGridPos.rowStart + baseH_from_payload) - droppedMinorR);
+                    finalAABBRowStart = (currentGridPos.rowStart + baseH_from_payload) - finalBaseHMinor;
+                    break;
+                case 'S':
+                    finalBaseHMinor = Math.max(MIN_DIM, droppedMinorR - currentGridPos.rowStart + 1);
+                    break;
+                case 'W':
+                    finalBaseWMinor = Math.max(MIN_DIM, (currentGridPos.colStart + baseW_from_payload) - droppedMinorC);
+                    finalAABBColStart = (currentGridPos.colStart + baseW_from_payload) - finalBaseWMinor;
+                    break;
+                case 'E':
+                    finalBaseWMinor = Math.max(MIN_DIM, droppedMinorC - currentGridPos.colStart + 1);
+                    break;
+                default: break;
             }
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: Final base dims for item: finalW=${finalBaseWMinor}, finalH=${finalBaseHMinor}`);
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: Final AABB anchor for item: r=${finalAABBRowStart}, c=${finalAABBColStart}`);
 
-            const finalItemForValidation = { ...payloadOriginalItem, gridPosition: { rowStart: finalAABBRowStart, colStart: finalAABBColStart }, w_minor: finalBaseWMinor, h_minor: finalBaseHMinor, rotation };
+            const finalItemForValidation = {
+                ...payloadOriginalItem,
+                gridPosition: { rowStart: finalAABBRowStart, colStart: finalAABBColStart },
+                w_minor: finalBaseWMinor,
+                h_minor: finalBaseHMinor,
+                // rotation: item_rotation // from payloadOriginalItem
+            };
             const { w: finalAABB_W, h: finalAABB_H } = getEffectiveDimensionsUtil(finalItemForValidation);
+            console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: For validation - AABB_r=${finalItemForValidation.gridPosition.rowStart}, AABB_c=${finalItemForValidation.gridPosition.colStart}, Effective Dims: w=${finalAABB_W}, h=${finalAABB_H}`);
 
             if (canPlaceItem(finalAABBRowStart, finalAABBColStart, finalAABB_W, finalAABB_H, itemId)) {
-                onUpdateItemProperty(itemId, { gridPosition: { rowStart: finalAABBRowStart, colStart: finalAABBColStart }, w_minor: finalBaseWMinor, h_minor: finalBaseHMinor });
+                const updateProps = {
+                    gridPosition: { rowStart: finalAABBRowStart, colStart: finalAABBColStart },
+                    w_minor: finalBaseWMinor,
+                    h_minor: finalBaseHMinor
+                    // Rotation is NOT changed by resize
+                };
+                console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: Validation PASSED. Calling onUpdateItemProperty for item ${itemId} with:`, JSON.parse(JSON.stringify(updateProps)));
+                onUpdateItemProperty(itemId, updateProps);
+            } else {
+                console.log(ROTATION_RESIZE_DEBUG_PREFIX_EC + `RESIZE DROP: Validation FAILED for final placement. Item ${itemId} not updated.`);
             }
             onUpdateDraggedItemPreview(null);
         },
         collect: monitor => ({
-            // No specific collected props needed for rendering by EditorCanvas itself,
-            // but `isOver` could be used for global canvas feedback if desired.
             isOver: !!monitor.isOver({ shallow: true }),
-            canDrop: !!monitor.canDrop(),
+            canDrop: !!monitor.canDrop(), // Not strictly used by this drop target, but good practice
         }),
     }), [
         designItems, totalMinorRows, totalMinorCols, minorCellSizePx, zoomLevel,
@@ -228,17 +257,15 @@ const EditorCanvas = ({
         height: `${majorGridRows * MAJOR_CELL_SIZE_REM}rem`,
         transform: `scale(${zoomLevel})`,
         transformOrigin: 'top left',
-        transition: 'transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1)', // Smooth zoom
+        transition: 'transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1)',
     }), [totalMinorRows, totalMinorCols, minorCellSizeRem, majorGridCols, majorGridRows, zoomLevel, MAJOR_CELL_SIZE_REM]);
 
     const handleCanvasMouseLeave = useCallback(() => {
-        // This primarily affects mouse interactions. Touch drag end should handle its own preview cleanup.
         if (draggedItemPreview && (draggedItemPreview.type === 'placement' || draggedItemPreview.type === 'resize')) {
             onUpdateDraggedItemPreview(null);
         }
     }, [draggedItemPreview, onUpdateDraggedItemPreview]);
 
-    // Safeguard for critical ItemTypes configuration
     if (!ItemTypes || typeof ItemTypes.RESIZE_HANDLE !== 'string') {
         return (
             <div className="p-5 text-red-600 bg-red-100 rounded-md">
@@ -252,20 +279,21 @@ const EditorCanvas = ({
             className={`flex-1 w-full h-full overflow-auto
                         ${CANVAS_CONTAINER_STYLES.bgLight} ${CANVAS_CONTAINER_STYLES.bgDark}
                         ${CANVAS_CONTAINER_STYLES.padding}
-                        flex items-center justify-center`} // Centering the grid within the padded area
-            onClick={onCanvasClick} // Handles deselecting items
+                        flex items-center justify-center`}
+            onClick={onCanvasClick}
             role="application"
             aria-label="Venue Layout Design Canvas"
         >
             <div
-                ref={canvasGridRef}
+                ref={canvasGridRef} // This is where RESIZE_HANDLE drops are caught
                 className={`${CANVAS_GRID_STYLES.base} ${CANVAS_GRID_STYLES.borderLight} ${CANVAS_GRID_STYLES.borderDark} ${CANVAS_GRID_STYLES.bgLight} ${CANVAS_GRID_STYLES.bgDark}`}
                 style={canvasGridDynamicStyle}
-                onMouseLeave={handleCanvasMouseLeave} // For mouse interactions
+                onMouseLeave={handleCanvasMouseLeave}
             >
-                {/* Render Minor Grid Cells */}
+                {/* Render Grid Cells */}
                 {Array.from({ length: totalMinorRows }).flatMap((_, rIndex) =>
                     Array.from({ length: totalMinorCols }).map((_, cIndex) => {
+                        // ... (CanvasCell rendering as before)
                         const minorRow = rIndex + 1;
                         const minorCol = cIndex + 1;
                         const isMajorRBoundary = (minorRow % gridSubdivision === 0 && minorRow !== totalMinorRows) || (gridSubdivision === 1 && minorRow !== totalMinorRows);
@@ -279,7 +307,7 @@ const EditorCanvas = ({
                                 gridSubdivision={gridSubdivision}
                                 onAddItemToLayout={onAddItem} onMoveExistingItem={onMoveItem}
                                 canPlaceItemAtCoords={canPlaceItem}
-                                currentDraggedItemPreview={draggedItemPreview}
+                                currentDraggedItemPreview={draggedItemPreview} // Pass full preview
                                 onUpdateCurrentDraggedItemPreview={onUpdateDraggedItemPreview}
                                 isEraserActive={isEraserActive}
                                 onEraseItemFromCell={onEraseDesignerItemFromCell}
@@ -289,7 +317,7 @@ const EditorCanvas = ({
                     })
                 )}
 
-                {/* Resize Preview "Shadow" - displayed above cells but below PlacedItem */}
+                {/* Resize Preview Div (uses AABB dimensions from draggedItemPreview) */}
                 {draggedItemPreview && draggedItemPreview.type === 'resize' && draggedItemPreview.itemId && (
                     <div
                         className={`absolute pointer-events-none ${RESIZE_PREVIEW_STYLES.borderStyle} ${RESIZE_PREVIEW_STYLES.borderRadius}
@@ -297,20 +325,20 @@ const EditorCanvas = ({
                         style={{
                             top: `${(draggedItemPreview.gridPosition.rowStart - 1) * minorCellSizeRem}rem`,
                             left: `${(draggedItemPreview.gridPosition.colStart - 1) * minorCellSizeRem}rem`,
-                            width: `${draggedItemPreview.w_minor * minorCellSizeRem}rem`,   // AABB width from preview object
-                            height: `${draggedItemPreview.h_minor * minorCellSizeRem}rem`,  // AABB height from preview object
-                            zIndex: 100, // High z-index for visibility during resize
+                            width: `${draggedItemPreview.w_minor * minorCellSizeRem}rem`,  // This should be AABB width
+                            height: `${draggedItemPreview.h_minor * minorCellSizeRem}rem`, // This should be AABB height
+                            zIndex: 100,
                         }}
                     />
                 )}
 
-                {/* Render Placed Design Items */}
+                {/* Render Placed Items */}
                 <AnimatePresence>
                     {designItems.filter(item => item && item.id && item.gridPosition).map(item => {
                         const isCurrentlySelected = selectedItemId === item.id;
-                        // Hide the actual item if its resize preview is active to avoid visual overlap/flicker
+                        // If a resize preview for THIS item is active, PlacedItem might be visually hidden or altered by its own logic.
                         const isHiddenForResizePreview = draggedItemPreview?.type === 'resize' && draggedItemPreview?.itemId === item.id;
-                        if (isHiddenForResizePreview) return null;
+                        if (isHiddenForResizePreview) return null; // Hide original item while its resize preview is active
 
                         return (
                             <PlacedItem
@@ -321,7 +349,7 @@ const EditorCanvas = ({
                                 onSelectItem={onSelectItem} isSelected={isCurrentlySelected}
                                 minorCellSizeRem={minorCellSizeRem}
                                 ItemTypes={ItemTypes} ITEM_CONFIGS={ITEM_CONFIGS}
-                                zoomLevel={zoomLevel} // Pass zoomLevel if individual items need to adapt
+                                zoomLevel={zoomLevel}
                             />
                         );
                     })}
