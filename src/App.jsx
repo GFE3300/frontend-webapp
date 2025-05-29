@@ -3,35 +3,25 @@ import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // Pages & Features
-import HomePage from './pages/HomePage.jsx'; // Though "/" route currently points to VenueManagementPage
+// import HomePage from './pages/HomePage.jsx'; // Original import, kept for reference
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import CompleteProfilePage from './pages/CompleteProfilePage.jsx';
 import RegistrationPage from './features/register/RegistrationPage.jsx';
 import BusinessLoginPage from './pages/BusinessLoginPage.jsx';
 import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
-import { VenueManagementPage } from './features/venue_management/subcomponents/index.js'; // Main page for "/"
+
+// Updated: Main entry point for Venue Layout Management Feature
+import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
 
 // Components
-import CartDrawer from './components/store/CartDrawer.jsx'; // Original import, kept for consistency
+// import CartDrawer from './components/store/CartDrawer.jsx'; // Original import, kept for consistency if used elsewhere
 import PrivateRoute from './components/common/PrivateRoute.jsx';
-<<<<<<< HEAD
-=======
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HTML5Backend } from 'react-dnd-html5-backend'; // Import HTML5Backend
-import CategoryList from './components/CategoryCard/CategoryList.jsx';
-
-// Contexts
-import { CartProvider } from './contexts/CartContext';
-import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
-import { AuthProvider } from './contexts/AuthContext'; // Crucial import
-import { DndProvider } from 'react-dnd';
->>>>>>> ac8a9cb0d0823630e7b2fd647b913153113d7b54
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
 
 // Contexts & Providers
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CartProvider } from './contexts/CartContext'; // Original import, kept for consistency
+// import { CartProvider } from './contexts/CartContext'; // Original import, kept commented out
 import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './utils/ThemeProvider.jsx';
@@ -54,39 +44,31 @@ const queryClient = new QueryClient({
 });
 
 // DND Multi-Backend Configuration
-// This defines the pipeline: HTML5Backend first for mouse, then TouchBackend for touch.
 const DNDBackendsConfig = {
 	backends: [
 		{
 			id: 'html5',
 			backend: HTML5Backend, // For mouse interactions
 			transition: TouchTransition, // Specifies how to transition to the next backend (TouchBackend)
-			// TouchTransition will pass events to the next backend if the current one doesn't handle them.
 		},
 		{
 			id: 'touch',
 			backend: TouchBackend, // For touch interactions
 			options: {
-				enableMouseEvents: false, // CRITICAL: Prevent TouchBackend from handling mouse events, as HTML5Backend does that.
-				delayTouchStart: 150,     // Optional: Delay (ms) to distinguish a tap from a drag intention. Helps prevent accidental drags.
-				// Adjust as needed for UX. Common values are 100-250ms.
-				// scrollAngleRanges: [    // Optional: Useful if your draggable items are on a scrollable page/canvas.
-				// Defines angular ranges (in degrees, 0 is right) where touch movement is treated as scrolling.
-				// e.g., { start: 30, end: 150 } for primarily vertical scrolling.
-				// ],
+				enableMouseEvents: false, // CRITICAL: Prevent TouchBackend from handling mouse events
+				delayTouchStart: 150,     // Optional: Delay (ms) to distinguish a tap from a drag intention
 			},
-			preview: true, // Use native device preview for touch (often a screenshot of the item).
-			// Set to false if you want to use a custom drag layer for touch as well.
-			// No transition_out needed for the last backend in the chain.
+			preview: true, // Use native device preview for touch
 		},
 	],
 };
 
-// Router Configuration (same as your provided version)
+// Router Configuration
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <VenueManagementPage />, // Root path now points to VenueDesignerPage via VenueManagementPage export
+		// Updated: Root path now points to VenueDesignerPage for the layout management feature
+		element: <VenueDesignerPage />,
 		errorElement: <NotFoundPage />,
 	},
 	{
@@ -123,16 +105,6 @@ const router = createBrowserRouter([
 		errorElement: <NotFoundPage />,
 	},
 	{
-		path: "/dashboard/categories",
-		element: (
-			<PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
-				<CategoryList />
-			</PrivateRoute>
-		),
-		errorElement: <NotFoundPage />,
-	},
-	{
-		// Example of an unauthorized page route
 		path: "/dashboard/unauthorized",
 		element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>,
 	}
@@ -144,16 +116,17 @@ function App() {
 	return (
 		<React.StrictMode>
 			<QueryClientProvider client={queryClient}>
-				{/* DndProvider now uses MultiBackend with the defined configuration */}
 				<DndProvider backend={MultiBackend} options={DNDBackendsConfig}>
 					<AuthProvider>
-						{/* Note: CartProvider was imported but not used in your original App.jsx providers. 
-                            If it's needed globally, it should be placed here. For example:
-                        <CartProvider> */}
+						{/* 
+                            If CartProvider is needed globally, it should be placed here. For example:
+                        <CartProvider> 
+                        */}
 						<FlyingImageProvider>
 							<ThemeProvider>
 								<ThemeToggleButton />
 								<RouterProvider router={router} />
+								{/* <CartDrawer />  If this is a global drawer, it might be placed here or within a layout component */}
 							</ThemeProvider>
 						</FlyingImageProvider>
 						{/* </CartProvider> */}
