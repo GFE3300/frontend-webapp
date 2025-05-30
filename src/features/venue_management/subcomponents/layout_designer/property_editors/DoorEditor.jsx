@@ -1,78 +1,67 @@
 import React from 'react';
+import Icon from '../../../../../components/common/Icon';
+import Dropdown from '../../../../../components/common/Dropdown';
 
-const DoorPropertiesEditor = ({
-    item, // The selected door item object: { id, itemType, shape, swingDirection, isOpen, rotation, ... }
-    onUpdateItemProperty, // Function: (itemId, { property: value }) => boolean
-}) => {
-    // Ensure this editor is only used for 'placedDoor' items.
-    if (!item || item.itemType !== 'placedDoor') {
-        // This check is a safeguard. ItemPropertiesPanel should dispatch correctly.
-        console.warn("DoorPropertiesEditor rendered with an invalid item type:", item);
-        return (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-xs text-red-700 font-medium">Error: Invalid item for Door Editor.</p>
-                <p className="text-xxs text-red-600">Expected itemType 'placedDoor'.</p>
-            </div>
-        );
-    }
+const LABEL_STYLE = "block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1";
+const SELECT_STYLE = "w-full text-sm rounded-md h-9 pl-3 pr-8 py-2 bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 focus:ring-1 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-rose-500 text-neutral-900 dark:text-neutral-100 shadow-sm appearance-none";
+const CHECKBOX_WRAPPER_STYLE = "flex items-center space-x-2 cursor-pointer"; // Applied to label wrapping checkbox
+const CHECKBOX_LABEL_TEXT_STYLE = "text-xs font-medium text-neutral-600 dark:text-neutral-300"; // For text part of checkbox label
+const CHECKBOX_STYLE = "form-checkbox h-4 w-4 text-rose-600 dark:text-rose-500 bg-neutral-100 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-500 rounded focus:ring-rose-500 dark:focus:ring-rose-400 transition duration-150 ease-in-out";
+const INFO_SECTION_STYLE = "mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700 space-y-1.5";
+const INFO_PAIR_STYLE = "flex justify-between items-center text-xs";
+const INFO_LABEL_STYLE = "text-neutral-500 dark:text-neutral-400";
+const INFO_VALUE_STYLE = "text-neutral-700 dark:text-neutral-200 font-medium text-right";
+const HELPER_TEXT_STYLE = "text-xxs text-neutral-500 dark:text-neutral-400 mt-0.5";
+
+const DoorEditor = ({ item, onUpdateItemProperty }) => {
+    if (!item || item.itemType !== 'placedDoor') return null;
 
     const handleSwingDirectionChange = (e) => {
-        onUpdateItemProperty(item.id, { swingDirection: e.target.value });
-    };
-
-    // This handles the change from a standard checkbox.
-    // If using a custom ToggleSwitch, adapt its onChange prop.
-    const handleIsOpenChange = (e) => {
-        onUpdateItemProperty(item.id, { isOpen: e.target.checked });
+        onUpdateItemProperty(item.id, { swingDirection: e });
     };
 
     return (
-        <div className="space-y-4 p-1 text-sm text-slate-700">
-            {/* Swing Direction Control */}
+        <div className="space-y-4 p-1 font-montserrat">
             <div>
-                <label htmlFor={`door-swing-${item.id}`} className="block text-xs font-medium text-slate-600 mb-1">
-                    Swing Direction:
-                </label>
-                <select
+                <Dropdown
                     id={`door-swing-${item.id}`}
+                    label="Swing Direction"
                     name="swingDirection"
-                    value={item.swingDirection || 'left'} // Default to 'left' if undefined
+                    value={item.swingDirection || 'left'}
                     onChange={handleSwingDirectionChange}
-                    className="w-full p-2 border border-slate-300 rounded-md shadow-sm text-xs focus:ring-indigo-500 focus:border-indigo-500 bg-white appearance-none"
-                // Add custom arrow styling if desired, or use a custom SelectField component
-                >
-                    <option value="left">Left Swing</option>
-                    <option value="right">Right Swing</option>
-                    {/* Future options like 'double', 'sliding-left', 'sliding-right' could be added here */}
-                </select>
+                    options={[
+                        { value: 'left', label: 'Left Swing' },
+                        { value: 'right', label: 'Right Swing' },
+                    ]}
+                    placeholder="Select Swing Direction"
+                    error={''}
+                    helptext={''}
+                    className={`h-15 flex items-end`}
+                    disabled={false}
+                    themeColor="rose"
+                />
             </div>
 
-            {/* Is Open (Visual State) Control */}
-            <div>
-                <label htmlFor={`door-isOpen-${item.id}`} className="flex items-center space-x-2 cursor-pointer text-xs font-medium text-slate-600 mt-1">
-                    <input
-                        type="checkbox"
-                        id={`door-isOpen-${item.id}`}
-                        name="isOpen"
-                        checked={item.isOpen || false} // Default to false if undefined
-                        onChange={handleIsOpenChange}
-                        className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out rounded border-slate-400 focus:ring-indigo-500"
-                    />
-                    <span>Visually Open in Designer</span>
-                </label>
-                <p className="text-xxs text-slate-500 mt-0.5 pl-6">
-                    This only affects the door's appearance on the design canvas.
-                </p>
-            </div>
-
-            {/* Read-only Information Section */}
-            <div className="text-xs text-slate-500 space-y-1 mt-4 pt-3 border-t border-slate-200">
-                <p><strong>ID:</strong> <span className="font-mono text-slate-400">{item.id.substring(5, 12)}</span></p>
-                <p><strong>Type:</strong> <span className="font-medium text-slate-600">{item.shape || 'Standard Door'}</span></p>
-                <p><strong>Rotation:</strong> <span className="font-medium text-slate-600">{item.rotation}°</span></p>
+            <div className={INFO_SECTION_STYLE}>
+                <div className={INFO_PAIR_STYLE}>
+                    <span className={INFO_LABEL_STYLE}>Item ID:</span>
+                    <span className={`${INFO_VALUE_STYLE} font-mono`}>{item.id.substring(5, 12)}</span>
+                </div>
+                <div className={INFO_PAIR_STYLE}>
+                    <span className={INFO_LABEL_STYLE}>Type:</span>
+                    <span className={INFO_VALUE_STYLE}>{item.shape || 'Standard Door'}</span>
+                </div>
+                <div className={INFO_PAIR_STYLE}>
+                    <span className={INFO_LABEL_STYLE}>Rotation:</span>
+                    <span className={INFO_VALUE_STYLE}>{item.rotation}°</span>
+                </div>
+                <div className={INFO_PAIR_STYLE}>
+                    <span className={INFO_LABEL_STYLE}>Fixed:</span>
+                    <span className={INFO_VALUE_STYLE}>{item.isFixed ? 'Yes' : 'No'}</span>
+                </div>
             </div>
         </div>
     );
 };
 
-export default DoorPropertiesEditor;
+export default DoorEditor;

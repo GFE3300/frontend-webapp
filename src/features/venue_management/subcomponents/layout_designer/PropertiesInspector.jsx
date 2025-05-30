@@ -168,11 +168,10 @@ const PropertiesInspector = ({
 
                     <div className={`flex-1 overflow-y-auto ${CONTENT_PADDING} scrollbar-thin`}>
                         <SpecificEditorComponent
-                            key={selectedItem ? selectedItem.id : 'no-item'} // Re-mounts editor if item changes
+                            key={selectedItem ? selectedItem.id : 'no-item'}
                             item={selectedItem}
                             onUpdateItemProperty={onUpdateItemProperties}
                             gridSubdivision={gridSubdivision}
-                            // Pass ITEM_CONFIGS to DefaultInspectorContent if it needs it for display name
                             ITEM_CONFIGS_Local={currentItemConfigs}
                         />
                     </div>
