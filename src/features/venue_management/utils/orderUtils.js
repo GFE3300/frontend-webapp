@@ -1,18 +1,21 @@
-// src/features/venue_management/utils/orderUtils.js
-
 // These defaults are for the LiveOrderDashboard's initial state if no layout is saved
-export const DEFAULT_LIVE_VIEW_GRID_ROWS = 10;
-export const DEFAULT_LIVE_VIEW_GRID_COLS = 15;
+// and also historically for useLayoutData.js.
+// useLayoutData.js will now primarily use constants from layoutConstants.jsx for its defaults.
+export const DEFAULT_LIVE_VIEW_GRID_ROWS = 10; // Remains as a fallback reference if needed elsewhere
+export const DEFAULT_LIVE_VIEW_GRID_COLS = 15; // Remains as a fallback reference if needed elsewhere
 export const VENDOR_VIEW_GRID_TRACK_SIZE = '1fr'; // Used for styling the grid
 
+/**
+ * @deprecated initialTableLayoutData is mostly deprecated for initial layout structure
+ * in favor of API-driven data or defaults from layoutConstants.jsx used by useLayoutData.
+ * It primarily serves as a fallback structure or for non-editor contexts.
+ */
 export const initialTableLayoutData = {
-    tables: [
-        // Example, should be empty or loaded from localStorage
-        // { id: 't1', number: 1, status: 'empty', order: null, gridPosition: { rowStart: 1, colStart: 1 }, size: 'square' },
-    ],
+    tables: [], // MODIFIED: Should be empty. Primary data comes from API or localStorage.
     gridDimensions: {
         rows: DEFAULT_LIVE_VIEW_GRID_ROWS,
         cols: DEFAULT_LIVE_VIEW_GRID_COLS,
+        // gridSubdivision is usually sourced from layoutConstants.js by useLayoutData
     },
     kitchenArea: null,
 };

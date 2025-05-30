@@ -1,14 +1,11 @@
-// FILE: VenueDesignerPage.jsx
-// PATH: C:\Users\Gilberto F\Desktop\Smore\frontend\src\features\venue_management\subcomponents\layout_designer\VenueDesignerPage.jsx
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Core UI for the designer
 import LayoutEditor from './LayoutEditor';
-// Placeholder for the new/refactored preview component
-// import VenueLayoutPreview from './VenueLayoutPreview'; // We will create this next
+import VenueLayoutPreview from './VenueLayoutPreview';
 
 // Hooks
 import useLayoutData from '../../hooks/useLayoutData';
@@ -16,18 +13,18 @@ import useLayoutData from '../../hooks/useLayoutData';
 // Common Components
 import Icon from '../../../../components/common/Icon';
 import ConfirmationModal from '../../../../components/common/ConfirmationModal'; // Corrected path based on file structure
-import VenueLayoutPreview from './VenueLayoutPreview';
 
-// Constants
+// Constants & Utils
 import {
     DEFAULT_INITIAL_GRID_ROWS,
     DEFAULT_INITIAL_GRID_COLS,
     DEFAULT_GRID_SUBDIVISION,
 } from '../../constants/layoutConstants';
+import { parseBackendLayoutItemsToFrontend } from '../../utils/layoutUtils'; // Import the parser
 
-// Default initial state for the designer if no data is loaded
-const STABLE_EMPTY_DESIGN_ITEMS = Object.freeze([]);
-const DEFAULT_DESIGN_GRID_CONFIG = Object.freeze({
+// Default initial state for the designer if no data is loaded (frontend format)
+const STABLE_EMPTY_FRONTEND_DESIGN_ITEMS = Object.freeze([]);
+const DEFAULT_FRONTEND_GRID_DIMENSIONS = Object.freeze({
     rows: DEFAULT_INITIAL_GRID_ROWS,
     cols: DEFAULT_INITIAL_GRID_COLS,
     gridSubdivision: DEFAULT_GRID_SUBDIVISION,
@@ -37,10 +34,8 @@ const VenueDesignerPage = () => {
     const navigate = useNavigate();
 
     // --- State ---
-    const [isPageLoading, setIsPageLoading] = useState(true);
-    const [isEditorModeActive, setIsEditorModeActive] = useState(false); // true for LayoutEditor, false for VenueLayoutPreview
-    const [initialLayoutForEditor, setInitialLayoutForEditor] = useState(null); // For LayoutEditor initialization
-    const [currentLayoutDataForPreview, setCurrentLayoutDataForPreview] = useState(null); // For VenueLayoutPreview display
+    // isPageLoading is now primarily driven by useLayoutData's isLoading
+    const [isEditorModeActive, setIsEditorModeActive] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isExitConfirmationOpen, setIsExitConfirmationOpen] = useState(false);
     const [isZenMode, setIsZenMode] = useState(false);
@@ -51,7 +46,6 @@ const VenueDesignerPage = () => {
 
     // --- Callbacks for Modals & Alerts ---
     const openAlert = useCallback((title, message, type = 'info') => {
-        // Debounce error alerts with the same message to prevent spamming
         if (isAlertModalOpen && alertModalContent.title === title && alertModalContent.message === message && type === 'error') {
             return;
         }
@@ -62,70 +56,109 @@ const VenueDesignerPage = () => {
     const closeAlert = useCallback(() => setIsAlertModalOpen(false), []);
 
     // --- Data Fetching & Persistence ---
-    const { layoutData, saveDesignedLayout } = useLayoutData(openAlert);
+    // useLayoutData now returns:
+    // layoutData (in backend format: {id, name, grid_rows, grid_cols, grid_subdivision, items: [...]})
+    // isLoading, isSaving, initialFetchDone
+    // saveDesignedLayout (expects frontend-formatted layout)
+    // resetLayoutToLocalDefaults
+    const {
+        layoutData: backendLayoutData, // Renamed for clarity
+        isLoading: isLoadingLayout,
+        isSaving: isSavingLayout,
+        initialFetchDone,
+        saveDesignedLayout,
+        // resetLayoutToLocalDefaults // If needed, can be re-added
+    } = useLayoutData(openAlert);
+
+    // --- Derived State for Editor and Preview ---
+    // These will hold the layout data in FRONTEND format after parsing
+    const initialLayoutForEditor = useMemo(() => {
+        if (!initialFetchDone || !backendLayoutData) {
+            // Return a default structure if data not yet fetched or is null
+            return {
+                designItems: STABLE_EMPTY_FRONTEND_DESIGN_ITEMS,
+                gridDimensions: { ...DEFAULT_FRONTEND_GRID_DIMENSIONS },
+                // kitchenArea handling: If kitchenArea is part of backendLayoutData, map it here.
+                // Otherwise, it might be derived or managed separately within LayoutEditor.
+                // For now, assuming kitchenArea might come from backendLayoutData or be null.
+                kitchenArea: backendLayoutData?.kitchen_area_definition || null, // Example if backend had it
+            };
+        }
+        // Parse backend items to frontend format
+        const frontendDesignItems = parseBackendLayoutItemsToFrontend(
+            backendLayoutData.items || [],
+            backendLayoutData.grid_subdivision || DEFAULT_GRID_SUBDIVISION
+        );
+        return {
+            designItems: frontendDesignItems,
+            gridDimensions: {
+                rows: backendLayoutData.grid_rows || DEFAULT_INITIAL_GRID_ROWS,
+                cols: backendLayoutData.grid_cols || DEFAULT_INITIAL_GRID_COLS,
+                gridSubdivision: backendLayoutData.grid_subdivision || DEFAULT_GRID_SUBDIVISION,
+            },
+            kitchenArea: backendLayoutData.kitchen_area_definition || null, // Example
+        };
+    }, [initialFetchDone, backendLayoutData]);
+
+    // currentLayoutDataForPreview should reflect the most up-to-date state,
+    // which could be the saved state from backend, or if unsaved changes exist,
+    // it might need to get that from LayoutEditor (more complex scenario).
+    // For simplicity now, preview will show the last saved state.
+    // If live preview of unsaved changes is needed, this logic would be more involved.
+    const currentLayoutDataForPreview = useMemo(() => {
+        // This uses the same logic as initialLayoutForEditor, effectively showing the
+        // last fetched/saved state. If LayoutEditor internally updates its state and we want
+        // preview to reflect that *before* saving, we'd need to lift editor's current state up.
+        // For now, Preview shows the "source of truth" from useLayoutData.
+        return initialLayoutForEditor;
+    }, [initialLayoutForEditor]);
+
 
     // --- Effects ---
-    // Initialize and update layout data for both editor and preview
+    // This effect is for the "beforeunload" browser event if needed.
     useEffect(() => {
-        setIsPageLoading(true);
-        if (layoutData) {
-            const designItems = layoutData.designItems // MODIFIED: Use layoutData.designItems directly
-                ? JSON.parse(JSON.stringify(layoutData.designItems))
-                : STABLE_EMPTY_DESIGN_ITEMS;
+        const handleBeforeUnload = (e) => {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = ''; // Standard for most browsers
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [hasUnsavedChanges]);
 
-            const gridDimensions = layoutData.gridDimensions // MODIFIED: Use layoutData.gridDimensions directly
-                ? { ...layoutData.gridDimensions }
-                : { ...DEFAULT_DESIGN_GRID_CONFIG };
-
-            const fullLayout = {
-                designItems,
-                gridDimensions,
-                kitchenArea: layoutData.kitchenArea,
-            };
-
-            setInitialLayoutForEditor(fullLayout);
-            setCurrentLayoutDataForPreview(fullLayout);
-
-        } else {
-            const defaultFullLayout = {
-                designItems: STABLE_EMPTY_DESIGN_ITEMS,
-                gridDimensions: { ...DEFAULT_DESIGN_GRID_CONFIG },
-                kitchenArea: null,
-            };
-            setInitialLayoutForEditor(defaultFullLayout);
-            setCurrentLayoutDataForPreview(defaultFullLayout);
-        }
-        setIsPageLoading(false);
-        setHasUnsavedChanges(false);
-    }, [layoutData]);
 
     // --- Event Handlers ---
     const handleContentChangeInEditor = useCallback(() => {
         setHasUnsavedChanges(true);
     }, []);
 
-    const handleSaveLayoutFromEditor = useCallback(async (designedLayoutFromChild) => {
-        const success = await saveDesignedLayout(designedLayoutFromChild);
+    const handleSaveLayoutFromEditor = useCallback(async (designedLayoutFromChildInFrontendFormat) => {
+        // designedLayoutFromChildInFrontendFormat contains designItems in frontend format
+        // and gridDimensions.
+        // saveDesignedLayout from useLayoutData expects this structure.
+        const success = await saveDesignedLayout(designedLayoutFromChildInFrontendFormat);
         if (success) {
             setHasUnsavedChanges(false);
-            openAlert("Layout Saved", "Your venue layout has been successfully saved.", "success");
-        } else {
-            openAlert("Save Failed", "Could not save the layout. Please try again.", "error");
+            // openAlert is handled by useLayoutData on success/failure of save
         }
         return success;
-    }, [saveDesignedLayout, openAlert]);
+    }, [saveDesignedLayout]);
 
     const handleToggleEditorMode = useCallback(() => {
         if (isEditorModeActive && hasUnsavedChanges) {
-            openAlert("Previewing Changes", "You are now previewing. Changes are not saved yet.", "info");
+            openAlert("Previewing Unsaved Changes", "You are now previewing. Changes are not yet saved to the server.", "info");
+        } else if (!isEditorModeActive && hasUnsavedChanges) {
+            openAlert("Editing Unsaved Changes", "You are back in Design Mode with unsaved changes.", "info");
         }
         setIsEditorModeActive(prev => !prev);
     }, [isEditorModeActive, hasUnsavedChanges, openAlert]);
 
     const handleNavigateToOperationalView = useCallback(() => {
-        openAlert("Exited Designer", "You have left the Venue Layout Designer.", "info");
+        // No alert here, as it implies changes are handled or discarded.
+        // Alert for "Exited Designer" could be if navigate was successful from dashboard.
         navigate('/');
-    }, [navigate, openAlert]);
+    }, [navigate]);
 
 
     const handleAttemptExitPage = useCallback(() => {
@@ -136,12 +169,13 @@ const VenueDesignerPage = () => {
         }
     }, [hasUnsavedChanges, handleNavigateToOperationalView]);
 
-    const confirmAndExitPage = useCallback((discardChanges) => {
+    const confirmAndExitPage = useCallback(async (discardChanges) => {
         setIsExitConfirmationOpen(false);
         if (discardChanges) {
-            setHasUnsavedChanges(false);
+            setHasUnsavedChanges(false); // Mark as not having unsaved changes before navigating
             handleNavigateToOperationalView();
         }
+        // If !discardChanges, they chose "Stay on Page", so do nothing.
     }, [handleNavigateToOperationalView]);
 
     const toggleZenMode = useCallback(() => {
@@ -153,21 +187,47 @@ const VenueDesignerPage = () => {
         hidden: { opacity: 0, height: 0, y: "-100%", transition: { duration: 0.25, ease: "circIn" } },
     };
 
-    const layoutEditorKey = useMemo(() =>
-        initialLayoutForEditor ? JSON.stringify(initialLayoutForEditor.gridDimensions) + (initialLayoutForEditor.designItems?.length || 0) : 'no-layout-editor-data',
-        [initialLayoutForEditor]
-    );
+    // Key for LayoutEditor to force re-mount if fundamental initial data structure changes significantly.
+    // This helps reset its internal useHistory state if a completely new layout is loaded.
+    const layoutEditorKey = useMemo(() => {
+        if (!initialLayoutForEditor) return 'no-editor-data';
+        return JSON.stringify({
+            grid: initialLayoutForEditor.gridDimensions,
+            itemCount: initialLayoutForEditor.designItems?.length || 0,
+            // Potentially include a hash or version of items if deep reset is needed
+        });
+    }, [initialLayoutForEditor]);
 
-    if (isPageLoading || !initialLayoutForEditor || !currentLayoutDataForPreview) {
+
+    if (isLoadingLayout && !initialFetchDone) { // Show loading only on initial fetch
         return (
             <div className="flex items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900">
                 <Icon name="progress_activity" aria-hidden="true" className="w-12 h-12 text-rose-500 dark:text-rose-400 animate-spin" />
                 <p className="ml-3 text-lg font-montserrat font-semibold text-rose-700 dark:text-rose-400">
-                    Loading Designer...
+                    Loading Venue Designer...
                 </p>
             </div>
         );
     }
+
+    if (!initialFetchDone && !backendLayoutData) { // If fetch failed and we have no data (stuck)
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900 p-6 text-center">
+                <Icon name="error_outline" aria-hidden="true" className="w-16 h-16 text-red-500 dark:text-red-400 mb-4" />
+                <h2 className="text-xl font-montserrat font-semibold text-red-700 dark:text-red-400 mb-2">Failed to Load Layout</h2>
+                <p className="text-neutral-600 dark:text-neutral-300 mb-6">
+                    We couldn't retrieve your venue layout data. Please check your internet connection and try refreshing the page.
+                </p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2.5 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition-colors"
+                >
+                    Refresh Page
+                </button>
+            </div>
+        );
+    }
+
 
     return (
         <div className="h-screen w-screen flex flex-col fixed inset-0 overflow-hidden antialiased bg-neutral-100 dark:bg-neutral-900">
@@ -187,12 +247,19 @@ const VenueDesignerPage = () => {
                             <Icon name="space_dashboard" aria-hidden="true" className="w-6 h-6 text-rose-500 dark:text-rose-400 mr-2.5" />
                             <h1 className="font-montserrat font-semibold text-lg text-neutral-800 dark:text-neutral-100 tracking-tight">
                                 Venue Layout Manager
+                                {isSavingLayout && <span className="ml-2 text-xs text-neutral-500">(Saving...)</span>}
+                                {isLoadingLayout && initialFetchDone && <span className="ml-2 text-xs text-neutral-500">(Reloading...)</span>}
                             </h1>
                             <span className={`ml-3 text-xs px-2 py-0.5 rounded-full font-medium
                                 ${isEditorModeActive ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300'
                                     : 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300'}`}>
                                 {isEditorModeActive ? 'Design Mode' : 'Preview Mode'}
                             </span>
+                            {hasUnsavedChanges && isEditorModeActive && (
+                                <span className="ml-3 text-xs px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                                    Unsaved
+                                </span>
+                            )}
                         </div>
                         <div className="flex items-center space-x-2 md:space-x-3">
                             <button
@@ -204,6 +271,7 @@ const VenueDesignerPage = () => {
                                            dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600
                                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800
                                            transition-colors"
+                                disabled={isSavingLayout}
                             >
                                 <Icon name={isEditorModeActive ? "visibility" : "edit"} className="w-4 h-4 mr-1.5" />
                                 {isEditorModeActive ? "Preview Layout" : "Edit Layout"}
@@ -216,6 +284,7 @@ const VenueDesignerPage = () => {
                                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800
                                            transition-colors"
                                 title="Exit Manager"
+                                disabled={isSavingLayout}
                             >
                                 <Icon name="logout" aria-hidden="true" className="w-4 h-4 mr-1.5" />
                                 Exit
@@ -228,8 +297,8 @@ const VenueDesignerPage = () => {
             <main className="flex-1 overflow-hidden relative" role="main">
                 {isEditorModeActive ? (
                     <LayoutEditor
-                        key={layoutEditorKey}
-                        initialLayout={initialLayoutForEditor}
+                        key={layoutEditorKey} // Ensure editor remounts if initial data changes drastically
+                        initialLayout={initialLayoutForEditor} // Pass frontend-formatted layout
                         onSaveTrigger={handleSaveLayoutFromEditor}
                         onContentChange={handleContentChangeInEditor}
                         openAlert={openAlert}
@@ -238,9 +307,11 @@ const VenueDesignerPage = () => {
                     />
                 ) : (
                     <VenueLayoutPreview
+                        // Pass frontend-formatted layout, and key it if its data source can change
+                        key={`preview-${layoutEditorKey}`}
                         layoutData={currentLayoutDataForPreview}
                         openAlert={openAlert}
-                        isZenMode={isZenMode}
+                        isZenMode={isZenMode} // Pass ZenMode to preview if it needs to adapt
                     />
                 )}
             </main>
@@ -248,7 +319,7 @@ const VenueDesignerPage = () => {
             <ConfirmationModal
                 isOpen={isExitConfirmationOpen}
                 onClose={() => setIsExitConfirmationOpen(false)}
-                onConfirm={() => confirmAndExitPage(true)}
+                onConfirm={() => confirmAndExitPage(true)} // Discard changes on confirm
                 title="Unsaved Changes"
                 message="You have unsaved changes. Are you sure you want to exit and discard them?"
                 confirmText="Discard & Exit"
@@ -256,18 +327,14 @@ const VenueDesignerPage = () => {
                 type="warning"
             />
 
-            {/* MODIFIED ConfirmationModal for alerts */}
             <ConfirmationModal
                 isOpen={isAlertModalOpen}
-                onClose={closeAlert}      // Handles 'X' button, backdrop click, or Escape key
-                onConfirm={closeAlert}    // Explicitly wire the "OK" button to closeAlert
+                onClose={closeAlert}
+                onConfirm={closeAlert}
                 title={alertModalContent.title}
                 message={alertModalContent.message}
                 confirmText="OK"
                 type={alertModalContent.type}
-            // By not providing cancelText, the cancel button should be hidden by ConfirmationModal.
-            // If it's not, ConfirmationModal would need a prop like `hideCancelButton={true}`
-            // or ensure its internal "Cancel" button also calls `onClose`.
             />
         </div>
     );

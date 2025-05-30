@@ -1,41 +1,34 @@
-// src/services/api.js
 import axios from 'axios';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
 
 export const apiInstance = axios.create({
     baseURL,
-    timeout: 10000,
+    timeout: 10000, // Increased timeout slightly for potentially larger layout data
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     }
 });
 
-// ... (existing interceptors: apiInstance.interceptors.request.use, apiInstance.interceptors.response.use) ...
-// Ensure your interceptors correctly handle token refresh and don't interfere with FormData Content-Type.
-// The current request interceptor correctly skips Authorization header attachment if 'X-Bypass-Auth-Interceptor' is set.
-// For FormData requests, Content-Type is usually set by the browser, so avoid overriding it in the interceptor
-// unless it's for 'application/json' specifically. Your current interceptor seems fine as it only adds Auth.
-
 let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-	failedQueue.forEach(prom => {
-		if (error) {
-			prom.reject(error);
-		} else {
-			prom.resolve(token);
-		}
-	});
-	failedQueue = [];
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
 };
 
 apiInstance.interceptors.request.use(
     config => {
         if (config.headers && config.headers['X-Bypass-Auth-Interceptor']) {
-            delete config.headers['X-Bypass-Auth-Interceptor']; 
+            delete config.headers['X-Bypass-Auth-Interceptor'];
             return config;
         }
 
@@ -43,10 +36,6 @@ apiInstance.interceptors.request.use(
         if (token) {
             config.headers['Authorization'] = 'Bearer ' + token;
         }
-        // For FormData, Content-Type is set automatically by Axios/browser.
-        // Avoid overriding it here unless 'application/json' is explicitly intended for all other cases.
-        // The default apiInstance headers already set Content-Type to application/json.
-        // If a request passes a specific Content-Type in its config, it should be used.
         return config;
     },
     error => {
@@ -60,7 +49,7 @@ apiInstance.interceptors.response.use(
         const originalRequest = error.config;
 
         if (originalRequest.headers && originalRequest.headers['X-Bypass-Auth-Interceptor-Original']) {
-             delete originalRequest.headers['X-Bypass-Auth-Interceptor-Original'];
+            delete originalRequest.headers['X-Bypass-Auth-Interceptor-Original'];
             return Promise.reject(error);
         }
 
@@ -84,12 +73,10 @@ apiInstance.interceptors.response.use(
             const refreshToken = localStorage.getItem('refreshToken');
             if (!refreshToken) {
                 isRefreshing = false;
-                // Notify AuthContext or redirect to login
-                // Example: window.dispatchEvent(new Event('auth-error-needs-logout'));
                 const noRefreshError = new Error("No refresh token available. Please log in again.");
-                noRefreshError.isAxiosError = true;
+                noRefreshError.isAxiosError = true; // Custom property
                 noRefreshError.config = originalRequest;
-                noRefreshError.requiresLogout = true; // Custom flag
+                noRefreshError.requiresLogout = true; // Custom property for AuthContext
                 return Promise.reject(noRefreshError);
             }
 
@@ -99,21 +86,23 @@ apiInstance.interceptors.response.use(
                 });
                 const { access } = rs.data;
                 localStorage.setItem('accessToken', access);
-                
-                // Update the Authorization header for the original request and subsequent default for apiInstance
+
+                // Update default header for subsequent apiInstance calls
                 apiInstance.defaults.headers.common['Authorization'] = 'Bearer ' + access;
+                // Update header for the current retried request
                 originalRequest.headers['Authorization'] = 'Bearer ' + access;
-                
+
                 processQueue(null, access);
                 return apiInstance(originalRequest);
             } catch (_error) {
                 processQueue(_error, null);
+                // It's crucial to inform the AuthContext or similar to perform a full logout
+                // if refresh fails. This can be done by a custom property on the error.
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                // Notify AuthContext or redirect to login
-                // Example: window.dispatchEvent(new Event('auth-error-needs-logout'));
-                _error.isRefreshError = true; 
-                _error.requiresLogout = true; // Custom flag
+                delete apiInstance.defaults.headers.common['Authorization']; // Clear auth header
+                _error.isRefreshError = true; // Custom property
+                _error.requiresLogout = true; // Custom property for AuthContext
                 return Promise.reject(_error);
             } finally {
                 isRefreshing = false;
@@ -134,8 +123,8 @@ const apiService = {
     registerUserAndBusiness: (data) => {
         return apiInstance.post('auth/register/', data, {
             headers: {
-                'X-Bypass-Auth-Interceptor': true,
-                'X-Bypass-Auth-Interceptor-Original': true // Add this if you want the response interceptor to also bypass
+                'X-Bypass-Auth-Interceptor': true, // To prevent attaching possibly non-existent token
+                'X-Bypass-Auth-Interceptor-Original': true // To prevent retry logic on 401 for this specific call
             }
         });
     },
@@ -165,13 +154,104 @@ const apiService = {
         formData.append('image', file);
         return apiInstance.post(`products/${productId}/upload-image/`, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data', // Axios will set this with boundary for FormData
+                'Content-Type': 'multipart/form-data',
             },
         });
     },
 
     deleteProductImage: (productId) => {
         return apiInstance.delete(`products/${productId}/delete-image/`);
+    },
+
+    // --- Venue Layout Management API Signatures ---
+    /**
+     * Fetches the active venue layout for the current user's active business.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response object containing venue layout data.
+     */
+    getActiveVenueLayout: async () => {
+        try {
+            console.log("apiService: Attempting to fetch active venue layout from /api/venue/layout/active/");
+            const response = await apiInstance.get('venue/layout/active/');
+            console.log("apiService: Active venue layout fetched successfully.");
+            return response; // Consumers can access response.data
+        } catch (error) {
+            console.error("apiService: Error fetching active venue layout.", error.response?.data || error.message || error);
+            throw error;
+        }
+    },
+
+    /**
+     * Saves the active venue layout for the current user's active business.
+     * @param {object} layoutData - The complete layout data to save.
+     *        Should include: name, grid_rows, grid_cols, grid_subdivision, items.
+     *        Items should have base properties and item_specific_props nested.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response object containing the saved venue layout data.
+     */
+    saveActiveVenueLayout: async (layoutData) => {
+        try {
+            console.log("apiService: Attempting to save active venue layout to /api/venue/layout/active/. Data:", JSON.parse(JSON.stringify(layoutData)));
+            const response = await apiInstance.put('venue/layout/active/', layoutData);
+            console.log("apiService: Active venue layout saved successfully.");
+            return response; // Consumers can access response.data
+        } catch (error) {
+            console.error("apiService: Error saving active venue layout.", error.response?.data || error.message || error);
+            throw error;
+        }
+    },
+
+    /**
+     * Fetches a QR code image for a specific table layout item.
+     * @param {string} itemId - The UUID of the layout item (table).
+     * @returns {Promise<Blob>} A promise that resolves with the image blob.
+     * @throws {Error} If the API call fails or itemId is missing.
+     */
+    fetchTableItemQrCode: async (itemId) => { // qrColor and bgColor params removed
+        if (!itemId) {
+            const errMsg = "apiService.fetchTableItemQrCode: itemId is required.";
+            console.error(errMsg);
+            return Promise.reject(new Error(errMsg)); // Reject promise for clarity
+        }
+        try {
+            console.log(`apiService: Attempting to fetch QR code for itemId: ${itemId} from /api/venue/layout-item/${itemId}/qr-code/`);
+            const response = await apiInstance.get(`venue/layout-item/${itemId}/qr-code/`, {
+                responseType: 'blob' // Important for receiving image data
+            });
+            // When responseType is 'blob', Axios puts the blob directly in response.data
+            console.log(`apiService: QR code for itemId ${itemId} fetched. Type: ${response.data?.type}, Size: ${response.data?.size}`);
+            return response.data; // Return the blob directly
+        } catch (error) {
+            // Construct a more informative error message
+            let errorMessage = `Failed to fetch QR for item ${itemId}.`;
+            if (error.response) {
+                // Try to parse error from blob if response is a blob (e.g. DRF error response with blob content type)
+                if (error.response.data instanceof Blob && error.response.data.type === 'application/json') {
+                    try {
+                        const errorJsonText = await error.response.data.text();
+                        const errorJson = JSON.parse(errorJsonText);
+                        errorMessage += ` Server error: ${errorJson.detail || errorJson.message || errorJsonText}`;
+                    } catch (e) {
+                        console.error("Failed to parse blob response:", e);
+                        errorMessage += ` Server returned an error (could not parse blob response). Status: ${error.response.status}.`;
+                    }
+                } else if (error.response.data?.detail) {
+                    errorMessage += ` Server error: ${error.response.data.detail}.`;
+                } else if (error.response.data?.message) {
+                    errorMessage += ` Server error: ${error.response.data.message}.`;
+                } else {
+                    errorMessage += ` Server responded with status ${error.response.status}.`;
+                }
+            } else if (error.request) {
+                errorMessage += ' No response received from server.';
+            } else {
+                errorMessage += ` Error: ${error.message || 'Unknown error'}.`;
+            }
+            console.error(`apiService: Error fetching QR code for itemId ${itemId}. Full error: `, error, "Constructed message:", errorMessage);
+
+            const customError = new Error(errorMessage);
+            customError.status = error.response?.status;
+            customError.originalError = error;
+            throw customError;
+        }
     },
 };
 

@@ -1,26 +1,26 @@
 // features/venue_management/subcomponents/layout_designer/CanvasCell.jsx
-// DEBUG MODE + ROTATION-RESIZE FOCUS
 import React, { memo, useCallback, useMemo } from 'react';
 import { useDrop } from 'react-dnd';
 
 // Design Guideline-Derived Tailwind Classes
 const GRID_LINE_STYLES = {
+    // Applied to border-b and border-r of each cell
     minorLight: "border-neutral-200 dark:border-neutral-700/50",
     majorLight: "border-neutral-300 dark:border-neutral-600/70",
 };
 
 const CELL_FEEDBACK_BG_STYLES = {
+    // For the cell under the footprint of a valid/invalid placement preview
     dropValidLight: "bg-green-500/15 dark:bg-green-500/20",
     dropInvalidLight: "bg-red-500/15 dark:bg-red-500/20",
+    // For the cell directly under the cursor when eraser is active
     eraserHoverLight: "bg-red-500/10 dark:bg-red-500/15",
 };
-
-const ROTATION_RESIZE_DEBUG_CC = "[DEBUG ROTATION-RESIZE] [CanvasCell] ";
 
 const CanvasCell = ({
     // Cell Position & Grid Info
     r_minor, c_minor,
-    isMajorRowBoundary, isMajorColBoundary,
+    isMajorRowBoundary, isMajorColBoundary, // Booleans indicating if this cell's bottom/right border is a major one
     gridSubdivision,
 
     // Callbacks from EditorCanvas/LayoutEditor
@@ -28,8 +28,7 @@ const CanvasCell = ({
     canPlaceItemAtCoords,
 
     // Drag State & Eraser
-    currentDraggedItemPreview, // This is the key prop from useDesignerInteractions, managed by EditorCanvas
-    onUpdateCurrentDraggedItemPreview, // Callback to update the preview state in EditorCanvas
+    currentDraggedItemPreview, onUpdateCurrentDraggedItemPreview,
     isEraserActive, onEraseItemFromCell,
 
     // Configs
@@ -39,16 +38,15 @@ const CanvasCell = ({
     // eslint-disable-next-line no-unused-vars
     const [{ isOver, canDropThisSpecificItem, draggedItemTypeForCell }, dropRef] = useDrop(() => ({
         accept: [
+            // Dynamically accept all tool types and all placed item types from ItemTypes
             ...Object.values(ItemTypes).filter(type => typeof type === 'string' && type.endsWith('Tool')),
             ...Object.values(ItemTypes).filter(type => typeof type === 'string' && type.startsWith('placed')),
         ],
         drop: (itemPayload, monitor) => {
-            if (monitor.didDrop()) return;
+            if (monitor.didDrop()) return; // Prevent multiple drop handling
 
             const droppedActualType = monitor.getItemType();
             const isNewTool = String(droppedActualType).endsWith('Tool');
-
-            console.log(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) DROP event. Type: ${droppedActualType}. IsNewTool: ${isNewTool}. Payload:`, JSON.parse(JSON.stringify(itemPayload)));
 
             if (isNewTool) {
                 onAddItemToLayout(itemPayload, r_minor, c_minor);
@@ -60,8 +58,9 @@ const CanvasCell = ({
         hover: (itemPayload, monitor) => {
             if (!monitor.isOver({ shallow: true })) return;
 
+            // If a resize operation's preview is active, let EditorCanvas handle visual feedback.
+            // This cell hover should not generate a conflicting 'placement' preview.
             if (currentDraggedItemPreview && currentDraggedItemPreview.type === 'resize') {
-                // console.log(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) Hover - resize preview active, skipping placement preview.`);
                 return;
             }
 
@@ -71,33 +70,30 @@ const CanvasCell = ({
 
             if (isNewTool) {
                 if (!itemPayload.w_major || !itemPayload.h_major || !gridSubdivision) {
-                    // console.warn(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) Hover - Tool payload or gridSubdivision missing.`);
+                    console.warn("CanvasCell: Tool payload or gridSubdivision missing for preview.", itemPayload, gridSubdivision);
                     onUpdateCurrentDraggedItemPreview(null); return;
                 }
                 previewW_minor = itemPayload.w_major * gridSubdivision;
                 previewH_minor = itemPayload.h_major * gridSubdivision;
-            } else if (itemPayload.effW_minor !== undefined && itemPayload.effH_minor !== undefined) { // Existing item being moved
-                previewW_minor = itemPayload.effW_minor; // These are AABB dimensions from PlacedItem payload
-                previewH_minor = itemPayload.effH_minor; // These are AABB dimensions from PlacedItem payload
+            } else if (itemPayload.effW_minor !== undefined && itemPayload.effH_minor !== undefined) {
+                previewW_minor = itemPayload.effW_minor;
+                previewH_minor = itemPayload.effH_minor;
                 itemIdToExclude = itemPayload.id;
             } else {
-                // console.warn(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) Hover - Dragged item missing dimensions for preview.`);
+                console.warn("CanvasCell: Dragged item missing dimensions for preview.", itemPayload);
                 onUpdateCurrentDraggedItemPreview(null); return;
             }
 
-            // console.log(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) Hover - ItemType: ${currentHoverItemType}, PreviewDims for canPlace: w=${previewW_minor}, h=${previewH_minor}`);
-
             const isValidPlacement = canPlaceItemAtCoords(r_minor, c_minor, previewW_minor, previewH_minor, itemIdToExclude);
-
-            // console.log(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) Hover - isValidPlacement=${isValidPlacement}. Updating preview with anchor (${r_minor},${c_minor}), dims (${previewW_minor},${previewH_minor})`);
             onUpdateCurrentDraggedItemPreview({
-                r: r_minor, c: c_minor,
-                w: previewW_minor, h: previewH_minor,
+                r: r_minor, c: c_minor, // Anchor point for the preview
+                w: previewW_minor, h: previewH_minor, // Dimensions of the item being previewed
                 isValid: isValidPlacement,
-                type: 'placement'
+                type: 'placement' // Specify preview type
             });
         },
         canDrop: (itemPayload, monitor) => {
+            // Do not allow dropping onto a cell if a resize operation is visually active globally.
             if (currentDraggedItemPreview && currentDraggedItemPreview.type === 'resize') {
                 return false;
             }
@@ -127,66 +123,47 @@ const CanvasCell = ({
     }), [
         r_minor, c_minor, onAddItemToLayout, onMoveExistingItem,
         canPlaceItemAtCoords, onUpdateCurrentDraggedItemPreview,
-        ItemTypes, gridSubdivision, currentDraggedItemPreview,
+        ItemTypes, gridSubdivision, currentDraggedItemPreview, // Include currentDraggedItemPreview as it affects canDrop and hover
     ]);
 
     const handleClick = useCallback(() => {
         if (isEraserActive) {
             onEraseItemFromCell(r_minor, c_minor);
         }
+        // Other cell click logic (e.g., for selecting an empty cell, if needed) can go here.
     }, [isEraserActive, onEraseItemFromCell, r_minor, c_minor]);
 
     const cellClasses = useMemo(() => {
-        let classes = "relative transition-colors duration-75 ease-in-out";
+        let classes = "relative transition-colors duration-75 ease-in-out"; // Base class
+
+        // Apply bottom and right borders to each cell to form the grid lines.
+        // EditorCanvas container provides top and left borders for the entire grid.
         classes += ` border-b ${isMajorRowBoundary ? GRID_LINE_STYLES.majorLight : GRID_LINE_STYLES.minorLight}`;
         classes += ` border-r ${isMajorColBoundary ? GRID_LINE_STYLES.majorLight : GRID_LINE_STYLES.minorLight}`;
-        let bgClass = '';
 
-        // Log currentDraggedItemPreview state when cellClasses is recomputed and a preview is active
-        if (currentDraggedItemPreview) {
-            if (r_minor === 1 && c_minor === 1) { // Log only for one cell to avoid flooding, or choose a specific cell
-                // console.log(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) useMemo - currentDraggedItemPreview: type=${currentDraggedItemPreview.type}, w=${currentDraggedItemPreview.w}, h=${currentDraggedItemPreview.h}, anchor_r=${currentDraggedItemPreview.r}, anchor_c=${currentDraggedItemPreview.c}, isValid=${currentDraggedItemPreview.isValid}`);
-            }
-        }
+        let bgClass = ''; // Background class for feedback
 
+        // Feedback for item placement preview
         if (currentDraggedItemPreview && currentDraggedItemPreview.type === 'placement') {
             const { r: pR, c: pC, w: pW, h: pH, isValid: pIsValid } = currentDraggedItemPreview;
-
-            const isInFootprint = (r_minor >= pR && r_minor < (pR + pH) && c_minor >= pC && c_minor < (pC + pW));
-
-            // ***** NEW LOG: Log for EVERY cell, whether it thinks it's in the footprint or not *****
-            // To reduce log spam, let's only log if it's near the expected footprint or if something seems off.
-            // For instance, if the preview anchor is (4,7) and preview is 2x5, check cells around r=4-8, c=7-8
-            const isNearAnchor = Math.abs(r_minor - pR) < (pH + 2) && Math.abs(c_minor - pC) < (pW + 2);
-            if (isNearAnchor) { // Only log for cells somewhat near the preview area to reduce flood
-                console.log(ROTATION_RESIZE_DEBUG_CC +
-                    `Cell (${r_minor},${c_minor}). PreviewAnchor:(${pR},${pC}), PreviewDims:(${pW}w,${pH}h). Condition: (r_minor(${r_minor}) >= pR(${pR}) && r_minor(${r_minor}) < (pR+pH)(${(pR + pH)}) && c_minor(${c_minor}) >= pC(${pC}) && c_minor(${c_minor}) < (pC+pW)(${(pC + pW)})) === ${isInFootprint}. ValidDrop: ${pIsValid}`);
-            }
-            // ***** END NEW LOG *****
-
-            // CRITICAL LOG: Check the values used for footprint calculation
-            if (r_minor === pR && c_minor === pC) { // Log for the anchor cell of the preview
-                console.log(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) - ANCHOR of PLACEMENT preview. Preview footprint: w=${pW}, h=${pH}. My coords: r=${r_minor}, c=${c_minor}`);
-            }
-
+            // Check if this cell (r_minor, c_minor) is within the footprint of the item being previewed
             if (r_minor >= pR && r_minor < pR + pH && c_minor >= pC && c_minor < pC + pW) {
-                // This cell is part of the footprint
-                bgClass = pIsValid ? `${CELL_FEEDBACK_BG_STYLES.dropValidLight}` : `${CELL_FEEDBACK_BG_STYLES.dropInvalidLight}`;
-                // if (r_minor === pR && c_minor === pC) { // More specific log if needed
-                //    console.log(ROTATION_RESIZE_DEBUG_CC + `Cell (${r_minor},${c_minor}) IS HIGHLIGHTED. Valid: ${pIsValid}`);
-                // }
+                bgClass = pIsValid
+                    ? `${CELL_FEEDBACK_BG_STYLES.dropValidLight}`
+                    : `${CELL_FEEDBACK_BG_STYLES.dropInvalidLight}`;
             }
         }
-        else if (isEraserActive && isOver) { // isOver comes from useDrop
+        // Feedback for eraser tool hovering directly over this cell
+        else if (isEraserActive && isOver) {
             bgClass = `${CELL_FEEDBACK_BG_STYLES.eraserHoverLight}`;
         }
 
         return `${classes} ${bgClass}`;
     }, [
         isMajorRowBoundary, isMajorColBoundary,
-        currentDraggedItemPreview, // This is a key dependency
-        isEraserActive, isOver,    // isOver from useDrop hook
-        r_minor, c_minor           // Cell's own coordinates
+        currentDraggedItemPreview,
+        isEraserActive, isOver,
+        r_minor, c_minor
     ]);
 
     return (
@@ -197,7 +174,9 @@ const CanvasCell = ({
             role="gridcell"
             aria-rowindex={r_minor}
             aria-colindex={c_minor}
+        // title={`Cell (${r_minor},${c_minor})`} // Optional: for debugging
         >
+            {/* Cell content is primarily its borders and dynamic background for feedback */}
         </div>
     );
 };

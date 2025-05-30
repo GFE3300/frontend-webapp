@@ -1,13 +1,12 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useCallback } from 'react'; // Added useCallback
 
 // Hooks
-import useQrCodeManager from '../../hooks/useQrCodeManager'; // For QR code generation and management
+import useQrCodeManager from '../../hooks/useQrCodeManager';
 
 // Common Components
 import Icon from '../../../../components/common/Icon';
 
-// Item Renderers (Simplified for Preview - or reuse existing if they adapt well to read-only)
-// For now, we'll use basic div representations, but these could be more sophisticated.
+// Item Renderers
 import TableRenderer from './item_renderers/TableRenderer';
 import WallRenderer from './item_renderers/WallRenderer';
 import DoorRenderer from './item_renderers/DoorRenderer';
@@ -21,9 +20,15 @@ import { ITEM_CONFIGS, ItemTypes } from '../../constants/itemConfigs';
 
 // Helper to get the specific renderer component
 const getRendererComponent = (itemType, decorType) => {
+    // Check if it's a counter disguised as decor
     if (itemType === ItemTypes.PLACED_DECOR && decorType?.startsWith('counter-')) {
         return CounterRenderer;
     }
+    // Check if it's a specific decor type that should use CounterRenderer
+    // This might be redundant if decorType 'counter-something' implies ItemTypes.PLACED_COUNTER
+    // but good as a safeguard if decorType is the primary differentiator for some counters.
+    // Actual itemType PLACED_COUNTER will also map to CounterRenderer.
+
     const config = ITEM_CONFIGS[itemType];
     const rendererKey = config?.PlacedComponent;
     switch (rendererKey) {
@@ -33,11 +38,11 @@ const getRendererComponent = (itemType, decorType) => {
         case 'DecorRenderer': return DecorRenderer;
         case 'CounterRenderer': return CounterRenderer;
         default:
-            return ({ item, itemRotation }) => ( // Basic fallback preview renderer
+            return ({ item, itemRotation }) => (
                 <div
                     className="w-full h-full border border-dashed border-neutral-400 bg-neutral-200/50 flex items-center justify-center text-neutral-500 text-xxs p-0.5 text-center"
                     style={{ transform: `rotate(${itemRotation}deg)`, transformOrigin: 'center center' }}
-                    title={`${config?.displayName || itemType} (ID: ${item.id.substring(0, 5)})`}
+                    title={`${config?.displayName || itemType} (ID: ${item.id?.substring(0, 5) || 'N/A'})`}
                 >
                     <span>{config?.displayName || itemType}</span>
                 </div>
@@ -47,95 +52,107 @@ const getRendererComponent = (itemType, decorType) => {
 
 
 const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
-    const { designItems, gridDimensions, kitchenArea } = layoutData;
-    const { qrImageUrls, qrLoadingStates, fetchQrCodeForTable, downloadSingleQr, downloadAllQrs, getQrStatus } = useQrCodeManager(openAlert);
+    // layoutData.designItems are now expected to be in FRONTEND format
+    // layoutData.gridDimensions is { rows, cols, gridSubdivision }
+    const { designItems, gridDimensions } = layoutData || { designItems: [], gridDimensions: {} };
 
-    const tables = useMemo(
-        () => (designItems || []).filter(item => item.itemType === ItemTypes.PLACED_TABLE && item.number && !item.isProvisional),
+    const {
+        fetchQrCodeForTable,
+        downloadSingleQr,
+        downloadAllQrs,
+        getQrStatus
+    } = useQrCodeManager(openAlert);
+
+    // Filter for tables that are valid for QR codes (have a number and are not provisional)
+    // These items are already in frontend format.
+    const tablesForQr = useMemo(
+        () => (designItems || []).filter(item =>
+            item.itemType === ItemTypes.PLACED_TABLE &&
+            item.number &&
+            !item.isProvisional
+        ),
         [designItems]
     );
 
-    // Fetch QR codes for all valid tables when the component mounts or tables change
+    // Fetch QR codes for all valid tables when the component mounts or tablesForQr change
     useEffect(() => {
-        tables.forEach(table => {
-            const status = getQrStatus(table.id);
-            // Fetch if not already fetched, not loading, and not skipped/errored (unless we want to retry errors)
-            if (!status.url && !status.loading && status.status !== 'skipped' && status.status !== 'error') {
-                fetchQrCodeForTable(table); // Default colors for now
-            }
-        });
-    }, [tables, fetchQrCodeForTable, getQrStatus]);
+        if (tablesForQr.length > 0) {
+            tablesForQr.forEach(table => {
+                const status = getQrStatus(table.id); // table.id is the frontend item ID
+                if (!status.url && !status.loading && status.status !== 'skipped' && status.status !== 'error') {
+                    fetchQrCodeForTable(table); // fetchQrCodeForTable expects a frontend-formatted table object
+                }
+            });
+        }
+    }, [tablesForQr, fetchQrCodeForTable, getQrStatus]);
 
 
-    // Grid rendering logic (similar to EditorCanvas but read-only)
-    const totalMinorRows = useMemo(() => gridDimensions.rows * gridDimensions.gridSubdivision, [gridDimensions]);
-    const totalMinorCols = useMemo(() => gridDimensions.cols * gridDimensions.gridSubdivision, [gridDimensions]);
-    const minorCellSizeRem = useMemo(() => MAJOR_CELL_SIZE_REM / gridDimensions.gridSubdivision, [gridDimensions]);
+    const totalMinorRows = useMemo(() => (gridDimensions.rows || 0) * (gridDimensions.gridSubdivision || 1), [gridDimensions]);
+    const totalMinorCols = useMemo(() => (gridDimensions.cols || 0) * (gridDimensions.gridSubdivision || 1), [gridDimensions]);
+    const minorCellSizeRem = useMemo(() => MAJOR_CELL_SIZE_REM / (gridDimensions.gridSubdivision || 1), [gridDimensions]);
 
     const previewGridStyle = useMemo(() => ({
         display: 'grid',
         gridTemplateRows: `repeat(${totalMinorRows}, ${minorCellSizeRem}rem)`,
         gridTemplateColumns: `repeat(${totalMinorCols}, ${minorCellSizeRem}rem)`,
-        width: `${gridDimensions.cols * MAJOR_CELL_SIZE_REM}rem`,
-        height: `${gridDimensions.rows * MAJOR_CELL_SIZE_REM}rem`,
-        backgroundColor: 'var(--color-background-grid-preview, #f3f4f6)', // Lighter gray for preview
-        border: '1px solid var(--color-border-grid-preview, #e5e7eb)',
-        borderRadius: '0.375rem', // Tailwind 'rounded-md'
+        width: `${(gridDimensions.cols || 0) * MAJOR_CELL_SIZE_REM}rem`,
+        height: `${(gridDimensions.rows || 0) * MAJOR_CELL_SIZE_REM}rem`,
+        backgroundColor: 'var(--color-background-grid-preview, #f9fafb)', // Tailwind gray-50
+        border: '1px solid var(--color-border-grid-preview, #e5e7eb)', // Tailwind gray-200
+        borderRadius: '0.375rem',
         position: 'relative',
-        margin: 'auto', // Center the grid
-        // Add zoom transformation if needed, though preview mode might not need zoom
+        margin: 'auto',
     }), [totalMinorRows, totalMinorCols, minorCellSizeRem, gridDimensions]);
 
 
-    const handleDownloadAllQrs = () => {
-        if (tables.length === 0) {
+    const handleDownloadAllQrs = useCallback(() => {
+        if (tablesForQr.length === 0) {
             openAlert("No Tables", "There are no numbered tables to download QR codes for.", "info");
             return;
         }
-        downloadAllQrs(tables); // Pass only tables with numbers
-    };
+        downloadAllQrs(tablesForQr); // Pass frontend-formatted tables
+    }, [tablesForQr, downloadAllQrs, openAlert]);
 
 
-    if (!designItems) {
+    if (!designItems || !gridDimensions.rows || !gridDimensions.cols) {
         return (
-            <div className="flex items-center justify-center h-full p-8 text-neutral-500">
-                No layout data to display. Please design your layout first.
+            <div className="flex items-center justify-center h-full p-8 text-neutral-500 dark:text-neutral-400">
+                No layout data to display or grid dimensions are invalid. Please design your layout first.
             </div>
         );
     }
 
     return (
-        <div className={`flex h-full ${isZenMode ? 'flex-col' : 'flex-row'} overflow-hidden bg-neutral-50 dark:bg-neutral-950`}>
-            {/* Main Preview Area (Grid) */}
+        <div className={`flex h-full ${isZenMode ? 'flex-col' : 'flex-row'} overflow-hidden bg-neutral-100 dark:bg-neutral-900`}>
             <div className={`flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 overflow-auto ${isZenMode ? 'order-first' : ''}`}>
                 <div style={previewGridStyle}>
-                    {/* Render static minor grid lines (optional, could be a background image too) */}
                     {Array.from({ length: totalMinorRows }).flatMap((_, rIndex) =>
                         Array.from({ length: totalMinorCols }).map((_, cIndex) => {
                             const minorRow = rIndex + 1;
                             const minorCol = cIndex + 1;
-                            const isMajorRBoundary = (minorRow % gridDimensions.gridSubdivision === 0 && minorRow !== totalMinorRows);
-                            const isMajorCBoundary = (minorCol % gridDimensions.gridSubdivision === 0 && minorCol !== totalMinorCols);
+                            const isMajorRBoundary = (minorRow % (gridDimensions.gridSubdivision || 1) === 0 && minorRow !== totalMinorRows);
+                            const isMajorCBoundary = (minorCol % (gridDimensions.gridSubdivision || 1) === 0 && minorCol !== totalMinorCols);
                             return (
                                 <div
                                     key={`preview-cell-${minorRow}-${minorCol}`}
-                                    className={`border-neutral-200 dark:border-neutral-800/70
-                                        ${isMajorRBoundary ? 'border-b-neutral-300 dark:border-b-neutral-700' : 'border-b'}
-                                        ${isMajorCBoundary ? 'border-r-neutral-300 dark:border-r-neutral-700' : 'border-r'}
+                                    className={`border-neutral-200 dark:border-neutral-700/50
+                                        ${isMajorRBoundary ? 'border-b-neutral-300 dark:border-b-neutral-600' : 'border-b'}
+                                        ${isMajorCBoundary ? 'border-r-neutral-300 dark:border-r-neutral-600' : 'border-r'}
                                     `}
                                 />
                             );
                         })
                     )}
 
-                    {/* Render Kitchen Area if defined */}
-                    {kitchenArea && (
+                    {/* Render Kitchen Area if defined - assuming layoutData.kitchenArea exists and is frontend compatible */}
+                    {/* This part needs to ensure kitchenArea coordinates are compatible with the grid system */}
+                    {layoutData.kitchenArea && (
                         <div
                             style={{
-                                gridRowStart: kitchenArea.rowStart,
-                                gridColumnStart: kitchenArea.colStart,
-                                gridRowEnd: `span ${kitchenArea.rowEnd - kitchenArea.rowStart + 1}`,
-                                gridColumnEnd: `span ${kitchenArea.colEnd - kitchenArea.colStart + 1}`,
+                                gridRowStart: layoutData.kitchenArea.rowStart, // Assuming these are minor cell units
+                                gridColumnStart: layoutData.kitchenArea.colStart,
+                                gridRowEnd: `span ${layoutData.kitchenArea.rowEnd - layoutData.kitchenArea.rowStart + 1}`,
+                                gridColumnEnd: `span ${layoutData.kitchenArea.colEnd - layoutData.kitchenArea.colStart + 1}`,
                                 zIndex: 1,
                                 pointerEvents: 'none',
                             }}
@@ -145,8 +162,7 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                         </div>
                     )}
 
-                    {/* Render Placed Design Items (Read-Only) */}
-                    {designItems.map(item => {
+                    {designItems.map(item => { // designItems are now in frontend format
                         if (!item || !item.gridPosition) return null;
                         const Renderer = getRendererComponent(item.itemType, item.decorType);
                         return (
@@ -158,20 +174,17 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                                     left: `${(item.gridPosition.colStart - 1) * minorCellSizeRem}rem`,
                                     width: `${item.w_minor * minorCellSizeRem}rem`,
                                     height: `${item.h_minor * minorCellSizeRem}rem`,
-                                    zIndex: 10, // Ensure items are above grid lines
-                                    // transform: `rotate(${item.rotation || 0}deg)`, // Rotation handled by renderer now
-                                    // transformOrigin: 'center center',
+                                    zIndex: item.layer || 10, // Use item's layer, default to 10
                                 }}
-                                className="pointer-events-none" // Items are not interactive in preview
+                                className="pointer-events-none"
                             >
-                                <Renderer item={item} itemRotation={item.rotation || 0} /* Pass rotation */ />
+                                <Renderer item={item} itemRotation={item.rotation || 0} isSelected={false} /* Preview items are not "selected" */ />
                             </div>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Table List & QR Management Sidebar (unless in Zen mode) */}
             {!isZenMode && (
                 <aside className="w-80 lg:w-96 h-full flex flex-col bg-white dark:bg-neutral-800 shadow-lg border-l border-neutral-200 dark:border-neutral-700">
                     <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 shrink-0">
@@ -181,9 +194,9 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
-                        {tables.length > 0 ? tables.map(table => {
-                            const qrStatus = getQrStatus(table.id);
-                            const qrImageUrl = qrStatus.url && qrStatus.status !== 'skipped' && qrStatus.status !== 'error' ? qrStatus.url : null;
+                        {tablesForQr.length > 0 ? tablesForQr.map(table => {
+                            const qrStatus = getQrStatus(table.id); // Use frontend item ID
+                            const qrImageUrl = qrStatus.url; // Already null if not a blob URL
                             const isLoadingQr = qrStatus.loading;
                             const qrError = qrStatus.status === 'error';
                             const qrSkipped = qrStatus.status === 'skipped';
@@ -196,11 +209,11 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                                                 Table {table.number}
                                             </h3>
                                             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                                {table.seats} Seats • {table.shape}
+                                                {table.seats || 'N/A'} Seats • {table.shape}
                                             </p>
                                         </div>
                                         <button
-                                            onClick={() => downloadSingleQr(table)}
+                                            onClick={() => downloadSingleQr(table)} // Pass frontend table object
                                             disabled={!qrImageUrl || isLoadingQr}
                                             className="p-1.5 rounded-md text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             title="Download QR Code"
@@ -209,14 +222,15 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                                         </button>
                                     </div>
 
-                                    <div className="aspect-square w-full max-w-[150px] mx-auto bg-neutral-100 dark:bg-neutral-600 rounded flex items-center justify-center">
-                                        {isLoadingQr && <Icon name="progress_activity" className="w-8 h-8 text-neutral-400 animate-spin" />}
-                                        {qrImageUrl && !isLoadingQr && <img src={qrImageUrl} alt={`QR Code for Table ${table.number}`} className="w-full h-full object-contain rounded" />}
+                                    <div className="aspect-square w-full max-w-[150px] mx-auto bg-neutral-200 dark:bg-neutral-700 rounded flex items-center justify-center overflow-hidden">
+                                        {isLoadingQr && <Icon name="progress_activity" className="w-8 h-8 text-neutral-400 dark:text-neutral-500 animate-spin" />}
+                                        {qrImageUrl && !isLoadingQr && <img src={qrImageUrl} alt={`QR Code for Table ${table.number}`} className="w-full h-full object-contain" />}
                                         {qrError && !isLoadingQr && <Icon name="error" className="w-8 h-8 text-red-500" title="Error loading QR" />}
-                                        {qrSkipped && !isLoadingQr && <Icon name="qr_code_scanner" className="w-8 h-8 text-neutral-400 opacity-50" title="QR Generation Offline" />}
-                                        {!qrImageUrl && !isLoadingQr && !qrError && !qrSkipped && <span className="text-xs text-neutral-400">QR Pending</span>}
+                                        {qrSkipped && !isLoadingQr && <Icon name="qr_code_scanner" className="w-8 h-8 text-neutral-400 dark:text-neutral-500 opacity-50" title="QR Generation Offline" />}
+                                        {!qrImageUrl && !isLoadingQr && !qrError && !qrSkipped && <span className="text-xs text-neutral-400 dark:text-neutral-500">QR Pending</span>}
                                     </div>
-                                    {qrSkipped && <p className="text-center text-xxs text-neutral-500 dark:text-neutral-400 mt-1">QR generation is offline.</p>}
+                                    {qrError && <p className="text-center text-xxs text-red-500 dark:text-red-400 mt-1">Could not load QR.</p>}
+                                    {qrSkipped && <p className="text-center text-xxs text-neutral-500 dark:text-neutral-400 mt-1">QR generation is unavailable.</p>}
                                 </div>
                             );
                         }) : (
@@ -226,10 +240,10 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                         )}
                     </div>
 
-                    {tables.length > 0 && (
+                    {tablesForQr.length > 0 && (
                         <div className="p-4 border-t border-neutral-200 dark:border-neutral-700 shrink-0">
                             <button
-                                onClick={handleDownloadAllQrs}
+                                onClick={handleDownloadAllQrs} // Uses tablesForQr (frontend format)
                                 className="w-full flex items-center justify-center px-4 py-2.5 bg-rose-500 text-white text-sm font-medium rounded-lg shadow-md hover:bg-rose-600 transition-colors
                                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800"
                             >

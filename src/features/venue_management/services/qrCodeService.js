@@ -1,78 +1,45 @@
-// src/features/venue_management/services/qrCodeService.js
+import apiService from '../../../services/api'; // Assuming apiService is correctly set up
 
-// This should ideally come from a global config or environment variable
-const API_BASE_URL = 'http://127.0.0.1:5001';
-const IS_BACKEND_QR_ENABLED = false; // <--- SET THIS TO false FOR NOW
-
-export const generateQrCode = async (dataStr, qrColor = 'black', bgColor = 'white') => {
-    if (!IS_BACKEND_QR_ENABLED) {
-        console.warn("QR Code generation is in frontend-only mode. No backend call will be made.");
-        // Option 1: Simulate an error or "not available" state
-        return Promise.reject({
-            status: null, // Or a specific status like 'SKIPPED'
-            message: 'QR generation backend is disabled in frontend-only mode.',
-            data: { detail: 'Backend QR service is not enabled.' }
-        });
-
-        // Option 2: Return a placeholder image Blob (more involved, needs a canvas or library)
-        // For now, let's stick to Option 1 for simplicity to focus on core layout bugs.
-        // Example for placeholder (if you had a function to create a placeholder image):
-        // const placeholderBlob = await createPlaceholderQrBlob(dataStr);
-        // return placeholderBlob;
+/**
+ * Fetches a QR code image blob from the backend for a specific layout item (table).
+ * @param {object} table - The table item object, must contain an 'id' (which is the LayoutItem UUID).
+ * @returns {Promise<Blob>} A promise that resolves with the image blob if successful.
+ * @throws {Error} If the API call fails or table.id is missing.
+ */
+export const generateQrCode = async (table) => { // qrColor and bgColor parameters removed
+    if (!table || !table.id) {
+        const errMsg = "generateQrCode: table object or table.id is missing.";
+        console.error(errMsg, table);
+        // Consistently throw an error object that might be caught by the caller.
+        const error = new Error("Invalid table data provided for QR code generation.");
+        return Promise.reject(error);
     }
 
-    // Original fetch logic (only runs if IS_BACKEND_QR_ENABLED is true)
-    const queryParams = new URLSearchParams({ data: dataStr, qrColor, bgColor }).toString();
-
     try {
-        const response = await fetch(`${API_BASE_URL}/generate-qr?${queryParams}`);
+        // The apiService.fetchTableItemQrCode will call the backend endpoint.
+        // It's expected to handle the actual GET request and return the blob directly.
+        console.log(`qrCodeService: Calling apiService.fetchTableItemQrCode for table ID: ${table.id}`);
+        const imageBlob = await apiService.fetchTableItemQrCode(table.id); // No color params passed
 
-        if (!response.ok) {
-            let errorData;
-            try {
-                errorData = await response.json();
-            } catch (e) {
-                errorData = { detail: `HTTP error ${response.status}: ${response.statusText}` };
-            }
-            throw {
-                status: response.status,
-                message: errorData.detail || `Failed to fetch QR code. Status: ${response.statusText}`,
-                data: errorData
-            };
+        if (imageBlob instanceof Blob) {
+            console.log(`qrCodeService: Received blob for table ID ${table.id}. Type: ${imageBlob.type}, Size: ${imageBlob.size}`);
+            return imageBlob;
+        } else {
+            // This case should ideally not be hit if apiService.fetchTableItemQrCode correctly returns a blob or throws
+            const errMsg = 'generateQrCode: Unexpected response from API service. Expected Blob.';
+            console.error(errMsg, imageBlob);
+            throw new Error(errMsg);
         }
-
-        const imageBlob = await response.blob();
-        return imageBlob;
-
     } catch (error) {
-        if (error.status) {
-            throw error;
-        }
-        console.error('Network or unexpected error in generateQrCode service:', error);
-        throw {
-            status: null,
-            message: error.message || 'A network error occurred while fetching the QR code.',
-            data: null
-        };
+        // Log the error for debugging purposes. The error should ideally be
+        // an instance of Error, possibly augmented by Axios/apiService with response details.
+        // The error from apiService.fetchTableItemQrCode is already quite descriptive.
+        console.error(`qrCodeService: Error fetching QR code for item ID ${table.id}:`, error.message || error);
+
+        // Re-throw the error so it can be handled by the calling component (e.g., useQrCodeManager).
+        // No need to re-wrap if apiService already provides a good error object.
+        throw error;
     }
 };
 
-// Example placeholder function (if you chose Option 2 above)
-// async function createPlaceholderQrBlob(dataStr) {
-//     return new Promise(resolve => {
-//         const canvas = document.createElement('canvas');
-//         canvas.width = 128;
-//         canvas.height = 128;
-//         const ctx = canvas.getContext('2d');
-//         if (ctx) {
-//             ctx.fillStyle = 'lightgray';
-//             ctx.fillRect(0, 0, 128, 128);
-//             ctx.fillStyle = 'black';
-//             ctx.textAlign = 'center';
-//             ctx.font = '10px Arial';
-//             ctx.fillText('QR Placeholder', 64, 60);
-//             ctx.fillText(dataStr.substring(0, 15) + "...", 64, 75);
-//         }
-//         canvas.toBlob(blob => resolve(blob), 'image/png');
-//     });
-// }
+// constructQrDataValue utility is confirmed removed as the backend now handles QR data string construction.
