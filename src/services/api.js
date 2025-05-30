@@ -170,12 +170,12 @@ const apiService = {
      */
     getActiveVenueLayout: async () => {
         try {
-            console.log("apiService: Attempting to fetch active venue layout from /api/venue/layout/active/");
+            console.log("[API SERVICE] Attempting to fetch active venue layout from /api/venue/layout/active/");
             const response = await apiInstance.get('venue/layout/active/');
-            console.log("apiService: Active venue layout fetched successfully.");
+            console.log("[API SERVICE] Active venue layout fetched successfully. Status:", response.status);
             return response; // Consumers can access response.data
         } catch (error) {
-            console.error("apiService: Error fetching active venue layout.", error.response?.data || error.message || error);
+            console.error("[API SERVICE] Error fetching active venue layout:", error.response?.data || error.message || error);
             throw error;
         }
     },
@@ -189,12 +189,13 @@ const apiService = {
      */
     saveActiveVenueLayout: async (layoutData) => {
         try {
-            console.log("apiService: Attempting to save active venue layout to /api/venue/layout/active/. Data:", JSON.parse(JSON.stringify(layoutData)));
+            // Using JSON.parse(JSON.stringify()) for logging ensures circular references are handled if any, and object is fully resolved.
+            console.log("[API SERVICE] Attempting to save active venue layout to /api/venue/layout/active/. Data snapshot:", JSON.parse(JSON.stringify(layoutData)));
             const response = await apiInstance.put('venue/layout/active/', layoutData);
-            console.log("apiService: Active venue layout saved successfully.");
+            console.log("[API SERVICE] Active venue layout saved successfully. Status:", response.status);
             return response; // Consumers can access response.data
         } catch (error) {
-            console.error("apiService: Error saving active venue layout.", error.response?.data || error.message || error);
+            console.error("[API SERVICE] Error saving active venue layout:", error.response?.data || error.message || error);
             throw error;
         }
     },
@@ -205,32 +206,29 @@ const apiService = {
      * @returns {Promise<Blob>} A promise that resolves with the image blob.
      * @throws {Error} If the API call fails or itemId is missing.
      */
-    fetchTableItemQrCode: async (itemId) => { // qrColor and bgColor params removed
+    fetchTableItemQrCode: async (itemId) => {
         if (!itemId) {
-            const errMsg = "apiService.fetchTableItemQrCode: itemId is required.";
+            const errMsg = "[API SERVICE] fetchTableItemQrCode: itemId is required.";
             console.error(errMsg);
-            return Promise.reject(new Error(errMsg)); // Reject promise for clarity
+            return Promise.reject(new Error(errMsg));
         }
         try {
-            console.log(`apiService: Attempting to fetch QR code for itemId: ${itemId} from /api/venue/layout-item/${itemId}/qr-code/`);
+            console.log(`[API SERVICE] Attempting to fetch QR code for itemId: ${itemId} from /api/venue/layout-item/${itemId}/qr-code/`);
             const response = await apiInstance.get(`venue/layout-item/${itemId}/qr-code/`, {
-                responseType: 'blob' // Important for receiving image data
+                responseType: 'blob'
             });
-            // When responseType is 'blob', Axios puts the blob directly in response.data
-            console.log(`apiService: QR code for itemId ${itemId} fetched. Type: ${response.data?.type}, Size: ${response.data?.size}`);
-            return response.data; // Return the blob directly
+            console.log(`[API SERVICE] QR code for itemId ${itemId} fetched. Type: ${response.data?.type}, Size: ${response.data?.size}`);
+            return response.data;
         } catch (error) {
-            // Construct a more informative error message
-            let errorMessage = `Failed to fetch QR for item ${itemId}.`;
+            let errorMessage = `[API SERVICE] Failed to fetch QR for item ${itemId}.`;
             if (error.response) {
-                // Try to parse error from blob if response is a blob (e.g. DRF error response with blob content type)
                 if (error.response.data instanceof Blob && error.response.data.type === 'application/json') {
                     try {
                         const errorJsonText = await error.response.data.text();
                         const errorJson = JSON.parse(errorJsonText);
                         errorMessage += ` Server error: ${errorJson.detail || errorJson.message || errorJsonText}`;
                     } catch (e) {
-                        console.error("Failed to parse blob response:", e);
+                        console.error("[API SERVICE] Failed to parse blob error response:", e);
                         errorMessage += ` Server returned an error (could not parse blob response). Status: ${error.response.status}.`;
                     }
                 } else if (error.response.data?.detail) {
@@ -245,7 +243,7 @@ const apiService = {
             } else {
                 errorMessage += ` Error: ${error.message || 'Unknown error'}.`;
             }
-            console.error(`apiService: Error fetching QR code for itemId ${itemId}. Full error: `, error, "Constructed message:", errorMessage);
+            console.error(`[API SERVICE] Error fetching QR code for itemId ${itemId}. Full error: `, error, "Constructed message:", errorMessage);
 
             const customError = new Error(errorMessage);
             customError.status = error.response?.status;

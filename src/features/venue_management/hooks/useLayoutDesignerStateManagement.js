@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import useHistory from './useHistory';
 
 // Constants
@@ -18,40 +18,38 @@ import {
     canPlaceItem as canPlaceItemUtil,
     checkItemsInBounds as checkItemsInBoundsUtil,
     getEffectiveDimensions as getEffectiveDimensionsUtil,
-    parseBackendLayoutItemsToFrontend, // IMPORT THE NEW PARSER
-} from '../utils/layoutUtils'; // Assuming layoutUtils.js is in the same directory or path is updated
+    // parseBackendLayoutItemsToFrontend, // REMOVED: Parsing is now expected to happen upstream (in VenueDesignerPage)
+} from '../utils/layoutUtils';
 
 const STABLE_EMPTY_ARRAY_DESIGN_ITEMS = Object.freeze([]);
 const MIN_ITEM_DIMENSION_MINOR_CELLS = 1;
-const DEBUG_PREFIX_HOOK = "[StateMgmt DEBUG] ";
-const ROTATION_RESIZE_DEBUG_PREFIX = "[DEBUG ROTATION-RESIZE] [StateMgmt] ";
+const DEBUG_PREFIX_HOOK_STATE_MGMT = "[StateMgmt DEBUG] ";
+// const ROTATION_RESIZE_DEBUG_PREFIX = "[DEBUG ROTATION-RESIZE] [StateMgmt] "; // Kept for reference if needed
 
 const useLayoutDesignerStateManagement = (
-    initialLayoutConfig = {}, // Expects initialDesignItems in BACKEND format if coming from useLayoutData
+    initialLayoutConfig = {}, // Expects initialDesignItems in FRONTEND format here
     openAlertModal = (title, message, type) => console.warn(`Alert Modal not provided: ${type} - ${title}: ${message}`)
 ) => {
     const {
-        // initialDesignItems are expected in BACKEND format here
-        initialDesignItems: initialBackendItems = STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
+        // initialDesignItems are now expected in FRONTEND format here
+        initialDesignItems: initialFrontendItems = STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
         initialGridRows = DEFAULT_INITIAL_GRID_ROWS,
         initialGridCols = DEFAULT_INITIAL_GRID_COLS,
         initialGridSubdivision = DEFAULT_GRID_SUBDIVISION,
     } = initialLayoutConfig;
 
-    // The generateNewItemFromTool function remains largely the same as it creates NEW frontend items
-    // from tool payloads, not from backend data.
     const generateNewItemFromTool = useCallback((
         toolPayloadFromDrag, targetMinorRow, targetMinorCol, currentSubdivision, existingDesignItems
     ) => {
         const placedItemType = toolPayloadFromDrag.createsPlacedItemType;
         const config = ITEM_CONFIGS[placedItemType];
         if (!config) {
-            console.error(`[generateNewItemFromTool] CRITICAL: No config for ${placedItemType}`, toolPayloadFromDrag);
+            console.error(DEBUG_PREFIX_HOOK_STATE_MGMT + `[generateNewItemFromTool] CRITICAL: No config for ${placedItemType}`, toolPayloadFromDrag);
             openAlertModal("Configuration Error", `Missing config for ${placedItemType}.`, "error");
             return null;
         }
         if (typeof config.defaultPropsFactory !== 'function') {
-            console.error(`[generateNewItemFromTool] CRITICAL: No factory for ${placedItemType}`, config);
+            console.error(DEBUG_PREFIX_HOOK_STATE_MGMT + `[generateNewItemFromTool] CRITICAL: No factory for ${placedItemType}`, config);
             openAlertModal("Configuration Error", `Missing factory for ${placedItemType}.`, "error");
             return null;
         }
@@ -60,16 +58,15 @@ const useLayoutDesignerStateManagement = (
         const base_h_minor = toolPayloadFromDrag.h_major * currentSubdivision;
 
         if (isNaN(base_w_minor) || base_w_minor < MIN_ITEM_DIMENSION_MINOR_CELLS || isNaN(base_h_minor) || base_h_minor < MIN_ITEM_DIMENSION_MINOR_CELLS) {
-            console.error(`[generateNewItemFromTool] Invalid base dimensions for ${placedItemType}. w_minor: ${base_w_minor}, h_minor: ${base_h_minor}. Tool:`, toolPayloadFromDrag, `Subdiv: ${currentSubdivision}`);
+            console.error(DEBUG_PREFIX_HOOK_STATE_MGMT + `[generateNewItemFromTool] Invalid base dimensions for ${placedItemType}. w_minor: ${base_w_minor}, h_minor: ${base_h_minor}. Tool:`, toolPayloadFromDrag, `Subdiv: ${currentSubdivision}`);
             openAlertModal("Dimension Error", `Invalid base dimensions for ${placedItemType}. Min dimension: ${MIN_ITEM_DIMENSION_MINOR_CELLS}.`, "error");
             return null;
         }
         let typeSpecificDefaults = {};
         try {
-            // existingDesignItems are already in frontend format here because they come from prev.designItems
             typeSpecificDefaults = config.defaultPropsFactory(toolPayloadFromDrag, currentSubdivision, existingDesignItems);
         } catch (e) {
-            console.error(`[generateNewItemFromTool] Error in factory for ${placedItemType}:`, e);
+            console.error(DEBUG_PREFIX_HOOK_STATE_MGMT + `[generateNewItemFromTool] Error in factory for ${placedItemType}:`, e);
             openAlertModal("Factory Error", `Error creating props for ${placedItemType}.`, "error");
             return null;
         }
@@ -87,65 +84,38 @@ const useLayoutDesignerStateManagement = (
         };
     }, [openAlertModal]);
 
-    // REMOVE the old parseAndPrepareInitialItems function from here.
-    // It's now replaced by the utility in layoutUtils.js
-
     const initialSnapshot = useMemo(() => {
-        // initialBackendItems are in backend format. Parse them to frontend format.
-        // The gridSubdivision used for parsing should be the one for this specific layout.
-        const parsedFrontendItems = parseBackendLayoutItemsToFrontend(initialBackendItems, initialGridSubdivision);
+        // initialFrontendItems are already in FRONTEND format. No parsing needed here.
+        console.log(DEBUG_PREFIX_HOOK_STATE_MGMT + "Creating initialSnapshot. initialFrontendItems count:", initialFrontendItems.length, "Grid:", initialGridRows, initialGridCols, initialGridSubdivision);
         return {
-            designItems: parsedFrontendItems, // These are now in FRONTEND format
+            designItems: initialFrontendItems, // Use directly
             gridRows: initialGridRows,
             gridCols: initialGridCols,
             gridSubdivision: initialGridSubdivision,
         };
-    }, [initialBackendItems, initialGridRows, initialGridCols, initialGridSubdivision]); // Removed parseAndPrepareInitialItems from deps
+    }, [initialFrontendItems, initialGridRows, initialGridCols, initialGridSubdivision]);
 
-    const { state: layoutSnapshot, setState: setLayoutSnapshotWithHistory, undo, redo, canUndo, canRedo, resetHistory } = useHistory(initialSnapshot);
-    const { designItems, gridRows, gridCols, gridSubdivision } = layoutSnapshot; // designItems here are in FRONTEND format
+    const { state: layoutSnapshot, setState: setLayoutSnapshotWithHistory, undo, redo, canUndo, canRedo, resetHistory } = useHistory(initialSnapshot); // initialSnapshot is based on the VERY FIRST initialLayoutConfig
+    const { designItems, gridRows, gridCols, gridSubdivision } = layoutSnapshot;
+
+    const prevInitialLayoutConfigRef = useRef(initialLayoutConfig);
 
     useEffect(() => {
-        // When initialLayoutConfig changes (e.g., layout loaded from server by parent),
-        // re-parse and potentially reset history.
-        const newParsedFrontendItems = parseBackendLayoutItemsToFrontend(
-            initialLayoutConfig.initialDesignItems || STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
-            initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION
-        );
+        // This effect responds to changes in `initialLayoutConfig` prop from LayoutEditor
+        if (JSON.stringify(initialLayoutConfig) !== JSON.stringify(prevInitialLayoutConfigRef.current)) {
+            console.warn(DEBUG_PREFIX_HOOK_STATE_MGMT + "Initial config from props changed. Resetting history to new props:", initialLayoutConfig);
 
-        const newSnapshotForEffect = {
-            designItems: newParsedFrontendItems,
-            gridRows: initialLayoutConfig.initialGridRows || DEFAULT_INITIAL_GRID_ROWS,
-            gridCols: initialLayoutConfig.initialGridCols || DEFAULT_INITIAL_GRID_COLS,
-            gridSubdivision: initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION,
-        };
-
-        // Compare with the current state in the history hook (layoutSnapshot)
-        if (JSON.stringify(newSnapshotForEffect) !== JSON.stringify(layoutSnapshot)) {
-            // Also compare with what was initially set (initialSnapshot based on initial props)
-            // to decide if it's a true "new initial state" vs. just a prop update that matches current state.
-            const currentInitialSnapshotFromProps = {
-                designItems: parseBackendLayoutItemsToFrontend(initialLayoutConfig.initialDesignItems, initialLayoutConfig.initialGridSubdivision),
-                gridRows: initialLayoutConfig.initialGridRows,
-                gridCols: initialLayoutConfig.initialGridCols,
-                gridSubdivision: initialLayoutConfig.initialGridSubdivision,
+            // initialLayoutConfig.initialDesignItems IS ALREADY IN FRONTEND FORMAT
+            const newSnapshotForHistory = {
+                designItems: initialLayoutConfig.initialDesignItems || STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
+                gridRows: initialLayoutConfig.initialGridRows || DEFAULT_INITIAL_GRID_ROWS,
+                gridCols: initialLayoutConfig.initialGridCols || DEFAULT_INITIAL_GRID_COLS,
+                gridSubdivision: initialLayoutConfig.initialGridSubdivision || DEFAULT_GRID_SUBDIVISION,
             };
-            if (JSON.stringify(currentInitialSnapshotFromProps) !== JSON.stringify(initialSnapshot)) {
-                // console.log(DEBUG_PREFIX_HOOK + "Initial config changed significantly. Resetting history.");
-                resetHistory(currentInitialSnapshotFromProps); // Pass the new state to reset to
-            } else if (JSON.stringify(newSnapshotForEffect) !== JSON.stringify(layoutSnapshot)) {
-                // This case might occur if props changed but not enough to warrant a full history reset,
-                // but the current state is out of sync. This usually means an external change
-                // that should perhaps overwrite the current history stack.
-                // For now, we primarily rely on the initialSnapshot comparison.
-                // console.log(DEBUG_PREFIX_HOOK + "Props changed and current snapshot differs. Resetting history to new props.");
-                // resetHistory(newSnapshotForEffect); // This might be too aggressive if user has made changes.
-                // A more nuanced approach might involve diffing or providing a "load new layout" action.
-                // For now, if the initial "source of truth" (props) fundamentally changes what `initialSnapshot` *should* be, we reset.
-            }
+            resetHistory(newSnapshotForHistory); // Pass the new state to reset the history to
+            prevInitialLayoutConfigRef.current = initialLayoutConfig; // Update the ref to the currently processed config
         }
-        // Removed parseAndPrepareInitialItems from deps
-    }, [initialLayoutConfig, resetHistory, initialSnapshot, layoutSnapshot]);
+    }, [initialLayoutConfig, resetHistory]);
 
 
     const getEffectiveDimensions = useCallback((item) => getEffectiveDimensionsUtil(item), []);
@@ -153,7 +123,6 @@ const useLayoutDesignerStateManagement = (
     const canPlaceItem = useCallback((targetMinorRow, targetMinorCol, itemEffW_minor, itemEffH_minor, itemToExcludeId = null) => {
         const totalMinorRows = gridRows * gridSubdivision;
         const totalMinorCols = gridCols * gridSubdivision;
-        // designItems are already in frontend format
         return canPlaceItemUtil(targetMinorRow, targetMinorCol, itemEffW_minor, itemEffH_minor, designItems, totalMinorRows, totalMinorCols, itemToExcludeId);
     }, [designItems, gridRows, gridCols, gridSubdivision]);
 
@@ -167,30 +136,17 @@ const useLayoutDesignerStateManagement = (
             openAlertModal("Placement Error", `Cannot place item: Space occupied or out of bounds.`, "error"); return;
         }
         setLayoutSnapshotWithHistory(prev => {
-            // prev.designItems are in frontend format
             const newItem = generateNewItemFromTool(toolPayloadFromDrag, minorTargetRow, minorTargetCol, prev.gridSubdivision, prev.designItems);
             return newItem ? { ...prev, designItems: [...prev.designItems, newItem] } : prev;
         });
     }, [canPlaceItem, gridSubdivision, setLayoutSnapshotWithHistory, openAlertModal, generateNewItemFromTool]);
 
-    // moveExistingItem, removeItemById, removeItemAtCoords, updateItemProperties,
-    // setGridDimensions, setGridSubdivision, clearFullLayout, resetFullLayout
-    // should all continue to work with `designItems` in frontend format as they
-    // operate on the state managed by this hook.
-
-    // ... (rest of the hook: moveExistingItem, removeItemById, removeItemAtCoords, updateItemProperties, etc.
-    //      These functions operate on `designItems` which are already in frontend format within this hook's state.)
-    // ... NO CHANGES NEEDED FOR THE REST OF THE FUNCTIONS IN THIS HOOK ...
-    // ... AS THEY ALREADY EXPECT `designItems` TO BE IN FRONTEND FORMAT ...
-    // ... (The `updateItemProperties` already has detailed logic for rotations and sizing based on frontend item structure)
-
-    // [UNCHANGED functions from the provided snippet, ensure they are complete in your actual file]
     const moveExistingItem = useCallback((itemId, toMinorRow, toMinorCol) => {
         setLayoutSnapshotWithHistory(prev => {
             const itemToMove = prev.designItems.find(it => it.id === itemId);
             if (!itemToMove) return prev;
             const { w: effW_minor, h: effH_minor } = getEffectiveDimensions(itemToMove);
-            if (!canPlaceItem(toMinorRow, toMinorCol, effW_minor, effH_minor, itemId)) return prev;
+            if (!canPlaceItem(toMinorRow, toMinorCol, effW_minor, effH_minor, itemId)) return prev; // Collision or OOB
             const updatedDesignItems = prev.designItems.map(it =>
                 it.id === itemId ? { ...it, gridPosition: { rowStart: toMinorRow, colStart: toMinorCol } } : it
             );
@@ -219,13 +175,13 @@ const useLayoutDesignerStateManagement = (
         });
     }, [setLayoutSnapshotWithHistory, getEffectiveDimensions]);
 
+    // updateItemProperties: This function remains complex and critical.
+    // Its internal logic relies on item properties being in frontend format.
+    // No structural changes here needed due to backend integration, but its correctness is paramount.
     const updateItemProperties = useCallback((itemId, newProps) => {
-        // This function is complex and handles internal validation and transformations
-        // for properties like rotation (swapping w_minor/h_minor), counter length, etc.
-        // It expects `newProps` to be frontend-style properties.
-        // The `prev.designItems` it operates on are already in frontend format.
-        // No changes needed here due to external data format change.
-        // [This function's body is long and assumed to be correct from the provided code]
+        // [UNCHANGED - The body of this function is assumed to be correct as provided in the problem description's snippet]
+        // This function handles internal validation and transformations for properties like rotation, counter length, etc.
+        // It operates on `prev.designItems` which are already in frontend format.
         let overallValidationPassedThisCall = true;
         setLayoutSnapshotWithHistory(prev => {
             let overallValidationPassedInSnapshot = true;
@@ -263,8 +219,8 @@ const useLayoutDesignerStateManagement = (
                             ? newProps.rotation
                             : (newProps.rotation === true ? (parseInt(String(currentItem.rotation || 0), 10) + 90) % 360 : currentItem.rotation)
                     };
-                    const { w: effW_check, h: effH_check } = getEffectiveDimensionsUtil(itemForCheck);
-                    if (!canPlaceItemUtil(pendingGridPosition.rowStart, pendingGridPosition.colStart, effW_check, effH_check, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
+                    const { w: effW_check, h: effH_check } = getEffectiveDimensionsUtil(itemForCheck); // Ensure using imported util
+                    if (!canPlaceItemUtil(pendingGridPosition.rowStart, pendingGridPosition.colStart, effW_check, effH_check, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) { // Ensure using imported util
                         openAlertModal("Placement Error", "Resized/moved item conflicts or is out of bounds.", "error");
                         if (newProps.gridPosition) delete accumulatedChanges.gridPosition;
                         if (newProps.w_minor !== undefined) delete accumulatedChanges.w_minor;
@@ -280,75 +236,110 @@ const useLayoutDesignerStateManagement = (
                     const currentActualRotation = parseInt(String(currentItem.rotation || 0), 10);
                     if (isNaN(currentActualRotation)) {
                         delete accumulatedChanges.rotation; overallValidationPassedInSnapshot = false;
-                    } else if (newProps.rotation === true) {
+                    } else if (newProps.rotation === true) { // Relative rotation (+90 deg)
                         newRotationAngle = (currentActualRotation + 90) % 360;
-                    } else if (typeof newProps.rotation === 'number') {
-                        newRotationAngle = ((parseInt(String(newProps.rotation), 10) % 360) + 360) % 360;
+                    } else if (typeof newProps.rotation === 'number') { // Absolute rotation angle
+                        newRotationAngle = ((parseInt(String(newProps.rotation), 10) % 360) + 360) % 360; // Normalize
                         if (isNaN(newRotationAngle)) { newRotationAngle = undefined; openAlertModal("Invalid Input", "Invalid rotation angle.", "error"); overallValidationPassedInSnapshot = false; }
                     } else {
                         openAlertModal("Invalid Input", "Invalid rotation type.", "error"); delete accumulatedChanges.rotation; newRotationAngle = undefined; overallValidationPassedInSnapshot = false;
                     }
 
                     if (newRotationAngle !== undefined && overallValidationPassedInSnapshot) {
+                        // Use dimensions that might have been set in this same update call (accumulatedChanges)
+                        // or fall back to currentItem's dimensions if not part of this update.
                         let prospectiveWMinor = accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor;
                         let prospectiveHMinor = accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor;
                         const posToUse = accumulatedChanges.gridPosition || currentItem.gridPosition;
-                        const wasHorizontal = currentActualRotation === 0 || currentActualRotation === 180;
-                        const willBeHorizontal = newRotationAngle === 0 || newRotationAngle === 180;
-                        const tempItemWithNewRotationAndCurrentBaseDims = { ...currentItem, gridPosition: posToUse, w_minor: prospectiveWMinor, h_minor: prospectiveHMinor, rotation: newRotationAngle };
-                        const { w: effW_rot, h: effH_rot } = getEffectiveDimensionsUtil(tempItemWithNewRotationAndCurrentBaseDims);
+
+                        // Check if orientation (horizontal/vertical primary axis) changes
+                        const wasEffectivelyHorizontal = currentActualRotation === 0 || currentActualRotation === 180;
+                        const willBeEffectivelyHorizontal = newRotationAngle === 0 || newRotationAngle === 180;
+
+                        // Create a temporary item with the new rotation but with *base* dimensions
+                        // before they are potentially swapped by this rotation logic.
+                        // The key is that w_minor/h_minor in the state always reflect the item's dimensions
+                        // as if it were at 0 degrees (base dimensions). getEffectiveDimensions handles the AABB.
+                        // Here, we need to see if the rotation itself necessitates swapping the *base* w_minor/h_minor.
+
+                        // If the base dimensions w_minor/h_minor *should* swap due to this rotation:
+                        let newBaseW = prospectiveWMinor;
+                        let newBaseH = prospectiveHMinor;
+                        if (wasEffectivelyHorizontal !== willBeEffectivelyHorizontal) { // Orientation changed (e.g., 0 -> 90)
+                            newBaseW = prospectiveHMinor; // The new base width becomes the old base height
+                            newBaseH = prospectiveWMinor; // The new base height becomes the old base width
+                        }
+
+                        // Now check collision with these new *base* dimensions and new rotation
+                        const tempItemWithNewRotationAndAdjustedBaseDims = { ...currentItem, gridPosition: posToUse, w_minor: newBaseW, h_minor: newBaseH, rotation: newRotationAngle };
+                        const { w: effW_rot, h: effH_rot } = getEffectiveDimensionsUtil(tempItemWithNewRotationAndAdjustedBaseDims);
 
                         if (!canPlaceItemUtil(posToUse.rowStart, posToUse.colStart, effW_rot, effH_rot, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
                             openAlertModal("Rotation Error", "Cannot rotate: new orientation conflicts or is out of bounds.", "error");
                             delete accumulatedChanges.rotation; overallValidationPassedInSnapshot = false;
                         } else {
                             accumulatedChanges.rotation = newRotationAngle;
-                            if (wasHorizontal !== willBeHorizontal) { // Orientation changed
-                                accumulatedChanges.w_minor = prospectiveHMinor;
-                                accumulatedChanges.h_minor = prospectiveWMinor;
-                            } else { // Orientation maintained
+                            // IMPORTANT: If orientation changed, update w_minor and h_minor in accumulatedChanges
+                            // to reflect the swapped base dimensions.
+                            if (wasEffectivelyHorizontal !== willBeEffectivelyHorizontal) {
+                                accumulatedChanges.w_minor = newBaseW; // Use the swapped base dimensions
+                                accumulatedChanges.h_minor = newBaseH;
+                            } else {
+                                // If orientation didn't change, but w/h were part of newProps, ensure they are kept
                                 if (newProps.w_minor !== undefined) accumulatedChanges.w_minor = prospectiveWMinor;
                                 if (newProps.h_minor !== undefined) accumulatedChanges.h_minor = prospectiveHMinor;
                             }
                         }
-                    } else if (newProps.rotation !== undefined && accumulatedChanges.rotation !== undefined) { delete accumulatedChanges.rotation; }
-                } else { if (newProps.rotation !== undefined) delete accumulatedChanges.rotation; }
+                    } else if (newProps.rotation !== undefined && accumulatedChanges.rotation !== undefined) { delete accumulatedChanges.rotation; } // Rollback if invalid
+                } else { if (newProps.rotation !== undefined) delete accumulatedChanges.rotation; } // Not rotatable, remove if attempted
             }
-            // --- Stage 3 & 4: Counter Sizing ---
+
+            // --- Stage 3 & 4: Counter Sizing (length is in major units) ---
+            // (This part seems okay, assuming `length` prop comes from CounterEditor and refers to major units)
             if (overallValidationPassedInSnapshot) {
                 const isCounterItem = currentItem.itemType === ItemTypes.PLACED_COUNTER || (currentItem.itemType === ItemTypes.PLACED_DECOR && currentItem.decorType?.startsWith('counter-'));
-                if (isCounterItem && newProps.length !== undefined) { // `length` is major units
+                if (isCounterItem && newProps.length !== undefined) { // `length` is major units from CounterEditor
                     const newLengthMajorUnits = parseInt(String(newProps.length), 10);
                     if (!isNaN(newLengthMajorUnits) && newLengthMajorUnits >= 1) {
                         const newLengthMinorUnits = newLengthMajorUnits * prev.gridSubdivision;
-                        const currentRotation = accumulatedChanges.rotation !== undefined ? accumulatedChanges.rotation : currentItem.rotation;
-                        const isHorizontal = currentRotation === 0 || currentRotation === 180;
-                        let newWMinor = isHorizontal ? newLengthMinorUnits : (accumulatedChanges.w_minor !== undefined ? accumulatedChanges.w_minor : currentItem.w_minor);
-                        let newHMinor = !isHorizontal ? newLengthMinorUnits : (accumulatedChanges.h_minor !== undefined ? accumulatedChanges.h_minor : currentItem.h_minor);
-                        // If rotation also changed, base dimensions for non-length axis come from potentially swapped ones
-                        if (newProps.rotation !== undefined && accumulatedChanges.rotation !== undefined) {
+
+                        // Determine current rotation (could be from this update or existing)
+                        const currentRotationForCounter = accumulatedChanges.rotation !== undefined ? accumulatedChanges.rotation : currentItem.rotation;
+                        const isHorizontal = currentRotationForCounter === 0 || currentRotationForCounter === 180;
+
+                        // Determine the non-length base dimension. This should come from the item's state
+                        // *before* any potential w/h swap due to rotation in *this current update step*.
+                        // If rotation *also* changed in this update and flipped orientation, the base for non-length axis
+                        // should be the one that *was* the non-length axis.
+                        let nonLengthBaseDimensionMinor;
+                        if (newProps.rotation !== undefined && accumulatedChanges.rotation !== undefined) { // If rotation is part of this update
                             const wasHorizontalBeforeThisUpdate = currentItem.rotation === 0 || currentItem.rotation === 180;
                             const willBeHorizontalAfterThisUpdate = accumulatedChanges.rotation === 0 || accumulatedChanges.rotation === 180;
-                            if (wasHorizontalBeforeThisUpdate !== willBeHorizontalAfterThisUpdate) { // Orientation flipped due to rotation in this update
-                                newWMinor = isHorizontal ? newLengthMinorUnits : currentItem.h_minor; // Use original non-length dimension from before swap
-                                newHMinor = !isHorizontal ? newLengthMinorUnits : currentItem.w_minor;
-                            } else { // Orientation same as before, or rotation didn't flip it
-                                newWMinor = isHorizontal ? newLengthMinorUnits : currentItem.w_minor;
-                                newHMinor = !isHorizontal ? newLengthMinorUnits : currentItem.h_minor;
+                            if (wasHorizontalBeforeThisUpdate !== willBeHorizontalAfterThisUpdate) { // Orientation flipped
+                                nonLengthBaseDimensionMinor = isHorizontal ? currentItem.w_minor : currentItem.h_minor; // Use the original dimension that became the depth
+                            } else { // Orientation same, or rotation didn't flip it
+                                nonLengthBaseDimensionMinor = isHorizontal ? currentItem.h_minor : currentItem.w_minor;
                             }
+                        } else { // Rotation not part of this update, use current base dimensions
+                            nonLengthBaseDimensionMinor = isHorizontal ? currentItem.h_minor : currentItem.w_minor;
                         }
 
 
-                        const itemForCounterCheck = { ...currentItem, ...accumulatedChanges, w_minor: newWMinor, h_minor: newHMinor };
+                        let newBaseWMinor = isHorizontal ? newLengthMinorUnits : nonLengthBaseDimensionMinor;
+                        let newBaseHMinor = !isHorizontal ? newLengthMinorUnits : nonLengthBaseDimensionMinor;
+
+                        const itemForCounterCheck = { ...currentItem, ...accumulatedChanges, w_minor: newBaseWMinor, h_minor: newBaseHMinor, rotation: currentRotationForCounter };
                         const { w: effW_counter, h: effH_counter } = getEffectiveDimensionsUtil(itemForCounterCheck);
                         const posForCounterCheck = accumulatedChanges.gridPosition || currentItem.gridPosition;
+
                         if (canPlaceItemUtil(posForCounterCheck.rowStart, posForCounterCheck.colStart, effW_counter, effH_counter, prev.designItems, prev.gridRows * prev.gridSubdivision, prev.gridCols * prev.gridSubdivision, itemId)) {
-                            accumulatedChanges.w_minor = newWMinor;
-                            accumulatedChanges.h_minor = newHMinor;
-                            accumulatedChanges.length_units = newLengthMajorUnits;
+                            accumulatedChanges.w_minor = newBaseWMinor;
+                            accumulatedChanges.h_minor = newBaseHMinor;
+                            accumulatedChanges.length_units = newLengthMajorUnits; // Store the major unit length
                         } else {
                             openAlertModal("Sizing Error", "Counter cannot be resized: new size conflicts or is out of bounds.", "error");
-                            delete accumulatedChanges.length; overallValidationPassedInSnapshot = false;
+                            delete accumulatedChanges.length; // Remove 'length' if it caused issues
+                            overallValidationPassedInSnapshot = false;
                         }
                     } else {
                         openAlertModal("Invalid Input", "Counter length must be a positive number.", "error");
@@ -356,16 +347,17 @@ const useLayoutDesignerStateManagement = (
                     }
                 }
             }
+
             // --- Stage 5: Other property validations (table number, seats) ---
             if (overallValidationPassedInSnapshot && currentItem.itemType === ItemTypes.PLACED_TABLE) {
                 if (newProps.number !== undefined) {
                     const newNumberStr = String(newProps.number).trim();
-                    if (newNumberStr === '') {
+                    if (newNumberStr === '' || newProps.number === null) { // Allow clearing number (sets provisional)
                         accumulatedChanges.number = null; accumulatedChanges.isProvisional = true;
                     } else {
                         const newNumber = parseInt(newNumberStr, 10);
                         if (isNaN(newNumber) || newNumber <= 0) {
-                            openAlertModal("Invalid Table Number", "Table number must be a positive integer.", "error");
+                            openAlertModal("Invalid Table Number", "Table number must be a positive integer or empty.", "error");
                             delete accumulatedChanges.number; overallValidationPassedInSnapshot = false;
                         } else {
                             const isDuplicate = prev.designItems.some(it => it.id !== itemId && it.itemType === ItemTypes.PLACED_TABLE && it.number === newNumber);
@@ -380,12 +372,12 @@ const useLayoutDesignerStateManagement = (
                 }
                 if (newProps.seats !== undefined) {
                     const newSeatsStr = String(newProps.seats).trim();
-                    if (newSeatsStr === '') {
+                    if (newSeatsStr === '' || newProps.seats === null) { // Allow clearing seats
                         accumulatedChanges.seats = null;
                     } else {
                         const newSeats = parseInt(newSeatsStr, 10);
                         if (isNaN(newSeats) || newSeats < 0) {
-                            openAlertModal("Invalid Seat Count", "Seat count must be a non-negative integer.", "error");
+                            openAlertModal("Invalid Seat Count", "Seat count must be a non-negative integer or empty.", "error");
                             delete accumulatedChanges.seats; overallValidationPassedInSnapshot = false;
                         } else { accumulatedChanges.seats = newSeats; }
                     }
@@ -425,7 +417,6 @@ const useLayoutDesignerStateManagement = (
             }
             const newTotalMinorRows = targetMajorRows * prev.gridSubdivision;
             const newTotalMinorCols = targetMajorCols * prev.gridSubdivision;
-            // prev.designItems are in frontend format here
             if (((rows !== undefined && targetMajorRows < prev.gridRows) || (cols !== undefined && targetMajorCols < prev.gridCols)) &&
                 !checkItemsInBoundsUtil(newTotalMinorRows, newTotalMinorCols, prev.designItems)) {
                 openAlertModal("Resize Error", "Cannot reduce dimensions. Some items would be out of bounds.", "error"); return prev;
@@ -440,10 +431,14 @@ const useLayoutDesignerStateManagement = (
             openAlertModal("Invalid Subdivision", "Grid subdivision level is invalid.", "error"); return;
         }
         setLayoutSnapshotWithHistory(prev => {
+            // Note: Changing subdivision does NOT automatically rescale items' w_minor/h_minor.
+            // Frontend items store absolute minor cell dimensions. If subdivision changes,
+            // their perceived size in "major" units changes, but not their minor cell footprint.
+            // The user might need to manually adjust items. This alert informs them.
             if (prev.designItems.length > 0) {
                 openAlertModal(
                     "Subdivision Changed",
-                    "Grid subdivision has been updated. Existing items might need manual readjustment if their base major unit sizes were tied to the old subdivision. No automatic scaling of items is performed.",
+                    "Grid subdivision has been updated. Existing items' dimensions are in minor cells and will not automatically scale. Manual adjustment may be needed if their intended size was relative to major grid units.",
                     "info"
                 );
             }
@@ -453,16 +448,14 @@ const useLayoutDesignerStateManagement = (
 
     const clearFullLayout = useCallback(() => {
         setLayoutSnapshotWithHistory(prev => ({
-            designItems: STABLE_EMPTY_ARRAY_DESIGN_ITEMS, // Already frontend format (empty)
-            gridRows: prev.gridRows,
-            gridCols: prev.gridCols,
-            gridSubdivision: prev.gridSubdivision,
+            ...prev, // Keep grid dimensions and subdivision
+            designItems: STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
         }));
         openAlertModal("Designer Cleared", "All items have been removed from the layout.", "info");
     }, [setLayoutSnapshotWithHistory, openAlertModal]);
 
     const resetFullLayout = useCallback(() => {
-        resetHistory({ // Pass the new initial state directly to resetHistory (in frontend format)
+        resetHistory({ // Pass the new initial state directly to resetHistory
             designItems: STABLE_EMPTY_ARRAY_DESIGN_ITEMS,
             gridRows: DEFAULT_INITIAL_GRID_ROWS,
             gridCols: DEFAULT_INITIAL_GRID_COLS,
@@ -473,10 +466,10 @@ const useLayoutDesignerStateManagement = (
 
 
     return {
-        designItems, // These are in FRONTEND format for the editor UI
+        designItems, // These are in FRONTEND format
         gridRows, gridCols, gridSubdivision,
         undo, redo, canUndo, canRedo,
-        resetLayoutHistory: resetHistory,
+        resetLayoutHistory: resetHistory, // Expose history reset method
         addItemToLayout,
         moveExistingItem,
         removeItemById,
