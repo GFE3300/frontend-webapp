@@ -1,11 +1,11 @@
 // C:/Users/maxda/Desktop/dads\data_cards\src\Userpage\SubComponents\SetupStage.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react'; // Added useCallback, useMemo
 import { motion, AnimatePresence } from 'framer-motion';
-import Icon from '../../components/common/Icon';
-import NumberStepperfix from '../../components/common/NumberStepper';
-import { InputField } from '../../components/register/subcomponents';
-import BubbleAnimation from '../../components/Animations/BubbleAnimation.jsx';
-import { cn } from '../../components/Animations/utils.js';
+import Icon from '../../../components/common/Icon.jsx';
+import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
+import { InputField } from '../../../features/register/subcomponents'; // Adjusted import path
+import BubbleAnimation from '../../../components/animations/bubble/BubbleAnimation.jsx';
+import { cn } from '../../../animations/bubble/utils.js';
 
 // --- Simple debounce function (or import from lodash/your utils) ---
 function debounce(func, wait) {

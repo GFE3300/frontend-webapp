@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Icon from "../../components/common/Icon";
-import WavingBackground from "../../components/backgrounds/WavingLine";
+import Icon from "../../../components/common/Icon";
+import WavingBackground from "../../../components/animations/WavingLine";
+
 
 const CARD_CONTENT_WIDTH = 240;
 const CARD_CONTENT_HEIGHT = 240;

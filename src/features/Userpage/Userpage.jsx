@@ -12,12 +12,13 @@ import ProductOptionsPopup from './SubComponents/ProductOptionsPopup';
 import Icon from '../../components/common/Icon';
 import SetupStage from './SubComponents/SetupStage';
 // --- Logo Imports ---
-import LogoLight from '../components/assets/Logo.png'; // Assuming this is the light mode logo
-import LogoDark from '../components/assets/LogoDark.png'; // Import your dark mode logo
+
+import LogoLight from '../../assets/icons/Logo.png'  // Assuming this is the light mode logo
+import LogoDark from '../../assets/icons/LogoDark.png'; // Import your dark mode logo
 import SnakesGameComponent from './SnakesGame';
 
-import { useTheme, ThemeProvider } from '../components/common/ThemeProvider';
-import { ThemeToggleButton } from '../components/common/ThemeToggleButton';
+import { ThemeProvider, useTheme } from '../../utils/ThemeProvider';
+import { ThemeToggleButton } from '../../utils/ThemeToggleButton';
 
 
 const TABLE_NUMBER = "6";

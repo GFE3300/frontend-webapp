@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Icon from '../../components/common/Icon';
-import NumberStepperfix from '../../components/common/NumberStepper';
+import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
 
 function ProductOptionsPopup({ isOpen, onClose, item, onConfirmWithOptions }) {
     const [quantity, setQuantity] = useState(1);
