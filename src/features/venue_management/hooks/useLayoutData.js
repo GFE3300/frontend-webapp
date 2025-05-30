@@ -59,6 +59,9 @@ const useLayoutData = (openAlertModal) => {
     }, [openAlertModal]); // Runs once on mount
 
     const saveDesignedLayout = useCallback(async (designedLayoutDataFromEditor) => {
+
+        console.log("[useLayoutData] designedLayoutDataFromEditor received:", JSON.stringify(designedLayoutDataFromEditor, null, 2));
+
         // designedLayoutDataFromEditor: { designItems (frontend format), gridDimensions, name (optional) }
         if (!initialFetchDone) { // Prevent saving if initial load isn't complete
             if (openAlertModal) openAlertModal("Save Error", "Layout data is not yet loaded. Please wait and try again.", "warning");
@@ -71,6 +74,8 @@ const useLayoutData = (openAlertModal) => {
 
         setIsSaving(true);
         const { designItems: frontendItems, gridDimensions: newGridDimensions, name: layoutNameFromEditor } = designedLayoutDataFromEditor;
+
+        console.log("[useLayoutData] Extracted frontendItems:", JSON.stringify(frontendItems, null, 2));
 
         const backendItems = (frontendItems || []).map(feItem => {
             const beItem = {
@@ -136,6 +141,8 @@ const useLayoutData = (openAlertModal) => {
             items: backendItems,
             // kitchen_area_definition: designedLayoutDataFromEditor.kitchenArea, // If backend supports kitchen_area_definition
         };
+
+        console.log("[useLayoutData] FINAL PAYLOAD being sent to backend:", JSON.stringify(payload, null, 2));
 
         try {
             const response = await apiService.saveActiveVenueLayout(payload);

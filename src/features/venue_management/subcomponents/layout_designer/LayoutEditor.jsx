@@ -25,10 +25,16 @@ const EDITOR_MAIN_AREA_BG_LIGHT = 'bg-neutral-100'; // Match VenueDesignerPage f
 const EDITOR_MAIN_AREA_BG_DARK = 'dark:bg-neutral-900'; // Match VenueDesignerPage
 const DEBUG_LAYOUT_EDITOR = "[LayoutEditor DEBUG]";
 
+// Enhanced deep-copy and sort for robust comparison
+const createComparableSnapshotPart = (items) => {
+    if (!Array.isArray(items)) return [];
+    return JSON.parse(JSON.stringify(items)).sort((a, b) => String(a.id).localeCompare(String(b.id)));
+};
+
+
 const LayoutEditor = ({
     initialLayout, // Expected in frontend format: { designItems, gridDimensions, name, kitchenArea? }
     onSaveTrigger, // (currentLayoutSnapshot) => Promise<boolean>
-    // onSaveAndExitTrigger, // This is handled by VenueDesignerPage if needed
     onContentChange, // () => void
     openAlert, // (title, message, type) => void
     isZenMode,
@@ -40,18 +46,19 @@ const LayoutEditor = ({
     const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL);
     const [isClearConfirmationOpen, setIsClearConfirmationOpen] = useState(false);
 
-    // Prepare initialLayoutConfig for useLayoutDesignerStateManagement
-    // initialLayout.designItems are ALREADY in frontend format, parsed by VenueDesignerPage
+    console.log(DEBUG_LAYOUT_EDITOR, "LayoutEditor RENDER START. initialLayout prop:", JSON.parse(JSON.stringify(initialLayout || {})));
+
     const initialLayoutConfigForHook = useMemo(() => {
-        console.log(DEBUG_LAYOUT_EDITOR, "Preparing initialLayoutConfigForHook. initialLayout received:", initialLayout);
-        return {
-            initialDesignItems: initialLayout?.designItems ? JSON.parse(JSON.stringify(initialLayout.designItems)) : Object.freeze([]),
+        // console.log(DEBUG_LAYOUT_EDITOR, "Recalculating initialLayoutConfigForHook. initialLayout received:", JSON.parse(JSON.stringify(initialLayout || {})));
+        const items = initialLayout?.designItems ? JSON.parse(JSON.stringify(initialLayout.designItems)) : Object.freeze([]);
+        const config = {
+            initialDesignItems: items,
             initialGridRows: initialLayout?.gridDimensions?.rows ?? DEFAULT_INITIAL_GRID_ROWS,
             initialGridCols: initialLayout?.gridDimensions?.cols ?? DEFAULT_INITIAL_GRID_COLS,
             initialGridSubdivision: initialLayout?.gridDimensions?.gridSubdivision ?? DEFAULT_GRID_SUBDIVISION,
-            // Note: name and kitchenArea from initialLayout are not directly used by useLayoutDesignerStateManagement,
-            // but are part of the overall layout snapshot this editor manages.
         };
+        // console.log(DEBUG_LAYOUT_EDITOR, "initialLayoutConfigForHook CREATED:", JSON.parse(JSON.stringify(config)));
+        return config;
     }, [initialLayout]);
 
     const layoutManager = useLayoutDesignerStateManagement(initialLayoutConfigForHook, openAlert);
@@ -65,7 +72,7 @@ const LayoutEditor = ({
             return newId;
         });
         if (interactionsManager.isEraserActive) {
-            interactionsManager.toggleEraser(); // Deactivate eraser if an item is selected
+            interactionsManager.toggleEraser();
         }
     }, [interactionsManager]);
 
@@ -74,11 +81,7 @@ const LayoutEditor = ({
         setIsPropertiesInspectorOpen(false);
     }, []);
 
-    // This canvas click handler is for deselecting when the canvas *background* is clicked.
-    // EditorCanvas itself handles clicks on cells. PlacedItem handles clicks on items.
     const handleCanvasAreaClick = useCallback((event) => {
-        // Check if the click was on the direct child of motion.main (the EditorCanvas wrapper)
-        // or on motion.main itself. This helps avoid deselecting if a modal or other overlay inside EditorCanvas is clicked.
         if (event.target === event.currentTarget) {
             if (selectedItemId || isPropertiesInspectorOpen) {
                 deselectAndCloseInspector();
@@ -108,26 +111,35 @@ const LayoutEditor = ({
         return true;
     }, [layoutManager.designItems, openAlert, ItemTypes.PLACED_TABLE]);
 
-    const getCurrentLayoutSnapshotForSave = useCallback(() => ({
-        designItems: JSON.parse(JSON.stringify(layoutManager.designItems)), // Deep copy
-        gridDimensions: {
-            rows: layoutManager.gridRows,
-            cols: layoutManager.gridCols,
-            gridSubdivision: layoutManager.gridSubdivision,
-        },
-        name: initialLayout?.name, // Preserve the original layout name unless changed via UI (not implemented here)
-        // kitchenArea: layoutManager.kitchenArea, // If kitchen area is managed by layoutManager
-    }), [layoutManager, initialLayout?.name]);
+    const getCurrentLayoutSnapshotForSave = useCallback(() => {
+        const snapshot = {
+            designItems: JSON.parse(JSON.stringify(layoutManager.designItems)), // Deep copy
+            gridDimensions: {
+                rows: layoutManager.gridRows,
+                cols: layoutManager.gridCols,
+                gridSubdivision: layoutManager.gridSubdivision,
+            },
+            name: initialLayout?.name, // Preserve the original layout name unless changed via UI (not implemented here)
+        };
+        console.log(DEBUG_LAYOUT_EDITOR, "getCurrentLayoutSnapshotForSave CALLED. Snapshot designItems count:", snapshot.designItems.length, "Snapshot content:", JSON.parse(JSON.stringify(snapshot)));
+        return snapshot;
+    }, [layoutManager, initialLayout?.name]);
 
     const handleSave = useCallback(async () => {
-        if (!validateLayoutForSave()) return false; // Explicitly return false
+        console.log(DEBUG_LAYOUT_EDITOR, "handleSave CALLED in LayoutEditor.");
+        if (!validateLayoutForSave()) {
+            console.log(DEBUG_LAYOUT_EDITOR, "handleSave: Validation FAILED.");
+            return false;
+        }
         if (onSaveTrigger) {
             const layoutToSave = getCurrentLayoutSnapshotForSave();
-            console.log(DEBUG_LAYOUT_EDITOR, "Triggering onSaveTrigger with snapshot:", layoutToSave);
-            const success = await onSaveTrigger(layoutToSave); // onSaveTrigger is async
+            console.log(DEBUG_LAYOUT_EDITOR, "handleSave: Triggering onSaveTrigger (from VenueDesignerPage) with layoutToSave:", JSON.parse(JSON.stringify(layoutToSave)));
+            const success = await onSaveTrigger(layoutToSave); // onSaveTrigger is async (handleSaveLayoutFromEditor in VenueDesignerPage)
+            console.log(DEBUG_LAYOUT_EDITOR, "handleSave: onSaveTrigger returned:", success);
             return success; // Propagate success status
         }
-        openAlert("Save Error", "Save function not configured.", "warning");
+        openAlert("Save Error", "Save function (onSaveTrigger) not configured for LayoutEditor.", "warning");
+        console.log(DEBUG_LAYOUT_EDITOR, "handleSave: onSaveTrigger is NOT defined.");
         return false;
     }, [validateLayoutForSave, getCurrentLayoutSnapshotForSave, onSaveTrigger, openAlert]);
 
@@ -135,21 +147,28 @@ const LayoutEditor = ({
 
     const confirmClearAll = useCallback(() => {
         setIsClearConfirmationOpen(false);
-        layoutManager.resetToDefaults(); // This resets items and grid to defaults within layoutManager
+        layoutManager.resetToDefaults();
         deselectAndCloseInspector();
         setZoomLevel(DEFAULT_ZOOM_LEVEL);
-        // onContentChange will be triggered by the useEffect below due to layoutManager state change
     }, [layoutManager, deselectAndCloseInspector]);
 
     const handleUpdateItemProperties = useCallback((itemId, propertyUpdates) => {
-        // updateItemProperties in layoutManager returns a boolean indicating success
         return layoutManager.updateItemProperties(itemId, propertyUpdates);
     }, [layoutManager]);
 
 
     // --- Effects ---
-    // Effect to notify parent (VenueDesignerPage) of content changes
     useEffect(() => {
+        console.log(DEBUG_LAYOUT_EDITOR, "Change detection EFFECT RUNNING. Dependencies:", {
+            designItemsCount: layoutManager.designItems.length,
+            gridRows: layoutManager.gridRows,
+            gridCols: layoutManager.gridCols,
+            gridSubdivision: layoutManager.gridSubdivision,
+            initialLayoutConfigForHook_designItemsCount: initialLayoutConfigForHook.initialDesignItems.length,
+            initialLayoutConfigForHook_gridRows: initialLayoutConfigForHook.initialGridRows,
+            // Not logging full objects initially to avoid overly verbose logs, can add if needed
+        });
+
         const currentLayoutMgrState = {
             designItems: layoutManager.designItems,
             gridRows: layoutManager.gridRows,
@@ -157,7 +176,6 @@ const LayoutEditor = ({
             gridSubdivision: layoutManager.gridSubdivision,
         };
 
-        // initialLayoutConfigForHook is derived from props, represents the "saved" or "initial" state
         const propDerivedInitialState = {
             designItems: initialLayoutConfigForHook.initialDesignItems,
             gridRows: initialLayoutConfigForHook.initialGridRows,
@@ -165,44 +183,41 @@ const LayoutEditor = ({
             gridSubdivision: initialLayoutConfigForHook.initialGridSubdivision,
         };
 
-        const sortById = (a, b) => (String(a.id) < String(b.id) ? -1 : (String(a.id) > String(b.id) ? 1 : 0));
+        const currentComparableDesignItems = createComparableSnapshotPart(currentLayoutMgrState.designItems);
+        const initialComparableDesignItems = createComparableSnapshotPart(propDerivedInitialState.designItems);
 
-        // Create comparable snapshots
-        const currentComparableSnapshot = {
-            designItems: [...currentLayoutMgrState.designItems].sort(sortById).map(item => ({ ...item, id: String(item.id) })), // Standardize ID to string for comparison if mixed
-            gridDimensions: { ...currentLayoutMgrState }, // gridRows, cols, subdivision
+        const currentGridComparable = {
+            rows: currentLayoutMgrState.gridRows,
+            cols: currentLayoutMgrState.gridCols,
+            gridSubdivision: currentLayoutMgrState.gridSubdivision,
         };
-        delete currentComparableSnapshot.gridDimensions.designItems; // Remove redundant items
-
-        const initialComparableSnapshot = {
-            designItems: [...propDerivedInitialState.designItems].sort(sortById).map(item => ({ ...item, id: String(item.id) })),
-            gridDimensions: { ...propDerivedInitialState },
+        const initialGridComparable = {
+            rows: propDerivedInitialState.gridRows,
+            cols: propDerivedInitialState.gridCols,
+            gridSubdivision: propDerivedInitialState.gridSubdivision,
         };
-        delete initialComparableSnapshot.gridDimensions.designItems;
 
-        const currentSnapshotString = JSON.stringify(currentComparableSnapshot);
-        const initialSnapshotString = JSON.stringify(initialComparableSnapshot);
+        const currentSnapshotString = JSON.stringify({ designItems: currentComparableDesignItems, gridDimensions: currentGridComparable });
+        const initialSnapshotString = JSON.stringify({ designItems: initialComparableDesignItems, gridDimensions: initialGridComparable });
+
+        // Log the states before comparison
+        console.log(DEBUG_LAYOUT_EDITOR, "Current State (from layoutManager, for comparison):", JSON.parse(currentSnapshotString));
+        console.log(DEBUG_LAYOUT_EDITOR, "Initial/Prop State (from initialLayoutConfigForHook, for comparison):", JSON.parse(initialSnapshotString));
 
         if (currentSnapshotString !== initialSnapshotString) {
-            console.error(DEBUG_LAYOUT_EDITOR, "CONTENT MISMATCH DETECTED! Calling onContentChange.");
-            console.log(DEBUG_LAYOUT_EDITOR, "Current State (from layoutManager, sorted, string IDs):", JSON.parse(currentSnapshotString));
-            console.log(DEBUG_LAYOUT_EDITOR, "Initial/Prop State (from initialLayoutConfigForHook, sorted, string IDs):", JSON.parse(initialSnapshotString));
-
-            // Further deep diff if needed:
-            // import { diff } from 'deep-object-diff'; // Example library
-            // console.log("Difference:", diff(JSON.parse(initialSnapshotString), JSON.parse(currentSnapshotString)));
-
+            console.warn(DEBUG_LAYOUT_EDITOR, "CONTENT MISMATCH DETECTED! Calling onContentChange.");
             if (onContentChange) {
                 onContentChange();
             }
+        } else {
+            console.log(DEBUG_LAYOUT_EDITOR, "Content matches initial/prop state. No onContentChange needed.");
         }
     }, [
         layoutManager.designItems, layoutManager.gridRows, layoutManager.gridCols, layoutManager.gridSubdivision,
-        initialLayoutConfigForHook, // This object reference itself will change when props change
+        initialLayoutConfigForHook,
         onContentChange
     ]);
-    
-    // Effect to deselect item if it's removed from designItems
+
     useEffect(() => {
         if (selectedItemId && !layoutManager.designItems.find(item => item.id === selectedItemId)) {
             console.log(DEBUG_LAYOUT_EDITOR, `Selected item ${selectedItemId} no longer exists. Deselecting.`);
@@ -211,11 +226,10 @@ const LayoutEditor = ({
         }
     }, [layoutManager.designItems, selectedItemId]);
 
-    // Keyboard shortcuts (Escape, Ctrl+S, Ctrl+Z, Ctrl+Y)
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'Escape') {
-                if (interactionsManager.draggedItemPreview) { // Highest priority: cancel drag preview
+                if (interactionsManager.draggedItemPreview) {
                     interactionsManager.updateDraggedItemPreview(null);
                 } else if (isPropertiesInspectorOpen) {
                     deselectAndCloseInspector();
@@ -223,7 +237,7 @@ const LayoutEditor = ({
                     setSelectedItemId(null);
                 } else if (interactionsManager.isEraserActive) {
                     interactionsManager.toggleEraser();
-                } else if (isZenMode) { // If nothing else, Esc exits Zen mode
+                } else if (isZenMode) {
                     onToggleZenMode();
                 }
             }
@@ -239,9 +253,7 @@ const LayoutEditor = ({
                 event.preventDefault();
                 layoutManager.redo();
             }
-            // Add other shortcuts, e.g., 'e' for eraser
             if (event.key.toLowerCase() === 'e' && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
-                // Make sure no input field is focused
                 if (document.activeElement?.tagName?.toLowerCase() !== 'input' && document.activeElement?.tagName?.toLowerCase() !== 'select' && document.activeElement?.tagName?.toLowerCase() !== 'textarea') {
                     event.preventDefault();
                     interactionsManager.toggleEraser();
@@ -252,7 +264,7 @@ const LayoutEditor = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [
         selectedItemId, isPropertiesInspectorOpen, interactionsManager, layoutManager,
-        handleSave, deselectAndCloseInspector, isZenMode, onToggleZenMode // Added ZenMode dependencies
+        handleSave, deselectAndCloseInspector, isZenMode, onToggleZenMode
     ]);
 
     console.log(DEBUG_LAYOUT_EDITOR, "Rendering. SelectedItemId:", selectedItemId, "InspectorOpen:", isPropertiesInspectorOpen);
@@ -272,18 +284,17 @@ const LayoutEditor = ({
                 onToggleEraser={interactionsManager.toggleEraser}
                 onUndo={layoutManager.undo} onRedo={layoutManager.redo}
                 canUndo={layoutManager.canUndo} canRedo={layoutManager.canRedo}
-                onSave={handleSave} // This is the save action for the toolbar button
-                onClearAll={attemptClearAll} // This action resets layoutManager's state (items and grid to default)
+                onSave={handleSave}
+                onClearAll={attemptClearAll}
                 isZenMode={isZenMode} onToggleZenMode={onToggleZenMode}
             />
 
             <div
                 className={`flex-1 flex overflow-hidden relative ${EDITOR_MAIN_AREA_BG_LIGHT} ${EDITOR_MAIN_AREA_BG_DARK} transition-colors duration-300 ease-in-out`}
             >
-                {/* motion.main acts as the clickable background area for deselecting items */}
                 <motion.main
-                    layout // Enable layout animations for this container if its size changes
-                    className="flex-1 overflow-auto" // Removed p-x, EditorCanvas handles its own padding and centering
+                    layout
+                    className="flex-1 overflow-auto"
                     onClick={handleCanvasAreaClick}
                     role="region"
                     aria-label="Layout Design Canvas Area"
@@ -305,7 +316,7 @@ const LayoutEditor = ({
                         onUpdateDraggedItemPreview={interactionsManager.updateDraggedItemPreview}
                         isEraserActive={interactionsManager.isEraserActive}
                         zoomLevel={zoomLevel}
-                        onCanvasClick={handleCanvasAreaClick} // Pass for deselect from canvas background itself
+                        onCanvasClick={handleCanvasAreaClick}
                     />
                 </motion.main>
 

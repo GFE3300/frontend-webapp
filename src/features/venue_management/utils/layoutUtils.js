@@ -4,47 +4,45 @@ import { DEFAULT_GRID_SUBDIVISION } from '../constants/layoutConstants'; // For 
 const MIN_ITEM_DIMENSION_MINOR_CELLS = 1; // Ensure this is defined or imported if needed by parser logic
 const DEBUG_LAYOUT_UTILS_PARSER = "[LayoutUtils Parser DEBUG]";
 
+
 /**
  * Calculates the effective dimensions (Axis-Aligned Bounding Box - AABB)
  * of an item in MINOR_CELL_UNITS, considering its rotation.
- * Assumes item.w_minor and item.h_minor are the item's base dimensions (as if at 0 rotation).
+ * Assumes item.w_minor and item.h_minor in the item's state have already been
+ * swapped if the item's orientation changed due to a 90/270 degree rotation.
  * @param {object} item - The item object. Expected to have:
- *                        - item.w_minor: base width in minor cells
- *                        - item.h_minor: base height in minor cells
+ *                        - item.w_minor: base width in minor cells (orientation-adjusted)
+ *                        - item.h_minor: base height in minor cells (orientation-adjusted)
  *                        - item.rotation: angle in degrees
  * @returns {{ w: number, h: number }} Object containing effectiveWidth_minor (w) and effectiveHeight_minor (h) in minor cell units.
  */
 export const getEffectiveDimensions = (item) => {
     if (!item || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
-        console.warn(DEBUG_LAYOUT_UTILS_PARSER, "getEffectiveDimensions: Invalid item or missing w_minor/h_minor. Item:", item, "Defaulting to 1x1.");
+        console.warn("getEffectiveDimensions: Invalid item or missing w_minor/h_minor. Item:", item, "Defaulting to 1x1.");
         return { w: 1, h: 1 }; // Fallback for malformed items
     }
 
     const { w_minor, h_minor, rotation = 0 } = item;
-    const normalizedRotation = (parseInt(String(rotation), 10) % 360 + 360) % 360;
+    const normalizedRotation = (parseInt(String(rotation), 10) % 360 + 360) % 360; // Normalize to 0-359
 
-    // For cardinal rotations (0, 90, 180, 270), AABB dimensions are straightforward.
-    // If item.w_minor and item.h_minor are base dimensions (pre-orientation swap by state management on rotate action)
-    if (normalizedRotation === 90 || normalizedRotation === 270) {
-        return { w: h_minor, h: w_minor }; // Dimensions swap for AABB
-    }
-    if (normalizedRotation === 0 || normalizedRotation === 180) {
-        return { w: w_minor, h: h_minor }; // Dimensions as is for AABB
+    // If item.w_minor and item.h_minor in the state are already orientation-adjusted (swapped by useLayoutDesignerStateManagement),
+    // then for cardinal rotations, these current w_minor/h_minor ARE the AABB dimensions.
+    if (normalizedRotation === 0 || normalizedRotation === 90 || normalizedRotation === 180 || normalizedRotation === 270) {
+        return { w: w_minor, h: h_minor };
     }
 
-    // For ARBITRARY (non-cardinal) rotations, calculate the AABB based on the base w_minor, h_minor.
-    // This part is generally for future-proofing if non-cardinal rotations are ever supported.
-    // For now, editor likely constrains to cardinal rotations where the above if/else is sufficient.
+    // For ARBITRARY (non-cardinal) rotations, calculate the AABB based on the current w_minor, h_minor.
+    // These w_minor, h_minor are the base dimensions of the item as if its current visual orientation were "0 degrees".
     const angleRad = (normalizedRotation * Math.PI) / 180;
-    const cosA = Math.abs(Math.cos(angleRad));
+    const cosA = Math.abs(Math.cos(angleRad)); // Use absolute values for AABB
     const sinA = Math.abs(Math.sin(angleRad));
 
     const effectiveWidth = w_minor * cosA + h_minor * sinA;
     const effectiveHeight = w_minor * sinA + h_minor * cosA;
 
     return {
-        w: Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, Math.round(effectiveWidth)),
-        h: Math.max(MIN_ITEM_DIMENSION_MINOR_CELLS, Math.round(effectiveHeight))
+        w: Math.max(1, Math.round(effectiveWidth)),  // Ensure at least 1x1, round to nearest whole cell
+        h: Math.max(1, Math.round(effectiveHeight))
     };
 };
 
