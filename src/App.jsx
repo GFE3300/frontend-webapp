@@ -15,6 +15,7 @@ import PrivateRoute from './components/common/PrivateRoute.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HTML5Backend } from 'react-dnd-html5-backend'; // Import HTML5Backend
 import CategoryList from './components/CategoryCard/CategoryList.jsx';
+import UserpageWrapper from './features/Userpage/Userpage.jsx';
 
 // Contexts
 import { CartProvider } from './contexts/CartContext';
@@ -65,6 +66,17 @@ const router = createBrowserRouter([
 		path: "/complete-profile",
 		element: <CompleteProfilePage />, // Might also need to be within AuthProvider if it uses auth context
 		errorElement: <NotFoundPage />,
+	},
+	{
+		path: "/user",
+		element: (
+			<AuthProvider>
+				<CartProvider>
+					<UserpageWrapper />
+				</CartProvider>
+			</AuthProvider>
+		),
+		errorElement: <NotFoundPage />, // Or a specific user page error boundary
 	},
 	{
 		path: "/dashboard/business",

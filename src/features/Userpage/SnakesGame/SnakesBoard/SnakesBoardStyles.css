@@ -1,0 +1,10 @@
+/* C:/Users/maxda/Desktop/dads/data_cards/src/Userpage/SnakesGame/SnakesBoard/SnakesBoardStyles.css */
+#game-canvas {
+  display: block;
+  outline: 5px solid var(--game-primary-red, #FECACA); /* Use CSS var, fallback if not loaded */
+  background-color: #FFFFFF; /* Canvas background itself will be white */
+  touch-action: none;
+  max-width: 100%; 
+  max-height: 100%;
+  border-radius: 4px; /* Optional: slight rounding of canvas */
+}

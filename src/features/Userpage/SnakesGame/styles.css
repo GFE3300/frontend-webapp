@@ -1,0 +1,177 @@
+/* C:/Users/maxda/Desktop/dads/data_cards/src/Userpage/SnakesGame/styles.css */
+@import url("https://fonts.googleapis.com/css2?family=Agbalumo&display=swap");
+
+:root {
+  --game-bg: #FFF7F7; /* Very light pinkish white */
+  --game-primary-red: #FECACA; /* Tailwind red-200 */
+  --game-accent-red: #F87171; /* Tailwind red-400 */
+  --game-dark-red-text: #B91C1C; /* Tailwind red-700 for text */
+  --game-dark-neutral-text: #374151; /* Tailwind gray-700 */
+  --game-light-text: #FFFFFF;
+  --game-modal-overlay: rgba(100, 20, 20, 0.6); /* Darker red overlay */
+}
+
+#snakes-game-container {
+  background-color: var(--game-bg);
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+#game-title {
+  text-align: center;
+  background-color: var(--game-primary-red);
+  color: var(--game-dark-red-text);
+  font-size: 2.2rem; /* Slightly reduced */
+  padding-block: 0.8rem;
+  font-family: Agbalumo, "Red Hat Display", sans-serif;
+  flex-shrink: 0;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.high-score {
+  background-color: var(--game-accent-red);
+  color: var(--game-light-text);
+  font-variant: small-caps;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 900;
+  width: fit-content;
+  margin-inline: auto;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem 1rem;
+  border-radius: 1rem;
+  flex-shrink: 0;
+}
+
+.score {
+  text-align: center;
+  font-size: 1.6em;
+  font-weight: 900;
+  margin-block: 0.5rem;
+  width: fit-content;
+  margin-inline: auto;
+  flex-shrink: 0;
+}
+
+.score > span:first-child {
+  background-color: var(--game-primary-red);
+  color: var(--game-dark-red-text);
+  padding-block: 0.5rem;
+  padding-inline: 1rem 0.3rem;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+
+.score > span:last-child {
+  background-color: var(--game-accent-red);
+  color: var(--game-light-text);
+  padding-block: 0.5rem;
+  padding-inline: 0.8rem 1rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+.new-game-hint {
+  text-align: center;
+  color: var(--game-dark-neutral-text);
+  font-weight: 900;
+  font-size: 1.2rem;
+  animation: teeter 2s linear infinite;
+  margin-top: 1rem;
+  flex-shrink: 0;
+}
+
+@keyframes teeter {
+  0%, 50%, 100% { transform: rotateZ(0deg); }
+  25% { transform: rotateZ(-5deg); }
+  75% { transform: rotateZ(5deg); }
+}
+
+.pause-hint {
+  text-align: center;
+  font-style: italic;
+  color: var(--game-dark-neutral-text);
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.pause-hint kbd {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background-color: var(--game-dark-neutral-text);
+  color: var(--game-primary-red);
+  border-radius: 0.5rem;
+}
+
+/* Modals */
+#game-over-modal-container,
+#paused-modal-container {
+  position: fixed;
+  inset: 0;
+  background-color: var(--game-modal-overlay); /* Darker, more themed overlay */
+  cursor: pointer;
+  display: flex; /* For centering */
+  align-items: center; /* For centering */
+  justify-content: center; /* For centering */
+  padding: 1rem; /* Padding for the overlay itself */
+}
+
+#game-over-modal,
+#paused-modal {
+  /* position, top, left, transform removed as parent is centering */
+  background-color: var(--game-bg);
+  color: var(--game-dark-neutral-text);
+  width: 90%;
+  max-width: 450px; /* Further reduced for a tighter modal */
+  padding: 1.5rem; /* Increased padding inside modal */
+  box-sizing: border-box;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px 5px rgba(0,0,0,0.1), 0 0 50px 10px rgba(0,0,0,0.05);
+  /* Removed display:grid for #game-over-modal as content will flow */
+}
+
+#game-over-modal > h2,
+#paused-modal > h2 {
+  font-size: 2em; /* Adjusted */
+  color: var(--game-dark-red-text);
+  margin-bottom: 0.75rem;
+}
+
+.final-score {
+  font-size: 1.1em;
+  margin-bottom: 0.5rem;
+}
+
+.final-score > span {
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: var(--game-accent-red);
+}
+
+.congratulate {
+  margin-block: 0.75rem;
+  font-size: 1.1rem;
+  background-color: var(--game-primary-red);
+  color: var(--game-dark-red-text);
+  padding: 0.5rem 1rem;
+  font-weight: 900;
+  border-radius: 1rem;
+  display: inline-block;
+}
+
+.click-dir {
+  color: var(--game-dark-neutral-text);
+  opacity: 0.8;
+  font-style: italic;
+  font-size: 1rem; /* Adjusted */
+  margin-top: 1rem;
+}
