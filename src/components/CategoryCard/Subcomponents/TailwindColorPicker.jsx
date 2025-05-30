@@ -1,6 +1,6 @@
 // FILE: C:/Users/maxda/Desktop/dads/data_cards/src/Category editor/TailwindColorPicker.jsx
 import React from 'react';
-import { availableColorClasses } from './Subcomponents/colorConstants'; // MODIFIED IMPORT
+import { availableColorClasses } from './colorConstants'; // MODIFIED IMPORT
 
 // REMOVED: export const availableColorClasses = [ ... ];
 

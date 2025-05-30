@@ -17,13 +17,18 @@ import VenueDesignerPage from './features/venue_management/subcomponents/layout_
 // Components
 // import CartDrawer from './components/store/CartDrawer.jsx'; // Original import, kept for consistency if used elsewhere
 import PrivateRoute from './components/common/PrivateRoute.jsx';
+import CategoryList from './components/CategoryCard/CategoryList.jsx';
+import UserpageWrapper from './features/Userpage/Userpage.jsx';
+
+// Contexts
+import { CartProvider } from './contexts/CartContext';
+import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
+import { AuthProvider } from './contexts/AuthContext'; // Crucial import
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
 
 // Contexts & Providers
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // import { CartProvider } from './contexts/CartContext'; // Original import, kept commented out
-import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
-import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './utils/ThemeProvider.jsx';
 
 // DND Imports
@@ -94,6 +99,17 @@ const router = createBrowserRouter([
 		path: "/complete-profile",
 		element: <CompleteProfilePage />,
 		errorElement: <NotFoundPage />,
+	},
+	{
+		path: "/user",
+		element: (
+			<AuthProvider>
+				<CartProvider>
+					<UserpageWrapper />
+				</CartProvider>
+			</AuthProvider>
+		),
+		errorElement: <NotFoundPage />, // Or a specific user page error boundary
 	},
 	{
 		path: "/dashboard/business",
