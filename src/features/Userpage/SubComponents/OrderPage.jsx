@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import OrderItem from "./OrderItem";
-import Modal from "../../components/animatedAlerts/Modal";
-import Icon from "../../components/common/Icon";
+import Modal from "../../../components/animated_alerts/Modal";
+import Icon from "../../../components/common/Icon";
 
 const listAnimationVariants = {
     initial: { opacity: 0, scale: 0.95, y: 10 },

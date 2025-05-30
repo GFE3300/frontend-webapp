@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Icon from '../../components/common/Icon';
+import Icon from '../../../components/common/Icon';
 
 const NavItem = React.forwardRef(({ label, iconName, isActive, onClick, hasBadge, badgeCount }, ref) => (
     <motion.button

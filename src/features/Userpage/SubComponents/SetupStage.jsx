@@ -5,7 +5,7 @@ import Icon from '../../../components/common/Icon.jsx';
 import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
 import { InputField } from '../../../features/register/subcomponents'; // Adjusted import path
 import BubbleAnimation from '../../../components/animations/bubble/BubbleAnimation.jsx';
-import { cn } from '../../../animations/bubble/utils.js';
+import { cn } from '../../../components/animations/bubble/utils.js';
 
 // --- Simple debounce function (or import from lodash/your utils) ---
 function debounce(func, wait) {
