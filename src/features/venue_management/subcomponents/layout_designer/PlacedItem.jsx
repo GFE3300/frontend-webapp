@@ -1,8 +1,7 @@
-// features/venue_management/subcomponents/layout_designer/PlacedItem.jsx
-// DEBUG + ROTATION-RESIZE FOCUS
 import React, { useMemo, useCallback, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+// eslint-disable-next-line
 import { motion } from 'framer-motion';
 
 // Item Renderers
@@ -19,10 +18,12 @@ import Icon from '../../../../components/common/Icon';
 // Design Guideline Variables
 const PLACED_ITEM_CLASSES = {
     base: "group absolute cursor-grab focus-visible:outline-none",
-    dragging: "!cursor-grabbing opacity-60 shadow-2xl scale-105",
+    dragging: "!cursor-grabbing opacity-60 shadow-2xl scale-105", // DND dragging style
     fixed: "!cursor-default",
     selectedLight: "ring-2 ring-rose-500 shadow-lg",
     selectedDark: "dark:ring-rose-400",
+    // << NEW: Style for when item is the move candidate >>
+    moveCandidateLight: "ring-2 ring-sky-500 dark:ring-sky-400 shadow-xl", // Example: different ring for move candidate
     eraserHoverLight: "hover:ring-2 hover:ring-red-500/70",
     eraserHoverDark: "dark:hover:ring-red-400/70",
 };
@@ -38,12 +39,7 @@ const HANDLE_CLASSES = {
     rotationIconColor: "text-white dark:text-neutral-900",
 };
 
-const DEBUG_PREFIX_PLACED_ITEM = "[PlacedItem DEBUG] ";
-const ROTATION_RESIZE_DEBUG_PREFIX_PI = "[DEBUG ROTATION-RESIZE] [PlacedItem] ";
-
-
 const DefaultItemRenderer = ({ item, itemRotation }) => (
-    // ... (unchanged) ...
     <div
         className="w-full h-full border border-dashed border-red-500 bg-red-100/50 flex flex-col items-center justify-center text-red-700 text-xxs p-0.5 text-center"
         style={{ transform: `rotate(${itemRotation}deg)`, transformOrigin: 'center center' }}
@@ -55,34 +51,26 @@ const DefaultItemRenderer = ({ item, itemRotation }) => (
 );
 
 const ResizeHandle = ({ item, direction, ItemTypes, isSelected }) => {
-    // console.log(DEBUG_PREFIX_PLACED_ITEM + `ResizeHandle ${direction} for item ${item.id} re-rendering. Item data:`, JSON.parse(JSON.stringify(item)));
-
     const [{ isDragging: isResizeHandleDragging }, dragResizeRef, previewResizeRef] = useDrag(() => {
         return {
             type: ItemTypes.RESIZE_HANDLE,
-            item: () => { // This factory function is called when drag starts
-                // CRITICAL LOG: What 'item' does this closure capture for the payload?
-                console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `ResizeHandle '${direction}' for item '${item.id}' DRAG START.`);
-                console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `Item data being packaged into payload (originalItem):`, JSON.parse(JSON.stringify(item)));
-
+            item: () => {
                 const payload = {
                     type: ItemTypes.RESIZE_HANDLE,
                     itemId: item.id,
                     direction: direction,
-                    originalItem: { ...item }, // Snapshot of item AT THE MOMENT DRAG STARTS
+                    originalItem: { ...item },
                 };
-                // console.log(DEBUG_PREFIX_PLACED_ITEM + `ResizeHandle ${direction} for item ${item.id} DRAG START. Creating payload:`, JSON.parse(JSON.stringify(payload)));
                 return payload;
             },
             collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
         };
-    }, [item, ItemTypes, direction, isSelected]); // Dependencies updated
+    }, [item, ItemTypes, direction, isSelected]);
 
     useEffect(() => {
         previewResizeRef(getEmptyImage(), { captureDraggingState: true });
     }, [previewResizeRef]);
 
-    // ... (rest of ResizeHandle styling and JSX is unchanged) ...
     const handleSize = HANDLE_CLASSES.resizeSize;
     const offset = `-translate-x-1/2 -translate-y-1/2`;
     let positionClasses = "";
@@ -107,17 +95,15 @@ const ResizeHandle = ({ item, direction, ItemTypes, isSelected }) => {
             `}
             title={`Resize ${direction.toLowerCase()}`}
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()} // Prevent PlacedItem's onTouchStart if handle is grabbed
             style={{ zIndex: 25 }}
         />
     );
 };
 
 const RotationHandle = ({ item, onUpdateItemProperty, isSelected }) => {
-    // ... (unchanged, but adding one log) ...
     const handleRotateClick = useCallback((e) => {
         e.stopPropagation();
-        console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `RotationHandle CLICK for item ${item.id}. Current item data:`, JSON.parse(JSON.stringify(item)));
         if (item && item.id && onUpdateItemProperty) {
             onUpdateItemProperty(item.id, { rotation: true });
         }
@@ -127,7 +113,7 @@ const RotationHandle = ({ item, onUpdateItemProperty, isSelected }) => {
         <button
             type="button"
             onClick={handleRotateClick}
-            onTouchStart={(e) => { e.stopPropagation(); }}
+            onTouchStart={(e) => { e.stopPropagation(); }} // Prevent PlacedItem's onTouchStart
             className={`
                 ${HANDLE_CLASSES.base} ${HANDLE_CLASSES.rotationSize}
                 ${HANDLE_CLASSES.bgLight} ${HANDLE_CLASSES.bgDark} ${HANDLE_CLASSES.border}
@@ -152,47 +138,47 @@ const PlacedItem = ({
     onUpdateItemProperty,
     onSelectItem,
     isSelected,
+    moveCandidateItemId, // << NEW PROP
     minorCellSizeRem,
     ItemTypes,
     ITEM_CONFIGS,
     zoomLevel,
 }) => {
-    // console.log(DEBUG_PREFIX_PLACED_ITEM + `Item ${item.id} re-rendering. Selected: ${isSelected}. Eraser: ${isEraserActive}. Item data:`, JSON.parse(JSON.stringify(item)));
-    // console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `PlacedItem RENDER for item ${item.id}. Data:`, JSON.parse(JSON.stringify(item)));
-
-
     const effectiveDimensionsForDragPayload = useMemo(() => {
-        const dims = getEffectiveDimensionsUtil(item);
-        // console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `Item ${item.id} effectiveDimensionsForDragPayload memo re-calculated. Result:`, JSON.parse(JSON.stringify(dims)), "from item:", JSON.parse(JSON.stringify(item)));
-        return dims;
-    }, [item]); // item is the dependency
+        return getEffectiveDimensionsUtil(item);
+    }, [item]);
 
-    const [{ isDragging: isItemBodyDragging }, dragItemBodyRef] = useDrag(() => {
+    const isThisTheMoveCandidate = item.id === moveCandidateItemId;
+
+    const [{ isDragging: isItemBodyDragging }, dragItemBodyRef, previewBodyRef] = useDrag(() => { // Added previewBodyRef
         return {
             type: item.itemType,
             item: () => {
-                // CRITICAL LOG for item move: What 'item' does this closure capture?
-                console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `PlacedItem BODY DRAG START for item ${item.id}.`);
-                console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `Item data being packaged for move:`, JSON.parse(JSON.stringify(item)));
-                console.log(ROTATION_RESIZE_DEBUG_PREFIX_PI + `Effective Dims for payload:`, JSON.parse(JSON.stringify(effectiveDimensionsForDragPayload)));
-
                 const payload = {
-                    ...item, // Captures the current 'item' prop
+                    ...item,
                     effW_minor: effectiveDimensionsForDragPayload.w,
                     effH_minor: effectiveDimensionsForDragPayload.h,
                 };
-                // console.log(DEBUG_PREFIX_PLACED_ITEM + `Item ${item.id} BODY DRAG START. Creating payload:`, JSON.parse(JSON.stringify(payload)));
                 return payload;
             },
-            canDrag: () => !isEraserActive && !item.isFixed && !isSelected,
+            // Prevents DND drag starting if:
+            // - Eraser is active
+            // - Item is fixed
+            // - Item is currently the one selected for a click-move (to allow cell click for placement)
+            //   This means user must *deselect* it first if they want to DND drag it again, or drag another unselected item.
+            canDrag: () => !isEraserActive && !item.isFixed && !isThisTheMoveCandidate,
             collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
         };
-    }, [item, ItemTypes, isEraserActive, isSelected, effectiveDimensionsForDragPayload]);
+    }, [item, ItemTypes, isEraserActive, isSelected, effectiveDimensionsForDragPayload, isThisTheMoveCandidate]); // Added isThisTheMoveCandidate
 
-    // ... (rest of PlacedItem is unchanged, including dynamicPositionAndSizeStyle, handleClick, etc.) ...
+    useEffect(() => { // Attach empty drag preview for the item body
+        previewBodyRef(getEmptyImage(), { captureDraggingState: true });
+    }, [previewBodyRef]);
+
+
     const dynamicPositionAndSizeStyle = useMemo(() => {
         if (!item.gridPosition) return { display: 'none' };
-        const style = {
+        return {
             position: 'absolute',
             top: `${(item.gridPosition.rowStart - 1) * minorCellSizeRem}rem`,
             left: `${(item.gridPosition.colStart - 1) * minorCellSizeRem}rem`,
@@ -200,16 +186,15 @@ const PlacedItem = ({
             height: `${item.h_minor * minorCellSizeRem}rem`,
             zIndex: isItemBodyDragging ? 200 : (isSelected ? 20 : (isEraserActive && !item.isFixed ? 15 : 10)),
         };
-        // console.log(DEBUG_PREFIX_PLACED_ITEM + `Item ${item.id} dynamicPositionAndSizeStyle memo re-calculated:`, style);
-        return style;
-    }, [item.gridPosition, item.w_minor, item.h_minor, minorCellSizeRem, isItemBodyDragging, isSelected, isEraserActive]);
+    }, [item.gridPosition, item.w_minor, item.h_minor, minorCellSizeRem, isItemBodyDragging, isSelected, isEraserActive, item.isFixed]);
 
     const handleClick = useCallback((e) => {
-        e.stopPropagation();
-        // console.log(DEBUG_PREFIX_PLACED_ITEM + `Item ${item.id} CLICKED. Eraser: ${isEraserActive}, Fixed: ${item.isFixed}`);
+        e.stopPropagation(); // Prevent click from reaching canvas if on item
         if (isEraserActive && !item.isFixed) {
             onEraseItemById(item.id);
         } else if (onSelectItem) {
+            // If it's already the move candidate and selected, clicking again deselects it.
+            // Otherwise, selects it (and sets as move candidate in LayoutEditor).
             onSelectItem(item.id);
         }
     }, [isEraserActive, item.id, item.isFixed, onEraseItemById, onSelectItem]);
@@ -217,8 +202,7 @@ const PlacedItem = ({
     const handleContextMenu = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
-        // console.log(DEBUG_PREFIX_PLACED_ITEM + `Item ${item.id} CONTEXT MENU. Fixed: ${item.isFixed}`);
-        if (onSelectItem && !item.isFixed) onSelectItem(item.id);
+        if (onSelectItem && !item.isFixed) onSelectItem(item.id); // Select on right click if not fixed
     }, [item.id, item.isFixed, onSelectItem]);
 
     const itemConfig = ITEM_CONFIGS[item.itemType];
@@ -237,8 +221,14 @@ const PlacedItem = ({
     const classList = [PLACED_ITEM_CLASSES.base];
     if (item.isFixed) classList.push(PLACED_ITEM_CLASSES.fixed);
     const selectionRingOffsetClasses = "ring-offset-1 ring-offset-white dark:ring-offset-neutral-800";
+
     if (isItemBodyDragging) {
         classList.push(PLACED_ITEM_CLASSES.dragging);
+    } else if (isThisTheMoveCandidate) { // << HIGHLIGHT if it's the move candidate
+        // This item is selected and is the current candidate for a click-move.
+        // Use a distinct highlight or combine with `isSelected` style.
+        // For now, let's assume `moveCandidate` highlight takes precedence if different.
+        classList.push(PLACED_ITEM_CLASSES.moveCandidateLight, PLACED_ITEM_CLASSES.selectedDark, selectionRingOffsetClasses); // Example: Sky blue ring
     } else if (isSelected && !isEraserActive) {
         classList.push(PLACED_ITEM_CLASSES.selectedLight, PLACED_ITEM_CLASSES.selectedDark, selectionRingOffsetClasses);
     } else if (isEraserActive && !item.isFixed) {
@@ -250,7 +240,6 @@ const PlacedItem = ({
     const canRotate = itemConfig?.isRotatable === true;
 
     if (!item || !item.gridPosition || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
-        console.warn(DEBUG_PREFIX_PLACED_ITEM + "PlacedItem: Invalid item data received. Rendering null.", JSON.parse(JSON.stringify(item)));
         return null;
     }
 
@@ -260,7 +249,10 @@ const PlacedItem = ({
             style={dynamicPositionAndSizeStyle}
             onClick={handleClick}
             onContextMenu={handleContextMenu}
-            layout
+            // onTouchStart should not stop propagation if we want parent (CanvasCell) to handle its events
+            // However, if PlacedItem is the target of touch, it might be okay.
+            // If it causes issues with CanvasCell's touch detection for other purposes, revisit.
+            layout // Framer Motion layout prop
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{
                 opacity: 1,
@@ -271,7 +263,7 @@ const PlacedItem = ({
             className={combinedClassName}
             title={isEraserActive && !item.isFixed ? `Tap to erase ${itemConfig?.displayName || item.itemType}` :
                 item.isFixed ? `${itemConfig?.displayName || item.itemType} (Fixed)` :
-                    `Drag to move, Tap to select ${itemConfig?.displayName || item.itemType}`
+                    (isThisTheMoveCandidate ? `Click a cell to move ${itemConfig?.displayName || item.itemType}` : `Tap to select ${itemConfig?.displayName || item.itemType}`)
             }
             role="button"
             tabIndex={isEraserActive || item.isFixed ? -1 : 0}
@@ -282,18 +274,19 @@ const PlacedItem = ({
                     item={item}
                     itemRotation={item.rotation || 0}
                     onUpdateItemProperty={onUpdateItemProperty}
-                    isSelected={isSelected}
+                    isSelected={isSelected || isThisTheMoveCandidate} // Renderer might use this for internal styles
                     zoomLevel={zoomLevel}
                 />
             </div>
 
-            {isSelected && !isEraserActive && !item.isFixed && (
+            {/* Show handles if selected OR if it's the move candidate, and not in eraser mode, and not fixed */}
+            {(isSelected || isThisTheMoveCandidate) && !isEraserActive && !item.isFixed && (
                 <>
                     {canResize && ['N', 'S', 'E', 'W'].map(dir => (
-                        <ResizeHandle key={`${item.id}-rh-${dir}`} item={item} direction={dir} ItemTypes={ItemTypes} isSelected={isSelected} />
+                        <ResizeHandle key={`${item.id}-rh-${dir}`} item={item} direction={dir} ItemTypes={ItemTypes} isSelected={isSelected || isThisTheMoveCandidate} />
                     ))}
                     {canRotate && (
-                        <RotationHandle key={`${item.id}-roth`} item={item} onUpdateItemProperty={onUpdateItemProperty} isSelected={isSelected} />
+                        <RotationHandle key={`${item.id}-roth`} item={item} onUpdateItemProperty={onUpdateItemProperty} isSelected={isSelected || isThisTheMoveCandidate} />
                     )}
                 </>
             )}

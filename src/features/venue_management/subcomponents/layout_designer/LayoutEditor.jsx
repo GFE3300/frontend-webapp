@@ -1,6 +1,6 @@
 // frontend/src/features/venue_management/subcomponents/layout_designer/LayoutEditor.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion'; // Keep motion if used, but might be minimal here
+import { motion } from 'framer-motion';
 
 // Hooks
 import useLayoutDesignerStateManagement from '../../hooks/useLayoutDesignerStateManagement';
@@ -21,11 +21,10 @@ import { ItemTypes, toolDefinitions, ITEM_CONFIGS } from '../../constants/itemCo
 // Common Components
 import ConfirmationModal from '../../../../components/common/ConfirmationModal';
 
-const EDITOR_MAIN_AREA_BG_LIGHT = 'bg-neutral-100'; // Match VenueDesignerPage for consistency if applicable
-const EDITOR_MAIN_AREA_BG_DARK = 'dark:bg-neutral-900'; // Match VenueDesignerPage
+const EDITOR_MAIN_AREA_BG_LIGHT = 'bg-neutral-100';
+const EDITOR_MAIN_AREA_BG_DARK = 'dark:bg-neutral-900';
 const DEBUG_LAYOUT_EDITOR = "[LayoutEditor DEBUG]";
 
-// Enhanced deep-copy and sort for robust comparison
 const createComparableSnapshotPart = (items) => {
     if (!Array.isArray(items)) return [];
     return JSON.parse(JSON.stringify(items)).sort((a, b) => String(a.id).localeCompare(String(b.id)));
@@ -33,23 +32,22 @@ const createComparableSnapshotPart = (items) => {
 
 
 const LayoutEditor = ({
-    initialLayout, // Expected in frontend format: { designItems, gridDimensions, name, kitchenArea? }
-    onSaveTrigger, // (currentLayoutSnapshot) => Promise<boolean>
-    onContentChange, // () => void
-    openAlert, // (title, message, type) => void
+    initialLayout,
+    onSaveTrigger,
+    onContentChange,
+    openAlert,
     isZenMode,
     onToggleZenMode,
 }) => {
     // --- State ---
     const [selectedItemId, setSelectedItemId] = useState(null);
+    const [moveCandidateItemId, setMoveCandidateItemId] = useState(null);
+    const [activeToolForPlacement, setActiveToolForPlacement] = useState(null); // << NEW: Tool selected from toolbar
     const [isPropertiesInspectorOpen, setIsPropertiesInspectorOpen] = useState(false);
     const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL);
     const [isClearConfirmationOpen, setIsClearConfirmationOpen] = useState(false);
 
-    console.log(DEBUG_LAYOUT_EDITOR, "LayoutEditor RENDER START. initialLayout prop:", JSON.parse(JSON.stringify(initialLayout || {})));
-
     const initialLayoutConfigForHook = useMemo(() => {
-        // console.log(DEBUG_LAYOUT_EDITOR, "Recalculating initialLayoutConfigForHook. initialLayout received:", JSON.parse(JSON.stringify(initialLayout || {})));
         const items = initialLayout?.designItems ? JSON.parse(JSON.stringify(initialLayout.designItems)) : Object.freeze([]);
         const config = {
             initialDesignItems: items,
@@ -57,42 +55,104 @@ const LayoutEditor = ({
             initialGridCols: initialLayout?.gridDimensions?.cols ?? DEFAULT_INITIAL_GRID_COLS,
             initialGridSubdivision: initialLayout?.gridDimensions?.gridSubdivision ?? DEFAULT_GRID_SUBDIVISION,
         };
-        // console.log(DEBUG_LAYOUT_EDITOR, "initialLayoutConfigForHook CREATED:", JSON.parse(JSON.stringify(config)));
         return config;
     }, [initialLayout]);
 
     const layoutManager = useLayoutDesignerStateManagement(initialLayoutConfigForHook, openAlert);
-    const interactionsManager = useDesignerInteractions();
+    const interactionsManager = useDesignerInteractions(); // isEraserActive, toggleEraser, draggedItemPreview, updateDraggedItemPreview
 
     // --- Callbacks ---
-    const handleSelectItem = useCallback((itemId) => {
-        setSelectedItemId(prevId => {
-            const newId = prevId === itemId ? null : itemId;
-            setIsPropertiesInspectorOpen(!!newId);
-            return newId;
-        });
-        if (interactionsManager.isEraserActive) {
-            interactionsManager.toggleEraser();
-        }
-    }, [interactionsManager]);
 
-    const deselectAndCloseInspector = useCallback(() => {
+    const deselectAllAndClearModes = useCallback(() => {
         setSelectedItemId(null);
         setIsPropertiesInspectorOpen(false);
-    }, []);
+        setMoveCandidateItemId(null);
+        setActiveToolForPlacement(null);
+        // interactionsManager.updateDraggedItemPreview(null); // Clear DND previews if any
+        // Don't toggle eraser here, it's a separate user action
+    }, [/* Stable setters */]);
+
+    const handleSelectItem = useCallback((itemId) => {
+        setSelectedItemId(prevSelectedId => {
+            const newSelectedId = prevSelectedId === itemId ? null : itemId;
+            if (newSelectedId) {
+                setMoveCandidateItemId(newSelectedId);
+                setActiveToolForPlacement(null); // << If selecting an item, cancel "new tool placement" mode
+                setIsPropertiesInspectorOpen(true);
+                if (interactionsManager.isEraserActive) {
+                    interactionsManager.toggleEraser();
+                }
+            } else {
+                // Deselecting the current item or cleared by canvas click
+                setMoveCandidateItemId(null);
+                // setActiveToolForPlacement(null); // Don't clear active tool if just deselecting an item
+                setIsPropertiesInspectorOpen(false);
+            }
+            return newSelectedId;
+        });
+    }, [interactionsManager /* Stable setters */]);
 
     const handleCanvasAreaClick = useCallback((event) => {
         if (event.target === event.currentTarget) {
-            if (selectedItemId || isPropertiesInspectorOpen) {
-                deselectAndCloseInspector();
+            if (selectedItemId || isPropertiesInspectorOpen || moveCandidateItemId || activeToolForPlacement) {
+                deselectAllAndClearModes();
             }
         }
-    }, [selectedItemId, isPropertiesInspectorOpen, deselectAndCloseInspector]);
+    }, [selectedItemId, isPropertiesInspectorOpen, moveCandidateItemId, activeToolForPlacement, deselectAllAndClearModes]);
 
-    const handleZoomIn = useCallback(() => setZoomLevel(prev => Math.min(MAX_ZOOM_LEVEL, parseFloat((prev + ZOOM_STEP).toFixed(2)))), []);
-    const handleZoomOut = useCallback(() => setZoomLevel(prev => Math.max(MIN_ZOOM_LEVEL, parseFloat((prev - ZOOM_STEP).toFixed(2)))), []);
-    const handleResetZoom = useCallback(() => setZoomLevel(DEFAULT_ZOOM_LEVEL), []);
+    // << NEW: Callback when a tool is clicked in the EditorToolbar >>
+    const handleToolbarToolSelect = useCallback((toolDefinition) => {
+        setActiveToolForPlacement(prevTool => {
+            const newActiveTool = prevTool?.name === toolDefinition?.name ? null : toolDefinition;
+            if (newActiveTool) {
+                console.log(DEBUG_LAYOUT_EDITOR, `Tool selected for placement: ${newActiveTool.name}`);
+                // Cancel other interaction modes when a tool is selected for placement
+                setSelectedItemId(null);
+                setMoveCandidateItemId(null);
+                setIsPropertiesInspectorOpen(false);
+                if (interactionsManager.isEraserActive) {
+                    interactionsManager.toggleEraser();
+                }
+            } else {
+                console.log(DEBUG_LAYOUT_EDITOR, `Tool deselected for placement.`);
+            }
+            return newActiveTool;
+        });
+    }, [interactionsManager]);
 
+
+    const handleCanvasCellPrimaryClick = useCallback((targetMinorRow, targetMinorCol) => {
+        if (interactionsManager.isEraserActive) {
+            // Eraser logic is handled by onEraseDesignerItemFromCell passed to EditorCanvas -> CanvasCell
+            // This function is primarily for non-eraser clicks now.
+            // If CanvasCell calls this even with eraser, we can add:
+            // layoutManager.removeItemAtCoords(targetMinorRow, targetMinorCol);
+            // However, CanvasCell's own onClick should handle eraser first.
+            return;
+        }
+
+        if (activeToolForPlacement) {
+            console.log(DEBUG_LAYOUT_EDITOR, `Cell clicked for NEW item placement. Tool: ${activeToolForPlacement.name}, Target: R${targetMinorRow}C${targetMinorCol}`);
+            layoutManager.addItemToLayout(activeToolForPlacement, targetMinorRow, targetMinorCol);
+            // Decide if tool stays active for multiple placements or deactivates
+            // setActiveToolForPlacement(null); // Deactivate after one placement
+        } else if (moveCandidateItemId) {
+            console.log(DEBUG_LAYOUT_EDITOR, `Cell clicked for EXISTING item move. Candidate: ${moveCandidateItemId}, Target: R${targetMinorRow}C${targetMinorCol}`);
+            layoutManager.moveExistingItem(moveCandidateItemId, targetMinorRow, targetMinorCol);
+            setMoveCandidateItemId(null); // Clear move candidate after attempt
+            // Item remains selected (selectedItemId is not cleared here)
+        }
+        // If neither mode is active, a click on a cell currently does nothing more here.
+        // Canvas background click handles full deselection.
+    }, [
+        activeToolForPlacement, moveCandidateItemId, layoutManager, interactionsManager.isEraserActive,
+        // setActiveToolForPlacement, setMoveCandidateItemId // Stable setters
+    ]);
+
+
+    const handleZoomIn = useCallback(() => { setZoomLevel(prev => Math.min(MAX_ZOOM_LEVEL, parseFloat((prev + ZOOM_STEP).toFixed(2)))); }, []);
+    const handleZoomOut = useCallback(() => { setZoomLevel(prev => Math.max(MIN_ZOOM_LEVEL, parseFloat((prev - ZOOM_STEP).toFixed(2)))); }, []);
+    const handleResetZoom = useCallback(() => { setZoomLevel(DEFAULT_ZOOM_LEVEL); }, []);
     const validateLayoutForSave = useCallback(() => {
         const tablesToValidate = layoutManager.designItems.filter(item => item.itemType === ItemTypes.PLACED_TABLE);
         const hasInvalidTables = tablesToValidate.some(t => t.isProvisional || typeof t.number !== 'number' || t.number <= 0);
@@ -110,82 +170,64 @@ const LayoutEditor = ({
         }
         return true;
     }, [layoutManager.designItems, openAlert, ItemTypes.PLACED_TABLE]);
-
     const getCurrentLayoutSnapshotForSave = useCallback(() => {
         const snapshot = {
-            designItems: JSON.parse(JSON.stringify(layoutManager.designItems)), // Deep copy
+            designItems: JSON.parse(JSON.stringify(layoutManager.designItems)),
             gridDimensions: {
                 rows: layoutManager.gridRows,
                 cols: layoutManager.gridCols,
                 gridSubdivision: layoutManager.gridSubdivision,
             },
-            name: initialLayout?.name, // Preserve the original layout name unless changed via UI (not implemented here)
+            name: initialLayout?.name,
         };
-        console.log(DEBUG_LAYOUT_EDITOR, "getCurrentLayoutSnapshotForSave CALLED. Snapshot designItems count:", snapshot.designItems.length, "Snapshot content:", JSON.parse(JSON.stringify(snapshot)));
         return snapshot;
     }, [layoutManager, initialLayout?.name]);
-
     const handleSave = useCallback(async () => {
-        console.log(DEBUG_LAYOUT_EDITOR, "handleSave CALLED in LayoutEditor.");
-        if (!validateLayoutForSave()) {
-            console.log(DEBUG_LAYOUT_EDITOR, "handleSave: Validation FAILED.");
-            return false;
-        }
+        if (!validateLayoutForSave()) return false;
         if (onSaveTrigger) {
             const layoutToSave = getCurrentLayoutSnapshotForSave();
-            console.log(DEBUG_LAYOUT_EDITOR, "handleSave: Triggering onSaveTrigger (from VenueDesignerPage) with layoutToSave:", JSON.parse(JSON.stringify(layoutToSave)));
-            const success = await onSaveTrigger(layoutToSave); // onSaveTrigger is async (handleSaveLayoutFromEditor in VenueDesignerPage)
-            console.log(DEBUG_LAYOUT_EDITOR, "handleSave: onSaveTrigger returned:", success);
-            return success; // Propagate success status
+            const success = await onSaveTrigger(layoutToSave);
+            return success;
         }
         openAlert("Save Error", "Save function (onSaveTrigger) not configured for LayoutEditor.", "warning");
-        console.log(DEBUG_LAYOUT_EDITOR, "handleSave: onSaveTrigger is NOT defined.");
         return false;
     }, [validateLayoutForSave, getCurrentLayoutSnapshotForSave, onSaveTrigger, openAlert]);
-
     const attemptClearAll = useCallback(() => setIsClearConfirmationOpen(true), []);
-
-    const confirmClearAll = useCallback(() => {
+    const confirmClearAll = useCallback(() => { /* ... (no changes, uses deselectAllAndClearModes indirectly) ... */
         setIsClearConfirmationOpen(false);
         layoutManager.resetToDefaults();
-        deselectAndCloseInspector();
+        deselectAllAndClearModes();
         setZoomLevel(DEFAULT_ZOOM_LEVEL);
-    }, [layoutManager, deselectAndCloseInspector]);
+    }, [layoutManager, deselectAllAndClearModes]);
 
     const handleUpdateItemProperties = useCallback((itemId, propertyUpdates) => {
-        return layoutManager.updateItemProperties(itemId, propertyUpdates);
-    }, [layoutManager]);
+        const success = layoutManager.updateItemProperties(itemId, propertyUpdates);
+        if (moveCandidateItemId === itemId && propertyUpdates.isFixed === true) {
+            setMoveCandidateItemId(null);
+        }
+        // If properties of the activeToolForPlacement change (not typical, but possible if tool defs were dynamic)
+        // or if an item update somehow invalidates activeToolForPlacement, clear it.
+        // For now, assume tool definitions are static during placement.
+        return success;
+    }, [layoutManager, moveCandidateItemId /* Stable setters */]);
 
 
     // --- Effects ---
-    useEffect(() => {
-        console.log(DEBUG_LAYOUT_EDITOR, "Change detection EFFECT RUNNING. Dependencies:", {
-            designItemsCount: layoutManager.designItems.length,
-            gridRows: layoutManager.gridRows,
-            gridCols: layoutManager.gridCols,
-            gridSubdivision: layoutManager.gridSubdivision,
-            initialLayoutConfigForHook_designItemsCount: initialLayoutConfigForHook.initialDesignItems.length,
-            initialLayoutConfigForHook_gridRows: initialLayoutConfigForHook.initialGridRows,
-            // Not logging full objects initially to avoid overly verbose logs, can add if needed
-        });
-
+    useEffect(() => { /* ... (no changes to content change detection logic) ... */
         const currentLayoutMgrState = {
             designItems: layoutManager.designItems,
             gridRows: layoutManager.gridRows,
             gridCols: layoutManager.gridCols,
             gridSubdivision: layoutManager.gridSubdivision,
         };
-
         const propDerivedInitialState = {
             designItems: initialLayoutConfigForHook.initialDesignItems,
             gridRows: initialLayoutConfigForHook.initialGridRows,
             gridCols: initialLayoutConfigForHook.initialGridCols,
             gridSubdivision: initialLayoutConfigForHook.initialGridSubdivision,
         };
-
         const currentComparableDesignItems = createComparableSnapshotPart(currentLayoutMgrState.designItems);
         const initialComparableDesignItems = createComparableSnapshotPart(propDerivedInitialState.designItems);
-
         const currentGridComparable = {
             rows: currentLayoutMgrState.gridRows,
             cols: currentLayoutMgrState.gridCols,
@@ -196,21 +238,11 @@ const LayoutEditor = ({
             cols: propDerivedInitialState.gridCols,
             gridSubdivision: propDerivedInitialState.gridSubdivision,
         };
-
         const currentSnapshotString = JSON.stringify({ designItems: currentComparableDesignItems, gridDimensions: currentGridComparable });
         const initialSnapshotString = JSON.stringify({ designItems: initialComparableDesignItems, gridDimensions: initialGridComparable });
 
-        // Log the states before comparison
-        console.log(DEBUG_LAYOUT_EDITOR, "Current State (from layoutManager, for comparison):", JSON.parse(currentSnapshotString));
-        console.log(DEBUG_LAYOUT_EDITOR, "Initial/Prop State (from initialLayoutConfigForHook, for comparison):", JSON.parse(initialSnapshotString));
-
         if (currentSnapshotString !== initialSnapshotString) {
-            console.warn(DEBUG_LAYOUT_EDITOR, "CONTENT MISMATCH DETECTED! Calling onContentChange.");
-            if (onContentChange) {
-                onContentChange();
-            }
-        } else {
-            console.log(DEBUG_LAYOUT_EDITOR, "Content matches initial/prop state. No onContentChange needed.");
+            if (onContentChange) onContentChange();
         }
     }, [
         layoutManager.designItems, layoutManager.gridRows, layoutManager.gridCols, layoutManager.gridSubdivision,
@@ -218,44 +250,39 @@ const LayoutEditor = ({
         onContentChange
     ]);
 
-    useEffect(() => {
+    useEffect(() => { /* ... (no changes to selected item existence check) ... */
         if (selectedItemId && !layoutManager.designItems.find(item => item.id === selectedItemId)) {
-            console.log(DEBUG_LAYOUT_EDITOR, `Selected item ${selectedItemId} no longer exists. Deselecting.`);
-            setSelectedItemId(null);
-            setIsPropertiesInspectorOpen(false);
+            deselectAllAndClearModes();
         }
-    }, [layoutManager.designItems, selectedItemId]);
+    }, [layoutManager.designItems, selectedItemId, deselectAllAndClearModes]);
 
-    useEffect(() => {
+    useEffect(() => { // Keyboard shortcuts
         const handleKeyDown = (event) => {
             if (event.key === 'Escape') {
-                if (interactionsManager.draggedItemPreview) {
+                if (interactionsManager.draggedItemPreview) { // Active DND preview
                     interactionsManager.updateDraggedItemPreview(null);
-                } else if (isPropertiesInspectorOpen) {
-                    deselectAndCloseInspector();
-                } else if (selectedItemId) {
-                    setSelectedItemId(null);
+                } else if (activeToolForPlacement) { // << NEW: Cancel active tool placement
+                    setActiveToolForPlacement(null);
+                } else if (moveCandidateItemId || isPropertiesInspectorOpen || selectedItemId) {
+                    deselectAllAndClearModes();
                 } else if (interactionsManager.isEraserActive) {
                     interactionsManager.toggleEraser();
                 } else if (isZenMode) {
                     onToggleZenMode();
                 }
             }
-            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-                event.preventDefault();
-                handleSave();
-            }
-            if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'z') {
-                event.preventDefault();
-                layoutManager.undo();
-            }
-            if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'y' || (event.shiftKey && event.key.toLowerCase() === 'z'))) {
-                event.preventDefault();
-                layoutManager.redo();
-            }
+            // ... (Ctrl+S, Ctrl+Z, Ctrl+Y shortcuts unchanged) ...
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); handleSave(); }
+            if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'z') { event.preventDefault(); layoutManager.undo(); }
+            if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'y' || (event.shiftKey && event.key.toLowerCase() === 'z'))) { event.preventDefault(); layoutManager.redo(); }
+
             if (event.key.toLowerCase() === 'e' && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
                 if (document.activeElement?.tagName?.toLowerCase() !== 'input' && document.activeElement?.tagName?.toLowerCase() !== 'select' && document.activeElement?.tagName?.toLowerCase() !== 'textarea') {
                     event.preventDefault();
+                    // If any placement/move mode is active, activating eraser should cancel them.
+                    if (moveCandidateItemId) setMoveCandidateItemId(null);
+                    if (activeToolForPlacement) setActiveToolForPlacement(null);
+                    // if (selectedItemId) setSelectedItemId(null); // Optionally deselect too
                     interactionsManager.toggleEraser();
                 }
             }
@@ -264,14 +291,19 @@ const LayoutEditor = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [
         selectedItemId, isPropertiesInspectorOpen, interactionsManager, layoutManager,
-        handleSave, deselectAndCloseInspector, isZenMode, onToggleZenMode
+        handleSave, deselectAllAndClearModes, isZenMode, onToggleZenMode,
+        moveCandidateItemId, activeToolForPlacement, // << Add new states
+        // Stable setters
     ]);
 
-    console.log(DEBUG_LAYOUT_EDITOR, "Rendering. SelectedItemId:", selectedItemId, "InspectorOpen:", isPropertiesInspectorOpen);
+    // console.log(DEBUG_LAYOUT_EDITOR, "Rendering. Selected:", selectedItemId, "MoveCand:", moveCandidateItemId, "ActiveTool:", activeToolForPlacement?.name);
 
     return (
         <div className="flex flex-col h-full w-full" role="application">
             <EditorToolbar
+                // ... (existing props) ...
+                onToolbarToolSelect={handleToolbarToolSelect} // << NEW PROP
+                activeToolForPlacementName={activeToolForPlacement?.name} // << NEW PROP (optional, for toolbar visual feedback)
                 majorGridRows={layoutManager.gridRows}
                 majorGridCols={layoutManager.gridCols}
                 currentGridSubdivision={layoutManager.gridSubdivision}
@@ -300,12 +332,16 @@ const LayoutEditor = ({
                     aria-label="Layout Design Canvas Area"
                 >
                     <EditorCanvas
+                        // ... (existing props) ...
+                        onCellClickForPrimaryAction={handleCanvasCellPrimaryClick} // << RENAMED/UNIFIED prop
+                        moveCandidateItemId={moveCandidateItemId}
+                        activeToolForPlacement={activeToolForPlacement} // << NEW PROP
                         majorGridRows={layoutManager.gridRows}
                         majorGridCols={layoutManager.gridCols}
                         gridSubdivision={layoutManager.gridSubdivision}
                         designItems={layoutManager.designItems}
                         ItemTypes={ItemTypes} ITEM_CONFIGS={ITEM_CONFIGS}
-                        onAddItem={layoutManager.addItemToLayout}
+                        onAddItem={layoutManager.addItemToLayout} // Still needed for DND from toolbar
                         onMoveItem={layoutManager.moveExistingItem}
                         onEraseDesignerItemFromCell={layoutManager.removeItemAtCoords}
                         onEraseDesignerItemById={layoutManager.removeItemById}
@@ -326,7 +362,7 @@ const LayoutEditor = ({
                     onUpdateItemProperties={handleUpdateItemProperties}
                     ITEM_CONFIGS={ITEM_CONFIGS} ItemTypes={ItemTypes}
                     isOpen={isPropertiesInspectorOpen}
-                    onClose={deselectAndCloseInspector}
+                    onClose={deselectAllAndClearModes}
                     gridSubdivision={layoutManager.gridSubdivision}
                 />
             </div>
