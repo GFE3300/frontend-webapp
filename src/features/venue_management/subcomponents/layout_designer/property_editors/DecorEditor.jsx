@@ -86,7 +86,7 @@ const DecorEditor = ({ item, onUpdateItemProperty, gridSubdivision }) => {
                         <InputField
                             label="Width (minor cells)"
                             type="number"
-                            className={`w-full flex items-end ${LABEL_STYLE}`}
+                            className={`w-full h-15 flex items-end ${LABEL_STYLE}`}
                             value={widthInput}
                             onChange={(e) => handleDimensionChange('w_minor', e.target.value)}
                             onBlur={(e) => handleDimensionBlur('w_minor', e.target.value)}
@@ -98,7 +98,7 @@ const DecorEditor = ({ item, onUpdateItemProperty, gridSubdivision }) => {
                         <InputField
                             label="Height (minor cells)"
                             type="number"
-                            className={`w-full flex items-end ${LABEL_STYLE}`}
+                            className={`w-full h-15 flex items-end ${LABEL_STYLE}`}
                             value={heightInput}
                             onChange={(e) => handleDimensionChange('h_minor', e.target.value)}
                             onBlur={(e) => handleDimensionBlur('h_minor', e.target.value)}

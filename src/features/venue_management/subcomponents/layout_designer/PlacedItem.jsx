@@ -268,6 +268,7 @@ const PlacedItem = ({
             role="button"
             tabIndex={isEraserActive || item.isFixed ? -1 : 0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(e); }}
+            data-is-canvas-item="true"
         >
             <div className="w-full h-full relative">
                 <SpecificItemRenderer

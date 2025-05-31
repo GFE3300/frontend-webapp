@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
-// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../../components/common/Icon';
 import SegmentedControl from '../../../../components/common/SegmentedControl';
+import { useDeviceDetection } from '../../../../hooks/useDeviceDetection'; // Added
 
 const VenueDesignerHeader = ({
     isEditorModeActive,
@@ -14,11 +14,12 @@ const VenueDesignerHeader = ({
     onToggleZenMode,
     layoutName = "Venue Layout",
 }) => {
-    // Memoize modeOptions to prevent re-creation on every render
+    const { isMobile } = useDeviceDetection(); // Use the hook
+
     const modeOptions = useMemo(() => [
         { label: "Design", value: "edit", icon: "design_services" },
         { label: "Preview", value: "preview", icon: "visibility" }
-    ], []); // Empty dependency array means it's created once
+    ], []);
 
     const currentModeValue = isEditorModeActive ? "edit" : "preview";
 
@@ -28,46 +29,65 @@ const VenueDesignerHeader = ({
         }
     }, [isEditorModeActive, onToggleMode]);
 
-    // Animation variants for conditional action buttons
     const actionButtonVariants = {
-        hidden: { opacity: 0, x: -10, transition: { duration: 0.2 } },
-        visible: { opacity: 1, x: 0, transition: { duration: 0.2, delay: 0.1 } },
+        hidden: { opacity: 0, scale: 0.8, transition: { duration: 0.15 } },
+        visible: { opacity: 1, scale: 1, transition: { duration: 0.2, delay: 0.05 } },
     };
+
+    // Determine if text should be shown on action buttons
+    const showTextOnQrButton = !isMobile; // Hide "QRs" text on mobile
 
     return (
         <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "circOut" }}
-            className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 p-3 pl-5
-                       bg-neutral-100/90 dark:bg-neutral-800/90 backdrop-blur-md 
+            className={`sticky top-0 z-30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-x-3 gap-y-2 
+                       p-2.5 sm:p-3 
+                       bg-neutral-100/85 dark:bg-neutral-800/85 backdrop-blur-lg
                        border border-neutral-200/70 dark:border-neutral-700/70 
-                       shadow-sm mb-3 mx-auto w-full rounded-full"
+                       shadow-lg rounded-b-2xl sm:rounded-full mb-3 mx-0
+                       w-full`} // Adjusted max-width and mobile width
         >
-            {/* Left Section: Title & Status */}
-            <div className="flex items-center min-w-0"> {/* min-w-0 for better flex truncation */}
-                <Icon name="space_dashboard" aria-hidden="true" className="w-5 h-5 text-rose-500 dark:text-rose-400 mr-2 flex-shrink-0" style={{ fontSize: "1.25rem" }} />
-                <h2 className="font-montserrat font-semibold text-md text-neutral-700 dark:text-neutral-200 tracking-tight truncate">
-                    {layoutName}
-                </h2>
-                {hasUnsavedChanges && isEditorModeActive && (
-                    <span title="Unsaved Changes" className="ml-2 w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse flex-shrink-0"></span>
-                )}
-                {(isSavingLayout || isLoadingLayout) && (
-                    <Icon name="progress_activity" className="w-4 h-4 text-neutral-500 animate-spin ml-2 flex-shrink-0" style={{ fontSize: "1rem" }} />
-                )}
+            {/* Top Row on Mobile / Left Section on Desktop */}
+            <div className="flex items-center justify-between sm:justify-start min-w-0 w-full sm:w-auto">
+                <div className="flex items-center min-w-0"> {/* Inner div for title and status */}
+                    {/* Optional: Back button for mobile, if needed for navigation hierarchy */}
+                    {/* isMobile && onAttemptExitPage && (
+                        <button
+                            onClick={onAttemptExitPage}
+                            className="p-2 mr-1 -ml-1 rounded-full text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70"
+                            title="Back to Dashboard"
+                        >
+                            <Icon name="arrow_back" className="w-5 h-5" />
+                        </button>
+                    )*/}
+                    <Icon name="space_dashboard" aria-hidden="true" className="w-5 h-5 text-rose-500 dark:text-rose-400 mr-2 flex-shrink-0" style={{ fontSize: "1.25rem" }} />
+                    <h2 className="font-montserrat font-semibold text-base sm:text-md text-neutral-700 dark:text-neutral-200 tracking-tight truncate">
+                        {layoutName}
+                    </h2>
+                    {hasUnsavedChanges && isEditorModeActive && (
+                        <span title="Unsaved Changes" className="ml-2 w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse flex-shrink-0"></span>
+                    )}
+                    {(isSavingLayout || isLoadingLayout) && (
+                        <Icon name="progress_activity" className="w-4 h-4 text-neutral-500 animate-spin ml-2 flex-shrink-0" style={{ fontSize: "1rem" }} />
+                    )}
+                </div>
+                {/* Placeholder for mobile-specific action if needed on the far right of top row */}
+                {/* isMobile && <div className="w-8 h-8"> Action </div> */}
             </div>
 
-            {/* Center/Right Section: Mode Toggle & Actions */}
-            <div className="flex items-center gap-x-2 md:gap-x-3">
+            {/* Bottom Row on Mobile / Right Section on Desktop */}
+            <div className="flex items-center justify-center sm:justify-end gap-x-2 md:gap-x-3 w-full sm:w-auto">
                 <SegmentedControl
-                    options={modeOptions} // Now a stable prop
+                    options={modeOptions}
                     value={currentModeValue}
                     onChange={handleSegmentedControlChange}
-                    size="small"
+                    size="small" // Keep small for compactness
+                    className="flex-grow sm:flex-grow-0" // Allow it to take more space on mobile if needed
                 />
 
-                <div className="w-px h-5 bg-neutral-300 dark:bg-neutral-600 mx-1"></div> {/* Subtle Separator */}
+                <div className="w-px h-5 bg-neutral-300 dark:bg-neutral-600 mx-0.5 sm:mx-1"></div> {/* Subtle Separator */}
 
                 <AnimatePresence mode="wait">
                     {isEditorModeActive ? (
@@ -77,7 +97,7 @@ const VenueDesignerHeader = ({
                             initial="hidden" animate="visible" exit="hidden"
                             onClick={onToggleZenMode}
                             title="Focus Mode"
-                            className="p-2 w-8 h-8 flex items-center justify-center rounded-full text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                            className="p-2 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70 transition-colors"
                         >
                             <Icon name="fullscreen" className="w-4 h-4 flex items-center justify-center" style={{ fontSize: "1rem" }} />
                         </motion.button>
@@ -88,10 +108,10 @@ const VenueDesignerHeader = ({
                             initial="hidden" animate="visible" exit="hidden"
                             onClick={onDownloadAllQRs}
                             title="Download All QR Codes"
-                            className="flex items-center px-3 py-2 rounded-full text-xs font-medium bg-rose-500 hover:bg-rose-600 text-white transition-colors"
+                            className={`flex items-center h-9 sm:h-8 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium bg-rose-500 hover:bg-rose-600 text-white transition-colors`}
                         >
-                            <Icon name="qr_code_scanner" className="w-4 h-4 flex items-center justify-center mr-2" style={{ fontSize: "1rem" }} />
-                            QRs
+                            <Icon name="qr_code_scanner" className={`w-4 h-4 flex items-center justify-center ${showTextOnQrButton ? 'mr-1.5' : ''}`} style={{ fontSize: "1rem" }} />
+                            {showTextOnQrButton && "QRs"}
                         </motion.button>
                     )}
                 </AnimatePresence>

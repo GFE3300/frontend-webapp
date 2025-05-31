@@ -1,11 +1,15 @@
+// frontend/src/features/menu_view/subcomponents/ProductOptionsPopup.jsx
+// (Path from your frontend.txt)
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx'; // Adjusted path
-import Icon from '../../../components/common/Icon.jsx'; // Adjusted path
-import { getEffectiveDisplayPrice, calculateItemPriceWithSelectedOptions } from '../utils/productUtils.js'; // Adjusted path
+import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx'; // REVIEW: Ensure this path is correct.
+import Icon from '../../../components/common/Icon.jsx'; // REVIEW: Ensure this path is correct.
+// REVIEW: Ensure this path is correct and utilities are functioning as expected.
+import { getEffectiveDisplayPrice, calculateItemPriceWithSelectedOptions } from '../utils/productUtils.js';
 
-const SINGLE_SELECT = 'single_select';
-const MULTI_SELECT = 'multi_select';
+const SINGLE_SELECT = 'single_select'; // Constant for group type
+const MULTI_SELECT = 'multi_select';   // Constant for group type
 
 /**
  * A modal popup for configuring product options before adding to an order.
@@ -17,17 +21,20 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
     const [validationErrors, setValidationErrors] = useState({});
 
     // Base price for the product, considering product-level discounts. Attribute options adjust from this.
+    // CRITICAL: Relies on `getEffectiveDisplayPrice` and `product` prop.
     const basePriceForOptions = useMemo(() => {
         if (!product) return 0;
         return getEffectiveDisplayPrice(product).displayPrice;
     }, [product]);
 
     // Initialize/reset state when popup opens or product changes
+    // CRITICAL: This effect sets up initial selections based on `is_default` and `is_required`.
     useEffect(() => {
         if (isOpen && product && product.editable_attribute_groups) {
             const initialSelections = {};
             product.editable_attribute_groups.forEach(group => {
                 if (group.options && group.options.length > 0) {
+                    // Sort options by display_order before determining defaults or first required.
                     const sortedOptions = [...group.options].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
 
                     if (group.type === SINGLE_SELECT) {
@@ -35,11 +42,13 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                         if (defaultOption) {
                             initialSelections[group.id] = defaultOption.id;
                         } else if (group.is_required && sortedOptions.length > 0) {
-                            initialSelections[group.id] = sortedOptions[0].id; // Auto-select first if required and no default
+                            // Auto-select first option if group is required and no explicit default is set.
+                            initialSelections[group.id] = sortedOptions[0].id;
                         } else {
-                            initialSelections[group.id] = null; // No pre-selection
+                            initialSelections[group.id] = null; // No pre-selection if not required and no default
                         }
                     } else if (group.type === MULTI_SELECT) {
+                        // Pre-select all default options for multi-select groups.
                         initialSelections[group.id] = sortedOptions
                             .filter(opt => opt.is_default)
                             .map(opt => opt.id);
@@ -47,18 +56,16 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                 }
             });
             setSelectedOptionsMap(initialSelections);
-            setQuantity(1); // Reset quantity
-            setValidationErrors({}); // Clear previous errors
-        } else if (!isOpen) {
-            // Optionally clear state when closing if desired, though product change also handles reset
-            // setSelectedOptionsMap({});
-            // setQuantity(1);
-            // setValidationErrors({});
+            setQuantity(1);
+            setValidationErrors({});
         }
-    }, [isOpen, product]);
+        // No explicit else to clear state when closing, as Userpage.jsx sets `currentItemForOptions` to null,
+        // which should trigger a re-render if ProductOptionsPopup is still mounted (it shouldn't be if isOpen is false).
+        // If `product` prop changes while `isOpen` is true (e.g. quick switch), this effect re-initializes.
+    }, [isOpen, product]); // Dependency array includes `product`
 
     const handleOptionChange = useCallback((groupId, optionId, groupType) => {
-        setSelectedOptionsMap(prev => {
+        setSelectedOptionsMap(prev => { /* ... (logic seems fine for single/multi select) ... */
             const newSelections = { ...prev };
             if (groupType === SINGLE_SELECT) {
                 newSelections[groupId] = optionId;
@@ -72,7 +79,7 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
             }
             return newSelections;
         });
-        // Clear validation error for this group on change
+        // Clear validation error for this group on change.
         if (validationErrors[groupId]) {
             setValidationErrors(prevErrors => {
                 const newErrors = { ...prevErrors };
@@ -80,31 +87,32 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                 return newErrors;
             });
         }
-    }, [validationErrors]);
+    }, [validationErrors]); // validationErrors is a dependency
 
     // Calculate current price and derive detailed selected options
+    // CRITICAL: This memo calculates the price based on selections.
     const { currentItemPriceWithOptionsMenu, totalPriceForQuantity, detailedSelectedOptions } = useMemo(() => {
         if (!product) {
             return { currentItemPriceWithOptionsMenu: 0, totalPriceForQuantity: 0, detailedSelectedOptions: [] };
         }
 
-        const resolvedOptions = [];
+        const resolvedOptions = []; // This will store the full option objects that are selected
         if (product.editable_attribute_groups) {
             product.editable_attribute_groups.forEach(group => {
-                const selectionForGroup = selectedOptionsMap[group.id];
-                if (group.options && group.options.length > 0) {
-                    if (group.type === SINGLE_SELECT && selectionForGroup) {
+                const selectionForGroup = selectedOptionsMap[group.id]; // Can be single ID or array of IDs
+                if (group.options && group.options.length > 0) { // Ensure group has options
+                    if (group.type === SINGLE_SELECT && selectionForGroup) { // selectionForGroup is a single ID
                         const optionDetail = group.options.find(opt => opt.id === selectionForGroup);
                         if (optionDetail) {
                             resolvedOptions.push({
-                                ...optionDetail, // Includes original id, name, display_order etc.
+                                ...optionDetail, // Includes original option id, name, display_order etc.
                                 price_adjustment: parseFloat(optionDetail.price_adjustment) || 0,
-                                groupId: group.id,
+                                groupId: group.id, // Add group info for context
                                 groupName: group.name,
                                 groupType: group.type,
                             });
                         }
-                    } else if (group.type === MULTI_SELECT && selectionForGroup && selectionForGroup.length > 0) {
+                    } else if (group.type === MULTI_SELECT && selectionForGroup && selectionForGroup.length > 0) { // selectionForGroup is an array of IDs
                         selectionForGroup.forEach(optId => {
                             const optionDetail = group.options.find(opt => opt.id === optId);
                             if (optionDetail) {
@@ -127,13 +135,14 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
 
         return {
             currentItemPriceWithOptionsMenu: itemPriceWithOptions,
-            totalPriceForQuantity: totalForQty < 0 ? 0 : parseFloat(totalForQty.toFixed(2)),
-            detailedSelectedOptions: resolvedOptions, // This now contains full option objects
+            totalPriceForQuantity: totalForQty < 0 ? 0 : parseFloat(totalForQty.toFixed(2)), // Ensure not negative
+            detailedSelectedOptions: resolvedOptions, // This array is passed in the payload
         };
     }, [product, selectedOptionsMap, quantity, basePriceForOptions]);
 
+    // CRITICAL: Validation logic for required groups.
     const validateSelections = useCallback(() => {
-        if (!product || !product.editable_attribute_groups) return true; // No groups to validate
+        if (!product || !product.editable_attribute_groups) return true;
         const errors = {};
         product.editable_attribute_groups.forEach(group => {
             if (group.is_required) {
@@ -151,8 +160,8 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
 
     const handleConfirm = () => {
         if (!validateSelections()) {
-            // Optionally, scroll to the first error
-            const firstErrorKey = Object.keys(validationErrors)[0];
+            // Optionally scroll to the first error if desired.
+            const firstErrorKey = Object.keys(validationErrors)[0]; // validationErrors is updated by validateSelections
             if (firstErrorKey) {
                 const errorElement = document.getElementById(`group-${firstErrorKey}`);
                 errorElement?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -160,35 +169,39 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
             return;
         }
 
+        // Prepare payload for onConfirmWithOptions
         const payloadSelectedOptions = detailedSelectedOptions.map(opt => ({
             groupId: opt.groupId,
             groupName: opt.groupName,
             groupType: opt.groupType,
-            optionId: opt.id, // Original option ID
+            optionId: opt.id, // The original option ID from the backend
             optionName: opt.name,
             priceAdjustment: opt.price_adjustment, // Already a number
         }));
 
         const configuredItemDetailsPayload = {
             quantity,
-            selectedOptions: payloadSelectedOptions,
+            selectedOptions: payloadSelectedOptions, // Pass the detailed array
             finalPricePerItem: currentItemPriceWithOptionsMenu,
             totalPriceForQuantity: totalPriceForQuantity,
         };
-        onConfirmWithOptions(product, configuredItemDetailsPayload);
-        // Parent component will handle closing the popup
+        onConfirmWithOptions(product, configuredItemDetailsPayload); // `product` here is the original product object
+        // Parent (`Userpage.jsx`) is responsible for closing the popup via `onClose` through `setIsOptionsPopupOpen(false)`.
     };
 
-    if (!product) return null; // Should not happen if isOpen is true with a product
+    if (!product) return null; // Should be handled by `isOpen` in parent.
 
-    const popupWidth = "w-[90vw] max-w-md"; // Consistent width
+    // REVIEW: Popup width classes.
+    const popupWidth = "w-[90vw] max-w-md";
 
     return (
         <AnimatePresence>
             {isOpen && (
                 <>
+                    {/* Overlay */}
                     <motion.div
                         className="fixed inset-0 z-40 bg-neutral-500/30 dark:bg-neutral-900/40 backdrop-blur-sm"
+                        // REVIEW: Overlay animation and styling.
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -196,9 +209,12 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                         onClick={onClose} // Allow closing by clicking overlay
                         aria-hidden="true"
                     />
+                    {/* Popup Content */}
                     <motion.div
+                        // REVIEW: Popup positioning, width, background, rounding, shadow, z-index, max-height for scrollability.
                         className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${popupWidth} bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl z-50 flex flex-col`}
-                        style={{ maxHeight: 'calc(100vh - 40px)' }} // Ensure popup is scrollable on small screens
+                        style={{ maxHeight: 'calc(100vh - 40px)' }}
+                        // REVIEW: Popup entry/exit animation.
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -208,8 +224,9 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                         aria-labelledby="product-options-title"
                     >
                         {/* Header */}
+                        {/* REVIEW: Header padding, border, text styling, close button. */}
                         <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-700 shrink-0">
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0"> {/* For truncation */}
                                 <h2 id="product-options-title" className="text-xl font-semibold text-neutral-800 dark:text-neutral-100 truncate pr-2" title={product.name}>
                                     {product.name}
                                 </h2>
@@ -220,16 +237,20 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                             </button>
                         </div>
 
-                        {/* Options Body */}
+                        {/* Options Body: Scrollable area */}
+                        {/* REVIEW: Body padding, spacing, scrollbar styling. */}
                         <div className="flex-1 p-5 space-y-5 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent">
+                            {/* CRITICAL: Rendering attribute groups. Depends on `product.editable_attribute_groups`. */}
                             {product.editable_attribute_groups && product.editable_attribute_groups
                                 .sort((a, b) => (a.display_order || 0) - (b.display_order || 0)) // Sort groups
                                 .map(group => (
-                                    <div key={group.id} id={`group-${group.id}`}>
+                                    <div key={group.id} id={`group-${group.id}`}> {/* ID for scrolling to error */}
+                                        {/* REVIEW: Group title styling. "(Required)" text. */}
                                         <h3 className="text-md font-semibold text-neutral-700 dark:text-neutral-200 mb-2 flex items-center">
                                             {group.name}
                                             {group.is_required && <span className="ml-1.5 text-xs text-red-500 dark:text-red-400">(Required)</span>}
                                         </h3>
+                                        {/* REVIEW: Layout for single-select (flex-wrap) vs multi-select (flex-col). */}
                                         <div className={`flex ${group.type === SINGLE_SELECT ? 'flex-wrap gap-2' : 'flex-col space-y-1.5'}`}>
                                             {group.options && group.options
                                                 .sort((a, b) => (a.display_order || 0) - (b.display_order || 0)) // Sort options
@@ -240,6 +261,7 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                                                         : (selectedOptionsMap[group.id] || []).includes(option.id);
 
                                                     return group.type === SINGLE_SELECT ? (
+                                                        // REVIEW: Single-select button styling (padding, rounding, border, active/inactive colors, focus).
                                                         <button
                                                             key={option.id}
                                                             onClick={() => handleOptionChange(group.id, option.id, group.type)}
@@ -251,13 +273,16 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                                                             aria-pressed={isSelected}
                                                         >
                                                             {option.name}
+                                                            {/* REVIEW: Price adjustment display styling. */}
                                                             {priceAdjustmentNum !== 0 &&
                                                                 <span className="ml-1 text-xs opacity-80">
                                                                     ({priceAdjustmentNum > 0 ? '+' : ''}${priceAdjustmentNum.toFixed(2)})
                                                                 </span>}
                                                         </button>
                                                     ) : ( // MULTI_SELECT
+                                                        // REVIEW: Multi-select checkbox label styling (padding, rounding, hover, border, active state).
                                                         <label key={option.id} className={`flex items-center p-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700/60 cursor-pointer transition-colors border border-neutral-200 dark:border-neutral-600 has-[:checked]:border-rose-400 dark:has-[:checked]:border-rose-500 ${isSelected ? 'bg-rose-50 dark:bg-rose-900/40 border-rose-300 dark:border-rose-600' : ''}`}>
+                                                            {/* REVIEW: Checkbox input styling. */}
                                                             <input
                                                                 type="checkbox"
                                                                 checked={isSelected}
@@ -274,6 +299,7 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                                                     );
                                                 })}
                                         </div>
+                                        {/* REVIEW: Validation error message styling. */}
                                         {validationErrors[group.id] && <p className="text-xs text-red-500 dark:text-red-400 mt-1.5" role="alert">{validationErrors[group.id]}</p>}
                                     </div>
                                 ))}
@@ -281,13 +307,14 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                             {/* Quantity Stepper */}
                             <div>
                                 <h3 className="text-md font-semibold text-neutral-700 dark:text-neutral-200 mb-2">Quantity</h3>
+                                {/* REVIEW: NumberStepperfix styling and props. Max quantity can come from product. */}
                                 <NumberStepperfix
                                     min={1}
                                     max={product?.max_quantity_per_order || 20} // Use product-specific max if available
                                     value={quantity}
                                     onChange={setQuantity}
-                                    label="Quantity" // Accessible label
-                                    hideLabel={true} // Visually hidden, but available for SRs
+                                    label="Quantity"
+                                    hideLabel={true} // Visually hidden for SRs
                                     inputClassName="text-center dark:bg-neutral-700 dark:text-neutral-100 h-10 w-12"
                                     buttonClassName="bg-neutral-200 dark:bg-neutral-600 hover:bg-neutral-300 dark:hover:bg-neutral-500 text-neutral-700 dark:text-neutral-200 w-10 h-10 rounded-md"
                                     containerClassName="flex justify-center items-center space-x-2"
@@ -296,13 +323,16 @@ export default function ProductOptionsPopup({ isOpen, onClose, product, onConfir
                         </div>
 
                         {/* Footer */}
+                        {/* REVIEW: Footer padding, border, background. */}
                         <div className="p-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/60 shrink-0">
                             <div className="flex justify-between items-center mb-3">
+                                {/* REVIEW: Total price display styling. */}
                                 <span className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Total:</span>
                                 <span className="text-xl font-bold text-rose-600 dark:text-rose-400">
                                     ${totalPriceForQuantity.toFixed(2)}
                                 </span>
                             </div>
+                            {/* REVIEW: Confirm button styling (colors, font, padding, focus, disabled state). */}
                             <motion.button
                                 onClick={handleConfirm}
                                 className="w-full bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-500 text-white font-semibold py-3 rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-rose-400 dark:focus:ring-rose-500 focus:ring-opacity-75 disabled:opacity-60 disabled:cursor-not-allowed"

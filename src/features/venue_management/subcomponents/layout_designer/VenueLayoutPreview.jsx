@@ -5,6 +5,7 @@ import { ITEM_CONFIGS, ItemTypes } from '../../constants/itemConfigs';
 import { CELL_SIZE_REM as MAJOR_CELL_SIZE_REM, DEFAULT_GRID_SUBDIVISION } from '../../constants/layoutConstants';
 import { getRendererComponent } from '../../utils/layoutItemRendererUtils';
 import { useDeviceDetection } from '../../../../hooks/useDeviceDetection';
+import { Weight } from 'lucide-react';
 
 const DEBUG_MODE = import.meta.env.NODE_ENV === 'development';
 const logDebug = (...args) => { if (DEBUG_MODE) { /* console.log("[VenueLayoutPreview DEBUG]", ...args); */ } };
@@ -217,10 +218,10 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                                     <button
                                         onClick={() => downloadSingleQr(table)}
                                         disabled={!qrStatus.url || qrStatus.loading || qrStatus.status === 'skipped' || qrStatus.status === 'error'}
-                                        className="p-1 rounded-md text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                        className="p-1 w-6 h-6 rounded-md text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                         title="Download QR Code"
                                     >
-                                        <Icon name="download" className="w-3.5 h-3.5" />
+                                        <Icon name="download" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 0, weight: 600, opz:  }}/>
                                     </button>
                                 </div>
                                 <div className="aspect-square w-full max-w-[120px] mx-auto bg-neutral-100 dark:bg-neutral-600/40 rounded-md flex items-center justify-center overflow-hidden my-1">
@@ -250,7 +251,7 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                             className="w-full flex items-center justify-center px-3 py-2 bg-rose-500 text-white text-xs font-medium rounded-md shadow hover:bg-rose-600 transition-colors
                                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800"
                         >
-                            <Icon name="file_download" className="w-4 h-4 mr-1.5" />
+                            <Icon name="file_download" className="w-4 h-4 mr-1.5" style={{ fontSize: '1rem' }} />
                             Download All QRs
                         </button>
                     </div>

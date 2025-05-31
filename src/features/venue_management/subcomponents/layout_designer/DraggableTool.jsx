@@ -108,6 +108,7 @@ const DraggableTool = ({
                     pointer-events-none 
                 `}
                 aria-hidden="true"
+                style={{ fontSize: isZenMode ? '1.25rem' : '1.5rem' }}
             />
 
             {!isZenMode && (

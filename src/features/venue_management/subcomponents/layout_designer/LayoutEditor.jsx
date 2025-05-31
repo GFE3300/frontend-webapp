@@ -21,8 +21,6 @@ import { ItemTypes, toolDefinitions, ITEM_CONFIGS } from '../../constants/itemCo
 // Common Components
 import ConfirmationModal from '../../../../components/common/ConfirmationModal';
 
-const EDITOR_MAIN_AREA_BG_LIGHT = 'bg-neutral-100';
-const EDITOR_MAIN_AREA_BG_DARK = 'dark:bg-neutral-900';
 const DEBUG_LAYOUT_EDITOR = "[LayoutEditor DEBUG]";
 
 const createComparableSnapshotPart = (items) => {
@@ -299,7 +297,7 @@ const LayoutEditor = ({
     // console.log(DEBUG_LAYOUT_EDITOR, "Rendering. Selected:", selectedItemId, "MoveCand:", moveCandidateItemId, "ActiveTool:", activeToolForPlacement?.name);
 
     return (
-        <div className="flex flex-col h-full w-full" role="application">
+        <div className="relative flex flex-col h-full w-full overflow-visible" role="application">
             <EditorToolbar
                 // ... (existing props) ...
                 onToolbarToolSelect={handleToolbarToolSelect} // << NEW PROP
@@ -322,7 +320,7 @@ const LayoutEditor = ({
             />
 
             <div
-                className={`flex-1 flex overflow-hidden relative ${EDITOR_MAIN_AREA_BG_LIGHT} ${EDITOR_MAIN_AREA_BG_DARK} transition-colors duration-300 ease-in-out`}
+                className={`flex-1 flex overflow-hidden relative transition-colors duration-300 ease-in-out`}
             >
                 <motion.main
                     layout
