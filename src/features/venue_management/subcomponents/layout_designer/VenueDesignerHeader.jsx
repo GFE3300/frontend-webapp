@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 // eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../../components/common/Icon';
@@ -20,6 +20,12 @@ const VenueDesignerHeader = ({
     ];
     const currentModeValue = isEditorModeActive ? "edit" : "preview";
 
+    const handleSegmentedControlChange = useCallback((newMode) => {
+        if ((newMode === "edit" && !isEditorModeActive) || (newMode === "preview" && isEditorModeActive)) {
+            onToggleMode();
+        }
+    }, [isEditorModeActive, onToggleMode]);
+
     // Animation variants for conditional action buttons
     const actionButtonVariants = {
         hidden: { opacity: 0, x: -10, transition: { duration: 0.2 } },
@@ -38,7 +44,7 @@ const VenueDesignerHeader = ({
         >
             {/* Left Section: Title & Status */}
             <div className="flex items-center min-w-0"> {/* min-w-0 for better flex truncation */}
-                <Icon name="space_dashboard" aria-hidden="true" className="w-5 h-5 text-rose-500 dark:text-rose-400 mr-2 flex-shrink-0" style={{ fontSize: "1.25rem" }}/>
+                <Icon name="space_dashboard" aria-hidden="true" className="w-5 h-5 text-rose-500 dark:text-rose-400 mr-2 flex-shrink-0" style={{ fontSize: "1.25rem" }} />
                 <h2 className="font-montserrat font-semibold text-md text-neutral-700 dark:text-neutral-200 tracking-tight truncate">
                     {layoutName}
                 </h2>
@@ -55,11 +61,7 @@ const VenueDesignerHeader = ({
                 <SegmentedControl
                     options={modeOptions}
                     value={currentModeValue}
-                    onChange={(newMode) => {
-                        if ((newMode === "edit" && !isEditorModeActive) || (newMode === "preview" && isEditorModeActive)) {
-                            onToggleMode();
-                        }
-                    }}
+                    onChange={handleSegmentedControlChange}
                     size="small" // Using the smaller size variant
                 />
 

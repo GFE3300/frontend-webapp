@@ -1,10 +1,7 @@
-// src/features/venue_management/hooks/useQrCodeManager.js
 import { useState, useCallback, useEffect } from 'react';
 import { generateQrCode as fetchQrApi } from '../services/qrCodeService'; // This now takes only 'table'
 import { downloadBlob } from '../utils/commonUtils'; // constructQrDataValue is no longer used here
 
-// Check if IS_BACKEND_QR_ENABLED is accessible here, or assume based on error message.
-// For simplicity, we'll check the error message.
 const BACKEND_DISABLED_MESSAGE_PART = "QR code generation endpoint not implemented"; // Updated based on apiService simulation
 const GENERAL_FAILURE_MESSAGE_PART = "Failed to fetch QR"; // General failure part
 
@@ -201,19 +198,19 @@ const useQrCodeManager = (openAlertModal) => {
 
 
     return {
-        qrImageUrls,
-        qrLoadingStates,
-        qrFetchAttempts,
-        fetchQrCodeForTable,
-        downloadSingleQr,
-        downloadAllQrs,
-        clearQrDataForTable,
-        clearAllQrData,
-        getQrStatus: (tableId) => ({
+        qrImageUrls, // State
+        qrLoadingStates, // State
+        qrFetchAttempts, // State
+        fetchQrCodeForTable, // useCallback'ed
+        downloadSingleQr, // useCallback'ed
+        downloadAllQrs, // useCallback'ed
+        clearQrDataForTable, // useCallback'ed
+        clearAllQrData, // useCallback'ed
+        getQrStatus: useCallback((tableId) => ({
             url: qrImageUrls[tableId]?.startsWith('blob:') ? qrImageUrls[tableId] : null,
             loading: !!qrLoadingStates[tableId],
             status: qrImageUrls[tableId]
-        }),
+        }), [qrImageUrls, qrLoadingStates]), // Memoize getQrStatus
     };
 };
 

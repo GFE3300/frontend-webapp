@@ -1,4 +1,3 @@
-// src/features/venue_management/subcomponents/layout_designer/VenueLayoutPreview.jsx
 import React, { useMemo, useEffect, useCallback, useRef, useState } from 'react';
 import Icon from '../../../../components/common/Icon'; // Adjusted path
 import useQrCodeManager from '../../hooks/useQrCodeManager';

@@ -46,15 +46,18 @@ const VenueDesignerPage = () => {
     const [alertModalOpen, setAlertModalOpen] = useState(false);
     const [alertModalContent, setAlertModalContent] = useState({ title: '', message: '', type: 'info' });
 
-    const [unsavedEditorStateForPreview, setUnsavedEditorStateForPreview] = useState(null); // For "Preview Unsaved"
-
     const openAlert = useCallback((title, message, type = 'info') => {
-        if (alertModalOpen && alertModalContent.title === title && alertModalContent.message === message && type === 'error') return;
+        // This check was causing openAlert to be unstable if alertModalOpen/alertModalContent were in deps.
+        // If this check is critical, it should be done more carefully, e.g., functional update or by Modal component.
+        // For now, a simpler stable version:
+        // if (alertModalOpen && alertModalContent.title === title && alertModalContent.message === message && type === 'error') return;
         setAlertModalContent({ title, message, type });
         setAlertModalOpen(true);
-    }, [alertModalOpen, alertModalContent]);
+    }, [setAlertModalContent, setAlertModalOpen]); // Only stable setters as dependencies
 
     const closeAlert = useCallback(() => setAlertModalOpen(false), []);
+
+    const [unsavedEditorStateForPreview, setUnsavedEditorStateForPreview] = useState(null); // For "Preview Unsaved"
 
     const {
         layoutData: backendLayoutData,

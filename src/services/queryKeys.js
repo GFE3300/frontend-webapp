@@ -15,4 +15,6 @@ export const queryKeys = {
     productDetails: (productId) => [PRODUCTS_BASE_KEY, 'details', productId],
     productLastTemplate: [PRODUCTS_BASE_KEY, 'last-template'],
     productSearchSuggestions: [PRODUCTS_BASE_KEY, 'search-suggestions'],
+    adminMenuPreviewProducts: (businessId) => ['adminMenuPreviewProducts', businessId],
+    activeVenueLayout: (businessId) => ['activeVenueLayout', businessId], // Added for consistency
 };

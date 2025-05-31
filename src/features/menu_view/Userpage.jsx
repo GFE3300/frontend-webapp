@@ -2,15 +2,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import MenuPage from './SubComponents/MenuPage';
-import OrderPage from './SubComponents/OrderPage';
-import BottomNav from './SubComponents/BottomNav';
-import { initialMenuData } from './SubComponents/DummyData';
-import FlyingItemAnimator from './SubComponents/FlyingItemAnimator';
+import MenuPage from './subcomponents/MenuDisplayLayout';
+import OrderPage from './subcomponents/OrderSummaryPanel';
+import BottomNav from './subcomponents/BottomNav';
+import { initialMenuData } from './subcomponents/DummyData';
+import FlyingItemAnimator from './subcomponents/FlyingItemAnimator';
 import Modal from '../../components/animated_alerts/Modal';
-import ProductOptionsPopup from './SubComponents/ProductOptionsPopup';
+import ProductOptionsPopup from './subcomponents/ProductOptionsPopup';
 import Icon from '../../components/common/Icon';
-import SetupStage from './SubComponents/SetupStage';
+import SetupStage from './subcomponents/SetupStage';
 // --- Logo Imports ---
 
 import LogoLight from '../../assets/icons/Logo.png'  // Assuming this is the light mode logo

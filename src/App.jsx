@@ -10,6 +10,7 @@ import CompleteProfilePage from './pages/CompleteProfilePage.jsx';
 import RegistrationPage from './features/register/RegistrationPage.jsx';
 import BusinessLoginPage from './pages/BusinessLoginPage.jsx';
 import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
+import AdminMenuPreviewPage from './pages/AdminMenuPreviewPage.jsx';
 
 // Updated: Main entry point for Venue Layout Management Feature
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
@@ -17,8 +18,6 @@ import VenueDesignerPage from './features/venue_management/subcomponents/layout_
 // Components
 // import CartDrawer from './components/store/CartDrawer.jsx'; // Original import, kept for consistency if used elsewhere
 import PrivateRoute from './components/common/PrivateRoute.jsx';
-import CategoryList from './components/CategoryCard/CategoryList.jsx';
-import UserpageWrapper from './features/Userpage/Userpage.jsx';
 
 // Contexts
 import { CartProvider } from './contexts/CartContext';
@@ -101,17 +100,6 @@ const router = createBrowserRouter([
 		errorElement: <NotFoundPage />,
 	},
 	{
-		path: "/user",
-		element: (
-			<AuthProvider>
-				<CartProvider>
-					<UserpageWrapper />
-				</CartProvider>
-			</AuthProvider>
-		),
-		errorElement: <NotFoundPage />, // Or a specific user page error boundary
-	},
-	{
 		path: "/dashboard/business",
 		element: (
 			<PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
@@ -123,9 +111,16 @@ const router = createBrowserRouter([
 	{
 		path: "/dashboard/unauthorized",
 		element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>,
-	}
-	// Consider adding a route for HomePage if it's still intended to be accessible
-	// e.g., { path: "/home", element: <HomePage /> }
+	},
+	{
+		path: "/dashboard/business/menu-preview",
+		element: (
+			<PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
+				<AdminMenuPreviewPage />
+			</PrivateRoute>
+		),
+		errorElement: <NotFoundPage />,
+	},
 ]);
 
 function App() {

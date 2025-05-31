@@ -56,7 +56,9 @@ const useLayoutData = (openAlertModal) => {
         };
 
         fetchLayout();
-    }, [openAlertModal]); // Runs once on mount
+        // If openAlertModal is stable (only depends on setters), this will run once.
+        // If openAlertModal depends on state values, this could re-run.
+    }, [openAlertModal]);
 
     const saveDesignedLayout = useCallback(async (designedLayoutDataFromEditor) => {
 

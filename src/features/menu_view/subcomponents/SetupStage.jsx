@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'; // Add
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon.jsx';
 import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
-import { InputField } from '../../../features/register/subcomponents'; // Adjusted import path
+import { InputField } from '../../register/subcomponents/index.js'; // Adjusted import path
 import BubbleAnimation from '../../../components/animations/bubble/BubbleAnimation.jsx';
 import { cn } from '../../../components/animations/bubble/utils.js';
 

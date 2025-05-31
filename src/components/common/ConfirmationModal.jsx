@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from './Icon'; // Assuming Icon component is in this folder
+import Spinner from './Spinner';
 
 const ConfirmationModal = ({
     isOpen,

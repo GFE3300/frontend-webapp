@@ -251,6 +251,26 @@ const apiService = {
             throw customError;
         }
     },
+
+    /**
+     * Fetches products for the admin menu preview.
+     * The backend should scope this to the authenticated user's active business.
+     * Requests only active products.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response containing product data.
+     */
+    getAdminMenuPreviewProducts: async () => {
+        try {
+            // console.log("[API SERVICE] Fetching admin menu preview products (active=true by default).");
+            // Backend should scope by user's active business via token.
+            // The endpoint /products/ should support an `is_active` filter.
+            const response = await apiInstance.get('products/', { params: { is_active: 'true' } });
+            // console.log("[API SERVICE] Admin menu preview products fetched successfully. Status:", response.status, "Data:", response.data);
+            return response; // Return full Axios response for useQuery
+        } catch (error) {
+            console.error("[API SERVICE] Error fetching admin menu preview products:", error.response?.data || error.message || error);
+            throw error; // TanStack Query will handle this error
+        }
+    },
 };
 
 export default apiService;
