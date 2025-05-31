@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 // eslint-disable-next-line
 import { motion } from 'framer-motion';
 import Icon from './Icon';
@@ -6,10 +6,16 @@ import Icon from './Icon';
 const SegmentedControl = ({ options, value, onChange, size = "normal" }) => {
     const [pillStyle, setPillStyle] = useState({});
     const containerRef = useRef(null);
+    
+    const refs = useMemo(() =>
+        Array(options.length).fill(null).map(() => React.createRef()),
+        [options.length] // Only recreate if the number of options changes
+    );
 
-    // Find the ref of the currently active button
-    const refs = options.map(() => useRef(null));
-    const activeIndex = options.findIndex(opt => opt.value === value);
+    const activeIndex = useMemo(() =>
+        options.findIndex(opt => opt.value === value),
+        [options, value]
+    );
 
     useEffect(() => {
         if (activeIndex !== -1 && refs[activeIndex]?.current && containerRef.current) {
@@ -17,16 +23,27 @@ const SegmentedControl = ({ options, value, onChange, size = "normal" }) => {
             const containerRect = containerRef.current.getBoundingClientRect();
             const activeRect = activeRef.getBoundingClientRect();
 
-            setPillStyle({
+            // Check if the new style is actually different to prevent unnecessary setState calls
+            const newStyle = {
                 left: activeRect.left - containerRect.left,
                 width: activeRect.width,
                 height: activeRect.height,
+            };
+
+            setPillStyle(currentPillStyle => {
+                if (currentPillStyle.left !== newStyle.left ||
+                    currentPillStyle.width !== newStyle.width ||
+                    currentPillStyle.height !== newStyle.height) {
+                    return newStyle;
+                }
+                return currentPillStyle; // No change
             });
         }
-    }, [value, options, activeIndex, refs]); // Rerun when value or options change
+        
+    }, [value, options, activeIndex, refs]);
 
     const paddingClasses = size === "small" ? "px-2.5 py-1" : "px-3 py-1.5";
-    const textSizeClasses = size === "small" ? "text-xs" : "text-xs"; // Can adjust if needed
+    const textSizeClasses = size === "small" ? "text-xs" : "text-xs";
     const iconSizeClasses = size === "small" ? "w-3.5 h-3.5" : "w-4 h-4";
     const iconFontSize = size === "small" ? "0.875rem" : "0.875rem";
     const iconMargin = size === "small" ? "mr-1" : "mr-1.5";
@@ -50,7 +67,7 @@ const SegmentedControl = ({ options, value, onChange, size = "normal" }) => {
             {options.map((opt, index) => (
                 <button
                     key={opt.value}
-                    ref={refs[index]}
+                    ref={refs[index]} // Assign the created ref
                     onClick={() => onChange(opt.value)}
                     className={`relative z-10 ${paddingClasses} ${textSizeClasses} font-medium rounded-md transition-colors duration-200 flex items-center
                         ${value === opt.value
@@ -59,11 +76,11 @@ const SegmentedControl = ({ options, value, onChange, size = "normal" }) => {
                         }
                     `}
                 >
-                    {opt.icon && 
-                        <Icon 
-                        name={opt.icon} 
-                        className={`${iconSizeClasses} ${iconMargin} flex items-center justify-center`} 
-                        style={{ fontSize: iconFontSize }}
+                    {opt.icon &&
+                        <Icon
+                            name={opt.icon}
+                            className={`${iconSizeClasses} ${iconMargin} flex items-center justify-center`}
+                            style={{ fontSize: iconFontSize }}
                         />}
                     {opt.label}
                 </button>

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 // eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../../components/common/Icon';
@@ -12,12 +12,14 @@ const VenueDesignerHeader = ({
     onToggleMode,
     onDownloadAllQRs,
     onToggleZenMode,
-    layoutName = "Venue Layout"
+    layoutName = "Venue Layout",
 }) => {
-    const modeOptions = [
+    // Memoize modeOptions to prevent re-creation on every render
+    const modeOptions = useMemo(() => [
         { label: "Design", value: "edit", icon: "design_services" },
         { label: "Preview", value: "preview", icon: "visibility" }
-    ];
+    ], []); // Empty dependency array means it's created once
+
     const currentModeValue = isEditorModeActive ? "edit" : "preview";
 
     const handleSegmentedControlChange = useCallback((newMode) => {
@@ -59,15 +61,15 @@ const VenueDesignerHeader = ({
             {/* Center/Right Section: Mode Toggle & Actions */}
             <div className="flex items-center gap-x-2 md:gap-x-3">
                 <SegmentedControl
-                    options={modeOptions}
+                    options={modeOptions} // Now a stable prop
                     value={currentModeValue}
                     onChange={handleSegmentedControlChange}
-                    size="small" // Using the smaller size variant
+                    size="small"
                 />
 
                 <div className="w-px h-5 bg-neutral-300 dark:bg-neutral-600 mx-1"></div> {/* Subtle Separator */}
 
-                <AnimatePresence mode="wait"> {/* mode="wait" ensures one exits before other enters */}
+                <AnimatePresence mode="wait">
                     {isEditorModeActive ? (
                         <motion.button
                             key="zen-mode-btn"

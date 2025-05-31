@@ -1,16 +1,22 @@
-import { useState, useCallback, useEffect } from 'react';
-import { generateQrCode as fetchQrApi } from '../services/qrCodeService'; // This now takes only 'table'
-import { downloadBlob } from '../utils/commonUtils'; // constructQrDataValue is no longer used here
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { generateQrCode as fetchQrApi } from '../services/qrCodeService';
+import { downloadBlob } from '../utils/commonUtils';
 
-const BACKEND_DISABLED_MESSAGE_PART = "QR code generation endpoint not implemented"; // Updated based on apiService simulation
-const GENERAL_FAILURE_MESSAGE_PART = "Failed to fetch QR"; // General failure part
+const BACKEND_DISABLED_MESSAGE_PART = "QR code generation endpoint not implemented";
+const GENERAL_FAILURE_MESSAGE_PART = "Failed to fetch QR";
 
 const useQrCodeManager = (openAlertModal) => {
-    const [qrImageUrls, setQrImageUrls] = useState({}); // { [tableId]: 'blob:url' | 'error' | 'skipped' | 'loading' }
+    const [qrImageUrls, setQrImageUrls] = useState({});
     const [qrLoadingStates, setQrLoadingStates] = useState({});
     const [qrFetchAttempts, setQrFetchAttempts] = useState({});
+    const openAlertModalRef = useRef(openAlertModal); // Ref for stable openAlertModal
 
-    const MAX_SILENT_RETRIES = 1; // This can be 0 if we want to alert on first failure.
+    useEffect(() => {
+        openAlertModalRef.current = openAlertModal;
+    }, [openAlertModal]);
+
+
+    const MAX_SILENT_RETRIES = 1;
 
     const setQrStatus = useCallback((tableId, status, url = null) => {
         setQrImageUrls(prev => ({ ...prev, [tableId]: status === 'url' ? url : status }));
@@ -23,146 +29,158 @@ const useQrCodeManager = (openAlertModal) => {
             return null;
         }
 
-        const currentAttempt = (qrFetchAttempts[table.id] || 0) + 1;
-        if (!isRetry) { // Only update attempt count for non-programmatic retries (initial fetch)
-            setQrFetchAttempts(prev => ({ ...prev, [table.id]: currentAttempt }));
+        let attemptCountForThisCall = 0;
+
+        if (!isRetry) {
+            setQrFetchAttempts(prevAttempts => {
+                const newCount = (prevAttempts[table.id] || 0) + 1;
+                attemptCountForThisCall = newCount; // Capture for use in this specific call
+                return { ...prevAttempts, [table.id]: newCount };
+            });
+        } else {
+            // For retries, we might not want to increment the "official" attempt count in state,
+            // or we rely on the caller to manage retry logic more explicitly.
+            // For simplicity, we'll assume `isRetry` means we don't modify `qrFetchAttempts` state here.
+            // If `attemptCountForThisCall` is needed for logging/alerting on retries, it should be passed or handled.
         }
+
         setQrStatus(table.id, 'loading');
 
-        // Data string construction is now handled by backend.
-        // const dataStr = constructQrDataValue(table); // REMOVED
-
         try {
-            // fetchQrApi (generateQrCode from qrCodeService) now only takes 'table'
             const imageBlob = await fetchQrApi(table);
             const imageUrl = URL.createObjectURL(imageBlob);
             setQrStatus(table.id, 'url', imageUrl);
-            if (!isRetry) setQrFetchAttempts(prev => ({ ...prev, [table.id]: 0 })); // Reset attempts on success
+            if (!isRetry) {
+                setQrFetchAttempts(prev => ({ ...prev, [table.id]: 0 })); // Reset attempts on success
+            }
             return imageBlob;
         } catch (error) {
             const errorMessage = error.message || 'Failed to fetch QR code. Check service.';
-            console.error(`Error fetching QR for Table ${table.number ?? table.id} (Attempt ${currentAttempt}):`, errorMessage, error);
+            // Use the captured attemptCountForThisCall for logging/alerting if it was set
+            const logAttemptCount = isRetry ? 'retry' : attemptCountForThisCall;
+            console.error(`Error fetching QR for Table ${table.number ?? table.id} (Attempt ${logAttemptCount}):`, errorMessage, error);
 
-            // Check for specific "endpoint not implemented" message which implies backend is effectively "disabled" for this feature
+            const stableOpenAlertModal = openAlertModalRef.current;
+
             if (errorMessage.includes(BACKEND_DISABLED_MESSAGE_PART)) {
                 setQrStatus(table.id, 'skipped');
-                if (openAlertModal && currentAttempt <= 1 && !isRetry) { // Show only once per table on initial try
-                    openAlertModal("QR Service Info", `QR code generation for Table ${table.number ?? table.id} is currently unavailable (endpoint not ready).`, "info");
+                if (stableOpenAlertModal && !isRetry && attemptCountForThisCall <= 1) {
+                    stableOpenAlertModal("QR Service Info", `QR code generation for Table ${table.number ?? table.id} is currently unavailable (endpoint not ready).`, "info");
                 }
             } else {
                 setQrStatus(table.id, 'error');
-                if (openAlertModal && (!isRetry || currentAttempt > MAX_SILENT_RETRIES)) { // Alert if it's not a silent retry or if max retries exceeded
+                // Alert if it's not a silent retry OR if max retries (based on attemptCountForThisCall if available) would be exceeded.
+                // This retry alert logic might need refinement based on how `isRetry` and explicit attempt counts are managed.
+                const shouldAlert = !isRetry || (isRetry && (attemptCountForThisCall > MAX_SILENT_RETRIES || MAX_SILENT_RETRIES === 0));
+                if (stableOpenAlertModal && shouldAlert) {
                     const errorTitle = error.status ? `QR Error (HTTP ${error.status})` : "Network Error";
-                    openAlertModal(errorTitle, `Could not fetch QR for Table ${table.number ?? table.id}: ${errorMessage.replace(GENERAL_FAILURE_MESSAGE_PART, '').trim()}`, "error");
+                    stableOpenAlertModal(errorTitle, `Could not fetch QR for Table ${table.number ?? table.id}: ${errorMessage.replace(GENERAL_FAILURE_MESSAGE_PART, '').trim()}`, "error");
                 }
             }
             return null;
         }
-    }, [qrFetchAttempts, openAlertModal, setQrStatus]); // Removed qrColor, bgColor
+        // Make fetchQrCodeForTable stable by removing qrFetchAttempts from dependencies.
+        // It now uses functional updates for setQrFetchAttempts.
+        // openAlertModal is accessed via ref to ensure stability if its reference changes.
+    }, [setQrStatus]); // Removed openAlertModal, qrFetchAttempts. Added openAlertModalRef.current usage.
 
-    const downloadSingleQr = useCallback(async (table) => { // qrColor, bgColor removed
+    const getQrStatus = useCallback((tableId) => ({
+        url: qrImageUrls[tableId]?.startsWith('blob:') ? qrImageUrls[tableId] : null,
+        loading: !!qrLoadingStates[tableId],
+        status: qrImageUrls[tableId]
+    }), [qrImageUrls, qrLoadingStates]);
+
+    const downloadSingleQr = useCallback(async (table) => {
+        // ... (previous implementation was likely okay, just ensure it uses the stable fetchQrCodeForTable and openAlertModalRef.current)
         if (!table || !table.id) {
-            if (openAlertModal) openAlertModal("Download Error", "Invalid table data for QR download.", "error");
+            if (openAlertModalRef.current) openAlertModalRef.current("Download Error", "Invalid table data for QR download.", "error");
             return;
         }
-
-        const currentStatus = qrImageUrls[table.id];
+        const currentStatus = qrImageUrls[table.id]; // Read directly from state
         if (currentStatus === 'skipped') {
-            if (openAlertModal) openAlertModal("QR Not Available", `QR code for Table ${table.number ?? table.id} cannot be downloaded as the generation service is unavailable.`, "info");
+            if (openAlertModalRef.current) openAlertModalRef.current("QR Not Available", `QR code for Table ${table.number ?? table.id} cannot be downloaded as the generation service is unavailable.`, "info");
             return;
         }
         if (currentStatus === 'error') {
-            if (openAlertModal) openAlertModal("QR Not Available", `QR code for Table ${table.number ?? table.id} could not be generated previously. Try refreshing or check logs.`, "warning");
-            // Optionally, one could attempt a retry here:
-            // const refreshedBlob = await fetchQrCodeForTable(table, true);
-            // if (!refreshedBlob) return; // If retry fails, exit.
+            if (openAlertModalRef.current) openAlertModalRef.current("QR Not Available", `QR code for Table ${table.number ?? table.id} could not be generated previously. Try refreshing or check logs.`, "warning");
             return;
         }
-
-
         let imageBlob;
-        if (currentStatus && currentStatus.startsWith('blob:') && !qrLoadingStates[table.id]) {
+        if (currentStatus && currentStatus.startsWith('blob:') && !qrLoadingStates[table.id]) { // Read directly
             try {
-                const response = await fetch(currentStatus); // Fetch the existing blob URL
+                const response = await fetch(currentStatus);
                 if (!response.ok) throw new Error(`Failed to refetch blob: ${response.statusText}`);
                 imageBlob = await response.blob();
             } catch (e) {
                 console.warn("Could not refetch existing blob, fetching new QR for download.", e);
-                imageBlob = await fetchQrCodeForTable(table, true); // Pass true for isRetry
+                imageBlob = await fetchQrCodeForTable(table, true);
             }
         } else {
-            imageBlob = await fetchQrCodeForTable(table, true); // Pass true for isRetry
+            imageBlob = await fetchQrCodeForTable(table, true);
         }
-
         if (imageBlob) {
             downloadBlob(imageBlob, `table-${table.number ?? table.id}-qr.png`);
-        } else if (qrImageUrls[table.id] !== 'skipped') { // Don't show error if skipped by backend config
-            if (openAlertModal) openAlertModal("Download Error", `Could not download QR for Table ${table.number ?? table.id}. Ensure it can be generated.`, "error");
+        } else if (qrImageUrls[table.id] !== 'skipped') { // Read directly
+            if (openAlertModalRef.current) openAlertModalRef.current("Download Error", `Could not download QR for Table ${table.number ?? table.id}. Ensure it can be generated.`, "error");
         }
-    }, [fetchQrCodeForTable, openAlertModal, qrImageUrls, qrLoadingStates]);
+    }, [fetchQrCodeForTable, qrImageUrls, qrLoadingStates, getQrStatus]); // getQrStatus itself might not be needed here if directly accessing qrImageUrls/qrLoadingStates
 
-    const downloadAllQrs = useCallback(async (tables) => { // qrColor, bgColor removed
+    const downloadAllQrs = useCallback(async (tables) => {
+        // ... (previous implementation was likely okay, ensure it uses stable fetchQrCodeForTable and openAlertModalRef.current)
         const validTables = tables.filter(t => t && t.id && typeof t.number === 'number' && !t.isProvisional);
         if (validTables.length === 0) {
-            if (openAlertModal) openAlertModal("No QR Codes", "There are no valid, numbered tables to download QR codes for.", "info");
+            if (openAlertModalRef.current) openAlertModalRef.current("No QR Codes", "There are no valid, numbered tables to download QR codes for.", "info");
             return;
         }
-
+        // ... (rest of the logic, using openAlertModalRef.current and the now stable fetchQrCodeForTable)
         const SkippedTablesExist = validTables.some(table => qrImageUrls[table.id] === 'skipped');
         const ErrorTablesExist = validTables.some(table => qrImageUrls[table.id] === 'error');
 
-        if (openAlertModal) {
+        if (openAlertModalRef.current) {
             let message = `Preparing to download available QR code(s) for ${validTables.length} table(s). This may take a moment.`;
             if (SkippedTablesExist && ErrorTablesExist) message += " Some QRs are unavailable or errored.";
             else if (SkippedTablesExist) message += " Some QRs are unavailable (service disabled).";
             else if (ErrorTablesExist) message += " Some QRs previously failed to generate.";
-            openAlertModal("Download Starting", message, "info");
+            openAlertModalRef.current("Download Starting", message, "info");
         }
-
-
         const sortedTables = [...validTables].sort((a, b) => (a.number || 0) - (b.number || 0));
         let downloadedCount = 0;
         let failedCount = 0;
         let skippedDuringDownload = 0;
-
         for (const table of sortedTables) {
             if (qrImageUrls[table.id] === 'skipped') {
                 console.log(`Skipping download for Table ${table.number ?? table.id} as QR service is unavailable for it.`);
                 skippedDuringDownload++;
                 continue;
             }
-            // If previously errored, we might attempt a re-fetch here or just skip
-            // For now, we re-fetch.
-            await new Promise(resolve => setTimeout(resolve, 200)); // Small delay between fetches
-            const imageBlob = await fetchQrCodeForTable(table, true); // isRetry = true
+            await new Promise(resolve => setTimeout(resolve, 200));
+            const imageBlob = await fetchQrCodeForTable(table, true);
             if (imageBlob) {
                 downloadBlob(imageBlob, `table-${table.number ?? table.id}-qr.png`);
                 downloadedCount++;
             } else {
                 console.warn(`Could not fetch blob for table ${table.number ?? table.id} (ID: ${table.id}) to download.`);
-                if (qrImageUrls[table.id] !== 'skipped') failedCount++; // Count as failed if not explicitly skipped now
+                if (qrImageUrls[table.id] !== 'skipped') failedCount++;
                 else skippedDuringDownload++;
             }
         }
-
-        if (openAlertModal) {
+        if (openAlertModalRef.current) {
             if (downloadedCount === validTables.length) {
-                openAlertModal("Download Complete", `Successfully downloaded ${downloadedCount} QR codes.`, "success");
+                openAlertModalRef.current("Download Complete", `Successfully downloaded ${downloadedCount} QR codes.`, "success");
             } else if (downloadedCount > 0) {
                 let partialMessage = `Successfully downloaded ${downloadedCount} QR codes.`;
                 if (failedCount > 0) partialMessage += ` ${failedCount} failed.`;
                 if (skippedDuringDownload > 0) partialMessage += ` ${skippedDuringDownload} skipped (service unavailable).`;
-                openAlertModal("Download Partial", partialMessage, "warning");
-            } else if (failedCount > 0 && skippedDuringDownload === 0) { // All attempted downloads failed
-                openAlertModal("Download Failed", `All ${failedCount} QR codes could not be downloaded at this time.`, "error");
-            } else if (skippedDuringDownload > 0 && downloadedCount === 0 && failedCount === 0) { // All were skipped
-                openAlertModal("QR Not Available", "All QR codes are currently unavailable because the generation service is offline.", "info");
-            } else if (failedCount > 0 && skippedDuringDownload > 0) { // Mixed failures and skips, none successful
-                openAlertModal("Download Issue", `No QR codes downloaded. ${failedCount} failed, ${skippedDuringDownload} skipped (service unavailable).`, "error");
+                openAlertModalRef.current("Download Partial", partialMessage, "warning");
+            } else if (failedCount > 0 && skippedDuringDownload === 0) {
+                openAlertModalRef.current("Download Failed", `All ${failedCount} QR codes could not be downloaded at this time.`, "error");
+            } else if (skippedDuringDownload > 0 && downloadedCount === 0 && failedCount === 0) {
+                openAlertModalRef.current("QR Not Available", "All QR codes are currently unavailable because the generation service is offline.", "info");
+            } else if (failedCount > 0 && skippedDuringDownload > 0) {
+                openAlertModalRef.current("Download Issue", `No QR codes downloaded. ${failedCount} failed, ${skippedDuringDownload} skipped (service unavailable).`, "error");
             }
         }
-
-    }, [fetchQrCodeForTable, openAlertModal, qrImageUrls]);
+    }, [fetchQrCodeForTable, qrImageUrls]);
 
     const revokeQrUrl = useCallback((tableId) => {
         const url = qrImageUrls[tableId];
@@ -186,7 +204,6 @@ const useQrCodeManager = (openAlertModal) => {
     }, [qrImageUrls, revokeQrUrl]);
 
     useEffect(() => {
-        // Cleanup object URLs on unmount
         return () => {
             Object.values(qrImageUrls).forEach(url => {
                 if (url && url.startsWith('blob:')) {
@@ -194,23 +211,19 @@ const useQrCodeManager = (openAlertModal) => {
                 }
             });
         };
-    }, [qrImageUrls]); // Run only when qrImageUrls itself changes, not its content potentially
+    }, [qrImageUrls]);
 
 
     return {
-        qrImageUrls, // State
-        qrLoadingStates, // State
-        qrFetchAttempts, // State
-        fetchQrCodeForTable, // useCallback'ed
-        downloadSingleQr, // useCallback'ed
-        downloadAllQrs, // useCallback'ed
-        clearQrDataForTable, // useCallback'ed
-        clearAllQrData, // useCallback'ed
-        getQrStatus: useCallback((tableId) => ({
-            url: qrImageUrls[tableId]?.startsWith('blob:') ? qrImageUrls[tableId] : null,
-            loading: !!qrLoadingStates[tableId],
-            status: qrImageUrls[tableId]
-        }), [qrImageUrls, qrLoadingStates]), // Memoize getQrStatus
+        qrImageUrls,
+        qrLoadingStates,
+        // qrFetchAttempts, // Not directly exposed if managed internally for stability
+        fetchQrCodeForTable,
+        downloadSingleQr,
+        downloadAllQrs,
+        clearQrDataForTable,
+        clearAllQrData,
+        getQrStatus,
     };
 };
 

@@ -15,6 +15,6 @@ export const queryKeys = {
     productDetails: (productId) => [PRODUCTS_BASE_KEY, 'details', productId],
     productLastTemplate: [PRODUCTS_BASE_KEY, 'last-template'],
     productSearchSuggestions: [PRODUCTS_BASE_KEY, 'search-suggestions'],
-    adminMenuPreviewProducts: (businessId) => ['adminMenuPreviewProducts', businessId],
+    adminMenuPreviewProducts: (businessId) => [PRODUCTS_BASE_KEY, 'admin-preview', businessId], // Group under products
     activeVenueLayout: (businessId) => ['activeVenueLayout', businessId], // Added for consistency
 };

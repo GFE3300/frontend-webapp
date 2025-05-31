@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+// features\venue_management\subcomponents\layout_designer\VenueDesignerPage.jsx
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'; // Added useRef
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -42,22 +43,18 @@ const VenueDesignerPage = () => {
     const [isExitConfirmationOpen, setIsExitConfirmationOpen] = useState(false);
     const [isToggleModeConfirmationOpen, setIsToggleModeConfirmationOpen] = useState(false);
 
-    const [isZenMode, setIsZenMode] = useState(false); // This page now controls Zen for its children if header is part of it
+    const [isZenMode, setIsZenMode] = useState(false);
     const [alertModalOpen, setAlertModalOpen] = useState(false);
     const [alertModalContent, setAlertModalContent] = useState({ title: '', message: '', type: 'info' });
 
     const openAlert = useCallback((title, message, type = 'info') => {
-        // This check was causing openAlert to be unstable if alertModalOpen/alertModalContent were in deps.
-        // If this check is critical, it should be done more carefully, e.g., functional update or by Modal component.
-        // For now, a simpler stable version:
-        // if (alertModalOpen && alertModalContent.title === title && alertModalContent.message === message && type === 'error') return;
         setAlertModalContent({ title, message, type });
         setAlertModalOpen(true);
-    }, [setAlertModalContent, setAlertModalOpen]); // Only stable setters as dependencies
+    }, [setAlertModalContent, setAlertModalOpen]); // Stable dependencies
 
     const closeAlert = useCallback(() => setAlertModalOpen(false), []);
 
-    const [unsavedEditorStateForPreview, setUnsavedEditorStateForPreview] = useState(null); // For "Preview Unsaved"
+    const [unsavedEditorStateForPreview, setUnsavedEditorStateForPreview] = useState(null);
 
     const {
         layoutData: backendLayoutData,
@@ -96,8 +93,6 @@ const VenueDesignerPage = () => {
         return `editor-init-${layoutDataForEditorInitialization.name}-${JSON.stringify(layoutDataForEditorInitialization.gridDimensions)}`;
     }, [layoutDataForEditorInitialization]);
 
-    // This function will be passed to LayoutEditor to capture its current state
-    // when the user opts to "Preview Unsaved Changes".
     const captureCurrentEditorState = useCallback((editorState) => {
         logDebug("Capturing current editor state for unsaved preview.");
         setUnsavedEditorStateForPreview(editorState);
@@ -129,8 +124,6 @@ const VenueDesignerPage = () => {
             logDebug("Content changed in editor. Setting hasUnsavedChanges to true.");
             setHasUnsavedChanges(true);
         }
-        // When content changes, clear any previously captured "unsaved preview" state,
-        // as it's now stale. It will be re-captured if user tries to preview unsaved again.
         setUnsavedEditorStateForPreview(null);
     }, [hasUnsavedChanges]);
 
@@ -149,20 +142,34 @@ const VenueDesignerPage = () => {
         return success;
     }, [saveDesignedLayout, backendLayoutData?.name]);
 
-    // This ref will allow LayoutEditor to provide its current state when needed
     const layoutEditorRef = React.useRef(null);
 
+    // Refs for state values to stabilize callbacks
+    const isEditorModeActiveRef = useRef(isEditorModeActive);
+    const hasUnsavedChangesRef = useRef(hasUnsavedChanges);
+
+    useEffect(() => {
+        isEditorModeActiveRef.current = isEditorModeActive;
+    }, [isEditorModeActive]);
+
+    useEffect(() => {
+        hasUnsavedChangesRef.current = hasUnsavedChanges;
+    }, [hasUnsavedChanges]);
+
     const handleAttemptToggleMode = useCallback(() => {
-        logDebug(`Attempting to toggle mode. Currently: ${isEditorModeActive ? 'Editor' : 'Preview'}. Unsaved: ${hasUnsavedChanges}`);
-        if (isEditorModeActive && hasUnsavedChanges) {
+        logDebug(`Attempting to toggle mode. Currently: ${isEditorModeActiveRef.current ? 'Editor' : 'Preview'}. Unsaved: ${hasUnsavedChangesRef.current}`);
+        if (isEditorModeActiveRef.current && hasUnsavedChangesRef.current) {
             setIsToggleModeConfirmationOpen(true);
         } else {
-            setIsEditorModeActive(prev => !prev);
-            if (!isEditorModeActive) { // Switching from Preview to Editor
-                setUnsavedEditorStateForPreview(null); // Clear temp preview state
-            }
+            setIsEditorModeActive(prevIsEditorModeActive => {
+                const newIsEditorModeActive = !prevIsEditorModeActive;
+                if (!newIsEditorModeActive) { // If toggling TO preview mode
+                    setUnsavedEditorStateForPreview(null);
+                }
+                return newIsEditorModeActive;
+            });
         }
-    }, [isEditorModeActive, hasUnsavedChanges]);
+    }, [setIsToggleModeConfirmationOpen, setIsEditorModeActive, setUnsavedEditorStateForPreview]); // Dependencies are now stable setters
 
     const handleToggleModeConfirmation = useCallback((action) => {
         setIsToggleModeConfirmationOpen(false);
@@ -172,7 +179,7 @@ const VenueDesignerPage = () => {
             if (layoutEditorRef.current && typeof layoutEditorRef.current.getCurrentLayoutSnapshot === 'function') {
                 const currentEditorSnapshot = layoutEditorRef.current.getCurrentLayoutSnapshot();
                 captureCurrentEditorState(currentEditorSnapshot);
-                setIsEditorModeActive(false); // Switch to Preview mode
+                setIsEditorModeActive(false);
                 openAlert(
                     "Previewing Unsaved Changes",
                     "You are viewing your current unsaved changes. These are not yet saved to the server.",
@@ -190,14 +197,14 @@ const VenueDesignerPage = () => {
                 "info"
             );
         }
-    }, [openAlert, captureCurrentEditorState]);
+    }, [openAlert, captureCurrentEditorState]); // setIsEditorModeActive removed as it's handled by the callback from `handleAttemptToggleMode` now
 
     const handleNavigateToOperationalView = useCallback(() => navigate('/'), [navigate]);
 
     const handleAttemptExitPage = useCallback(() => {
-        if (hasUnsavedChanges) setIsExitConfirmationOpen(true);
+        if (hasUnsavedChangesRef.current) setIsExitConfirmationOpen(true); // Use ref here
         else handleNavigateToOperationalView();
-    }, [hasUnsavedChanges, handleNavigateToOperationalView]);
+    }, [handleNavigateToOperationalView]); // hasUnsavedChanges removed, using ref
 
     const confirmAndExitPage = useCallback((discardChanges) => {
         setIsExitConfirmationOpen(false);
@@ -210,37 +217,31 @@ const VenueDesignerPage = () => {
 
     const toggleZenMode = useCallback(() => setIsZenMode(prev => !prev), []);
 
-    // Functions to be passed to VenueLayoutPreview for its actions
     const handleDownloadAllQRsForPreview = useCallback(() => {
-        // The QR download logic is inside VenueLayoutPreview.
-        // This callback is mostly a placeholder if VenueDesignerPage needed to trigger it.
-        // For now, VenueLayoutPreview handles its own "Download All QRs" button.
         logDebug("Trigger Download All QRs from Preview (if button were here)");
-        // If the button was in VenueDesignerHeader, it would call this,
-        // and this would need a ref to VenueLayoutPreview to trigger its internal downloadAllQrs.
-        // For simplicity, keeping the button in VenueLayoutPreview's sidebar.
     }, []);
 
 
-    if (isLoadingLayout && !initialFetchDone) { /* ... loading state ... */ }
-    if (initialFetchDone && !backendLayoutData) { /* ... error state ... */ }
+    if (isLoadingLayout && !initialFetchDone) {
+        return <VenueDesignerPage.Loading />;
+    }
+    if (initialFetchDone && !backendLayoutData) {
+        return <VenueDesignerPage.Error />;
+    }
 
     return (
         <div className={`h-screen w-full flex flex-col overflow-hidden antialiased bg-neutral-100 dark:bg-neutral-900 transition-colors duration-300 ${isZenMode ? 'is-zen-mode' : ''}`}>
-            {/* VenueDesignerHeader is now part of the main content flow, not fixed globally if this is a tab */}
             {!isZenMode && (
                 <VenueDesignerHeader
                     isEditorModeActive={isEditorModeActive}
                     hasUnsavedChanges={hasUnsavedChanges}
                     isSavingLayout={isSavingLayout}
-                    isLoadingLayout={isLoadingLayout && initialFetchDone}
+                    isLoadingLayout={isLoadingLayout && initialFetchDone} // Show loading only after initial fetch if still loading
                     onToggleMode={handleAttemptToggleMode}
-                    onAttemptExitPage={handleAttemptExitPage} // If exit is managed here
-                    onToggleZenMode={toggleZenMode} // Pass zen mode toggle
+                    onAttemptExitPage={handleAttemptExitPage}
+                    onToggleZenMode={toggleZenMode}
                     layoutName={layoutDataForEditorInitialization.name}
-                    // Props for actions specific to header buttons if they exist:
-                    // onTriggerSave={layoutEditorRef.current?.triggerSave} // Example if save was in this header
-                    onDownloadAllQRs={handleDownloadAllQRsForPreview} // Example if download was here
+                    onDownloadAllQRs={handleDownloadAllQRsForPreview}
                 />
             )}
 
@@ -250,14 +251,14 @@ const VenueDesignerPage = () => {
                         layoutDataForEditorInitialization ? (
                             <motion.div key="layout-editor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="h-full w-full">
                                 <LayoutEditor
-                                    ref={layoutEditorRef} // Add ref to LayoutEditor
+                                    ref={layoutEditorRef}
                                     key={layoutEditorKey}
                                     initialLayout={layoutDataForEditorInitialization}
                                     onSaveTrigger={handleSaveLayoutFromEditor}
                                     onContentChange={handleContentChangeInEditor}
                                     openAlert={openAlert}
                                     isZenMode={isZenMode}
-                                    onToggleZenMode={toggleZenMode} // LayoutEditor controls its own zen aspects
+                                    onToggleZenMode={toggleZenMode}
                                 />
                             </motion.div>
                         ) : (
@@ -270,7 +271,7 @@ const VenueDesignerPage = () => {
                                     key={`preview-${layoutEditorKey}-${unsavedEditorStateForPreview ? 'dynamic' : 'static'}`}
                                     layoutData={currentLayoutDataForPreview}
                                     openAlert={openAlert}
-                                    isZenMode={isZenMode} // Preview might also respect zen mode
+                                    isZenMode={isZenMode}
                                 />
                             </motion.div>
                         ) : (
@@ -292,7 +293,6 @@ const VenueDesignerPage = () => {
                 cancelText="Stay in Design Mode"
                 type="warning"
             />
-            {/* ... other modals (ExitConfirmation, AlertModal) ... */}
             <ConfirmationModal
                 isOpen={isExitConfirmationOpen}
                 onClose={() => setIsExitConfirmationOpen(false)}
@@ -310,14 +310,13 @@ const VenueDesignerPage = () => {
                 onConfirm={closeAlert}
                 title={alertModalContent.title}
                 message={alertModalContent.message}
-                confirmText="OK"
                 type={alertModalContent.type}
                 hideCancelButton={true}
             />
         </div>
     );
 };
-// Loading and Error states for initial fetch
+
 VenueDesignerPage.Loading = () => (
     <div className="flex items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900">
         <Icon name="progress_activity" aria-hidden="true" className="w-12 h-12 text-rose-500 dark:text-rose-400 animate-spin" />
@@ -333,6 +332,5 @@ VenueDesignerPage.Error = () => (
         <button onClick={() => window.location.reload()} className="px-6 py-2.5 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition-colors">Refresh Page</button>
     </div>
 );
-
 
 export default VenueDesignerPage;

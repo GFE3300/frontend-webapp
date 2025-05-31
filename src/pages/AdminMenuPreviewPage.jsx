@@ -1,230 +1,165 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../utils/ThemeProvider';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useAuth } from '../contexts/AuthContext'; // For user context (admin details)
+import { useTheme } from '../utils/ThemeProvider'; // For consistent theme
 import Icon from '../components/common/Icon';
-import Spinner from '../components/common/Spinner'; // For loading state
-import Modal from '../components/animated_alerts/Modal'; // For confirmation/error modals
+import Spinner from '../components/common/Spinner';
+import Modal from '../components/animated_alerts/Modal';
+import apiService from '../services/api'; // For fetching products
+import { queryKeys } from '../services/queryKeys';
+import { useQuery } from '@tanstack/react-query';
+import { AnimatePresence } from 'framer-motion';
 
-// Import TanStack Query hook for fetching products (assuming ProductDataContext is updated or a new hook exists)
-// For this example, let's assume a hook `useAdminMenuPreviewProducts` exists or is adapted.
-// import { useAdminMenuPreviewProducts } from '../contexts/ProductDataContext'; // Or similar
-// MOCKING the hook for now as its exact implementation isn't the focus here
-const useAdminMenuPreviewProducts = () => {
-    // This would typically fetch from /api/products/?is_active=true, scoped by business
-    // and include all necessary related data (category_details, tags, attributes, discounts)
-    // For now, simulate a loading state and then some mock data based on backend structure
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            // Simulate successful data fetch matching backend ProductSerializer
-            // This mock data should be more representative of actual API output
-            setData({
-                results: [
-                    // Example Product 1 (Adapt from your DummyData or backend structure)
-                    {
-                        id: "prod_uuid_1",
-                        name: "Gourmet Croissant Deluxe",
-                        subtitle: "Flaky & Buttery Perfection",
-                        description: "Our signature croissant, made with premium European butter and a meticulous lamination process, resulting in unparalleled flakiness and a rich, buttery flavor. A true classic elevated.",
-                        image_url: "https://images.pexels.com/photos/266946/pexels-photo-266946.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                        selling_price_excl_tax: "3.75",
-                        category: "cat_uuid_bread", // PK of category
-                        category_details: { id: "cat_uuid_bread", name: "Artisan Breads", color_class: "bg-amber-500", icon_name: "bakery_dining", display_order: 0 },
-                        product_tags_details: [
-                            { id: "tag_uuid_veg", name: "Vegetarian", icon_name: "eco" },
-                            { id: "tag_uuid_new", name: "New!", icon_name: "new_releases" }
-                        ],
-                        tax_rate_details: { id: "tax_uuid_std", name: "Standard VAT", rate_percentage: "21.00" },
-                        editable_attribute_groups: [
-                            {
-                                id: "grp_uuid_size_croissant", name: "Size", type: "single_select", is_required: true, display_order: 0,
-                                options: [
-                                    { id: "opt_uuid_reg_c", name: "Regular", price_adjustment: "0.00", is_default: true, display_order: 0 },
-                                    { id: "opt_uuid_lrg_c", name: "Large", price_adjustment: "1.25", is_default: false, display_order: 1 }
-                                ]
-                            },
-                            {
-                                id: "grp_uuid_fill_croissant", name: "Filling", type: "multi_select", is_required: false, display_order: 1,
-                                options: [
-                                    { id: "opt_uuid_choc_c", name: "Chocolate", price_adjustment: "0.75", is_default: false, display_order: 0 },
-                                    { id: "opt_uuid_almond_c", name: "Almond Paste", price_adjustment: "0.90", is_default: false, display_order: 1 }
-                                ]
-                            }
-                        ],
-                        active_applied_product_discounts: [
-                            // Example: A 10% discount on this specific croissant
-                            // {
-                            //     id: "pad_uuid_1", discount_master: "dm_uuid_promo10", discount_percentage_override: null,
-                            //     discount_master_code_name: "CROISSANTLOVE", discount_master_type: "percentage",
-                            //     discount_master_default_value: "10.00", effective_discount_value: "0.375", // 10% of 3.75
-                            //     discount_master_is_active: true
-                            // }
-                        ],
-                        product_type: "made_in_house",
-                        // ... other fields
-                    },
-                    // Add more mock product objects here, especially in different categories
-                    {
-                        id: "prod_uuid_2",
-                        name: "Iced Latte Supreme",
-                        subtitle: "Cool & Refreshing",
-                        description: "A perfect blend of rich espresso, cold milk, and your choice of syrup, served over ice. Customize it your way!",
-                        image_url: "https://images.pexels.com/photos/302896/pexels-photo-302896.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                        selling_price_excl_tax: "4.50",
-                        category: "cat_uuid_drinks",
-                        category_details: { id: "cat_uuid_drinks", name: "Beverages", color_class: "bg-sky-500", icon_name: "local_cafe", display_order: 1 },
-                        product_tags_details: [{ id: "tag_uuid_cold", name: "Cold Drink", icon_name: "ac_unit" }],
-                        tax_rate_details: { id: "tax_uuid_std", name: "Standard VAT", rate_percentage: "21.00" },
-                        editable_attribute_groups: [
-                            {
-                                id: "grp_uuid_milk_latte", name: "Milk Choice", type: "single_select", is_required: true, display_order: 0,
-                                options: [
-                                    { id: "opt_uuid_dairy_l", name: "Dairy Milk", price_adjustment: "0.00", is_default: true, display_order: 0 },
-                                    { id: "opt_uuid_oat_l", name: "Oat Milk", price_adjustment: "0.60", is_default: false, display_order: 1 },
-                                    { id: "opt_uuid_almond_l", name: "Almond Milk", price_adjustment: "0.60", is_default: false, display_order: 2 }
-                                ]
-                            },
-                            {
-                                id: "grp_uuid_syrup_latte", name: "Syrup (Optional)", type: "multi_select", is_required: false, display_order: 1,
-                                options: [
-                                    { id: "opt_uuid_van_l", name: "Vanilla", price_adjustment: "0.50", is_default: false, display_order: 0 },
-                                    { id: "opt_uuid_car_l", name: "Caramel", price_adjustment: "0.50", is_default: false, display_order: 1 }
-                                ]
-                            }
-                        ],
-                        active_applied_product_discounts: [],
-                        product_type: "made_in_house",
-                    }
-                ]
-            });
-            setIsLoading(false);
-        }, 1500);
-        return () => clearTimeout(timer);
-    }, []);
-    return {
-        data: data?.results || [], isLoading, error, // Assuming API returns { results: [...] }
-        refetch: () => { /* mock refetch */ setIsLoading(true); setTimeout(() => setIsLoading(false), 500); }
-    };
-};
-
-
-// Import refactored components
+// Core Menu Subcomponents from features/menu_view/subcomponents/
 import MenuDisplayLayout from '../features/menu_view/subcomponents/MenuDisplayLayout';
 import ProductOptionsPopup from '../features/menu_view/subcomponents/ProductOptionsPopup';
 import OrderSummaryPanel from '../features/menu_view/subcomponents/OrderSummaryPanel';
-import FlyingItemAnimator from '../features/menu_view/subcomponents/FlyingItemAnimator'; // If used, though less relevant for admin preview
+import FlyingItemAnimator from '../features/menu_view/subcomponents/FlyingItemAnimator';
+import { getEffectiveDisplayPrice } from '../features/menu_view/utils/productUtils';
+
+// Custom Hook for fetching products for the admin menu preview.
+const useAdminMenuPreviewProducts = () => {
+    const { user } = useAuth();
+    return useQuery({
+        queryKey: queryKeys.adminMenuPreviewProducts(user?.activeBusinessId || 'admin_default_preview'),
+        queryFn: async () => {
+            // Endpoint should fetch products relevant for admin preview (e.g., all active, or all regardless of stock for config testing)
+            // For now, assuming it fetches all active products for the business.
+            const response = await apiService.get('products/', { params: { is_active: 'true' } });
+
+            if (response.data && Array.isArray(response.data.results)) {
+                return response.data.results;
+            } else if (Array.isArray(response.data)) { // Handle non-paginated if backend returns that
+                return response.data;
+            }
+            console.error("AdminMenuPreview: Unexpected data structure for products:", response.data);
+            throw new Error("Unexpected data structure for admin menu preview products.");
+        },
+        enabled: !!user && !!user.activeBusinessId,
+        staleTime: 1000 * 60 * 1, // Cache for 1 minute for admin preview (shorter than customer)
+        refetchOnWindowFocus: true, // Good for admins who might be editing products elsewhere
+    });
+};
 
 const AdminMenuPreviewPage = () => {
     const { user } = useAuth();
-    const { theme } = useTheme(); // Provides 'light' or 'dark'
+    const { theme } = useTheme(); // Not directly used for styling here, but good for context if sub-components need it
 
-    // State for the preview "order"
     const [previewOrderItems, setPreviewOrderItems] = useState([]);
-    // State for ProductOptionsPopup
     const [isOptionsPopupOpen, setIsOptionsPopupOpen] = useState(false);
-    const [currentItemForOptions, setCurrentItemForOptions] = useState(null); // Stores { product, imageRect }
-    // State for FlyingItemAnimator (optional for admin preview, but shown for completeness)
+    const [currentItemForOptions, setCurrentItemForOptions] = useState(null); // { product, imageRect }
     const [flyingItem, setFlyingItem] = useState(null);
-    // State for general modals (e.g., order confirmation)
+
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-    const [statusModalProps, setStatusModalProps] = useState({ title: '', message: '', type: 'info' });
+    const [statusModalProps, setStatusModalProps] = useState({ title: '', message: '', type: 'info', isLoading: false });
 
+    const orderPanelRef = useRef(null); // Ref for the order summary panel (animation target)
 
-    // Fetch product data using TanStack Query (or the mock hook)
-    const { data: products, isLoading: isLoadingProducts, error: productsError, refetch: refetchProducts } = useAdminMenuPreviewProducts();
+    const { data: productsData, isLoading: isLoadingProducts, error: productsError, refetch: refetchProducts } = useAdminMenuPreviewProducts();
 
-    // Prepare categorizedProducts for MenuDisplayLayout
     const categorizedProducts = useMemo(() => {
-        if (!products) return {};
-        const categories = {};
-        products.forEach(product => {
-            const catId = product.category; // Assuming product.category is the ID
-            const catDetails = product.category_details || { name: "Uncategorized", color_class: "bg-gray-500", icon_name: "label", display_order: 99 };
-
-            if (!categories[catId]) {
-                categories[catId] = {
+        if (!productsData) return {};
+        const categoriesMap = {};
+        productsData.forEach(product => {
+            if (!product || !product.id || !product.category_details || !product.category_details.id) {
+                console.warn("AdminMenuPreview: Skipping product due to missing critical data:", product);
+                return;
+            }
+            const catId = product.category_details.id;
+            const catDetails = product.category_details;
+            if (!categoriesMap[catId]) {
+                categoriesMap[catId] = {
                     id: catId,
-                    name: catDetails.name,
-                    color_class: catDetails.color_class,
-                    icon_name: catDetails.icon_name,
-                    display_order: catDetails.display_order,
+                    name: catDetails.name || "Uncategorized",
+                    color_class: catDetails.color_class || "bg-gray-500",
+                    icon_name: catDetails.icon_name || "label",
+                    display_order: typeof catDetails.display_order === 'number' ? catDetails.display_order : 999,
                     items: []
                 };
             }
-            categories[catId].items.push(product);
+            const productWithOrder = { ...product, display_order: typeof product.display_order === 'number' ? product.display_order : 0 };
+            categoriesMap[catId].items.push(productWithOrder);
         });
-        // Sort items within each category if needed, e.g., by product.display_order
-        Object.values(categories).forEach(cat => {
-            cat.items.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        Object.values(categoriesMap).forEach(cat => {
+            cat.items.sort((a, b) => a.display_order - b.display_order);
         });
-        return categories;
-    }, [products]);
+        return categoriesMap;
+    }, [productsData]);
 
-    // Handler to open the ProductOptionsPopup
-    const handleOpenOptionsPopup = useCallback((product, imageRect) => {
-        // If product has no editable_attribute_groups, add directly to preview order
-        if (!product.editable_attribute_groups || product.editable_attribute_groups.length === 0) {
-            const { displayPrice: effectiveBasePrice } = getEffectiveDisplayPrice(product);
-            const simpleItemToAdd = {
-                id: `${product.id}-base-${Date.now()}`, // Simple unique ID for preview
-                originalId: product.id,
-                name: product.name,
-                imageUrl: product.image_url,
-                price: effectiveBasePrice, // Price after product-level discounts
-                quantity: 1,
-                selectedSizeName: null,
-                selectedExtrasNames: [],
-            };
-            setPreviewOrderItems(prevItems => {
-                const existingItem = prevItems.find(item => item.id === simpleItemToAdd.id && !item.selectedSizeName && item.selectedExtrasNames.length === 0); // Basic check
-                if (existingItem) {
-                    return prevItems.map(item => item.id === existingItem.id ? { ...item, quantity: item.quantity + 1 } : item);
-                }
-                return [...prevItems, simpleItemToAdd];
+    const addOrUpdatePreviewItem = useCallback((itemToAdd) => {
+        setPreviewOrderItems(prevItems => {
+            const existingItemIndex = prevItems.findIndex(item => item.id === itemToAdd.id);
+            if (existingItemIndex > -1) {
+                const updatedItems = [...prevItems];
+                updatedItems[existingItemIndex] = {
+                    ...updatedItems[existingItemIndex],
+                    quantity: updatedItems[existingItemIndex].quantity + itemToAdd.quantity,
+                };
+                return updatedItems;
+            }
+            return [...prevItems, itemToAdd];
+        });
+    }, []);
+
+    const triggerFlyingAnimation = useCallback((imageUrl, imageRect) => {
+        if (imageRect && orderPanelRef.current) {
+            setFlyingItem({
+                id: Date.now(),
+                imageUrl: imageUrl,
+                startRect: imageRect,
+                endRect: orderPanelRef.current.getBoundingClientRect(),
             });
-            // Optionally trigger flying animation here if imageRect is available
-            if (imageRect) { /* ... trigger flying item ... */ }
-        } else {
-            setCurrentItemForOptions({ product, imageRect });
-            setIsOptionsPopupOpen(true);
         }
     }, []);
 
-    // Handler for when options are confirmed in the popup
-    const handleConfirmWithOptions = useCallback((originalProduct, selectedOptionsPayload) => {
+    const handleOpenOptionsPopup = useCallback((product, imageRect) => {
+        const hasOptions = product.editable_attribute_groups && product.editable_attribute_groups.length > 0;
+        if (!hasOptions) { // Direct add for items without configurable options
+            const { displayPrice: effectiveBasePrice } = getEffectiveDisplayPrice(product);
+            const simpleItemToAdd = {
+                id: `${product.id}-base-${Date.now()}`, // Unique ID for simple items
+                originalId: product.id,
+                name: product.name,
+                imageUrl: product.image_url,
+                price: effectiveBasePrice,
+                quantity: 1, // Always add one quantity
+                selectedOptionsSummary: null,
+            };
+            addOrUpdatePreviewItem(simpleItemToAdd);
+            triggerFlyingAnimation(product.image_url, imageRect);
+        } else {
+            setCurrentItemForOptions({ product, imageRect }); // Store product and imageRect
+            setIsOptionsPopupOpen(true);
+        }
+    }, [addOrUpdatePreviewItem, triggerFlyingAnimation]);
+
+    const handleConfirmWithOptions = useCallback((originalProduct, configuredItemDetailsPayload) => {
+        const { quantity, selectedOptions, finalPricePerItem } = configuredItemDetailsPayload;
+        const optionsSummary = selectedOptions
+            .map(opt => `${opt.groupName ? opt.groupName + ': ' : ''}${opt.optionName}`)
+            .join('; ') || null;
+
+        const optionIdsString = selectedOptions.map(opt => opt.optionId).sort().join('_');
+        // Unique ID for this specific configuration in the preview order
+        const uniqueOrderItemId = `${originalProduct.id}-${optionIdsString || 'custombasepreview'}-${Date.now()}`;
+
         const newItem = {
-            id: `${originalProduct.id}-${Date.now()}`, // Generate a unique ID for the preview order item
+            id: uniqueOrderItemId,
             originalId: originalProduct.id,
             name: originalProduct.name,
             imageUrl: originalProduct.image_url,
-            price: selectedOptionsPayload.finalPricePerItem,
-            quantity: selectedOptionsPayload.quantity,
-            selectedSizeName: selectedOptionsPayload.selectedOptions.find(opt => opt.groupType === 'single_select')?.optionName || null, // Simplified
-            selectedExtrasNames: selectedOptionsPayload.selectedOptions.filter(opt => opt.groupType === 'multi_select').map(opt => opt.optionName),
-            // Could also store the full selectedOptionsPayload.selectedOptions if needed for detailed display in OrderItem
+            price: finalPricePerItem,
+            quantity: quantity,
+            selectedOptionsSummary: optionsSummary,
         };
 
-        setPreviewOrderItems(prevItems => {
-            // For simplicity in preview, we'll just add as a new item.
-            // A real cart might try to find and update an identical configuration.
-            return [...prevItems, newItem];
-        });
-
-        // Trigger flying animation
-        if (currentItemForOptions?.imageRect) {
-            // This needs a target ref for the OrderSummaryPanel
-            // For admin preview, flying animation might be less critical or simplified
-            console.log("Flying animation would trigger here if target is defined.");
-        }
+        addOrUpdatePreviewItem(newItem);
+        // Use imageRect from state that was stored when popup opened
+        triggerFlyingAnimation(originalProduct.image_url, currentItemForOptions?.imageRect);
 
         setIsOptionsPopupOpen(false);
-        setCurrentItemForOptions(null);
-    }, [currentItemForOptions]);
+        setCurrentItemForOptions(null); // Clear current item after handling
+    }, [addOrUpdatePreviewItem, triggerFlyingAnimation, currentItemForOptions]);
 
-    // Handler to update quantity in the preview order
     const handleUpdatePreviewQuantity = useCallback((itemId, newQuantity) => {
         if (newQuantity <= 0) {
             setPreviewOrderItems(prevItems => prevItems.filter(item => item.id !== itemId));
@@ -237,25 +172,44 @@ const AdminMenuPreviewPage = () => {
         }
     }, []);
 
-    // Handler for confirming the preview order (simulated)
-    const handleConfirmPreviewOrder = useCallback((orderDetails) => {
-        console.log("Admin Preview Order Confirmed (Simulated):", orderDetails);
-        setStatusModalProps({
-            title: "Preview Order Confirmed!",
-            message: "This is a simulation. The order details have been logged to the console. In a live system, this would be sent to the kitchen/POS.",
-            type: "success"
-        });
+    const handleSimulatedConfirmOrderAction = useCallback(async (orderDetailsPayload) => {
+        setStatusModalProps({ title: "Processing Preview...", message: "Simulating order submission...", type: "info", isLoading: true });
         setIsStatusModalOpen(true);
-        // Optionally clear previewOrderItems after "confirmation"
-        // setPreviewOrderItems([]);
+
+        console.log("Admin Menu Preview - Simulated Order Payload:", JSON.stringify(orderDetailsPayload, null, 2));
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+
+        setStatusModalProps({
+            title: "Preview Order Actioned!",
+            message: "This is a simulation. The order details have been logged to the console. No actual order was placed.",
+            type: "success",
+            isLoading: false,
+        });
+        // isStatusModalOpen remains true for admin to see the message
+        setPreviewOrderItems([]); // Clear items after "confirmation" for the preview
+        // OrderSummaryPanel internal state (promo, notes) will be reset next time it gets items if it's keyed, or manually.
+        // For this preview, it's acceptable for it to retain its state until new items are added.
     }, []);
 
+    useEffect(() => { // Close modals on Esc
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                if (isOptionsPopupOpen) {
+                    setIsOptionsPopupOpen(false); setCurrentItemForOptions(null);
+                } else if (isStatusModalOpen) {
+                    if (!statusModalProps.isLoading) setIsStatusModalOpen(false);
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOptionsPopupOpen, isStatusModalOpen, statusModalProps.isLoading]);
 
     if (isLoadingProducts) {
         return (
             <div className="flex flex-col min-h-screen items-center justify-center bg-gray-100 dark:bg-neutral-900">
                 <Spinner size="xl" />
-                <p className="mt-4 text-neutral-600 dark:text-neutral-300">Loading Menu Preview...</p>
+                <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-300">Loading Menu Preview...</p>
             </div>
         );
     }
@@ -263,14 +217,15 @@ const AdminMenuPreviewPage = () => {
     if (productsError) {
         return (
             <div className="flex flex-col min-h-screen items-center justify-center bg-gray-100 dark:bg-neutral-900 p-6 text-center">
-                <Icon name="error" className="w-16 h-16 text-red-500 mb-4" />
-                <h2 className="text-xl font-semibold text-red-700 dark:text-red-400 mb-2">Failed to Load Menu</h2>
-                <p className="text-neutral-600 dark:text-neutral-300 mb-4">
-                    There was an error fetching the product data: {productsError.message || "Unknown error"}
+                <Icon name="error_outline" className="w-20 h-20 text-red-500 mb-4" />
+                <h2 className="text-2xl font-semibold text-red-700 dark:text-red-400 mb-3">Failed to Load Menu Data</h2>
+                <p className="text-neutral-600 dark:text-neutral-300 mb-6 max-w-md">
+                    There was an error fetching product data: {productsError.message || "An unknown error occurred."}
+                    <br />Ensure the backend service is running and you are properly authenticated with an active business.
                 </p>
                 <button
                     onClick={() => refetchProducts()}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900"
                 >
                     Try Again
                 </button>
@@ -280,91 +235,92 @@ const AdminMenuPreviewPage = () => {
 
     return (
         <div className={`flex flex-col min-h-screen font-sans ${theme === 'dark' ? 'dark' : ''}`}>
-            {/* Header */}
-            <header className="bg-white dark:bg-neutral-800 shadow-md p-4 sticky top-0 z-30">
-                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-neutral-100 mb-2 sm:mb-0">
+            <header className="bg-white dark:bg-neutral-800 shadow-md p-3 sm:p-4 sticky top-0 z-30">
+                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center max-w-screen-2xl px-2 sm:px-0">
+                    <h1 className="text-lg sm:text-2xl font-bold text-gray-800 dark:text-neutral-100 mb-2 sm:mb-0">
                         Admin Menu Preview
                     </h1>
                     {user && (
                         <div className="text-xs sm:text-sm text-gray-600 dark:text-neutral-400 text-center sm:text-right">
                             <p>
-                                Viewing as: <span className="font-semibold">{user.firstName || user.email || 'Admin User'}</span>
+                                Viewing as: <span className="font-semibold">{user.firstName || user.email || 'Admin'}</span>
                             </p>
-                            <p>
-                                Business: <span className="font-semibold">{user.activeBusinessName || 'N/A'}</span>
-                            </p>
+                            {user.activeBusinessName && <p>
+                                Business: <span className="font-semibold">{user.activeBusinessName}</span>
+                            </p>}
                         </div>
                     )}
                 </div>
             </header>
 
-            {/* Main Content Area - Two Column Layout for Desktop */}
             <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
-                {/* Left Column: Menu Display */}
-                <div className="flex-1 md:w-2/3 lg:w-3/4 overflow-y-auto bg-gray-50 dark:bg-neutral-850">
-                    <MenuDisplayLayout
-                        categorizedProducts={categorizedProducts}
-                        onOpenOptionsPopup={handleOpenOptionsPopup}
-                        pageTitle="Live Menu Preview"
-                    />
+                {/* Menu Display Area - Always takes up the main portion */}
+                <div className="flex-1 md:w-2/3 lg:w-3/4 overflow-y-auto bg-gray-50 dark:bg-neutral-850 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700" role="region" aria-label="Menu items for preview">
+                    {productsData && ( // Render only if product data is available
+                        <MenuDisplayLayout
+                            categorizedProducts={categorizedProducts}
+                            onOpenOptionsPopup={handleOpenOptionsPopup}
+                            pageTitle="Live Menu Preview"
+                        />
+                    )}
                 </div>
 
-                {/* Right Column: Order Summary Panel (Desktop) */}
-                <div className="md:w-1/3 lg:w-1/4 bg-neutral-100 dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-700 shadow-lg overflow-y-auto">
+                {/* Order Summary Preview Area - Fixed width sidebar */}
+                <aside
+                    ref={orderPanelRef}
+                    className="md:w-1/3 lg:w-1/4 bg-neutral-100 dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-700 shadow-lg flex flex-col"
+                    role="complementary"
+                    aria-label="Simulated order summary"
+                >
+                    {/* OrderSummaryPanel will manage its own internal scroll if content exceeds its height */}
                     <OrderSummaryPanel
                         orderItems={previewOrderItems}
                         onUpdateQuantity={handleUpdatePreviewQuantity}
-                        onConfirmOrderAction={handleConfirmPreviewOrder}
-                        isSidebarVersion={true} // Important for its internal layout
-                        isPreviewMode={true}
-                        tableNumber={user?.activeBusinessId ? "Admin Preview" : undefined} // Example dynamic data
-                        userName={user?.firstName || user?.email || undefined}
+                        onConfirmOrderAction={handleSimulatedConfirmOrderAction}
+                        isSidebarVersion={true} // Ensures it uses full height of its container
+                        isPreviewMode={true}   // Critical prop for admin context behavior
+                        tableNumber="Admin Preview"
+                        userName={user?.firstName || user?.email || 'Admin'}
                     />
-                </div>
+                </aside>
             </main>
 
-            {/* Mobile: Order Summary as a separate view, not shown here but would use BottomNav */}
-            {/* For admin preview, the right panel might always be visible on larger screens,
-                and mobile might not have an "order" tab, focusing solely on menu item interaction.
-                If mobile needs an order summary, a modal or a separate "preview cart" page would be typical.
-                For this task, we assume the OrderSummaryPanel is for the desktop right column in Admin Preview.
-            */}
-
-            {/* Modals and Popups */}
-            {currentItemForOptions && (
+            {/* Product Options Popup - Rendered conditionally */}
+            {currentItemForOptions && productsData && (
                 <ProductOptionsPopup
                     isOpen={isOptionsPopupOpen}
                     onClose={() => { setIsOptionsPopupOpen(false); setCurrentItemForOptions(null); }}
-                    product={currentItemForOptions.product} // Pass the actual product object
+                    product={currentItemForOptions.product}
                     onConfirmWithOptions={handleConfirmWithOptions}
                 />
             )}
+
+            {/* Status Modal for feedback */}
             <Modal
                 isOpen={isStatusModalOpen}
-                onClose={() => setIsStatusModalOpen(false)}
+                onClose={() => { if (!statusModalProps.isLoading) setIsStatusModalOpen(false); }}
                 title={statusModalProps.title}
                 type={statusModalProps.type}
+                isLoading={statusModalProps.isLoading}
             >
                 <p>{statusModalProps.message}</p>
             </Modal>
 
-            {/* Flying Animator (Optional for admin preview) */}
-            {/* <AnimatePresence>
+            {/* Flying Item Animation */}
+            <AnimatePresence>
                 {flyingItem && (
                     <FlyingItemAnimator
                         key={flyingItem.id}
                         imageUrl={flyingItem.imageUrl}
                         startRect={flyingItem.startRect}
-                        // endRect needs to be a ref to the OrderSummaryPanel or a specific target within it
+                        endRect={flyingItem.endRect}
                         onAnimationComplete={() => setFlyingItem(null)}
                     />
                 )}
-            </AnimatePresence> */}
+            </AnimatePresence>
 
-            {/* Footer (Optional) */}
             <footer className="bg-white dark:bg-neutral-800 p-3 text-center text-xs text-gray-500 dark:text-neutral-400 border-t dark:border-neutral-700">
-                Admin Preview Mode © {new Date().getFullYear()} Smore.
+                Admin Preview Mode © {new Date().getFullYear()} Smore. All Rights Reserved.
             </footer>
         </div>
     );
