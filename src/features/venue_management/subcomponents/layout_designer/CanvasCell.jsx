@@ -1,42 +1,37 @@
-// features/venue_management/subcomponents/layout_designer/CanvasCell.jsx
-import React, { memo, useCallback, useMemo, useState } from 'react'; // Added useState
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { useDrop } from 'react-dnd';
 
-// Design Guideline-Derived Tailwind Classes
+// Localization
+import slRaw from '../../utils/script_lines.js'; // Assuming path from CanvasCell to script_lines
+const sl = slRaw.venueManagement.canvasCell; // Section for CanvasCell
+
+// Design Guideline-Derived Tailwind Classes (Copied from original, no changes here)
 const GRID_LINE_STYLES = {
     minorLight: "border-neutral-200 dark:border-neutral-700/50",
     majorLight: "border-neutral-300 dark:border-neutral-600/70",
 };
-
 const CELL_FEEDBACK_BG_STYLES = {
-    dropValidLight: "bg-green-500/15 dark:bg-green-500/20",      // DND valid
-    dropInvalidLight: "bg-red-500/15 dark:bg-red-500/20",        // DND invalid
-    eraserHoverLight: "bg-red-500/10 dark:bg-red-500/15",       // Eraser hover
-    clickMoveTargetHoverLight: "bg-sky-500/10 dark:bg-sky-500/15", // Moving existing item target hover (generic)
-    // NEW: For click-placing a NEW tool
-    clickPlaceNewValidLight: "bg-teal-500/15 dark:bg-teal-500/20",  // New tool placement valid
-    clickPlaceNewInvalidLight: "bg-orange-500/15 dark:bg-orange-500/20",// New tool placement invalid
+    dropValidLight: "bg-green-500/15 dark:bg-green-500/20",
+    dropInvalidLight: "bg-red-500/15 dark:bg-red-500/20",
+    eraserHoverLight: "bg-red-500/10 dark:bg-red-500/15",
+    clickMoveTargetHoverLight: "bg-sky-500/10 dark:bg-sky-500/15",
+    clickPlaceNewValidLight: "bg-teal-500/15 dark:bg-teal-500/20",
+    clickPlaceNewInvalidLight: "bg-orange-500/15 dark:bg-orange-500/20",
 };
+// --- End Design Guideline Variables ---
 
 const CanvasCell = ({
-    // Cell Position & Grid Info
     r_minor, c_minor,
     isMajorRowBoundary, isMajorColBoundary,
     gridSubdivision,
-
-    // Callbacks from EditorCanvas/LayoutEditor
-    onAddItemToLayout, 
-    onMoveExistingItem, 
+    onAddItemToLayout,
+    onMoveExistingItem,
     onCellClickForPrimaryAction,
     canPlaceItemAtCoords,
-
-    // Interaction States
     currentDraggedItemPreview, onUpdateCurrentDraggedItemPreview,
-    moveCandidateItemId,    
-    activeToolForPlacement, 
+    moveCandidateItemId,
+    activeToolForPlacement,
     isEraserActive, onEraseItemFromCell,
-
-    // Configs
     ItemTypes,
 }) => {
 
@@ -45,7 +40,7 @@ const CanvasCell = ({
             ...Object.values(ItemTypes).filter(type => typeof type === 'string' && type.endsWith('Tool')),
             ...Object.values(ItemTypes).filter(type => typeof type === 'string' && type.startsWith('placed')),
         ],
-        drop: (itemPayload, monitor) => { 
+        drop: (itemPayload, monitor) => {
             if (monitor.didDrop()) return;
             const droppedActualType = monitor.getItemType();
             const isNewTool = String(droppedActualType).endsWith('Tool');
@@ -56,11 +51,11 @@ const CanvasCell = ({
             }
             onUpdateCurrentDraggedItemPreview(null);
         },
-        hover: (itemPayload, monitor) => { /* ... (no changes to DND hover logic for preview) ... */
+        hover: (itemPayload, monitor) => {
             if (!monitor.isOver({ shallow: true })) return;
             if (currentDraggedItemPreview && currentDraggedItemPreview.type === 'resize') return;
-            if (activeToolForPlacement) { // If a tool is selected for click-placement, DND hover shouldn't generate a preview
-                onUpdateCurrentDraggedItemPreview(null); // Clear any DND placement preview
+            if (activeToolForPlacement) {
+                onUpdateCurrentDraggedItemPreview(null);
                 return;
             }
 
@@ -86,12 +81,12 @@ const CanvasCell = ({
                 r: r_minor, c: c_minor,
                 w: previewW_minor, h: previewH_minor,
                 isValid: isValidPlacement,
-                type: 'placement' // DND placement preview
+                type: 'placement'
             });
         },
         canDrop: (itemPayload, monitor) => {
             if (currentDraggedItemPreview && currentDraggedItemPreview.type === 'resize') return false;
-            if (activeToolForPlacement) return false; 
+            if (activeToolForPlacement) return false;
 
             let itemW_minor, itemH_minor, itemIdToExclude = null;
             const currentDropItemType = monitor.getItemType();
@@ -111,12 +106,12 @@ const CanvasCell = ({
         },
         collect: monitor => ({
             isOverForDnd: !!monitor.isOver({ shallow: true }),
-            canDropThisSpecificItem: !!monitor.canDrop(),
+            // canDropThisSpecificItem: !!monitor.canDrop(), // Not used directly in render
         }),
     }), [
         r_minor, c_minor, onAddItemToLayout, onMoveExistingItem,
         canPlaceItemAtCoords, onUpdateCurrentDraggedItemPreview,
-        ItemTypes, gridSubdivision, currentDraggedItemPreview, activeToolForPlacement, // Added activeToolForPlacement
+        ItemTypes, gridSubdivision, currentDraggedItemPreview, activeToolForPlacement,
     ]);
 
     const [isHoveredDirectly, setIsHoveredDirectly] = useState(false);
@@ -125,9 +120,6 @@ const CanvasCell = ({
         if (isEraserActive) {
             onEraseItemFromCell(r_minor, c_minor);
         } else if (onCellClickForPrimaryAction) {
-            // This callback (handleCanvasCellPrimaryClick in LayoutEditor) now decides
-            // whether to place a new item (if activeToolForPlacement is set)
-            // or move an existing item (if moveCandidateItemId is set).
             onCellClickForPrimaryAction(r_minor, c_minor);
         }
     }, [isEraserActive, onEraseItemFromCell, r_minor, c_minor, onCellClickForPrimaryAction]);
@@ -138,36 +130,21 @@ const CanvasCell = ({
         classes += ` border-r ${isMajorColBoundary ? GRID_LINE_STYLES.majorLight : GRID_LINE_STYLES.minorLight}`;
         let bgClass = '';
 
-        // Determine background based on interaction mode priority:
-        // 1. DND Preview (if an item is being dragged over)
-        // 2. Eraser Hover
-        // 3. Click-Place New Tool Preview (if a tool is active and cell hovered)
-        // 4. Click-Move Existing Item Target Hover (if item is selected for move and cell hovered)
-
         if (currentDraggedItemPreview && currentDraggedItemPreview.type === 'placement' && isOverForDnd) {
             const { r: pR, c: pC, w: pW, h: pH, isValid: pIsValid } = currentDraggedItemPreview;
             if (r_minor >= pR && r_minor < pR + pH && c_minor >= pC && c_minor < pC + pW) {
                 bgClass = pIsValid ? CELL_FEEDBACK_BG_STYLES.dropValidLight : CELL_FEEDBACK_BG_STYLES.dropInvalidLight;
             }
-        } else if (isEraserActive && isOverForDnd) { // isOverForDnd better for eraser context
+        } else if (isEraserActive && isOverForDnd) {
             bgClass = CELL_FEEDBACK_BG_STYLES.eraserHoverLight;
         } else if (activeToolForPlacement && isHoveredDirectly && !isEraserActive) {
-            // Preview for placing a NEW item from toolbar (click-to-place)
             const toolWMinor = activeToolForPlacement.w_major * gridSubdivision;
             const toolHMinor = activeToolForPlacement.h_major * gridSubdivision;
-            // Check if this cell is the top-left anchor of the potential new item's footprint
-            if (isHoveredDirectly) { // This means the cursor is directly over *this* cell
-                // For a full footprint preview, we'd need to pass more info or use a global preview div.
-                // For individual cell highlight as potential top-left:
+            if (isHoveredDirectly) {
                 const isValidPlacement = canPlaceItemAtCoords(r_minor, c_minor, toolWMinor, toolHMinor, null);
                 bgClass = isValidPlacement ? CELL_FEEDBACK_BG_STYLES.clickPlaceNewValidLight : CELL_FEEDBACK_BG_STYLES.clickPlaceNewInvalidLight;
             }
-            // To show a full footprint preview for click-to-place (like DND),
-            // LayoutEditor would manage a state like `clickPlacePreview` similar to `draggedItemPreview`
-            // and CanvasCell would read from that. For now, this is a simpler cell-specific highlight.
         } else if (moveCandidateItemId && isHoveredDirectly && !isEraserActive) {
-            // Hover feedback for moving an EXISTING item to this cell (click-to-move)
-            // This is a generic highlight; could be enhanced with validity check
             bgClass = CELL_FEEDBACK_BG_STYLES.clickMoveTargetHoverLight;
         }
 
@@ -177,8 +154,24 @@ const CanvasCell = ({
         currentDraggedItemPreview, isOverForDnd,
         isEraserActive,
         activeToolForPlacement, moveCandidateItemId, isHoveredDirectly,
-        r_minor, c_minor, gridSubdivision, canPlaceItemAtCoords // Added dependencies for new preview
+        r_minor, c_minor, gridSubdivision, canPlaceItemAtCoords
     ]);
+
+    // Construct a dynamic aria-label based on the current interaction state
+    // This is an example; more complex logic might be needed depending on desired verbosity
+    const dynamicAriaLabel = useMemo(() => {
+        let label = `${sl.gridCellRoleDescription || "Layout grid cell"} R${r_minor}C${c_minor}.`;
+        if (isEraserActive && isHoveredDirectly) {
+            label += ` Hovering with eraser. Click to erase.`; // Localize this phrase
+        } else if (activeToolForPlacement && isHoveredDirectly) {
+            label += ` Potential placement for ${activeToolForPlacement.name}. Click to place.`; // Localize
+        } else if (moveCandidateItemId && isHoveredDirectly) {
+            label += ` Potential move target. Click to move selected item here.`; // Localize
+        }
+        // Add more states if needed (e.g., DND hover)
+        return label;
+    }, [r_minor, c_minor, isEraserActive, activeToolForPlacement, moveCandidateItemId, isHoveredDirectly]);
+
 
     return (
         <div
@@ -190,8 +183,11 @@ const CanvasCell = ({
             role="gridcell"
             aria-rowindex={r_minor}
             aria-colindex={c_minor}
+            aria-label={dynamicAriaLabel} // Dynamically constructed label
+        // title could also be set dynamically if needed for mouse users,
+        // but aria-label covers screen readers.
         >
-            {/* Cell content */}
+            {/* Cell content is primarily visual feedback and drop target, no direct text */}
         </div>
     );
 };

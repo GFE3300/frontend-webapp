@@ -2,16 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Modal from '../../../../components/animated_alerts/Modal.jsx';
-import Icon from '../../../../components/common/Icon.jsx'; // Adjusted path
-import LayoutEditor from './LayoutEditor.jsx'; // Adjusted path
+import Icon from '../../../../components/common/Icon.jsx';
+import LayoutEditor from './LayoutEditor.jsx';
 
 import TableCard from '../live_view/TableCard.jsx';
 import OrderDetailsModalContent from '../live_view/OrderDetailsModalContent.jsx';
-// import ViewedOrdersSidebar from './ViewedOrdersSidebar'; // If we create this later
 
 import useLayoutData from '../../hooks/useLayoutData.js';
 import { timeSince as timeSinceUtil, VENDOR_VIEW_GRID_TRACK_SIZE } from '../../utils/orderUtils.js';
-// DEFAULT_LAYOUT_DESIGNER_ROWS/COLS from orderUtils are used by useLayoutData for initialization
+
+// Localization
+import slRaw, { interpolate, formatCurrency } from '../../utils/script_lines.js';
+
+const sl = slRaw.venueManagement.liveOrderDashboard;
 
 const LiveOrderDashboard = () => {
     const [isDesigningLayout, setIsDesigningLayout] = useState(false);
@@ -31,13 +34,13 @@ const LiveOrderDashboard = () => {
         updateTableStatusAndOrder,
         clearTableOrder,
         placeSimulatedOrder,
-        resetLayoutToDefaults,
-        tables, // Derived from layoutData in the hook
+        // resetLayoutToDefaults, // Not directly used in this component's UI actions
+        tables,
         currentGridDimensions,
         kitchenArea,
-        newOrdersCount, // Derived
-        viewedOrders,   // Derived
-    } = useLayoutData(openDashboardAlert); // Pass alert fn to the hook
+        newOrdersCount,
+        viewedOrders,
+    } = useLayoutData(openDashboardAlert);
 
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
     const [selectedTableForModal, setSelectedTableForModal] = useState(null);
@@ -49,7 +52,7 @@ const LiveOrderDashboard = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 30000); // Refresh time for display
+        const timer = setInterval(() => setCurrentTime(new Date()), 30000);
         return () => clearInterval(timer);
     }, []);
 
@@ -83,18 +86,26 @@ const LiveOrderDashboard = () => {
 
     const handleSimulateNewOrder = useCallback(() => {
         const success = placeSimulatedOrder();
-        if (!success && layoutData.tables.length > 0) { // only show if tables exist but are full
-            // The hook itself calls openDashboardAlert if no empty tables
+        if (!success && layoutData.tables.length > 0) {
+            // Alert handled by useLayoutData
         } else if (!success && layoutData.tables.length === 0) {
-            openDashboardAlert('No Tables Defined', 'Please design the table layout first before simulating orders.', 'info');
+            openDashboardAlert(
+                sl.alertNoTablesForSimulateTitle || "No Tables Defined",
+                sl.alertNoTablesForSimulateMessage || "Please design the table layout first before simulating orders.",
+                'info'
+            );
         }
     }, [placeSimulatedOrder, layoutData.tables, openDashboardAlert]);
 
-    const handleSaveDesignedLayout = useCallback((newLayoutDataFromDesigner) => {
-        saveDesignedLayout(newLayoutDataFromDesigner);
-        setIsDesigningLayout(false);
+    const handleSaveDesignedLayout = useCallback(async (newLayoutDataFromDesigner) => {
+        // Pass the data directly; saveDesignedLayout in useLayoutData now expects frontend format
+        const success = await saveDesignedLayout(newLayoutDataFromDesigner);
+        if (success) {
+            setIsDesigningLayout(false);
+        }
         // Alert is handled by the useLayoutData hook
     }, [saveDesignedLayout]);
+
 
     const numCols = currentGridDimensions.cols;
     let gridGapClass = 'gap-3';
@@ -103,53 +114,73 @@ const LiveOrderDashboard = () => {
     else if (numCols > 25) gridGapClass = 'gap-1.5';
 
     if (isDesigningLayout) {
+        // LayoutEditor expects initialLayout prop with designItems and gridDimensions
+        const editorInitialLayout = {
+            designItems: tables, // `tables` from useLayoutData are already in frontend format
+            gridDimensions: currentGridDimensions,
+            name: layoutData?.name, // Pass layout name if available
+        };
         return (
             <LayoutEditor
-                currentLayout={{ // Pass as an object
-                    designItems: tables, // The actual items from useLayoutData's 'tables' property
-                    gridDimensions: currentGridDimensions, // The current grid dimensions
-                    // kitchenArea could also be passed if LayoutEditor is expected to manage it
-                }}
-                onSaveLayout={handleSaveDesignedLayout}
-                onCancel={() => setIsDesigningLayout(false)}
+                initialLayout={editorInitialLayout}
+                onSaveTrigger={handleSaveDesignedLayout} // Changed from onSaveLayout
+                onContentChange={() => { /* To be implemented if LayoutEditor needs to signal changes upwards */ }}
+                openAlert={openDashboardAlert}
+                // onCancel={() => setIsDesigningLayout(false)} // LayoutEditor should handle its own exit flow
+                isZenMode={false} // Assuming LayoutEditor is not in Zen mode by default here
+                onToggleZenMode={() => { }} // Pass a no-op or implement if LayoutEditor controls global Zen
             />
         );
     }
+
+    const localeCurrencyConfig = {
+        currencySymbol: slRaw.currencySymbol,
+        currencyFormat: slRaw.currencyFormat,
+        decimalSeparator: slRaw.decimalSeparator,
+        thousandSeparator: slRaw.thousandSeparator,
+        decimals: slRaw.decimals,
+    };
 
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="bg-gradient-to-tr from-indigo-50 via-white to-pink-50" // Applied to outermost container
+            className="bg-gradient-to-tr from-indigo-50 via-white to-pink-50"
         >
             <div className="flex h-screen overflow-hidden">
                 <main className="flex-1 flex flex-col overflow-hidden">
                     <div className="p-4 shrink-0">
                         <div className="flex justify-between items-center mb-2">
-                            <h1 className="text-3xl font-bold text-indigo-700">Bakery Orders</h1>
-                            {viewedOrders.length > 0 && ( // Only show toggle if sidebar has content
+                            <h1 className="text-3xl font-bold text-indigo-700">{sl.title || "Bakery Orders"}</h1>
+                            {viewedOrders.length > 0 && (
                                 <button
                                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                     className="p-2 rounded-md hover:bg-indigo-100 text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    title={isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+                                    title={isSidebarOpen ? (sl.hideSidebar || "Hide Sidebar") : (sl.showSidebar || "Show Sidebar")}
                                 >
                                     <Icon name={isSidebarOpen ? "last_page" : "first_page"} className="w-6 h-6" />
                                 </button>
                             )}
                         </div>
-                        <p className="text-sm text-gray-500 text-center mb-1">Live Table Status (Refreshes {timeSinceUtil(currentTime)})</p>
+                        <p className="text-sm text-gray-500 text-center mb-1">
+                            {interpolate(sl.liveStatusTitle || "Live Table Status (Refreshes {timeAgo})", { timeAgo: timeSinceUtil(currentTime) })}
+                        </p>
                         <div className="flex justify-center items-center gap-4 mb-4 text-xs">
                             <span className={`px-2 py-1 rounded-full font-medium ${newOrdersCount > 0 ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-600'}`}>
-                                New Orders: {newOrdersCount}
+                                {interpolate(sl.newOrdersLabel || "New Orders: {count}", { count: newOrdersCount })}
                             </span>
                             <span className={`px-2 py-1 rounded-full font-medium ${viewedOrders.length > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-600'}`}>
-                                Active Viewed: {viewedOrders.length}
+                                {interpolate(sl.activeViewedLabel || "Active Viewed: {count}", { count: viewedOrders.length })}
                             </span>
                         </div>
                         <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-2">
-                            <button onClick={() => setIsDesigningLayout(true)} className="px-5 py-1.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 shadow text-sm">Design Table Layout</button>
-                            <button onClick={handleSimulateNewOrder} className="px-5 py-1.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 shadow text-sm">Simulate New Order</button>
+                            <button onClick={() => setIsDesigningLayout(true)} className="px-5 py-1.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 shadow text-sm">
+                                {sl.designLayoutButton || "Design Table Layout"}
+                            </button>
+                            <button onClick={handleSimulateNewOrder} className="px-5 py-1.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 shadow text-sm">
+                                {sl.simulateOrderButton || "Simulate New Order"}
+                            </button>
                         </div>
                     </div>
 
@@ -176,16 +207,17 @@ const LiveOrderDashboard = () => {
                                         }}
                                         className="bg-slate-200 border-2 border-slate-400 rounded-md opacity-60 flex items-center justify-center pointer-events-none"
                                     >
-                                        <span className="text-slate-600 font-semibold text-sm">Kitchen</span>
+                                        <span className="text-slate-600 font-semibold text-sm">{sl.kitchenAreaLabel || "Kitchen"}</span>
                                     </motion.div>
                                 )}
                                 <AnimatePresence>
                                     {tables.map(table => (
                                         <TableCard
-                                            key={`${table.id}-${table.status}-${table.order?.id || 'noorder'}`} // More robust key
+                                            key={`${table.id}-${table.status}-${table.order?.id || 'noorder'}`}
                                             tableData={table}
                                             onClick={handleTableClick}
-                                            onRightClick={handleTableRightClick}
+                                            onLongPress={handleTableRightClick} // Renamed from onRightClick
+                                            // isTouchDevice prop will be handled inside TableCard if needed based on device detection there
                                             gridCols={numCols}
                                             timeSince={timeSinceUtil}
                                         />
@@ -194,15 +226,15 @@ const LiveOrderDashboard = () => {
                             </div>
                         ) : (
                             <div className="text-center text-gray-500 mt-8 p-6 bg-white rounded-lg shadow">
-                                <p className="font-semibold text-lg mb-2">No tables defined yet.</p>
-                                <p className="mb-4">Click "Design Table Layout" to get started.</p>
+                                <p className="font-semibold text-lg mb-2">{sl.noTablesDefinedTitle || "No tables defined yet."}</p>
+                                <p className="mb-4">{sl.noTablesDefinedMessage || "Click \"Design Table Layout\" to get started."}</p>
                                 <Icon name="table_restaurant" className="w-16 h-16 text-gray-300 mx-auto" />
                             </div>
                         )}
                     </div>
 
                     <footer className="text-center p-4 text-gray-400 text-xs border-t border-gray-200 bg-gray-50 shrink-0">
-                        Bakery Table Management System © {new Date().getFullYear()}
+                        {interpolate(sl.footerText || "Bakery Table Management System © {year}", { year: new Date().getFullYear() })}
                     </footer>
                 </main>
 
@@ -217,12 +249,12 @@ const LiveOrderDashboard = () => {
                         >
                             <div className="p-4 border-b border-gray-200 shrink-0">
                                 <h2 className="text-xl font-semibold text-indigo-600">
-                                    Viewed Orders ({viewedOrders.length})
+                                    {interpolate(sl.viewedOrdersTitle || "Viewed Orders ({count})", { count: viewedOrders.length })}
                                 </h2>
                             </div>
                             <ul className="space-y-3 overflow-y-auto flex-1 p-4">
                                 <AnimatePresence>
-                                    {viewedOrders.map(table => ( // table here is the full table object which includes order
+                                    {viewedOrders.map(table => (
                                         <motion.li
                                             key={`${table.order.id}-sidebar`}
                                             layout
@@ -234,19 +266,26 @@ const LiveOrderDashboard = () => {
                                         >
                                             <div className="flex justify-between items-center">
                                                 <div>
-                                                    <p className="font-medium text-base text-purple-700">Table {table.order.tableNumber}</p>
-                                                    <p className="text-xs text-gray-500">ID: {table.order.id.substring(0, 15)}...</p>
+                                                    <p className="font-medium text-base text-purple-700">
+                                                        {interpolate(sl.tableLabel || "Table {number}", { number: table.order.tableNumber })}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {interpolate(sl.idLabel || "ID: {id}...", { id: table.order.id.substring(0, 10) })}
+                                                    </p>
                                                 </div>
                                                 <span className={`text-[10px] px-2 py-0.5 rounded-full ${(new Date() - new Date(table.order.createdAt)) > 300000 ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-800'
-                                                    // 300000ms = 5 minutes
-                                                    }`}>{(new Date() - new Date(table.order.createdAt)) > 300000 ? 'Delayed' : 'Active'}</span>
+                                                    }`}>
+                                                    {(new Date() - new Date(table.order.createdAt)) > 300000 ? (sl.delayedStatus || "Delayed") : (sl.activeStatus || "Active")}
+                                                </span>
                                             </div>
                                             <p className="text-xs mt-1.5 text-gray-600">
-                                                <strong>Items:</strong> {table.order.items.map(item => `${item.name} (x${item.qty})`).join(', ')}
+                                                <strong>{sl.itemsLabel || "Items:"}</strong> {table.order.items.map(item => `${item.name} (x${item.qty})`).join(', ')}
                                             </p>
-                                            <p className="text-xs text-gray-600"><strong>People:</strong> {table.order.people}</p>
+                                            <p className="text-xs text-gray-600"><strong>{sl.peopleLabel || "People:"}</strong> {table.order.people}</p>
                                             <p className="text-sm font-medium text-gray-700 mt-1">
-                                                <strong>Total:</strong> ${table.order.totalPrice.toFixed(2)}
+                                                <strong>
+                                                    {interpolate(sl.totalPriceLabel || "Total: {price}", { price: formatCurrency(table.order.totalPrice, localeCurrencyConfig) })}
+                                                </strong>
                                             </p>
                                             <p className={`text-[10px] text-gray-500 mt-1 text-right ${(new Date() - new Date(table.order.createdAt)) > 600000 ? 'font-semibold text-amber-600' : ''}`}>
                                                 {timeSinceUtil(table.order.createdAt)}
@@ -260,11 +299,10 @@ const LiveOrderDashboard = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Modals */}
             <Modal
                 isOpen={isOrderModalOpen}
                 onClose={() => setIsOrderModalOpen(false)}
-                title={`Order Details: Table ${selectedTableForModal?.order?.tableNumber || ''}`}
+                title={interpolate(sl.orderDetailsTitle || "Order Details: Table {number}", { number: selectedTableForModal?.order?.tableNumber || '' })}
                 type="info"
             >
                 <OrderDetailsModalContent order={selectedTableForModal?.order} timeSince={timeSinceUtil} />
@@ -273,13 +311,13 @@ const LiveOrderDashboard = () => {
             <Modal
                 isOpen={isChargeConfirmationOpen}
                 onClose={cancelClearOrder}
-                title="Confirm Charge & Clear Table"
+                title={sl.confirmChargeTitle || "Confirm Charge & Clear Table"}
                 type="warning"
                 onConfirm={confirmAndClearOrder}
-                confirmText="Yes, Charged & Clear"
-                cancelText="No, Not Yet"
+                confirmText={sl.confirmChargeConfirmText || "Yes, Charged & Clear"}
+                cancelText={sl.confirmChargeCancelText || "No, Not Yet"}
             >
-                <p>Have you charged the client and are ready to clear Table {tableToClear?.number}?</p>
+                <p>{interpolate(sl.confirmChargeMessage || "Have you charged the client and are ready to clear Table {number}?", { number: tableToClear?.number || '' })}</p>
             </Modal>
 
             <Modal

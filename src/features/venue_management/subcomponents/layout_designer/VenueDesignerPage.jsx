@@ -1,29 +1,25 @@
-// features\venue_management\subcomponents\layout_designer\VenueDesignerPage.jsx
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'; // Added useRef
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// New Header Component
 import VenueDesignerHeader from './VenueDesignerHeader';
-
-// Core UI
 import LayoutEditor from './LayoutEditor';
 import VenueLayoutPreview from './VenueLayoutPreview';
-
-// Hooks
 import useLayoutData from '../../hooks/useLayoutData';
-
-// Common Components
 import Icon from '../../../../components/common/Icon';
 import ConfirmationModal from '../../../../components/common/ConfirmationModal';
 
-// Constants & Utils
 import {
     DEFAULT_INITIAL_GRID_ROWS,
     DEFAULT_INITIAL_GRID_COLS,
     DEFAULT_GRID_SUBDIVISION,
 } from '../../constants/layoutConstants';
 import { parseBackendLayoutItemsToFrontend } from '../../utils/layoutUtils';
+
+// Localization
+import slRaw from '../../utils/script_lines.js'; // No interpolate needed directly here but good practice
+const sl = slRaw.venueManagement.venueDesignerPage;
+const slCommon = slRaw; // For general strings like "Error", "Info"
 
 const STABLE_EMPTY_FRONTEND_DESIGN_ITEMS = Object.freeze([]);
 const DEFAULT_FRONTEND_GRID_DIMENSIONS = Object.freeze({
@@ -50,7 +46,7 @@ const VenueDesignerPage = () => {
     const openAlert = useCallback((title, message, type = 'info') => {
         setAlertModalContent({ title, message, type });
         setAlertModalOpen(true);
-    }, [setAlertModalContent, setAlertModalOpen]); // Stable dependencies
+    }, []);
 
     const closeAlert = useCallback(() => setAlertModalOpen(false), []);
 
@@ -70,7 +66,7 @@ const VenueDesignerPage = () => {
             return {
                 designItems: STABLE_EMPTY_FRONTEND_DESIGN_ITEMS,
                 gridDimensions: { ...DEFAULT_FRONTEND_GRID_DIMENSIONS },
-                name: 'Default Venue Layout',
+                name: sl.defaultLayoutName || 'Default Venue Layout',
             };
         }
         const frontendDesignItems = parseBackendLayoutItemsToFrontend(
@@ -84,7 +80,7 @@ const VenueDesignerPage = () => {
                 cols: backendLayoutData.grid_cols || DEFAULT_INITIAL_GRID_COLS,
                 gridSubdivision: backendLayoutData.grid_subdivision || DEFAULT_GRID_SUBDIVISION,
             },
-            name: backendLayoutData.name || 'Default Venue Layout',
+            name: backendLayoutData.name || sl.defaultLayoutName || 'Default Venue Layout',
         };
     }, [initialFetchDone, backendLayoutData]);
 
@@ -112,7 +108,7 @@ const VenueDesignerPage = () => {
         const handleBeforeUnload = (e) => {
             if (hasUnsavedChanges) {
                 e.preventDefault();
-                e.returnValue = '';
+                e.returnValue = ''; // Standard for most browsers
             }
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
@@ -124,6 +120,8 @@ const VenueDesignerPage = () => {
             logDebug("Content changed in editor. Setting hasUnsavedChanges to true.");
             setHasUnsavedChanges(true);
         }
+        // When content changes in editor, assume we are no longer previewing a specific "unsaved" state.
+        // The editor itself is now the source of truth for any unsaved data.
         setUnsavedEditorStateForPreview(null);
     }, [hasUnsavedChanges]);
 
@@ -131,7 +129,7 @@ const VenueDesignerPage = () => {
         logDebug("handleSaveLayoutFromEditor called with data from LayoutEditor.");
         const layoutToSave = {
             ...designedLayoutFromChildInFrontendFormat,
-            name: designedLayoutFromChildInFrontendFormat.name || backendLayoutData?.name || 'Default Venue Layout'
+            name: designedLayoutFromChildInFrontendFormat.name || backendLayoutData?.name || (sl.defaultLayoutName || 'Default Venue Layout')
         };
         const success = await saveDesignedLayout(layoutToSave);
         if (success) {
@@ -142,9 +140,8 @@ const VenueDesignerPage = () => {
         return success;
     }, [saveDesignedLayout, backendLayoutData?.name]);
 
-    const layoutEditorRef = React.useRef(null);
+    const layoutEditorRef = useRef(null); // Changed React.useRef to useRef
 
-    // Refs for state values to stabilize callbacks
     const isEditorModeActiveRef = useRef(isEditorModeActive);
     const hasUnsavedChangesRef = useRef(hasUnsavedChanges);
 
@@ -163,13 +160,13 @@ const VenueDesignerPage = () => {
         } else {
             setIsEditorModeActive(prevIsEditorModeActive => {
                 const newIsEditorModeActive = !prevIsEditorModeActive;
-                if (!newIsEditorModeActive) { // If toggling TO preview mode
+                if (!newIsEditorModeActive) {
                     setUnsavedEditorStateForPreview(null);
                 }
                 return newIsEditorModeActive;
             });
         }
-    }, [setIsToggleModeConfirmationOpen, setIsEditorModeActive, setUnsavedEditorStateForPreview]); // Dependencies are now stable setters
+    }, []); // Dependencies are stable setters
 
     const handleToggleModeConfirmation = useCallback((action) => {
         setIsToggleModeConfirmationOpen(false);
@@ -181,30 +178,34 @@ const VenueDesignerPage = () => {
                 captureCurrentEditorState(currentEditorSnapshot);
                 setIsEditorModeActive(false);
                 openAlert(
-                    "Previewing Unsaved Changes",
-                    "You are viewing your current unsaved changes. These are not yet saved to the server.",
+                    sl.previewingUnsavedAlertTitle || "Previewing Unsaved Changes",
+                    sl.previewingUnsavedAlertMessage || "You are viewing your current unsaved changes. These are not yet saved to the server.",
                     "info"
                 );
             } else {
-                openAlert("Error", "Could not get current editor state for preview. Please save first.", "error");
+                openAlert(
+                    sl.errorGettingEditorStateTitle || slCommon.error || "Error",
+                    sl.errorGettingEditorStateMessage || "Could not get current editor state for preview. Please save first.",
+                    "error"
+                );
             }
         } else if (action === 'previewLastSaved') {
-            setUnsavedEditorStateForPreview(null);
-            setIsEditorModeActive(false);
+            setUnsavedEditorStateForPreview(null); // Clear any temp preview state
+            setIsEditorModeActive(false); // Switch to preview mode
             openAlert(
-                "Previewing Last Saved Layout",
-                "Showing the last saved version. Your unsaved changes remain in the editor.",
+                sl.previewingLastSavedAlertTitle || "Previewing Last Saved Layout",
+                sl.previewingLastSavedAlertMessage || "Showing the last saved version. Your unsaved changes remain in the editor.",
                 "info"
             );
         }
-    }, [openAlert, captureCurrentEditorState]); // setIsEditorModeActive removed as it's handled by the callback from `handleAttemptToggleMode` now
+    }, [openAlert, captureCurrentEditorState]);
 
     const handleNavigateToOperationalView = useCallback(() => navigate('/'), [navigate]);
 
     const handleAttemptExitPage = useCallback(() => {
-        if (hasUnsavedChangesRef.current) setIsExitConfirmationOpen(true); // Use ref here
+        if (hasUnsavedChangesRef.current) setIsExitConfirmationOpen(true);
         else handleNavigateToOperationalView();
-    }, [handleNavigateToOperationalView]); // hasUnsavedChanges removed, using ref
+    }, [handleNavigateToOperationalView]);
 
     const confirmAndExitPage = useCallback((discardChanges) => {
         setIsExitConfirmationOpen(false);
@@ -219,12 +220,15 @@ const VenueDesignerPage = () => {
 
     const handleDownloadAllQRsForPreview = useCallback(() => {
         logDebug("Trigger Download All QRs from Preview (if button were here)");
+        // This function would likely be passed to VenueLayoutPreview if the button is there
+        // For now, it's tied to the header's context.
     }, []);
 
 
     if (isLoadingLayout && !initialFetchDone) {
         return <VenueDesignerPage.Loading />;
     }
+    // initialFetchDone but backendLayoutData is still null/undefined usually indicates an unrecoverable error from useLayoutData
     if (initialFetchDone && !backendLayoutData) {
         return <VenueDesignerPage.Error />;
     }
@@ -236,12 +240,12 @@ const VenueDesignerPage = () => {
                     isEditorModeActive={isEditorModeActive}
                     hasUnsavedChanges={hasUnsavedChanges}
                     isSavingLayout={isSavingLayout}
-                    isLoadingLayout={isLoadingLayout && initialFetchDone} // Show loading only after initial fetch if still loading
+                    isLoadingLayout={isLoadingLayout && initialFetchDone}
                     onToggleMode={handleAttemptToggleMode}
-                    onAttemptExitPage={handleAttemptExitPage}
+                    onAttemptExitPage={handleAttemptExitPage} // This prop might be for a "back" button not shown
                     onToggleZenMode={toggleZenMode}
                     layoutName={layoutDataForEditorInitialization.name}
-                    onDownloadAllQRs={handleDownloadAllQRsForPreview}
+                    onDownloadAllQRs={handleDownloadAllQRsForPreview} // Passed to header
                 />
             )}
 
@@ -262,7 +266,10 @@ const VenueDesignerPage = () => {
                                 />
                             </motion.div>
                         ) : (
-                            <div className="flex items-center justify-center h-full"><Icon name="progress_activity" className="w-8 h-8 animate-spin mr-2" />Initializing Editor...</div>
+                            <div className="flex items-center justify-center h-full">
+                                <Icon name="progress_activity" className="w-8 h-8 animate-spin mr-2" />
+                                {sl.initializingEditor || "Initializing Editor..."}
+                            </div>
                         )
                     ) : (
                         currentLayoutDataForPreview ? (
@@ -275,7 +282,10 @@ const VenueDesignerPage = () => {
                                 />
                             </motion.div>
                         ) : (
-                            <div className="flex items-center justify-center h-full"><Icon name="progress_activity" className="w-8 h-8 animate-spin mr-2" />Loading Preview...</div>
+                            <div className="flex items-center justify-center h-full">
+                                <Icon name="progress_activity" className="w-8 h-8 animate-spin mr-2" />
+                                {sl.loadingPreview || "Loading Preview..."}
+                            </div>
                         )
                     )}
                 </AnimatePresence>
@@ -284,30 +294,30 @@ const VenueDesignerPage = () => {
             <ConfirmationModal
                 isOpen={isToggleModeConfirmationOpen}
                 onClose={() => handleToggleModeConfirmation('cancel')}
-                title="Unsaved Changes"
-                message="You have unsaved changes. How would you like to proceed to Preview Mode?"
+                title={sl.unsavedChangesTitle || "Unsaved Changes"}
+                message={sl.switchToPreviewConfirmationMessage || "You have unsaved changes. How would you like to proceed to Preview Mode?"}
                 customActions={[
-                    { text: "Preview Unsaved", onClick: () => handleToggleModeConfirmation('previewUnsaved'), styleType: 'primary' },
-                    { text: "Preview Last Saved", onClick: () => handleToggleModeConfirmation('previewLastSaved'), styleType: 'secondary' },
+                    { text: sl.previewUnsavedButton || "Preview Unsaved", onClick: () => handleToggleModeConfirmation('previewUnsaved'), styleType: 'primary' },
+                    { text: sl.previewLastSavedButton || "Preview Last Saved", onClick: () => handleToggleModeConfirmation('previewLastSaved'), styleType: 'secondary' },
                 ]}
-                cancelText="Stay in Design Mode"
+                cancelText={sl.stayInDesignButton || "Stay in Design Mode"}
                 type="warning"
             />
             <ConfirmationModal
                 isOpen={isExitConfirmationOpen}
                 onClose={() => setIsExitConfirmationOpen(false)}
                 onConfirm={() => confirmAndExitPage(true)}
-                title="Exit Layout Manager"
-                message="You have unsaved changes. Are you sure you want to exit and discard them?"
-                confirmText="Discard & Exit"
-                cancelText="Stay on Page"
+                title={sl.exitLayoutManagerTitle || "Exit Layout Manager"}
+                message={sl.exitLayoutManagerConfirmationMessage || "You have unsaved changes. Are you sure you want to exit and discard them?"}
+                confirmText={sl.discardAndExitButton || "Discard & Exit"}
+                cancelText={sl.stayOnPageButton || "Stay on Page"}
                 type="danger"
             />
 
             <ConfirmationModal
                 isOpen={alertModalOpen}
                 onClose={closeAlert}
-                onConfirm={closeAlert}
+                onConfirm={closeAlert} // For simple alerts, confirm acts as close
                 title={alertModalContent.title}
                 message={alertModalContent.message}
                 type={alertModalContent.type}
@@ -320,16 +330,27 @@ const VenueDesignerPage = () => {
 VenueDesignerPage.Loading = () => (
     <div className="flex items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900">
         <Icon name="progress_activity" aria-hidden="true" className="w-12 h-12 text-rose-500 dark:text-rose-400 animate-spin" />
-        <p className="ml-3 text-lg font-montserrat font-semibold text-rose-700 dark:text-rose-400">Loading Venue Designer...</p>
+        <p className="ml-3 text-lg font-montserrat font-semibold text-rose-700 dark:text-rose-400">
+            {sl.loadingPageTitle || "Loading Venue Designer..."}
+        </p>
     </div>
 );
 
 VenueDesignerPage.Error = () => (
     <div className="flex flex-col items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900 p-6 text-center">
         <Icon name="error_outline" aria-hidden="true" className="w-16 h-16 text-red-500 dark:text-red-400 mb-4" />
-        <h2 className="text-xl font-montserrat font-semibold text-red-700 dark:text-red-400 mb-2">Failed to Load Layout Data</h2>
-        <p className="text-neutral-600 dark:text-neutral-300 mb-6">Could not initialize layout data. Please try refreshing. If the problem persists, contact support.</p>
-        <button onClick={() => window.location.reload()} className="px-6 py-2.5 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition-colors">Refresh Page</button>
+        <h2 className="text-xl font-montserrat font-semibold text-red-700 dark:text-red-400 mb-2">
+            {sl.errorPageTitle || "Failed to Load Layout Data"}
+        </h2>
+        <p className="text-neutral-600 dark:text-neutral-300 mb-6">
+            {sl.errorPageMessage || "Could not initialize layout data. Please try refreshing. If the problem persists, contact support."}
+        </p>
+        <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2.5 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition-colors"
+        >
+            {sl.refreshPageButton || "Refresh Page"}
+        </button>
     </div>
 );
 

@@ -1,54 +1,60 @@
 import { useState, useEffect, useCallback } from 'react';
-import apiService from '../../../services/api'; // Import the apiService
-// Import constants for default layout structure
+import apiService from '../../../services/api';
 import {
     DEFAULT_INITIAL_GRID_ROWS,
     DEFAULT_INITIAL_GRID_COLS,
     DEFAULT_GRID_SUBDIVISION
 } from '../constants/layoutConstants';
-// ItemTypes is not directly used here for parsing but good to be aware of them from itemConfigs.
 
-// Helper function to build the default layout structure in BACKEND format
+// Localization
+import slRaw, { interpolate } from '../utils/script_lines.js';
+
+const sl = slRaw.venueManagement.useLayoutData;
+
 const buildDefaultBackendLayout = () => ({
-    id: null, // No ID for a new, unsaved layout
-    name: 'Default Venue Layout', // Default name
+    id: null,
+    name: 'Default Venue Layout', // This could also be localized if needed for new layouts
     grid_rows: DEFAULT_INITIAL_GRID_ROWS,
     grid_cols: DEFAULT_INITIAL_GRID_COLS,
     grid_subdivision: DEFAULT_GRID_SUBDIVISION,
-    items: [], // designItems will be 'items' in backend format
-    // kitchen_area_definition might be another field if backend supports it explicitly
+    items: [],
 });
 
 const useLayoutData = (openAlertModal) => {
-    const [layoutData, setLayoutData] = useState(null); // Stores layout in BACKEND format
+    const [layoutData, setLayoutData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [initialFetchDone, setInitialFetchDone] = useState(false);
 
-    // Fetch layout from backend on mount
     useEffect(() => {
         const fetchLayout = async () => {
             setIsLoading(true);
             try {
                 const response = await apiService.getActiveVenueLayout();
-                if (response.data && response.data.id) { // Existing layout found
+                if (response.data && response.data.id) {
                     setLayoutData({
                         ...response.data,
                         items: Array.isArray(response.data.items) ? response.data.items : [],
                     });
-                    console.log("[useLayoutData] Layout fetched from backend:", response.data);
+                    // console.log("[useLayoutData] Layout fetched from backend:", response.data);
                 } else {
-                    // No layout found (e.g., 204 No Content, or backend signals new business by returning empty/null)
-                    console.log("[useLayoutData] No active layout found on backend. Using default local structure.");
+                    // console.log("[useLayoutData] No active layout found on backend. Using default local structure.");
+                    if (openAlertModal) { // Inform user about using default
+                        openAlertModal(
+                            slRaw.info || "Info", // Using a common "Info" title
+                            sl.noActiveLayoutMessage || "No active layout found on backend. Using default local structure.",
+                            "info"
+                        );
+                    }
                     setLayoutData(buildDefaultBackendLayout());
                 }
             } catch (error) {
                 console.error("[useLayoutData] Error fetching layout from backend:", error);
                 if (openAlertModal) {
-                    const message = error.response?.data?.detail || error.message || "Could not load venue layout from the server.";
-                    openAlertModal("Loading Error", message, "error");
+                    const message = error.response?.data?.detail || error.message || (sl.loadingErrorMessageDefault || "Could not load venue layout from the server.");
+                    openAlertModal(sl.loadingErrorTitle || "Loading Error", message, "error");
                 }
-                setLayoutData(buildDefaultBackendLayout()); // Fallback to default
+                setLayoutData(buildDefaultBackendLayout());
             } finally {
                 setIsLoading(false);
                 setInitialFetchDone(true);
@@ -56,32 +62,31 @@ const useLayoutData = (openAlertModal) => {
         };
 
         fetchLayout();
-        // If openAlertModal is stable (only depends on setters), this will run once.
-        // If openAlertModal depends on state values, this could re-run.
     }, [openAlertModal]);
 
     const saveDesignedLayout = useCallback(async (designedLayoutDataFromEditor) => {
-
-        console.log("[useLayoutData] designedLayoutDataFromEditor received:", JSON.stringify(designedLayoutDataFromEditor, null, 2));
-
-        // designedLayoutDataFromEditor: { designItems (frontend format), gridDimensions, name (optional) }
-        if (!initialFetchDone) { // Prevent saving if initial load isn't complete
-            if (openAlertModal) openAlertModal("Save Error", "Layout data is not yet loaded. Please wait and try again.", "warning");
+        if (!initialFetchDone) {
+            if (openAlertModal) openAlertModal(
+                sl.saveErrorTitle || "Save Error",
+                sl.saveErrorNotLoaded || "Layout data is not yet loaded. Please wait and try again.",
+                "warning"
+            );
             return false;
         }
         if (!designedLayoutDataFromEditor) {
-            if (openAlertModal) openAlertModal("Save Error", "No layout data provided to save.", "error");
+            if (openAlertModal) openAlertModal(
+                sl.saveErrorTitle || "Save Error",
+                sl.saveErrorNoData || "No layout data provided to save.",
+                "error"
+            );
             return false;
         }
 
         setIsSaving(true);
         const { designItems: frontendItems, gridDimensions: newGridDimensions, name: layoutNameFromEditor } = designedLayoutDataFromEditor;
 
-        console.log("[useLayoutData] Extracted frontendItems:", JSON.stringify(frontendItems, null, 2));
-
         const backendItems = (frontendItems || []).map(feItem => {
             const beItem = {
-                // Handle ID: if client-generated, send undefined so backend assigns UUID.
                 id: (feItem.id?.startsWith("item_") || feItem.id?.startsWith("loaded_item_")) ? undefined : feItem.id,
                 item_type: feItem.itemType,
                 grid_row_start: feItem.gridPosition?.rowStart,
@@ -94,73 +99,64 @@ const useLayoutData = (openAlertModal) => {
                 item_specific_props: {}
             };
 
-            // Known base frontend keys that are NOT part of item_specific_props
-            // and are handled above or are purely frontend (effW_minor, effH_minor).
             const baseFrontendKeys = ['id', 'itemType', 'gridPosition', 'w_minor', 'h_minor', 'rotation', 'layer', 'isFixed', 'effW_minor', 'effH_minor'];
 
             for (const key in feItem) {
                 if (Object.prototype.hasOwnProperty.call(feItem, key) && !baseFrontendKeys.includes(key)) {
-                    // Specific mappings from frontend key to backend item_specific_props key
-                    if (key === 'number') { // For tables
+                    if (key === 'number') {
                         beItem.item_specific_props.table_number = feItem[key];
-                    } else if (key === 'isProvisional') { // For tables
+                    } else if (key === 'isProvisional') {
                         beItem.item_specific_props.is_provisional = feItem[key];
-                    } else if (key === 'swingDirection') { // For doors
+                    } else if (key === 'swingDirection') {
                         beItem.item_specific_props.swing_direction = feItem[key];
-                    } else if (key === 'isOpen') { // For doors
+                    } else if (key === 'isOpen') {
                         beItem.item_specific_props.is_open = feItem[key];
-                    }
-                    // Direct mapping for other known specific props (already named as backend expects)
-                    else if (['seats', 'shape', 'label', 'decorType', 'thickness_minor', 'length_units'].includes(key)) {
+                    } else if (['seats', 'shape', 'label', 'decorType', 'thickness_minor', 'length_units'].includes(key)) {
                         if (feItem[key] !== undefined) {
                             beItem.item_specific_props[key] = feItem[key];
                         }
-                    }
-                    // Any other properties not explicitly handled but not in baseKeys are assumed to be specific
-                    else {
+                    } else {
                         if (feItem[key] !== undefined) {
                             beItem.item_specific_props[key] = feItem[key];
                         }
                     }
                 }
             }
-            // Remove item_specific_props if empty, as per DRF behavior with empty JSONField (null=True)
             if (Object.keys(beItem.item_specific_props).length === 0) {
                 delete beItem.item_specific_props;
             }
             return beItem;
         });
 
-        const currentLayoutId = layoutData?.id; // Get ID from the fetched/current layout state
+        const currentLayoutId = layoutData?.id;
         const currentLayoutName = layoutData?.name;
 
         const payload = {
-            id: currentLayoutId, // Send the ID if updating an existing layout
+            id: currentLayoutId,
             name: layoutNameFromEditor || currentLayoutName || buildDefaultBackendLayout().name,
             grid_rows: newGridDimensions.rows,
             grid_cols: newGridDimensions.cols,
             grid_subdivision: newGridDimensions.gridSubdivision,
             items: backendItems,
-            // kitchen_area_definition: designedLayoutDataFromEditor.kitchenArea, // If backend supports kitchen_area_definition
         };
-
-        console.log("[useLayoutData] FINAL PAYLOAD being sent to backend:", JSON.stringify(payload, null, 2));
 
         try {
             const response = await apiService.saveActiveVenueLayout(payload);
-            setLayoutData({ // Update local state with the response from the backend
+            setLayoutData({
                 ...response.data,
                 items: Array.isArray(response.data.items) ? response.data.items : [],
             });
-            if (openAlertModal) openAlertModal("Layout Saved", "Venue layout has been successfully saved.", "success");
-            console.log("[useLayoutData] Layout saved to backend. New state:", response.data);
-            return true; // Indicate success
+            if (openAlertModal) openAlertModal(
+                sl.layoutSavedTitle || "Layout Saved",
+                sl.layoutSavedMessage || "Venue layout has been successfully saved.",
+                "success"
+            );
+            return true;
         } catch (error) {
             console.error("[useLayoutData] Error saving layout to backend:", error);
             if (openAlertModal) {
-                let message = "Could not save venue layout.";
+                let message = sl.saveErrorDefault || "Could not save venue layout.";
                 if (error.response?.data) {
-                    // Attempt to parse DRF field errors
                     if (typeof error.response.data === 'object') {
                         let fieldErrors = [];
                         for (const field in error.response.data) {
@@ -170,17 +166,20 @@ const useLayoutData = (openAlertModal) => {
                                 fieldErrors.push(`${field}: ${String(error.response.data[field])}`);
                             }
                         }
-                        if (fieldErrors.length > 0) message += ` Details: ${fieldErrors.join('; ')}`;
-                        else if (error.response.data.detail) message = error.response.data.detail; // General detail error
+                        if (fieldErrors.length > 0) {
+                            message += ` ${interpolate(sl.saveErrorDetailsPrefix || "Details: {details}", { details: fieldErrors.join('; ') })}`;
+                        } else if (error.response.data.detail) {
+                            message = error.response.data.detail;
+                        }
                     } else {
-                        message = String(error.response.data); // Non-object error response
+                        message = String(error.response.data);
                     }
                 } else if (error.message) {
                     message = error.message;
                 }
-                openAlertModal("Save Error", message, "error");
+                openAlertModal(sl.saveErrorTitle || "Save Error", message, "error");
             }
-            return false; // Indicate failure
+            return false;
         } finally {
             setIsSaving(false);
         }
@@ -188,29 +187,28 @@ const useLayoutData = (openAlertModal) => {
 
     const resetLayoutToLocalDefaults = useCallback(() => {
         const defaultBackendStruct = buildDefaultBackendLayout();
-        // Preserve current layout's ID and Name for the reset action.
-        // This means "reset" clears items and grid settings for the *current* layout ID.
         const newLayoutState = {
             ...defaultBackendStruct,
-            id: layoutData?.id, // Keep current ID
-            name: layoutData?.name || defaultBackendStruct.name, // Keep current name or default
+            id: layoutData?.id,
+            name: layoutData?.name || defaultBackendStruct.name,
         };
-        setLayoutData(newLayoutState); // Update local state to this default structure
+        setLayoutData(newLayoutState);
         if (openAlertModal) {
-            openAlertModal("Layout Reset Locally", "The layout has been reset to default. Save to persist these changes.", "info");
+            openAlertModal(
+                sl.resetLocallyTitle || "Layout Reset Locally",
+                sl.resetLocallyMessage || "The layout has been reset to default. Save to persist these changes.",
+                "info"
+            );
         }
-        // This action itself signifies a change that will need saving.
-        // The onContentChange in VenueDesignerPage will be triggered if LayoutEditor's
-        // initial state (derived from this) changes compared to its previous state.
     }, [openAlertModal, layoutData]);
 
 
     return {
-        layoutData, // This is in BACKEND format
+        layoutData,
         isLoading,
         isSaving,
         initialFetchDone,
-        saveDesignedLayout, // Expects frontend-formatted layout, transforms it for backend
+        saveDesignedLayout,
         resetLayoutToLocalDefaults,
     };
 };
