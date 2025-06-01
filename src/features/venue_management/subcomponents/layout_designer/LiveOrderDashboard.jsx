@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Modal from '../../../../components/animated_alerts/Modal.jsx';

@@ -18,7 +18,7 @@ const DEBUG_LAYOUT_UTILS_PARSER = "[LayoutUtils Parser DEBUG]";
  */
 export const getEffectiveDimensions = (item) => {
     if (!item || typeof item.w_minor !== 'number' || typeof item.h_minor !== 'number') {
-        console.warn("getEffectiveDimensions: Invalid item or missing w_minor/h_minor. Item:", item, "Defaulting to 1x1.");
+        // console.warn("getEffectiveDimensions: Invalid item or missing w_minor/h_minor. Item:", item, "Defaulting to 1x1.");
         return { w: 1, h: 1 }; // Fallback for malformed items
     }
 
@@ -104,7 +104,7 @@ export const canPlaceItem = (
         isNaN(itemEffW_minor) || isNaN(itemEffH_minor) ||
         itemEffW_minor < MIN_ITEM_DIMENSION_MINOR_CELLS || itemEffH_minor < MIN_ITEM_DIMENSION_MINOR_CELLS
     ) {
-        console.error(DEBUG_LAYOUT_UTILS_PARSER, "canPlaceItem: Invalid input parameters for target position or dimensions.");
+        // console.error(DEBUG_LAYOUT_UTILS_PARSER, "canPlaceItem: Invalid input parameters for target position or dimensions.");
         return false;
     }
 
@@ -193,7 +193,7 @@ export const getDefaultSeatsForSize = (toolSizeIdentifier, toolW_major, toolH_ma
     if (toolW_major === 1 && toolH_major === 1) return 2;
     if ((toolW_major === 2 && toolH_major === 1) || (toolW_major === 1 && toolH_major === 2)) return 4;
     if (toolW_major === 2 && toolH_major === 2) return 4;
-    console.warn(DEBUG_LAYOUT_UTILS_PARSER, `[getDefaultSeatsForSize] No specific seat count for toolSizeIdentifier: '${toolSizeIdentifier}'. Defaulting to 2.`);
+    // console.warn(DEBUG_LAYOUT_UTILS_PARSER, `[getDefaultSeatsForSize] No specific seat count for toolSizeIdentifier: '${toolSizeIdentifier}'. Defaulting to 2.`);
     return 2;
 };
 
@@ -206,7 +206,7 @@ export const getDefaultSeatsForSize = (toolSizeIdentifier, toolW_major, toolH_ma
  */
 export const parseBackendItemToFrontend = (backendItem, gridSubdivision = DEFAULT_GRID_SUBDIVISION, itemIndexForId = 0) => {
     if (!backendItem || typeof backendItem !== 'object') {
-        console.warn(DEBUG_LAYOUT_UTILS_PARSER, "parseBackendItemToFrontend: Invalid backendItem received.", backendItem);
+        // console.warn(DEBUG_LAYOUT_UTILS_PARSER, "parseBackendItemToFrontend: Invalid backendItem received.", backendItem);
         return null;
     }
 
@@ -278,7 +278,7 @@ export const parseBackendItemToFrontend = (backendItem, gridSubdivision = DEFAUL
     // Fallback for unknown itemType or types without specific props handling above
     else {
         if (!feItem.itemType || !ITEM_CONFIGS[feItem.itemType]) {
-            console.warn(DEBUG_LAYOUT_UTILS_PARSER, `Item ${feItem.id} has unknown type '${feItem.itemType}'. Defaulting to PLACED_DECOR.`);
+            // console.warn(DEBUG_LAYOUT_UTILS_PARSER, `Item ${feItem.id} has unknown type '${feItem.itemType}'. Defaulting to PLACED_DECOR.`);
             feItem.itemType = ItemTypes.PLACED_DECOR; // Default type
             feItem.decorType = beSpecifics.decorType || 'unknown';
             feItem.shape = beSpecifics.shape || 'unknown-shape';
@@ -310,11 +310,11 @@ export const parseBackendItemToFrontend = (backendItem, gridSubdivision = DEFAUL
  */
 export const parseBackendLayoutItemsToFrontend = (backendItemsArray, gridSubdivision = DEFAULT_GRID_SUBDIVISION) => {
     if (!Array.isArray(backendItemsArray)) {
-        console.warn(DEBUG_LAYOUT_UTILS_PARSER, "parseBackendLayoutItemsToFrontend: Expected an array of backend items.", backendItemsArray);
+        // console.warn(DEBUG_LAYOUT_UTILS_PARSER, "parseBackendLayoutItemsToFrontend: Expected an array of backend items.", backendItemsArray);
         return [];
     }
-    console.log(DEBUG_LAYOUT_UTILS_PARSER, `Parsing ${backendItemsArray.length} backend items with subdivision ${gridSubdivision}`);
+    // console.log(DEBUG_LAYOUT_UTILS_PARSER, `Parsing ${backendItemsArray.length} backend items with subdivision ${gridSubdivision}`);
     const parsedItems = backendItemsArray.map((item, index) => parseBackendItemToFrontend(item, gridSubdivision, index)).filter(item => item !== null);
-    console.log(DEBUG_LAYOUT_UTILS_PARSER, `Successfully parsed ${parsedItems.length} items into frontend format.`);
+    // console.log(DEBUG_LAYOUT_UTILS_PARSER, `Successfully parsed ${parsedItems.length} items into frontend format.`);
     return parsedItems;
 };

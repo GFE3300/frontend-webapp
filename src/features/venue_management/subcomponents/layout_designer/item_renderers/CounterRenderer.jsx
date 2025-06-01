@@ -1,8 +1,12 @@
 import React from 'react';
 
-// Design Guideline Mappings for Counters
+// Localization
+import slRaw from '../../../utils/script_lines.js'; // Adjusted path
+const sl = slRaw.venueManagement.counterRenderer;
+
+// Design Guideline Mappings (Copied from original, no changes here)
 const COUNTER_RENDERER_STYLES = {
-    gradientLight: "bg-gradient-to-br from-amber-300 to-amber-400", // Using amber as "orange"
+    gradientLight: "bg-gradient-to-br from-amber-300 to-amber-400",
     gradientDark: "dark:from-amber-500 dark:to-amber-600",
     borderLight: "border-amber-500",
     borderDark: "dark:border-amber-400",
@@ -12,14 +16,18 @@ const COUNTER_RENDERER_STYLES = {
     fontWeight: "font-medium",
     fontSize: "text-[10px]", // Counters might be thin, so small text
 };
+// --- End Design Guideline Variables ---
 
-const CounterRenderer = ({ item }) => {
-    // item: { id, shape (e.g. 'counter-straight-2x1'), label, rotation (handled by wrapper) }
+const CounterRenderer = ({ item, isPreviewMode = false }) => { // itemRotation removed, isPreviewMode added
+    // item: { id, shape (e.g. 'counter-straight-2x1'), label, rotation (handled by PlacedItem) }
 
-    // Counters are typically rectangular, so rounded-md.
-    // Their length is determined by w_minor/h_minor via PlacedItem.
-    // This renderer just styles the block.
-    const borderRadiusClass = "rounded-md";
+    const borderRadiusClass = "rounded-md"; // Counters are typically rectangular
+
+    // The itemRotation prop is no longer passed as PlacedItem handles the rotation of its wrapper.
+    // This renderer displays the counter as if it's at 0 degrees.
+
+    const displayText = item.label || (sl.defaultLabel || "Counter");
+    const textOpacityClass = item.label ? '' : 'opacity-60'; // Dim default text slightly
 
     return (
         <div
@@ -27,23 +35,14 @@ const CounterRenderer = ({ item }) => {
                         ${COUNTER_RENDERER_STYLES.gradientLight} ${COUNTER_RENDERER_STYLES.gradientDark}
                         border ${COUNTER_RENDERER_STYLES.borderLight} ${COUNTER_RENDERER_STYLES.borderDark}
                         ${borderRadiusClass}
-                        select-none transition-colors duration-150 px-1`} // Added padding for text
-        // Title attribute handled by PlacedItem.jsx
+                        select-none transition-colors duration-150 px-1`}
+        // Title attribute is handled by the parent PlacedItem component.
         >
-            {item.label && (
-                <span
-                    className={`truncate ${COUNTER_RENDERER_STYLES.fontFamily} ${COUNTER_RENDERER_STYLES.fontWeight} ${COUNTER_RENDERER_STYLES.fontSize} ${COUNTER_RENDERER_STYLES.textLight} ${COUNTER_RENDERER_STYLES.textDark}`}
-                >
-                    {item.label}
-                </span>
-            )}
-            {!item.label && ( // Fallback if no label, to still show something
-                <span
-                    className={`opacity-60 ${COUNTER_RENDERER_STYLES.fontFamily} ${COUNTER_RENDERER_STYLES.fontWeight} ${COUNTER_RENDERER_STYLES.fontSize} ${COUNTER_RENDERER_STYLES.textLight} ${COUNTER_RENDERER_STYLES.textDark}`}
-                >
-                    Counter
-                </span>
-            )}
+            <span
+                className={`truncate ${textOpacityClass} ${COUNTER_RENDERER_STYLES.fontFamily} ${COUNTER_RENDERER_STYLES.fontWeight} ${COUNTER_RENDERER_STYLES.fontSize} ${COUNTER_RENDERER_STYLES.textLight} ${COUNTER_RENDERER_STYLES.textDark}`}
+            >
+                {displayText}
+            </span>
         </div>
     );
 };

@@ -200,6 +200,251 @@ export const scriptLines = {
             tooltip: "Rotate Item (90°)",
             ariaLabel: "Rotate Item by 90 degrees",
         },
+        propertiesInspector: {
+            defaultTitle: "Properties",
+            itemPropertiesTitleSuffix: "Properties", // e.g., "Table Properties", "{itemName} Properties"
+            closeButtonTooltip: "Close Properties Panel",
+            closeButtonAriaLabel: "Close Properties Panel",
+            minimizedTabTooltip: "Show Properties", // For the desktop minimized button
+            mobilePeekTitleSuffix: "Properties", // For the mobile peek state, e.g., "Table Properties"
+            noItemSelectedMessage: "Select an item on the canvas to view its properties.",
+            // DefaultInspectorContent strings (already in placedItem, but can be aliased or duplicated if preferred for clarity)
+            defaultInspectorContent_rendererMissingText: "Renderer Missing", // Re-using or can be specific
+            defaultInspectorContent_typeLabel: "Type: {itemType}",
+            defaultInspectorContent_idLabel: "ID: {itemId}",
+            defaultInspectorContent_noEditorConfigured: "No specific editor configured for this item type, or the configured key is not matched.",
+        },
+        tableEditor: {
+            tableNumberLabel: "Table Number",
+            tableNumberValueNotSet: "Not Set",
+            tableNumberValueProvisional: "Nº? (Set on table)",
+            tableNumberHelpText: "Edit number on the table itself. Click to select, then click number to edit.",
+            seatsLabel: "Number of Seats",
+            seatsPlaceholder: "e.g., 4 or empty for default",
+            seatsTooltip: "Enter a number or leave empty for default seats.", // Tooltip for the input field
+            seatsHelpText: "Enter a number or leave empty for default seats.", // Helper text below input
+            infoSectionTitle: "Table Information", // Optional title for the info section
+            itemIdLabel: "Item ID:",
+            defaultShapeLabel: "Default shape:",
+            rotationLabel: "Rotation:",
+            provisionalLabel: "Provisional:",
+            fixedLabel: "Fixed:",
+            yesValue: "Yes",
+            noValue: "No",
+        },
+        wallEditor: {
+            thicknessLabel: "Visual Thickness (minor cells)",
+            thicknessTooltip: "Visual thickness of the wall within its own cell.",
+            thicknessHelpText: "Thickness within its own grid cell. Does not affect collision. Max: {maxThickness}.",
+            infoSectionTitle: "Wall Information", // Optional
+            itemIdLabel: "Item ID:",
+            lengthLabel: "Length (major units):",
+            baseWidthLabel: "Base Width (minor):",
+            baseHeightLabel: "Base Height (minor):",
+            rotationLabel: "Rotation:",
+            fixedLabel: "Fixed:",
+            yesValue: "Yes",
+            noValue: "No",
+        },
+        doorEditor: {
+            swingDirectionLabel: "Swing Direction",
+            leftSwingOption: "Left Swing",
+            rightSwingOption: "Right Swing",
+            selectSwingPlaceholder: "Select Swing Direction", // For Dropdown component
+            infoSectionTitle: "Door Information", // Optional
+            itemIdLabel: "Item ID:",
+            typeLabel: "Type:",
+            standardDoorType: "Standard Door", // Default type if item.shape is missing
+            rotationLabel: "Rotation:",
+            fixedLabel: "Fixed:",
+            yesValue: "Yes",
+            noValue: "No",
+        },
+        decorEditor: {
+            labelOptionalLabel: "Label (Optional)",
+            labelPlaceholder: "e.g., Potted Fern, Area Rug",
+            labelTooltip: "Enter an optional label for this decor item.",
+            widthLabel: "Width (minor cells)",
+            widthTooltip: "Width of the item's base before rotation.",
+            heightLabel: "Height (minor cells)",
+            heightTooltip: "Height of the item's base before rotation.",
+            dimensionsHelpText: "Dimensions apply to the item's base before rotation.",
+            infoSectionTitle: "Decor Information", // Optional
+            itemIdLabel: "Item ID:",
+            decorTypeLabel: "Decor Type:",
+            decorTypeGeneric: "Generic", // Fallback if item.decorType is missing
+            shapeConfigLabel: "Shape Config:",
+            rotationLabel: "Rotation:",
+            fixedLabel: "Fixed:",
+            yesValue: "Yes",
+            noValue: "No",
+        },
+        counterEditor: {
+            labelOptionalLabel: "Label (Optional)",
+            labelPlaceholder: "e.g., Main Bar, Register",
+            labelTooltip: "Enter an optional label for this counter.",
+            lengthLabel: "Length (major grid units)",
+            lengthPlaceholder: "e.g., 2",
+            lengthTooltip: "Length of the counter along its main axis, in major grid cells.",
+            lengthHelpText: "Defines length along its main axis. Thickness is 1 major unit.",
+            invalidItemError: "Error: Invalid item for Counter Editor.", // Error message if wrong item type
+            infoSectionTitle: "Counter Information", // Optional
+            itemIdLabel: "Item ID:",
+            decorTypeLabel: "Decor Type (if any):",
+            shapeConfigLabel: "Shape Config:",
+            rotationLabel: "Rotation:",
+            actualBaseWidthLabel: "Actual Base Width (minor):",
+            actualBaseHeightLabel: "Actual Base Height (minor):",
+            fixedLabel: "Fixed:",
+            yesValue: "Yes",
+            noValue: "No",
+        },
+        tableRenderer: {
+            fixedTooltipSuffix: "(Fixed)",
+            provisionalTooltipText: "Provisional Table (Click in Editor to set number)",
+            tableTooltipPrefix: "Table {number}",
+            provisionalDisplayValue: "Nº?", // Text displayed on provisional tables
+            tableNumberPrefix: "T", // Prefix for displayed table number, e.g., "T5"
+            tableNumberNotSet: "", // Value if number is null/undefined and not provisional (e.g., display only "T")
+        },
+        counterRenderer: {
+            defaultLabel: "Counter", // Fallback text if item.label is empty
+        },
+        useLayoutDesignerStateManagement: {
+            // Config errors (critical, point to setup issues)
+            configErrorMissingConfigTitle: "Configuration Error",
+            configErrorMissingConfigMessage: "Missing configuration for item type: {itemType}. Please contact support.",
+            configErrorMissingFactoryTitle: "Configuration Error",
+            configErrorMissingFactoryMessage: "Missing properties factory for item type: {itemType}. Please contact support.",
+            factoryErrorTitle: "Factory Error",
+            factoryErrorMessage: "Error creating properties for new item ({itemType}).",
+            // Dimension/Placement errors
+            dimensionErrorTitle: "Dimension Error",
+            dimensionErrorMinMessage: "Invalid base dimensions for new item. Minimum dimension is {minCells} cell(s).",
+            placementErrorTitle: "Placement Error",
+            placementErrorOccupiedOrOutOfBounds: "Cannot place item: Space occupied or out of bounds.",
+            resizeErrorConflictOrOutOfBounds: "Resized/moved item conflicts or is out of bounds.",
+            // Rotation errors
+            rotationErrorTitle: "Rotation Error",
+            rotationErrorConflictOrOutOfBounds: "Cannot rotate: new orientation conflicts or is out of bounds.",
+            // Sizing errors (e.g., for counters)
+            sizingErrorTitle: "Sizing Error", // Generic title
+            counterSizingErrorConflict: "Counter cannot be resized: new size conflicts or is out of bounds.",
+            // Input validation errors
+            invalidInputTitle: "Invalid Input",
+            invalidRotationAngle: "Invalid rotation angle.",
+            invalidRotationType: "Invalid rotation type.",
+            counterLengthPositiveError: "Counter length must be a positive number.",
+            invalidTableNumberTitle: "Invalid Table Number",
+            invalidTableNumberMessage: "Table number must be a positive integer or empty.",
+            duplicateTableNumberTitle: "Duplicate Table Number",
+            duplicateTableNumberMessage: "Table number {number} is already in use.",
+            invalidSeatCountTitle: "Invalid Seat Count",
+            invalidSeatCountMessage: "Seat count must be a non-negative integer or empty.",
+            // Grid manipulation
+            gridDimensionErrorTitle: "Invalid Dimension",
+            gridDimensionErrorRange: "Grid dimensions out of range. Min/Max Rows: {minRows}-{maxRows}, Cols: {minCols}-{maxCols}.",
+            gridResizeErrorOutOfBoundsTitle: "Resize Error",
+            gridResizeErrorOutOfBoundsMessage: "Cannot reduce dimensions. Some items would be out of bounds.",
+            invalidSubdivisionTitle: "Invalid Subdivision",
+            invalidSubdivisionMessage: "Grid subdivision level is invalid.",
+            subdivisionChangedTitle: "Subdivision Changed",
+            subdivisionChangedMessage: "Grid subdivision has been updated. Existing items' dimensions are in minor cells and will not automatically scale. Manual adjustment may be needed if their intended size was relative to major grid units.",
+            // Clear/Reset actions
+            designerClearedTitle: "Designer Cleared",
+            designerClearedMessage: "All items have been removed from the layout.",
+            designerResetTitle: "Designer Reset",
+            designerResetMessage: "Layout and grid settings have been reset to default.",
+        },
+        useQrCodeManager: {
+            // Fetch errors
+            qrFetchErrorTitleGeneric: "Network Error",
+            qrFetchErrorTitleHttp: "QR Error (HTTP {status})",
+            qrFetchErrorMessage: "Could not fetch QR for Table {tableIdentifier}: {errorMessage}",
+            qrFetchServiceUnavailableTitle: "QR Service Info",
+            qrFetchServiceUnavailableMessage: "QR code generation for Table {tableIdentifier} is currently unavailable (endpoint not ready).",
+            // Download errors/info
+            downloadErrorTitle: "Download Error",
+            downloadErrorInvalidTable: "Invalid table data for QR download.",
+            qrNotAvailableForDownloadTitle: "QR Not Available",
+            qrNotAvailableServiceMessage: "QR code for Table {tableIdentifier} cannot be downloaded as the generation service is unavailable.",
+            qrNotAvailablePreviouslyFailedMessage: "QR code for Table {tableIdentifier} could not be generated previously. Try refreshing or check logs.",
+            qrNotAvailableGenericDownloadError: "Could not download QR for Table {tableIdentifier}. Ensure it can be generated.",
+            noQrCodesToDownloadTitle: "No QR Codes",
+            noQrCodesToDownloadMessage: "There are no valid, numbered tables to download QR codes for.",
+            downloadStartingTitle: "Download Starting",
+            downloadStartingMessage: "Preparing to download available QR code(s) for {count} table(s). This may take a moment.",
+            downloadStartingSomeUnavailable: " Some QRs are unavailable or errored.", // Appended to downloadStartingMessage
+            downloadStartingSomeServiceDisabled: " Some QRs are unavailable (service disabled).", // Appended
+            downloadStartingSomeFailed: " Some QRs previously failed to generate.", // Appended
+            downloadCompleteTitle: "Download Complete",
+            downloadCompleteMessage: "Successfully downloaded {count} QR codes.",
+            downloadPartialTitle: "Download Partial",
+            downloadPartialMessageSuccess: "Successfully downloaded {downloadedCount} QR codes.", // Part 1
+            downloadPartialMessageFailed: " {failedCount} failed.", // Part 2 (appended)
+            downloadPartialMessageSkipped: " {skippedCount} skipped (service unavailable).", // Part 3 (appended)
+            downloadFailedTitle: "Download Failed",
+            downloadFailedAllMessage: "All {count} QR codes could not be downloaded at this time.",
+            downloadUnavailableAllServiceMessage: "All QR codes are currently unavailable because the generation service is offline.",
+            downloadIssueMixedTitle: "Download Issue",
+            downloadIssueMixedMessage: "No QR codes downloaded. {failedCount} failed, {skippedCount} skipped (service unavailable).",
+        },
+        itemConfigs: {
+            // Placed Item Display Names (used by ITEM_CONFIGS)
+            placedTableDisplayName: "Table",
+            placedWallDisplayName: "Wall",
+            placedDoorDisplayName: "Door",
+            placedDecorDisplayName: "Decor",
+            placedCounterDisplayName: "Counter",
+
+            // Tool Names (used by toolDefinitions)
+            squareTableToolName: "Square Table",
+            rectTableToolName: "Rect. Table", // Abbreviation kept for consistency with original
+            roundTableToolName: "Round Table",
+            counterToolName: "Counter",
+            wallToolName: "Wall",
+            doorToolName: "Door",
+            plantToolName: "Plant",
+            rugToolName: "Rug",
+
+            // Tool Categories (if we want to localize these too, though original uses hardcoded strings)
+            // categoryFurniture: "Furniture",
+            // categoryStructure: "Structure",
+            // categoryDecor: "Decor",
+        },
+        draggableTool: {
+            tooltipActivePlacement: "Tool '{toolName}' active. Click a cell to place.",
+            tooltipDefaultZenMode: "{toolName}", // Tooltip in Zen mode is just the name
+            tooltipDefaultFullMode: "Click to select, or Drag to add {toolName}",
+            ariaLabelActivePlacement: "{toolName} tool. Currently active for placement.",
+            ariaLabelDefault: "{toolName} tool. Click to select or drag to add.",
+        },
+        venueLayoutPreview: {
+            previewUnavailableTitle: "Layout Preview Unavailable",
+            previewUnavailableMessage: "It seems there's no layout data to display, or grid dimensions are invalid. <br />Please design your layout in 'Design Mode' first.",
+            qrSidebarTitle: "Table QR Codes",
+            qrTableNumberLabel: "Table {number}",
+            qrSeatsLabel: "{seats} Seats", // e.g., "4 Seats"
+            qrSeatsNotAvailable: "N/A Seats",
+            qrShapeLabel: "{shape}", // e.g., "square-1x1"
+            qrDownloadButtonTooltip: "Download QR Code",
+            qrStatusLoading: "Loading QR...", // Alt text or status if image fails
+            qrStatusError: "Error loading QR",
+            qrStatusSkipped: "QR Generation Offline",
+            qrStatusPending: "QR Pending",
+            qrErrorMessage: "Could not load.", // Displayed below QR if error
+            qrSkippedMessage: "Unavailable.", // Displayed below QR if skipped
+            noTablesForQrTitle: "No Tables for QR Codes",
+            noTablesForQrMessage: "Switch to 'Design Mode' to add tables to your layout and assign them numbers.",
+            downloadAllQrsButtonText: "Download All QRs",
+            // Tooltips for items in the grid (can be constructed dynamically)
+            gridItemTableTooltip: "Table {number} - Click to see QR in sidebar",
+            gridItemDefaultTooltip: "{itemName}",
+        },
+        layoutItemRendererUtils: {
+            defaultPreviewRendererTitle: "{itemName} (ID: {itemId})",
+            defaultPreviewRendererItemNameFallback: "Unknown Item",
+        },
     }
 };
 

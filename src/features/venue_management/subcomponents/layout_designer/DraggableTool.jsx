@@ -2,72 +2,70 @@ import React from 'react';
 import { useDrag } from 'react-dnd';
 import Icon from '../../../../components/common/Icon';
 
-// Design Guideline Variables
+// Localization
+import slRaw, { interpolate } from '../../utils/script_lines.js'; // Adjust path
+const sl = slRaw.venueManagement.draggableTool;
+
+// Design Guideline Variables (Copied from original, no changes here)
 const DRAGGABLE_TOOL_CLASSES = {
     containerBase: "flex flex-col font-montserrat items-center justify-center cursor-grab transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
     sizeNormal: "w-[72px] h-[72px] p-2 rounded-lg shadow-sm",
     sizeZen: "w-10 h-10 p-1.5 rounded-md shadow",
-
     bgLight: "bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200",
     bgDark: "dark:bg-neutral-700/50 dark:hover:bg-neutral-600/70 dark:active:bg-neutral-600",
-
     ringFocusLight: "focus-visible:ring-rose-500 focus-visible:ring-offset-white",
     ringFocusDark: "dark:focus-visible:ring-rose-400 dark:focus-visible:ring-offset-neutral-800",
-
     textNormalLight: "text-[11px] mt-1 font-medium text-neutral-600 text-center leading-tight select-none",
     textNormalDark: "dark:text-neutral-300",
-
-    dragging: "opacity-60 !shadow-xl ring-2 ring-rose-500 dark:ring-rose-400 scale-95", // DND dragging style
-
-    // << NEW: Style for when tool is active for click-placement >>
+    dragging: "opacity-60 !shadow-xl ring-2 ring-rose-500 dark:ring-rose-400 scale-95",
     activeForPlacementLight: "!bg-sky-100 dark:!bg-sky-700/50 ring-2 ring-sky-500 dark:ring-sky-400 scale-95",
-    activeForPlacementDark: "dark:!bg-sky-600/70", // Combined with above or specific if needed
-
+    // activeForPlacementDark: "dark:!bg-sky-600/70", // Covered by above
     iconSizeNormal: "w-6 h-6",
     iconSizeZen: "w-5 h-5",
     iconColorLight: "text-neutral-700",
     iconColorDark: "dark:text-neutral-200",
 };
+// --- End Design Guideline Variables ---
 
 const DraggableTool = ({
-    tool,
-    itemType,   // DND item type (tool.toolItemType)
-    onToolClick, // << NEW PROP: Callback for click-to-place selection
-    isActiveForPlacement, // << NEW PROP: Boolean, true if this tool is active for click-placement
+    tool, // tool.name is now localized from itemConfigs.jsx
+    itemType,
+    onToolClick,
+    isActiveForPlacement,
     isZenMode,
 }) => {
-    const [{ isDragging }, dragRef] = useDrag(() => ({ // Removed previewRef as it's not explicitly used for custom preview
+    const [{ isDragging }, dragRef] = useDrag(() => ({
         type: itemType,
-        item: {
+        item: { // These properties are internal for DND, not directly user-facing text
             toolItemType: tool.toolItemType,
             createsPlacedItemType: tool.createsPlacedItemType,
             w_major: tool.w_major,
             h_major: tool.h_major,
             size_identifier: tool.size_identifier,
-            label: tool.label,
+            label: tool.label, // This label might be for the *placed item*, not the tool itself
             decorType: tool.decorType,
             thickness_minor: tool.thickness_minor,
         },
-        canDrag: () => !isActiveForPlacement, // << MODIFIED: Don't allow DND drag if tool is active for click-placement
+        canDrag: () => !isActiveForPlacement,
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
-    }), [itemType, tool, isActiveForPlacement]); // Added isActiveForPlacement to dependencies
+    }), [itemType, tool, isActiveForPlacement]);
 
     const containerSizeClass = isZenMode ? DRAGGABLE_TOOL_CLASSES.sizeZen : DRAGGABLE_TOOL_CLASSES.sizeNormal;
     const iconSizeClass = isZenMode ? DRAGGABLE_TOOL_CLASSES.iconSizeZen : DRAGGABLE_TOOL_CLASSES.iconSizeNormal;
-    const displayName = tool.name.split('(')[0].trim();
+
+    // tool.name is already localized from itemConfigs.jsx
+    // If tool.name contains "(...)", this part might not be localized yet unless itemConfigs.jsx handles it.
+    // For display, we often want just the primary name.
+    const displayName = tool.name.split('(')[0].trim(); // This uses the already localized tool.name
 
     const handleClick = (e) => {
-        // Prevent DND from interfering if it's just a click for selection
-        // e.preventDefault(); // Might not be necessary if canDrag handles it
-        
         if (onToolClick) {
-            onToolClick(tool); // Pass the full tool definition
+            onToolClick(tool);
         }
     };
 
-    // Combine classes
     let combinedClasses = `
         ${DRAGGABLE_TOOL_CLASSES.containerBase}
         ${containerSizeClass}
@@ -81,23 +79,30 @@ const DraggableTool = ({
         combinedClasses += ` ${DRAGGABLE_TOOL_CLASSES.dragging}`;
     } else if (isActiveForPlacement) {
         combinedClasses += ` ${DRAGGABLE_TOOL_CLASSES.activeForPlacementLight}`;
-        // If you have specific dark mode active styles not covered by the light one:
-        // combinedClasses += ` ${DRAGGABLE_TOOL_CLASSES.activeForPlacementDark}`;
-        // The cursor should probably be 'pointer' or 'default' if active, not 'grab'
         combinedClasses = combinedClasses.replace('cursor-grab', 'cursor-pointer');
     }
 
+    const titleText = isActiveForPlacement
+        ? interpolate(sl.tooltipActivePlacement || "Tool '{toolName}' active. Click a cell to place.", { toolName: tool.name })
+        : (isZenMode
+            ? interpolate(sl.tooltipDefaultZenMode || "{toolName}", { toolName: tool.name })
+            : interpolate(sl.tooltipDefaultFullMode || "Click to select, or Drag to add {toolName}", { toolName: tool.name })
+        );
+
+    const ariaLabelText = isActiveForPlacement
+        ? interpolate(sl.ariaLabelActivePlacement || "{toolName} tool. Currently active for placement.", { toolName: tool.name })
+        : interpolate(sl.ariaLabelDefault || "{toolName} tool. Click to select or drag to add.", { toolName: tool.name });
 
     return (
         <div
             ref={dragRef}
-            onClick={handleClick} // << ADDED onClick handler
+            onClick={handleClick}
             className={combinedClasses}
-            title={isActiveForPlacement ? `Tool '${tool.name}' active. Click a cell to place.` : (isZenMode ? tool.name : `Click to select, or Drag to add ${tool.name}`)}
-            aria-label={`${tool.name} tool. ${isActiveForPlacement ? 'Currently active for placement.' : 'Click to select or drag to add.'}`}
+            title={titleText}
+            aria-label={ariaLabelText}
             tabIndex={0}
             role="button"
-            aria-pressed={isActiveForPlacement} // Indicate if it's the active tool
+            aria-pressed={isActiveForPlacement}
         >
             <Icon
                 name={tool.visual}
@@ -119,7 +124,7 @@ const DraggableTool = ({
                          pointer-events-none
                     `}
                 >
-                    {displayName}
+                    {displayName} {/* Uses the (potentially trimmed) localized tool.name */}
                 </span>
             )}
         </div>

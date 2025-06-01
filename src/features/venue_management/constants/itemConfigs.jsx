@@ -1,27 +1,25 @@
-// features/venue_management/constants/itemConfigs.jsx
 import React from 'react'; // Keep React if you plan to use custom JSX/SVG for some visuals
 import { getDefaultSeatsForSize, getNextAvailableTableNumber } from '../utils/layoutUtils';
+
+// Localization
+import slRaw from '../utils/script_lines.js'; // Adjust path as necessary
+const sl = slRaw.venueManagement.itemConfigs;
 
 /**
  * Defines the types for draggable tools from the toolbar and
  * for items once they are placed on the design grid.
  */
 export const ItemTypes = {
-    // --- Tool Types ---
     TABLE_TOOL: 'tableTool',
     WALL_TOOL: 'wallTool',
     DOOR_TOOL: 'doorTool',
     DECOR_TOOL: 'decorTool',
     COUNTER_TOOL: 'counterTool',
-
-    // --- Placed Item Types ---
     PLACED_TABLE: 'placedTable',
     PLACED_WALL: 'placedWall',
     PLACED_DOOR: 'placedDoor',
-    PLACED_DECOR: 'placedDecor', // Generic decor (e.g., plants, rugs)
-    PLACED_COUNTER: 'placedCounter', // Specific for counters
-
-    // --- Interaction Types ---
+    PLACED_DECOR: 'placedDecor',
+    PLACED_COUNTER: 'placedCounter',
     RESIZE_HANDLE: 'resizeHandle',
     ROTATION_HANDLE: 'rotationHandle',
 };
@@ -32,17 +30,17 @@ export const ItemTypes = {
 export const ITEM_CONFIGS = {
     [ItemTypes.PLACED_TABLE]: {
         toolItemType: ItemTypes.TABLE_TOOL,
-        displayName: 'Table',
+        displayName: sl.placedTableDisplayName || 'Table',
         isRotatable: true,
         isResizable: true,
-        canHaveQr: true, // Assuming QR is for tables
+        canHaveQr: true,
         defaultPropsFactory: (toolPayload, currentSubdivision, existingItems) => {
             const tables = existingItems.filter(item => item.itemType === ItemTypes.PLACED_TABLE && typeof item.number !== 'undefined');
             return {
-                shape: toolPayload.size_identifier, // e.g., 'square-1x1', 'round-1x1'
+                shape: toolPayload.size_identifier,
                 seats: getDefaultSeatsForSize(toolPayload.size_identifier, toolPayload.w_major, toolPayload.h_major),
                 number: getNextAvailableTableNumber(tables),
-                isProvisional: false, // Tables start as provisional until number is confirmed
+                isProvisional: false,
             };
         },
         PlacedComponent: 'TableRenderer',
@@ -50,12 +48,12 @@ export const ITEM_CONFIGS = {
     },
     [ItemTypes.PLACED_WALL]: {
         toolItemType: ItemTypes.WALL_TOOL,
-        displayName: 'Wall',
+        displayName: sl.placedWallDisplayName || 'Wall',
         isRotatable: true,
         isResizable: true,
         canHaveQr: false,
         defaultPropsFactory: (toolPayload) => ({
-            shape: toolPayload.size_identifier, // e.g., 'wall-segment'
+            shape: toolPayload.size_identifier,
             thickness_minor: toolPayload.thickness_minor || 1,
         }),
         PlacedComponent: 'WallRenderer',
@@ -63,27 +61,26 @@ export const ITEM_CONFIGS = {
     },
     [ItemTypes.PLACED_DOOR]: {
         toolItemType: ItemTypes.DOOR_TOOL,
-        displayName: 'Door',
+        displayName: sl.placedDoorDisplayName || 'Door',
         isRotatable: true,
-        isResizable: false, // Doors are typically fixed size from tool
+        isResizable: false,
         canHaveQr: false,
         defaultPropsFactory: (toolPayload) => ({
-            shape: toolPayload.size_identifier, // e.g., 'standard-door'
+            shape: toolPayload.size_identifier,
             swingDirection: 'left',
-            isOpen: false, // Visual state for designer
+            isOpen: false,
         }),
         PlacedComponent: 'DoorRenderer',
         SidebarEditorComponent: 'DoorEditor',
     },
-    [ItemTypes.PLACED_DECOR]: { // For generic decor like plants, rugs
+    [ItemTypes.PLACED_DECOR]: {
         toolItemType: ItemTypes.DECOR_TOOL,
-        displayName: 'Decor',
+        displayName: sl.placedDecorDisplayName || 'Decor',
         isRotatable: true,
-        // Resizable can be a function based on decorType
-        isResizable: (item) => {return (item.decorType == 'rug')}, // Example: only rugs are resizable generic decor
+        isResizable: (item) => (item.decorType === 'rug'), // Example: only rugs are resizable generic decor
         canHaveQr: false,
         defaultPropsFactory: (toolPayload) => ({
-            shape: toolPayload.size_identifier, // e.g., 'plant-pot-small', 'rug-medium-rect'
+            shape: toolPayload.size_identifier,
             decorType: toolPayload.decorType, // MUST be provided by toolDefinition
         }),
         PlacedComponent: 'DecorRenderer',
@@ -91,15 +88,14 @@ export const ITEM_CONFIGS = {
     },
     [ItemTypes.PLACED_COUNTER]: {
         toolItemType: ItemTypes.COUNTER_TOOL,
-        displayName: 'Counter',
+        displayName: sl.placedCounterDisplayName || 'Counter',
         isRotatable: true,
         isResizable: true,
         canHaveQr: false,
         defaultPropsFactory: (toolPayload) => ({
-            shape: toolPayload.size_identifier, // e.g., 'counter-straight-2x1'
-            // decorType is implicitly 'counter' by using PLACED_COUNTER type
-            label: toolPayload.label || '', // Optional label from tool, or default
-            length_units: toolPayload.w_major || 1, // Default length in major units
+            shape: toolPayload.size_identifier,
+            label: toolPayload.label || '',
+            length_units: toolPayload.w_major || 1,
         }),
         PlacedComponent: 'CounterRenderer',
         SidebarEditorComponent: 'CounterEditor',
@@ -108,58 +104,56 @@ export const ITEM_CONFIGS = {
 
 /**
  * Definitions for the tools available in the EditorToolbar.
- * - visual: Material Icon name string.
- * - category: For grouping in the toolbar.
  */
 export const toolDefinitions = [
     // --- Furniture ---
     {
-        name: 'Square Table',
+        name: sl.squareTableToolName || 'Square Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
         w_major: 1, h_major: 1, size_identifier: 'square-1x1',
-        category: 'Furniture',
-        visual: 'square_foot', // Abstract representation
+        category: 'Furniture', // Category names could also be localized if needed
+        visual: 'square_foot',
     },
     {
-        name: 'Rect. Table',
+        name: sl.rectTableToolName || 'Rect. Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
         w_major: 2, h_major: 1, size_identifier: 'rectangle-2x1',
         category: 'Furniture',
-        visual: 'table_restaurant', // Abstract representation
+        visual: 'table_restaurant',
     },
     {
-        name: 'Round Table',
+        name: sl.roundTableToolName || 'Round Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
-        w_major: 1, h_major: 1, size_identifier: 'round-1x1', // Smaller default round table
+        w_major: 1, h_major: 1, size_identifier: 'round-1x1',
         category: 'Furniture',
-        visual: 'table_bar', // Abstract representation
+        visual: 'table_bar',
     },
     {
-        name: 'Counter',
+        name: sl.counterToolName || 'Counter',
         toolItemType: ItemTypes.COUNTER_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_COUNTER,
         w_major: 2, h_major: 1, size_identifier: 'counter-straight-2x1',
-        label: '', // Default label if any
+        label: '',
         category: 'Furniture',
         visual: 'countertops',
     },
 
     // --- Structure ---
     {
-        name: 'Wall',
+        name: sl.wallToolName || 'Wall',
         toolItemType: ItemTypes.WALL_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_WALL,
-        w_major: 1, h_major: 1, // Default to 1 major unit long, can be resized
+        w_major: 1, h_major: 1,
         size_identifier: 'wall-segment',
-        thickness_minor: 1, // Default visual thickness in minor cells
+        thickness_minor: 1,
         category: 'Structure',
-        visual: 'horizontal_rule', // More generic for a segment
+        visual: 'horizontal_rule',
     },
     {
-        name: 'Door',
+        name: sl.doorToolName || 'Door',
         toolItemType: ItemTypes.DOOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DOOR,
         w_major: 1, h_major: 1, size_identifier: 'standard-door',
@@ -169,21 +163,21 @@ export const toolDefinitions = [
 
     // --- Decor ---
     {
-        name: 'Plant',
+        name: sl.plantToolName || 'Plant',
         toolItemType: ItemTypes.DECOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DECOR,
         w_major: 1, h_major: 1, size_identifier: 'plant-pot-small',
-        decorType: 'plant', // Crucial for DecorRenderer
+        decorType: 'plant',
         category: 'Decor',
         visual: 'potted_plant',
     },
     {
-        name: 'Rug',
+        name: sl.rugToolName || 'Rug',
         toolItemType: ItemTypes.DECOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DECOR,
-        w_major: 2, h_major: 3, size_identifier: 'rug-medium-rect', // Example size
-        decorType: 'rug', // Crucial for DecorRenderer
+        w_major: 2, h_major: 3, size_identifier: 'rug-medium-rect',
+        decorType: 'rug',
         category: 'Decor',
-        visual: 'texture', // Or 'style' or other abstract icon
+        visual: 'texture',
     },
 ];

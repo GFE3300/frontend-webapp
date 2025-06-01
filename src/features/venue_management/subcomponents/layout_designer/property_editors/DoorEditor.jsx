@@ -1,63 +1,73 @@
 import React from 'react';
-import Icon from '../../../../../components/common/Icon';
+// Icon is not used directly in this editor, but Dropdown might use it internally
 import Dropdown from '../../../../../components/common/Dropdown';
 
-const LABEL_STYLE = "block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1";
-const SELECT_STYLE = "w-full text-sm rounded-md h-9 pl-3 pr-8 py-2 bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 focus:ring-1 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-rose-500 text-neutral-900 dark:text-neutral-100 shadow-sm appearance-none";
-const CHECKBOX_WRAPPER_STYLE = "flex items-center space-x-2 cursor-pointer"; // Applied to label wrapping checkbox
-const CHECKBOX_LABEL_TEXT_STYLE = "text-xs font-medium text-neutral-600 dark:text-neutral-300"; // For text part of checkbox label
-const CHECKBOX_STYLE = "form-checkbox h-4 w-4 text-rose-600 dark:text-rose-500 bg-neutral-100 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-500 rounded focus:ring-rose-500 dark:focus:ring-rose-400 transition duration-150 ease-in-out";
+// Localization
+import slRaw from '../../../utils/script_lines.js';
+const sl = slRaw.venueManagement.doorEditor;
+const slCommon = slRaw; // For common Yes/No
+
+// Design Guideline Variables (Copied from original, no changes here)
+// LABEL_STYLE is implicitly handled by Dropdown's label prop
+// SELECT_STYLE is handled internally by Dropdown
+// CHECKBOX styles are not used here
 const INFO_SECTION_STYLE = "mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700 space-y-1.5";
 const INFO_PAIR_STYLE = "flex justify-between items-center text-xs";
 const INFO_LABEL_STYLE = "text-neutral-500 dark:text-neutral-400";
 const INFO_VALUE_STYLE = "text-neutral-700 dark:text-neutral-200 font-medium text-right";
-const HELPER_TEXT_STYLE = "text-xxs text-neutral-500 dark:text-neutral-400 mt-0.5";
+// HELPER_TEXT_STYLE is not used here for now
+// --- End Design Guideline Variables ---
 
 const DoorEditor = ({ item, onUpdateItemProperty }) => {
     if (!item || item.itemType !== 'placedDoor') return null;
 
-    const handleSwingDirectionChange = (e) => {
-        onUpdateItemProperty(item.id, { swingDirection: e });
+    const handleSwingDirectionChange = (newSwingValue) => { // Dropdown now passes the value directly
+        onUpdateItemProperty(item.id, { swingDirection: newSwingValue });
     };
+
+    const swingOptions = [
+        { value: 'left', label: sl.leftSwingOption || "Left Swing" },
+        { value: 'right', label: sl.rightSwingOption || "Right Swing" },
+    ];
 
     return (
         <div className="space-y-4 p-1 font-montserrat">
             <div>
                 <Dropdown
                     id={`door-swing-${item.id}`}
-                    label="Swing Direction"
-                    name="swingDirection"
+                    label={sl.swingDirectionLabel || "Swing Direction"}
+                    name="swingDirection" // Important for forms, though not strictly needed here
                     value={item.swingDirection || 'left'}
                     onChange={handleSwingDirectionChange}
-                    options={[
-                        { value: 'left', label: 'Left Swing' },
-                        { value: 'right', label: 'Right Swing' },
-                    ]}
-                    placeholder="Select Swing Direction"
-                    error={''}
-                    helptext={''}
-                    className={`h-15 flex items-end`}
-                    disabled={false}
-                    themeColor="rose"
+                    options={swingOptions}
+                    placeholder={sl.selectSwingPlaceholder || "Select Swing Direction"}
+                    // error={''} // No error state managed here currently
+                    // helptext={''} // No help text for this dropdown currently
+                    className={`h-15 flex items-end`} // Wrapper style for consistent spacing if needed
+                    // disabled={false} // Default
+                    themeColor="rose" // Consistent with other inputs
                 />
             </div>
 
             <div className={INFO_SECTION_STYLE}>
+                {/* <h4 className="text-sm font-semibold mb-2">{sl.infoSectionTitle || "Door Information"}</h4> */}
                 <div className={INFO_PAIR_STYLE}>
-                    <span className={INFO_LABEL_STYLE}>Item ID:</span>
+                    <span className={INFO_LABEL_STYLE}>{sl.itemIdLabel || "Item ID:"}</span>
                     <span className={`${INFO_VALUE_STYLE} font-mono`}>{item.id.substring(5, 12)}</span>
                 </div>
                 <div className={INFO_PAIR_STYLE}>
-                    <span className={INFO_LABEL_STYLE}>Type:</span>
-                    <span className={INFO_VALUE_STYLE}>{item.shape || 'Standard Door'}</span>
+                    <span className={INFO_LABEL_STYLE}>{sl.typeLabel || "Type:"}</span>
+                    <span className={INFO_VALUE_STYLE}>{item.shape || (sl.standardDoorType || "Standard Door")}</span>
                 </div>
                 <div className={INFO_PAIR_STYLE}>
-                    <span className={INFO_LABEL_STYLE}>Rotation:</span>
+                    <span className={INFO_LABEL_STYLE}>{sl.rotationLabel || "Rotation:"}</span>
                     <span className={INFO_VALUE_STYLE}>{item.rotation}°</span>
                 </div>
                 <div className={INFO_PAIR_STYLE}>
-                    <span className={INFO_LABEL_STYLE}>Fixed:</span>
-                    <span className={INFO_VALUE_STYLE}>{item.isFixed ? 'Yes' : 'No'}</span>
+                    <span className={INFO_LABEL_STYLE}>{sl.fixedLabel || "Fixed:"}</span>
+                    <span className={INFO_VALUE_STYLE}>
+                        {item.isFixed ? (sl.yesValue || slCommon.yes || "Yes") : (sl.noValue || slCommon.no || "No")}
+                    </span>
                 </div>
             </div>
         </div>

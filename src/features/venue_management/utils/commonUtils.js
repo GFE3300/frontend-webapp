@@ -1,5 +1,3 @@
-// src/features/venue_management/utils/commonUtils.js
-
 export const constructQrDataValue = (table) => {
     if (!table || typeof table !== 'object') {
         console.warn("constructQrDataValue called with invalid table input:", table);
@@ -9,7 +7,7 @@ export const constructQrDataValue = (table) => {
     const number = table.number ?? 'N/A';
     const seats = table.seats ?? 0;
     // Consider making the domain configurable
-    return `https://your-app-domain.com/table-service?tableId=${id}&tableNumber=${number}&seats=${seats}`;
+    return `https://app-domain.com/table-service?tableId=${id}&tableNumber=${number}&seats=${seats}`;
 };
 
 export const downloadBlob = (blob, filename) => {

@@ -1,6 +1,11 @@
+// features/venue_management/subcomponents/layout_designer/item_renderers/TableRenderer.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 
-// Design Guideline Mappings for Tables (assuming these are defined elsewhere or replace with actual styles)
+// Localization
+import slRaw from '../../../utils/script_lines.js'; // Adjusted path
+const sl = slRaw.venueManagement.tableRenderer;
+
+// Design Guideline Mappings (Copied from original, no changes here)
 const TABLE_RENDERER_STYLES = {
     gradientLight: "bg-gradient-to-br from-indigo-400 to-indigo-500",
     gradientDark: "dark:from-indigo-500 dark:to-indigo-600",
@@ -10,21 +15,22 @@ const TABLE_RENDERER_STYLES = {
     textDark: "dark:text-indigo-100",
     provisionalBorderLight: "border-purple-500",
     provisionalBorderDark: "dark:border-purple-400",
-    provisionalGradientLight: "bg-gradient-to-br from-purple-300 to-purple-400", // Example provisional gradient
-    provisionalGradientDark: "dark:from-purple-500 dark:to-purple-600",      // Example provisional gradient
-    provisionalTextLight: "text-purple-700", // Changed to be visible on lighter provisional gradient
+    provisionalGradientLight: "bg-gradient-to-br from-purple-300 to-purple-400",
+    provisionalGradientDark: "dark:from-purple-500 dark:to-purple-600",
+    provisionalTextLight: "text-purple-700",
     provisionalTextDark: "dark:text-purple-300",
     fontFamily: "font-montserrat",
     fontWeight: "font-semibold",
     fontSizeBase: "text-xs",
     fontSizeSmall: "text-[10px]",
-    inputBgLight: "bg-indigo-50/80 dark:bg-purple-50/80", // Ensure contrast for provisional text
+    inputBgLight: "bg-indigo-50/80 dark:bg-purple-50/80",
     inputBgDark: "dark:bg-indigo-900/70 dark:bg-purple-900/70",
     inputBorderFocusLight: "border-indigo-300 ring-indigo-300",
     inputBorderFocusDark: "dark:border-indigo-500 dark:ring-indigo-500",
 };
+// --- End Design Guideline Variables ---
 
-const TableRenderer = ({ item, itemRotation, onUpdateItemProperty, isSelected }) => { // Added isSelected for context
+const TableRenderer = ({ item, onUpdateItemProperty, isSelected, isPreviewMode = false }) => { // Added isPreviewMode
     const [isEditingNumber, setIsEditingNumber] = useState(false);
     const [currentNumberInput, setCurrentNumberInput] = useState(String(item.number ?? ''));
 
@@ -36,11 +42,10 @@ const TableRenderer = ({ item, itemRotation, onUpdateItemProperty, isSelected })
 
     const handleNumberTextClick = useCallback((e) => {
         e.stopPropagation();
-        // Only allow editing if not fixed AND if onUpdateItemProperty is provided (i.e., in editor context)
-        if (item.isFixed || !onUpdateItemProperty) return;
+        if (item.isFixed || !onUpdateItemProperty || isPreviewMode) return; // Don't allow edit in preview mode
         setCurrentNumberInput(String(item.number ?? ''));
         setIsEditingNumber(true);
-    }, [item.number, item.isFixed, onUpdateItemProperty]);
+    }, [item.number, item.isFixed, onUpdateItemProperty, isPreviewMode]);
 
     const handleInputChange = (e) => {
         setCurrentNumberInput(e.target.value);
@@ -65,8 +70,7 @@ const TableRenderer = ({ item, itemRotation, onUpdateItemProperty, isSelected })
 
     const shapeClass = item.shape?.includes('round') ? 'rounded-full' : 'rounded-lg';
     const smallestDimensionMinor = Math.min(item.w_minor || 4, item.h_minor || 4);
-    // Assuming item.gridSubdivision is available or defaulting to 1 if not part of item.
-    const effectiveGridSubdivision = item.gridSubdivision || 1;
+    const effectiveGridSubdivision = item.gridSubdivision || 1; // item.gridSubdivision may not be available on `item` directly
     const fontSizeClass = smallestDimensionMinor < (effectiveGridSubdivision * 1.5)
         ? TABLE_RENDERER_STYLES.fontSizeSmall
         : TABLE_RENDERER_STYLES.fontSizeBase;
@@ -80,25 +84,31 @@ const TableRenderer = ({ item, itemRotation, onUpdateItemProperty, isSelected })
         ? `${TABLE_RENDERER_STYLES.provisionalTextLight} ${TABLE_RENDERER_STYLES.provisionalTextDark}`
         : `${TABLE_RENDERER_STYLES.textLight} ${TABLE_RENDERER_STYLES.textDark}`;
 
-    // Determine if editing should be possible (primarily for LayoutEditor context)
-    const canEdit = onUpdateItemProperty && !item.isFixed && isSelected;
+    const canEdit = onUpdateItemProperty && !item.isFixed && isSelected && !isPreviewMode;
+
+    // Construct dynamic title for the table item itself (shown on hover by PlacedItem)
+    // This title logic is actually handled by PlacedItem.jsx, so we don't need to duplicate it here.
+    // The renderer just focuses on display.
+
+    const tableDisplayText = item.isProvisional
+        ? (sl.provisionalDisplayValue || "Nº?")
+        : `${sl.tableNumberPrefix || "T"}${item.number ?? (sl.tableNumberNotSet || "")}`;
 
     return (
         <div
             className={`${baseClasses} ${colorClasses} ${shapeClass}`}
-            title={item.isFixed ? `Table ${item.number ?? 'N/A'} (Fixed)` :
-                (item.isProvisional ? "Provisional Table (Click in Editor to set number)" :
-                    `Table ${item.number ?? ''}`)}
+        // Title is handled by the parent PlacedItem component
         >
             {(isEditingNumber && canEdit) ? (
                 <input
-                    type="text"
+                    type="text" // Use text to allow empty string for provisional clearing
+                    inputMode="numeric" // Hint for mobile keyboards
                     value={currentNumberInput}
                     onChange={handleInputChange}
                     onBlur={saveNumber}
                     onKeyDown={handleInputKeyDown}
                     autoFocus
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()} // Prevent PlacedItem's click
                     className={`w-3/4 max-w-[60px] text-center rounded
                                 ${fontSizeClass} ${TABLE_RENDERER_STYLES.fontFamily} ${TABLE_RENDERER_STYLES.fontWeight}
                                 ${item.isProvisional ? TABLE_RENDERER_STYLES.inputBgLight : TABLE_RENDERER_STYLES.inputBgLight} 
@@ -113,7 +123,7 @@ const TableRenderer = ({ item, itemRotation, onUpdateItemProperty, isSelected })
                     className={`${TABLE_RENDERER_STYLES.fontFamily} ${TABLE_RENDERER_STYLES.fontWeight} ${fontSizeClass} ${textClasses} ${canEdit ? 'cursor-pointer hover:underline' : 'cursor-default'}`}
                     onClick={canEdit ? handleNumberTextClick : undefined}
                 >
-                    {item.isProvisional ? 'Nº?' : `T${item.number ?? ''}`}
+                    {tableDisplayText}
                 </span>
             )}
         </div>

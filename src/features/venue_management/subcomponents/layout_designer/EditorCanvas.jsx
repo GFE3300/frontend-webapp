@@ -15,14 +15,14 @@ const sl = slRaw.venueManagement.editorCanvas;
 
 const MIN_ITEM_DIMENSION_MINOR_CELLS = 1;
 
-// Design Guideline Variables (Copied from original, no changes here)
+// Design Guideline Variables
 const CANVAS_CONTAINER_STYLES = {
     bgLight: "bg-neutral-100",
     bgDark: "dark:bg-neutral-900",
-    padding: "p-2 sm:p-3 md:p-4",
+    padding: "p-2 sm:p-3 md:p-4", // Adjusted padding
 };
 const CANVAS_GRID_STYLES = {
-    base: "relative touch-none",
+    base: "relative touch-none", // Ensure touch-none to prevent page scroll on touch devices during drag
     borderLight: "border border-neutral-300",
     borderDark: "dark:border-neutral-700",
     bgLight: "bg-white",
@@ -54,21 +54,22 @@ const EditorCanvas = ({
     draggedItemPreview,
     onUpdateDraggedItemPreview,
     isEraserActive,
-    zoomLevel,
+    zoomLevel, // This is the prop
     onCanvasClick, // For deselecting items by clicking canvas background
 }) => {
-    const canvasGridRef = useRef(null);
-    const gridWrapperRef = useRef(null);
+    const canvasGridRef = useRef(null); // Ref for the scaled grid itself
+    const gridWrapperRef = useRef(null); // Ref for the container of the scaled grid (this will be the drop target for resize)
     const [minorCellSizePx, setMinorCellSizePx] = useState(16);
 
+    // Refs to hold the latest values of props/state for use in callbacks that might close over stale values
     const draggedItemPreviewRef = useRef(draggedItemPreview);
     const designItemsRef = useRef(designItems);
-    const zoomLevelRef = useRef(zoomLevel);
+    const zoomLevelRef = useRef(zoomLevel); // Correctly tracks the latest zoomLevel prop value
     const canPlaceItemRef = useRef(canPlaceItem);
 
     useEffect(() => { draggedItemPreviewRef.current = draggedItemPreview; }, [draggedItemPreview]);
     useEffect(() => { designItemsRef.current = designItems; }, [designItems]);
-    useEffect(() => { zoomLevelRef.current = zoomLevel; }, [zoomLevel]);
+    useEffect(() => { zoomLevelRef.current = zoomLevel; }, [zoomLevel]); // Updates the ref when zoomLevel prop changes
     useEffect(() => { canPlaceItemRef.current = canPlaceItem; }, [canPlaceItem]);
 
     const totalMinorRows = useMemo(() => majorGridRows * gridSubdivision, [majorGridRows, gridSubdivision]);
@@ -85,10 +86,10 @@ const EditorCanvas = ({
     }, [minorCellSizeRem]);
 
     const [, dropTargetRefSetter] = useDrop(() => ({
-        accept: [ItemTypes.RESIZE_HANDLE],
+        accept: [ItemTypes.RESIZE_HANDLE], // Only resize handles are dropped onto the grid wrapper
         hover: (dragPayload, monitor) => {
-            const currentZoomLevel = zoomLevelRef.current;
-            const currentDraggedItemPreview = draggedItemPreviewRef.current;
+            const currentZoomLevel = zoomLevelRef.current; // Use the ref for the latest zoom value in calculations
+            const currentDraggedItemPreview = draggedItemPreviewRef.current; // Use ref
 
             if (!monitor.isOver({ shallow: true }) || !gridWrapperRef.current || minorCellSizePx === 0 || currentZoomLevel === 0) {
                 if (currentDraggedItemPreview && currentDraggedItemPreview.type === 'resize') {
@@ -115,11 +116,23 @@ const EditorCanvas = ({
                 return;
             }
 
+            // Calculate mouse position relative to the unscaled grid
+            // gridWrapperRef.current is the element that receives the drop events for resize handles
             const wrapperRect = gridWrapperRef.current.getBoundingClientRect();
-            const mouseX_on_wrapper_px = clientOffset.x - wrapperRect.left;
-            const mouseY_on_wrapper_px = clientOffset.y - wrapperRect.top;
+
+            // Mouse position relative to the viewport
+            const mouseX_viewport = clientOffset.x;
+            const mouseY_viewport = clientOffset.y;
+
+            // Mouse position relative to the top-left of the gridWrapper (which is scaled)
+            const mouseX_on_wrapper_px = mouseX_viewport - wrapperRect.left;
+            const mouseY_on_wrapper_px = mouseY_viewport - wrapperRect.top;
+
+            // Adjust for zoom to get mouse position on the conceptual unscaled grid
             const mouseX_on_unscaled_grid_px = mouseX_on_wrapper_px / currentZoomLevel;
             const mouseY_on_unscaled_grid_px = mouseY_on_wrapper_px / currentZoomLevel;
+
+            // Determine hovered minor cell on the unscaled grid
             const hoveredMinorC = Math.max(1, Math.min(totalMinorCols, Math.floor(mouseX_on_unscaled_grid_px / minorCellSizePx) + 1));
             const hoveredMinorR = Math.max(1, Math.min(totalMinorRows, Math.floor(mouseY_on_unscaled_grid_px / minorCellSizePx) + 1));
 
@@ -164,7 +177,7 @@ const EditorCanvas = ({
             });
         },
         drop: (dragPayload, monitor) => {
-            const currentDraggedItemPreview = draggedItemPreviewRef.current;
+            const currentDraggedItemPreview = draggedItemPreviewRef.current; // Use ref
             if (!currentDraggedItemPreview || currentDraggedItemPreview.type !== 'resize' || !currentDraggedItemPreview.isValid || !currentDraggedItemPreview.itemId) {
                 if (currentDraggedItemPreview) onUpdateDraggedItemPreview(null);
                 return;
@@ -177,33 +190,40 @@ const EditorCanvas = ({
             });
             onUpdateDraggedItemPreview(null);
         },
-    }), [
+    }), [ // Dependencies for useDrop
         ItemTypes, onUpdateItemProperty, onUpdateDraggedItemPreview,
         totalMinorRows, totalMinorCols, minorCellSizePx,
+        zoomLevel, // <<< --- THIS IS THE CRITICAL FIX ---
+        getEffectiveDimensionsUtil // Include if its definition or usage implies dependency on props/state not captured by refs
     ]);
 
+    // Connect the drop target ref to the gridWrapperRef
     useEffect(() => {
         if (gridWrapperRef.current) {
             dropTargetRefSetter(gridWrapperRef.current);
         }
     }, [dropTargetRefSetter]);
 
+    // Style for the dynamically scaled grid canvas itself
     const canvasGridDynamicStyle = useMemo(() => ({
         display: 'grid',
         gridTemplateRows: `repeat(${totalMinorRows}, ${minorCellSizeRem}rem)`,
         gridTemplateColumns: `repeat(${totalMinorCols}, ${minorCellSizeRem}rem)`,
         width: `${majorGridCols * MAJOR_CELL_SIZE_REM}rem`,
         height: `${majorGridRows * MAJOR_CELL_SIZE_REM}rem`,
-        transform: `scale(${zoomLevelRef.current})`,
-        transformOrigin: 'top left',
-        transition: 'transform 0.05s linear',
+        transform: `scale(${zoomLevel})`, // Use the zoomLevel prop directly for styling
+        transformOrigin: 'top left', // Scale from top-left
+        transition: 'transform 0.05s linear', // Faster transition for smoother feel
     }), [totalMinorRows, totalMinorCols, minorCellSizeRem, majorGridCols, majorGridRows, zoomLevel]);
 
+    // Style for the wrapper that contains the scaled grid. This wrapper's actual screen size changes with zoom.
     const gridWrapperStyle = useMemo(() => ({
-        width: `${majorGridCols * MAJOR_CELL_SIZE_REM * zoomLevelRef.current}rem`,
-        height: `${majorGridRows * MAJOR_CELL_SIZE_REM * zoomLevelRef.current}rem`,
-        margin: 'auto',
-        position: 'relative',
+        width: `${majorGridCols * MAJOR_CELL_SIZE_REM * zoomLevel}rem`, // Actual width on screen
+        height: `${majorGridRows * MAJOR_CELL_SIZE_REM * zoomLevel}rem`, // Actual height on screen
+        margin: 'auto', // Keeps the wrapper centered if canvas area is larger
+        position: 'relative', // For absolute positioning of items within the scaled grid's coordinate system
+        // Visual styles for the wrapper itself, if any (e.g., for debugging bounds)
+        // backgroundColor: 'rgba(0, 255, 0, 0.1)', // Example: light green debug background
         borderRadius: '0.375rem', // Tailwind's rounded-md
         boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)', // Tailwind's shadow-lg
     }), [majorGridCols, majorGridRows, zoomLevel]);
@@ -222,17 +242,17 @@ const EditorCanvas = ({
         <div
             className={`flex-1 w-full h-full overflow-auto
                         ${CANVAS_CONTAINER_STYLES.padding}`}
-            onClick={onCanvasClick} // Handles deselecting by clicking canvas background
-            role="application" // Main container for the canvas interaction area
+            onClick={onCanvasClick}
+            role="application"
             aria-label={sl.mainCanvasAreaLabel || "Venue Layout Design Canvas"}
         >
-            <div ref={gridWrapperRef} style={gridWrapperStyle} className="grid-wrapper-for-scroll">
+            <div ref={gridWrapperRef} style={gridWrapperStyle} className="grid-wrapper-for-scroll"> {/* This is the drop target for resize */}
                 <div
-                    ref={canvasGridRef}
+                    ref={canvasGridRef} // This is the scaled grid
                     className={gridContainerClasses}
                     style={canvasGridDynamicStyle}
                     onMouseLeave={handleCanvasMouseLeave}
-                    role="grid" // Semantic role for the grid itself
+                    role="grid"
                     aria-label={sl.gridRegionLabel || "Layout Grid Area"}
                     aria-rowcount={totalMinorRows}
                     aria-colcount={totalMinorCols}
@@ -254,14 +274,12 @@ const EditorCanvas = ({
                                     onCellClickForPrimaryAction={onCellClickForPrimaryAction}
                                     moveCandidateItemId={moveCandidateItemId}
                                     activeToolForPlacement={activeToolForPlacement}
-                                    canPlaceItemAtCoords={canPlaceItemRef.current}
-                                    currentDraggedItemPreview={draggedItemPreviewRef.current}
+                                    canPlaceItemAtCoords={canPlaceItemRef.current} // Use ref
+                                    currentDraggedItemPreview={draggedItemPreviewRef.current} // Use ref
                                     onUpdateCurrentDraggedItemPreview={onUpdateDraggedItemPreview}
                                     isEraserActive={isEraserActive}
                                     onEraseItemFromCell={onEraseDesignerItemFromCell}
                                     ItemTypes={ItemTypes}
-                                // No direct user-facing text in CanvasCell itself that needs scriptLines here
-                                // Its aria-labels will be constructed dynamically based on context
                                 />
                             );
                         })
@@ -277,18 +295,18 @@ const EditorCanvas = ({
                                 left: `${(draggedItemPreviewRef.current.previewGridPosition.colStart - 1) * minorCellSizeRem}rem`,
                                 width: `${draggedItemPreviewRef.current.previewW_minor * minorCellSizeRem}rem`,
                                 height: `${draggedItemPreviewRef.current.previewH_minor * minorCellSizeRem}rem`,
-                                zIndex: 100,
+                                zIndex: 100, // Ensure preview is above items but below handles
                             }}
-                            aria-hidden={sl.resizePreviewAriaHidden || "true"} // It's a visual status indicator
+                            aria-hidden="true" // It's a visual status indicator
                         />
                     )}
 
                     {/* Placed Items */}
                     <AnimatePresence>
-                        {designItemsRef.current.map(item => {
+                        {designItemsRef.current.map(item => { // Use ref
                             if (!item || !item.id || !item.gridPosition) return null;
                             const isCurrentlySelected = selectedItemId === item.id;
-                            const currentLocalDraggedPreview = draggedItemPreviewRef.current;
+                            const currentLocalDraggedPreview = draggedItemPreviewRef.current; // Use ref
                             const isHiddenForThisResizePreview = currentLocalDraggedPreview?.type === 'resize' && currentLocalDraggedPreview?.itemId === item.id;
 
                             if (isHiddenForThisResizePreview) return null;
@@ -303,8 +321,7 @@ const EditorCanvas = ({
                                     moveCandidateItemId={moveCandidateItemId}
                                     minorCellSizeRem={minorCellSizeRem}
                                     ItemTypes={ItemTypes} ITEM_CONFIGS={ITEM_CONFIGS}
-                                    zoomLevel={zoomLevelRef.current}
-                                // PlacedItem will handle its own tooltips/aria-labels
+                                    zoomLevel={zoomLevelRef.current} // Use ref for child rendering
                                 />
                             );
                         })}

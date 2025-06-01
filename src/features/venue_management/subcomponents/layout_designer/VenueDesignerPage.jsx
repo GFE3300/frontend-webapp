@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 
 import VenueDesignerHeader from './VenueDesignerHeader';
@@ -29,7 +30,7 @@ const DEFAULT_FRONTEND_GRID_DIMENSIONS = Object.freeze({
 });
 
 const DEBUG_MODE = import.meta.env.NODE_ENV === 'development';
-const logDebug = (...args) => { if (DEBUG_MODE) { /* console.log("[VenueDesignerPage DEBUG]", ...args); */ } };
+const logDebug = (...args) => { if (DEBUG_MODE) { console.log("[VenueDesignerPage DEBUG]", ...args); } };
 
 const VenueDesignerPage = () => {
     const navigate = useNavigate();

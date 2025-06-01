@@ -1,6 +1,10 @@
+// frontend/src/features/menu_view/subcomponents/OrderItem.jsx
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import Icon from '../../../components/common/Icon'; // Adjusted path
+import Icon from '../../../components/common/Icon'; // Path from frontend.txt structure
+
+const FALLBACK_IMAGE_URL_ORDER_ITEM = 'https://via.placeholder.com/64?text=Item';
 
 /**
  * Displays a single item within the order summary.
@@ -9,15 +13,15 @@ import Icon from '../../../components/common/Icon'; // Adjusted path
  * @param {object} props.item - The order item object. Expected structure:
  *  {
  *    id: string, // Unique ID for this specific configuration in the order
- *    originalId: string, // Original product ID from backend
+ *    originalId: string, // Original product ID from backend (used in payload)
  *    name: string,
  *    imageUrl: string,
- *    price: number, // Final price per unit for this configuration
+ *    price: number, // Final price PER UNIT for this configuration
  *    quantity: number,
  *    selectedOptionsSummary: string | null // e.g., "Size: Large; Extras: Chocolate, Almonds"
  *  }
  * @param {function} props.onUpdateQuantity - Callback: `(itemId, newQuantity) => void`.
- * @param {boolean} [props.isPreviewMode=false] - If true, might adjust styling or behavior (not used in this version but good to have).
+ * @param {boolean} [props.isPreviewMode=false] - If true, might adjust styling or behavior.
  * @returns {JSX.Element} The rendered OrderItem component.
  */
 function OrderItem({ item, onUpdateQuantity, isPreviewMode = false }) {
@@ -26,36 +30,37 @@ function OrderItem({ item, onUpdateQuantity, isPreviewMode = false }) {
     };
 
     const handleDecrement = () => {
-        // Parent (OrderSummaryPanel) will handle removal if quantity <= 0
+        // Parent (OrderSummaryPanel/AdminMenuPreviewPage) will handle removal if quantity becomes <= 0
         onUpdateQuantity(item.id, item.quantity - 1);
     };
 
-    const itemBasePrice = parseFloat(item.price) || 0;
+    const itemBasePrice = parseFloat(item.price) || 0; // This is already the price with options
     const itemTotalPrice = (itemBasePrice * item.quantity).toFixed(2);
-    const FALLBACK_IMAGE_URL_ORDER_ITEM = 'https://via.placeholder.com/64?text=Item';
-
 
     return (
         <motion.div
             layout // Enables smooth reordering/removal animation when list changes
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: isPreviewMode ? 0 : -50, transition: { duration: 0.2 } }} // Slide out left on exit for customer view
+            // For Admin Preview, isPreviewMode is true. We can customize exit animation if needed.
+            exit={{ opacity: 0, x: -50, transition: { duration: 0.2 } }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            // Styling from frontend.txt version, should work well on OrderSummaryPanel's dark bg
             className="flex items-start bg-white dark:bg-neutral-700/60 p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-150"
             role="listitem"
             aria-label={`${item.name}, quantity ${item.quantity}, total ${itemTotalPrice}`}
         >
             <img
                 src={item.imageUrl || FALLBACK_IMAGE_URL_ORDER_ITEM}
-                alt={item.name}
+                alt={item.name || 'Order item image'}
                 className="w-16 h-16 rounded-md object-cover mr-3 flex-shrink-0 border border-neutral-200 dark:border-neutral-600"
                 onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE_URL_ORDER_ITEM; }}
             />
             <div className="flex-grow min-w-0"> {/* min-w-0 for proper truncation */}
                 <h4 className="font-semibold text-sm leading-tight text-neutral-800 dark:text-neutral-100 truncate" title={item.name}>
-                    {item.name}
+                    {item.name || "Unnamed Item"}
                 </h4>
+                {/* Display selected options summary */}
                 {item.selectedOptionsSummary && (
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 truncate" title={item.selectedOptionsSummary}>
                         {item.selectedOptionsSummary}
