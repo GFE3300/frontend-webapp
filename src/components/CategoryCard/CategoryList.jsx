@@ -9,7 +9,6 @@ import EditCategoryForm from './Subcomponents/EditCategoryForm';
 import Modal from './Subcomponents/Modal';
 
 // --- Icons --- (Keep existing icons: DropdownArrowIcon, PlusIcon, SearchIcon, SortAscIcon, SortDescIcon, TrashIcon)
-// ... (your icon definitions remain here) ...
 const DropdownArrowIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
         <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -42,13 +41,11 @@ const TrashIcon = () => (
 );
 // --- End Icons ---
 
-const API_BASE_URL = 'http://localhost:8000/api/products'; // Adjust if your backend URL is different
+const API_BASE_URL = 'http://localhost:8000/api/products'; 
 
-// Helper to get the auth token (replace with your actual token retrieval logic)
 const getAuthToken = () => {
-    // Example: return localStorage.getItem('accessToken');
-    // For testing, you might hardcode a valid token if your backend requires it and you don't have login flow yet.
-    return "YOUR_ACCESS_TOKEN_HERE"; // REPLACE THIS
+
+    return "YOUR_ACCESS_TOKEN_HERE"; 
 };
 
 const CategoryList = ({

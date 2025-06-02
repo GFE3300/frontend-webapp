@@ -88,6 +88,15 @@ const router = createBrowserRouter([
 		errorElement: <NotFoundPage />, // Or a specific dashboard error boundary
 	},
 	{
+		path: "/a",
+		element: (
+			<>
+				<CategoryList />
+			</>
+		),
+		errorElement: <NotFoundPage />,
+	},
+	{
 		path: "/dashboard/categories",
 		element: (
 			<PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
