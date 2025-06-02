@@ -1,5 +1,5 @@
 // frontend/src/features/add_product_modal/steps/Step5_DiscountsExtras.jsx
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion } from 'framer-motion';
@@ -15,24 +15,43 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
     const [isCreateDiscountModalOpen, setIsCreateDiscountModalOpen] = useState(false);
     const sl = scriptLines.step5DiscountsExtras;
 
-    const { data: masterCodesData, isLoading: isLoadingMasterCodes, error: masterCodesError } = useMasterDiscountCodes();
+    const { data: masterCodesData, isLoading: isLoadingMasterCodes, error: masterCodesError, refetch: refetchMasterCodes } = useMasterDiscountCodes({
+        // Ensure this hook fetches codes relevant to the activeBusinessId if backend requires it
+        // or if ProductDataContext doesn't scope it automatically.
+        // For now, assuming ProductDataContext handles scoping or backend handles it.
+    });
     const availableMasterCodes = masterCodesData || [];
 
     const createMasterDiscountMutation = useCreateMasterDiscountCode();
 
+    // Effect to refetch master codes if a new one is successfully created.
+    // This ensures the DiscountCodeSelector has the latest list.
+    useEffect(() => {
+        if (createMasterDiscountMutation.isSuccess) {
+            refetchMasterCodes();
+        }
+    }, [createMasterDiscountMutation.isSuccess, refetchMasterCodes]);
+
     const handleApplyCode = useCallback((masterCode) => {
+        // masterCode is expected to be { id, codeName, description, type, default_value }
+        // description here comes from masterCode.internal_description or public_display_name
         const alreadyApplied = (formData.appliedDiscounts || []).some(ad => ad.discount_master === masterCode.id);
         if (alreadyApplied) {
             console.warn(sl.warnDiscountAlreadyApplied);
+            // Optionally: toast.warn(sl.warnDiscountAlreadyApplied);
             return;
         }
 
         const newAppliedDiscount = {
             id: generateId('applied_disc_'), // UI key
-            discount_master: masterCode.id, // Actual FK to DiscountMaster
-            codeName: masterCode.code_name,
-            description: masterCode.internal_description || masterCode.public_display_name || '', // Prefer internal
-            discount_percentage_override: masterCode.type === 'percentage' ? parseFloat(masterCode.default_value) : null,
+            discount_master: masterCode.id,   // FK to DiscountMaster.id
+            codeName: masterCode.codeName,
+            description: masterCode.description, // This is internal_description
+            discount_master_type: masterCode.type,
+            discount_master_default_value: parseFloat(masterCode.default_value), // Store as number
+            discount_percentage_override: masterCode.type === 'percentage'
+                ? parseFloat(masterCode.default_value) // Default override to master's value for percentages
+                : null, // No override for fixed amounts
         };
         updateField('appliedDiscounts', [...(formData.appliedDiscounts || []), newAppliedDiscount]);
     }, [formData.appliedDiscounts, updateField, sl.warnDiscountAlreadyApplied]);
@@ -53,43 +72,51 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
     const handleCreateDiscountCode = async (newDiscountDataFromModal) => {
         if (!activeBusinessId) {
             console.error(sl.errorMissingBusinessId);
+            // This error should ideally be caught and displayed by CreateDiscountCodeModal or its parent form
             throw new Error(sl.errorBusinessContextMissing);
         }
 
         try {
+            // Backend expects: code_name, internal_description, type, default_value, requires_code
+            // The business ID is injected by the BusinessScopedViewMixin on the backend.
             const payload = {
-                code_name: newDiscountDataFromModal.codeName.trim().toUpperCase(),
+                code_name: newDiscountDataFromModal.codeName.trim().toUpperCase(), // Backend might uppercase too
                 internal_description: newDiscountDataFromModal.description.trim(),
                 type: newDiscountDataFromModal.type,
                 default_value: parseFloat(newDiscountDataFromModal.value),
-                business: activeBusinessId,
-                // public_display_name, requires_code, is_active will use backend defaults or further logic
+                requires_code: newDiscountDataFromModal.requires_code, // This was added in CreateDiscountCodeModal
+                // public_display_name can be omitted, backend might generate or leave null
+                // applies_to_categories, applies_to_tags can be omitted if not set in this simple modal
             };
-            // console.log("Payload to create master discount:", payload); // For debugging
-            await createMasterDiscountMutation.mutateAsync(payload);
-            // Modal is expected to close itself on successful submission from its own logic
+            // console.log("Payload to create master discount via Step5:", payload);
+            const createdDiscount = await createMasterDiscountMutation.mutateAsync(payload);
+            // Successfully created, modal will close itself via its own `onClose` call.
+            // The useEffect for createMasterDiscountMutation.isSuccess will trigger refetchMasterCodes.
+            return createdDiscount; // Return to modal if it needs it (e.g., to display a success message before closing)
         } catch (err) {
             console.error(sl.errorFailedCreateMasterCode, err);
-            // Propagate field-specific errors if available, or a general message
             const apiErrors = err.response?.data;
+            const fieldSpecificErrors = {};
             if (apiErrors && typeof apiErrors === 'object') {
-                const fieldSpecificErrors = {};
-                // Map backend field names to frontend state/field names if they differ
                 for (const key in apiErrors) {
                     const frontendKey = {
-                        'internal_description': 'description', // map internal_description error to 'description' field
-                        'default_value': 'discountValue',     // map default_value error to 'discountValue' field
-                        'code_name': 'codeName',               // map code_name error to 'codeName' field
-                        'type': 'discountType',               // map type error to 'discountType' field
-                        'business': 'form'                    // map business error to general form error for modal
-                    }[key] || key;
+                        'internal_description': 'description',
+                        'default_value': 'discountValue',
+                        'code_name': 'codeName',
+                        'type': 'discountType',
+                        // Map other backend keys to frontend keys if necessary
+                    }[key] || key; // Fallback to backend key if no mapping
                     fieldSpecificErrors[frontendKey] = Array.isArray(apiErrors[key]) ? apiErrors[key][0] : String(apiErrors[key]);
                 }
-                if (Object.keys(fieldSpecificErrors).length > 0) {
-                    err.fieldErrors = fieldSpecificErrors; // Add structured errors to the error object
-                }
             }
-            throw err; // Re-throw to be caught by the modal's handleSubmit and display errors
+            if (Object.keys(fieldSpecificErrors).length > 0) {
+                err.fieldErrors = fieldSpecificErrors; // Attach for modal to use
+            }
+            // General error message if no specific field errors were mapped
+            if (!err.message && Object.keys(fieldSpecificErrors).length === 0) {
+                err.message = sl.errorFormGeneric || "An unexpected error occurred. Please try again.";
+            }
+            throw err; // Re-throw to be caught by the modal's handleSubmit
         }
     };
 
@@ -100,66 +127,75 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
         return <div className="py-10 text-center text-red-500">{sl.errorLoadingMasterCodesPrefix} {masterCodesError.message}</div>;
     }
 
+    // Prepare appliedDiscounts with full data for AppliedDiscountsManager
+    const enrichedAppliedDiscounts = (formData.appliedDiscounts || []).map(ad => {
+        // If ad already has all fields (e.g., from edit mode where it's loaded), use them.
+        // Otherwise, try to find master details if only master ID is present (less ideal here, should be set on apply).
+        // This logic primarily ensures that if data is coming from a fresh application (handleApplyCode), it's already correct.
+        // If it's from initial form load (edit mode), getInitialFormData should have set these.
+        return {
+            id: ad.id,
+            discount_master: ad.discount_master,
+            codeName: ad.codeName,
+            description: ad.description,
+            discount_master_type: ad.discount_master_type,
+            discount_master_default_value: ad.discount_master_default_value,
+            discount_percentage_override: ad.discount_percentage_override,
+        };
+    });
+
+
     return (
         <>
             <motion.div
-                layout className="space-y-8 py-2"
+                layout className="space-y-6 sm:space-y-8 py-2" // Consistent spacing
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
             >
                 <div>
-                    <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100 mb-1">
+                    <h2 className="text-lg sm:text-xl font-semibold text-neutral-800 dark:text-neutral-100 mb-1">
                         {sl.mainTitle}
                     </h2>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                         {sl.mainDescription}
                     </p>
                 </div>
 
-                <div className="p-5 bg-neutral-50 dark:bg-neutral-700/30 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-200 border-b pb-2 mb-4 dark:border-neutral-600">
+                <div className="p-4 sm:p-5 bg-neutral-50 dark:bg-neutral-700/30 rounded-lg shadow">
+                    <h3 className="text-md sm:text-lg font-medium text-neutral-700 dark:text-neutral-200 border-b border-neutral-200 dark:border-neutral-600 pb-2 mb-4">
                         {sl.productSpecificDiscountsTitle}
                     </h3>
                     <AppliedDiscountsManager
-                        appliedDiscounts={(formData.appliedDiscounts || []).map(ad => ({
-                            id: ad.id,
-                            discountCodeId: ad.discount_master,
-                            codeName: ad.codeName,
-                            description: ad.description,
-                            discountPercentage: ad.discount_percentage_override,
-                        }))}
-                        availableMasterCodes={availableMasterCodes.map(mc => ({
+                        appliedDiscounts={enrichedAppliedDiscounts}
+                        availableMasterCodes={availableMasterCodes.map(mc => ({ // Ensure structure matches selector needs
                             id: mc.id,
                             codeName: mc.code_name,
-                            description: mc.internal_description || mc.public_display_name || '',
-                            type: mc.type,
-                            default_value: mc.default_value,
+                            description: mc.internal_description || mc.public_display_name || sl.noDescriptionAvailable,
+                            type: mc.type, // Pass type
+                            default_value: mc.default_value, // Pass default_value
                         }))}
                         onApplyCode={handleApplyCode}
                         onUpdateAppliedPercentage={handleUpdateAppliedPercentage}
                         onRemoveAppliedCode={handleRemoveAppliedCode}
                         onTriggerCreateNewCode={() => setIsCreateDiscountModalOpen(true)}
-                        errors={errors?.appliedDiscounts} // Pass array-level errors if any
+                        errors={errors?.appliedDiscounts} // Pass array-level or object of errors
                     />
-                    {errors?.appliedDiscounts && typeof errors.appliedDiscounts === 'string' && (
-                        <p className="mt-2 text-xs text-red-600 dark:text-red-400">{errors.appliedDiscounts}</p>
-                    )}
                 </div>
 
-                <div className="p-5 bg-neutral-50 dark:bg-neutral-700/30 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-200 border-b pb-2 mb-4 dark:border-neutral-600">
+                <div className="p-4 sm:p-5 bg-neutral-50 dark:bg-neutral-700/30 rounded-lg shadow">
+                    <h3 className="text-md sm:text-lg font-medium text-neutral-700 dark:text-neutral-200 border-b border-neutral-200 dark:border-neutral-600 pb-2 mb-4">
                         {sl.additionalNotesTitle}
                     </h3>
-                    <div className='flex h-15 items-end w-full'>
+                    <div className='flex h-auto items-end w-full'> {/* Adjusted height to auto */}
                         <InputField
                             label={sl.additionalNotesLabel}
                             className="w-full"
-                            isTextArea={true} rows={4}
+                            isTextArea={true} rows={3} // Reduced rows slightly
                             value={formData.additionalNotes || ''}
                             onChange={(e) => updateField('additionalNotes', e.target.value)}
                             error={errors?.additionalNotes}
                             placeholder={sl.additionalNotesPlaceholder}
                             maxLength={500}
-                            hideLabel
+                            hideLabel // Label is part of h3
                         />
                     </div>
                 </div>
@@ -168,7 +204,7 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
             <CreateDiscountCodeModal
                 isOpen={isCreateDiscountModalOpen}
                 onClose={() => setIsCreateDiscountModalOpen(false)}
-                onCreateDiscount={handleCreateDiscountCode}
+                onCreateDiscount={handleCreateDiscountCode} // This will eventually call createMasterDiscountMutation
                 existingCodes={availableMasterCodes.map(c => ({ codeName: c.code_name }))}
             />
         </>
@@ -179,11 +215,9 @@ Step5_DiscountsExtras_Actual.propTypes = {
     formData: PropTypes.object.isRequired,
     updateField: PropTypes.func.isRequired,
     errors: PropTypes.object,
-    activeBusinessId: PropTypes.string, // Kept as optional, but handleCreateDiscountCode checks it
+    activeBusinessId: PropTypes.string.isRequired, // Made required for creating discounts
 };
 
-Step5_DiscountsExtras_Actual.defaultProps = {
-    activeBusinessId: null,
-};
+Step5_DiscountsExtras_Actual.displayName = 'Step5_DiscountsExtras_Actual';
 
 export default Step5_DiscountsExtras_Actual;

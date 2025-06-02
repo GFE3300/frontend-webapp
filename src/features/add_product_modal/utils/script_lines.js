@@ -317,46 +317,52 @@ const scriptLines = {
 
 
     createDiscountCodeModal: {
+        // Modal Title
         title: "Create New Master Discount",
+        // Close Button
         closeButtonLabel: "Close create discount modal",
         closeButtonTitle: "Close",
 
+        // InputField Labels
         codeNameLabel: "Discount Code Name",
-        codeNamePlaceholder: "e.g., SUMMER20",
-        codeNameHelpText: "Unique code, {minLength}-{maxLength} chars. Customers will use this.", // Placeholder
-
-        descriptionLabel: "Internal Description", // This is for internal_description
-        descriptionPlaceholder: "e.g., Summer campaign 2024, for all pastry items",
-        descriptionHelpText: "For your reference, not shown to customers.",
-
-        discountTypeLabel: "Discount Type",
-        discountTypePercentageLabel: "Percentage Off Product (%)",
-        discountTypeFixedAmountProductLabel: "Fixed Amount Off Product ({currencySymbol})", // New, placeholder for currencySymbol
-        // Add other types if needed, e.g.:
-        // discountTypeOrderPercentageLabel: "Percentage Off Entire Order (%)",
-        // discountTypeOrderFixedAmountLabel: "Fixed Amount Off Entire Order ({currencySymbol})",
-        discountTypeHelpText: "Determines how the discount value is interpreted.",
-
+        descriptionLabel: "Internal Description",
+        discountTypeLabel: "Discount Type (for this master code)",
         discountValueLabelPercentage: "Default Discount Percentage",
-        discountValueLabelAmount: "Default Discount Amount ({currencySymbol})", // Placeholder for currencySymbol
-        discountValueHelpTextPercentage: "General percentage. Can be fine-tuned per product later.",
-        discountValueHelpTextAmount: "General fixed amount for this code.",
+        discountValueLabelAmount: "Default Discount Amount", // For fixed amount type
 
-        errorRequired: "{fieldName} is required.",
+        // InputField Placeholders
+        codeNamePlaceholder: "e.g., SUMMER2024",
+        descriptionPlaceholder: "e.g., Summer campaign 2024, all products",
+
+        // InputField Help Texts
+        codeNameHelpText: "Unique code, {minLength}-{maxLength} chars. Customers will use this.", // Placeholders {minLength} and {maxLength}
+        descriptionHelpText: "For your reference, not shown to customers.",
+        discountTypeHelpText: "Determines how the discount value is interpreted.",
+        discountValueHelpTextPercentage: "General percentage for this code. Can be fine-tuned per product.",
+        discountValueHelpTextAmount: "General fixed amount for this code.", // For fixed amount type
+
+        // Dropdown Options (Labels for default types)
+        discountTypePercentageLabel: "Percentage Off (%)",
+        // Add other types if needed, e.g.:
+        // discountTypeFixedAmountProductLabel: "Fixed Amount Off Product ({currencySymbol})", // Placeholder {currencySymbol}
+
+        // Validation Error Messages
+        errorRequired: "{fieldName} is required.", // Generic required, {fieldName} can be replaced
         errorCodeNameMinLength: "Code must be at least {minLength} characters.",
         errorCodeNameMaxLength: "Code must be at most {maxLength} characters.",
         errorCodeNameExists: "This discount code name already exists.",
         errorDescriptionMaxLength: "Description must be at most {maxLength} characters.",
         errorDiscountValueRequired: "A valid discount value is required.",
-        errorDiscountValuePositive: "Discount value must be positive and greater than 0.",
+        errorDiscountValuePositive: "Discount value must be positive.",
         errorDiscountPercentageMax: "Percentage cannot exceed 100.",
-        errorFormGeneric: "An unexpected error occurred. Please try again.",
-        errorFailedCreateMasterCode: "Failed to create master discount code:", // For console/dev
+        errorFormGeneric: "An unexpected error occurred. Please try again.", // Generic error on submission failure
 
+        // Button Texts
         cancelButtonText: "Cancel",
         createButtonText: "Create Discount",
-        creatingButtonText: "Creating...",
+        creatingButtonText: "Creating...", // With loading spinner
 
+        // Console Messages
         errorConsoleFailedCreate: "Failed to create discount:"
     },
 
@@ -450,10 +456,10 @@ const scriptLines = {
         additionalNotesPlaceholder: "e.g., Special handling, allergen info not covered by tags, display notes...",
 
         // Console Warnings/Errors
-        warnDiscountAlreadyApplied: "This discount code is already applied to the product.",
-        errorMissingBusinessId: "Step5: Active business ID is missing. Cannot create discount code.", // For console
-        errorBusinessContextMissing: "Your business context is missing. Please try again or contact support.", // For UI
-        errorFailedCreateMasterCode: "Step5: Failed to create master discount code:", // For console
+        warnDiscountAlreadyApplied: "Discount code already applied to this product.",
+        errorMissingBusinessId: "Step5: Active business ID is missing. Cannot create discount code.",
+        errorBusinessContextMissing: "Your business context is missing. Please try again or contact support.", // For UI if thrown
+        errorFailedCreateMasterCode: "Step5: Failed to create master discount code:",
     },
 
 
@@ -528,7 +534,7 @@ const scriptLines = {
     modalStepIndicator_aria_currentStep: "{stepName}, current step", // Placeholder for stepName
     modalStepIndicator_aria_goToStep: "Go to {stepName}", // Placeholder for stepName
     // Note: The plain step name is used as a fallback aria-label for pending steps.
-
+    
     // --- Updated/New keys for ProductFormStep (flattened from previous internal structure) ---
     productFormStepButtonBack: "Back",
     productFormStepButtonContinue: "Continue",
@@ -538,7 +544,7 @@ const scriptLines = {
     productFormStepButtonSaving: "Saving...", // Used when isEditMode is true and submitting
     productFormStepButtonSaveChanges: "Save Changes", // Used when isEditMode is true, not submitting
 
-
+    
     productFormStepErrorSummaryTitle: "Please correct the following to continue:",
     productFormStepErrorSummaryMore: "and {count} more...",
 };

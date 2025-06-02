@@ -4,11 +4,117 @@ import apiService from '../services/api'; // Adjust path if needed
 import { queryKeys, PRODUCTS_BASE_KEY } from '../services/queryKeys'; // Adjust path if needed
 import { useAuth } from './AuthContext';
 
-import { useDebounce } from '../hooks/useDebounce';
-
 const PAGE_SIZE = 10;
 
 // --- Custom Hooks for Data Fetching ---
+
+
+/**
+ * Mutation hook to validate a promo code against the current order context.
+ * @param {object} options - TanStack Query mutation options.
+ * @returns {MutationResult} The result of the TanStack Query mutation operation.
+ *                          On success, `data` will be the API response for the validated promo code:
+ *                          e.g., { valid: true, code_name, type, value, public_display_name, message, applicability: { scope, product_ids, ... } }
+ *                          or { valid: false, message, code_name }
+ */
+export const useValidatePromoCode = (options = {}) => {
+    // const queryClient = useQueryClient(); // Not strictly needed unless invalidating other queries on promo validation
+
+    return useMutation({
+        mutationFn: async (payload) => {
+            // Expected payload: { code_name: string, business_identifier: string, context_product_ids: string[] }
+            console.log('[useValidatePromoCode] Attempting to validate promo code. Payload:', payload);
+            if (!payload.code_name || !payload.business_identifier) {
+                // Basic client-side validation, more robust validation might be in the calling component
+                const error = new Error("Promo code name and business identifier are required for validation.");
+                error.isClientValidationError = true; // Custom flag
+                throw error;
+            }
+            // The API endpoint is POST /api/discounts/validate-promo-code/
+            // apiService.post will prepend /api/
+            const response = await apiService.post('discounts/validate-promo-code/', payload);
+            console.log('[useValidatePromoCode] Promo code validation API response:', response.data);
+            return response.data; // Return the data part of the response
+        },
+        onSuccess: (data, variables, context) => {
+            console.log('[useValidatePromoCode] Promo code validation successful. Data:', data, 'Variables:', variables);
+            // Invalidation logic can be added here if promo validation affects other cached data.
+            // For now, Userpage.jsx will handle UI updates based on this success.
+            if (options.onSuccess) {
+                options.onSuccess(data, variables, context);
+            }
+        },
+        onError: (error, variables, context) => {
+            // Log the full error structure for better debugging
+            console.error(
+                '[useValidatePromoCode] Promo code validation failed.',
+                'Variables:', variables,
+                'Error status:', error.response?.status,
+                'Error data:', error.response?.data,
+                'Error message:', error.message,
+                'Full error object:', error
+            );
+            // Error handling will be primarily done in the component using this hook (Userpage.jsx)
+            // to show appropriate UI feedback (toasts, messages).
+            if (options.onError) {
+                options.onError(error, variables, context);
+            }
+        },
+        ...options, // Spread any additional mutation options provided by the caller
+    });
+};
+
+/**
+ * Fetches publicly available product search suggestions for a given business.
+ * Suggestions can include products, categories, or tags.
+ *
+ * @param {string} businessIdentifier - The slug or UUID of the business.
+ * @param {string} debouncedQuery - The debounced search query.
+ * @param {object} options - Optional TanStack Query options.
+ * @returns {QueryResult} The result of the TanStack Query operation.
+ *                        On success, `data` will be an array of suggestion objects:
+ *                        Array<{ id: string, name: string, type: 'product'|'category'|'tag', details: { image_url?: string, [key:string]: any } }>
+ */
+export const usePublicProductSuggestions = (businessIdentifier, debouncedQuery, options = {}) => {
+    return useQuery({
+        queryKey: queryKeys.publicProductSuggestions(businessIdentifier, debouncedQuery),
+        queryFn: async () => {
+            // Prevent API call if query is too short or businessIdentifier is missing
+            if (!businessIdentifier || !debouncedQuery || debouncedQuery.trim().length < 2) {
+                return []; // Return empty array, TanStack Query won't treat this as an error
+            }
+            // console.log(`[usePublicProductSuggestions] Fetching suggestions for business: ${businessIdentifier}, query: '${debouncedQuery}'`);
+            try {
+                // Backend endpoint: GET /api/products/public/menu/{business_identifier}/suggestions/?q={searchQuery}
+                // apiService.get will prepend /api/
+                const response = await apiService.get(`products/public/menu/${businessIdentifier}/suggestions/`, { q: debouncedQuery.trim(), limit: 7 });
+                // console.log('[usePublicProductSuggestions] Successfully fetched suggestions:', response.data);
+                // Backend might return { results: [] } or just []
+                return Array.isArray(response.data) ? response.data : response.data.results || [];
+            } catch (error) {
+                console.error(`[usePublicProductSuggestions] Error fetching suggestions for business ${businessIdentifier}, query ${debouncedQuery}:`, error.response?.data || error.message);
+                const errorMessage = error.response?.data?.detail || "Could not load search suggestions.";
+                // Throw a custom error or rethrow to let TanStack Query handle it
+                const customError = new Error(errorMessage);
+                customError.status = error.response?.status;
+                throw customError;
+            }
+        },
+        // Query is enabled only if businessIdentifier and a valid debouncedQuery (min 2 chars) are provided.
+        // The options.enabled check allows callers to further control enabling/disabling.
+        enabled: !!businessIdentifier && !!debouncedQuery && debouncedQuery.trim().length >= 2 && (options.enabled !== false),
+        staleTime: 1000 * 60 * 1, // Cache suggestions for 1 minute
+        keepPreviousData: false,  // We want fresh suggestions based on current typing, not stale ones
+        refetchOnWindowFocus: false, // Suggestions likely don't need to refetch on window focus
+        retry: (failureCount, error) => {
+            // Don't retry for 404 (e.g., business not found) or typical client errors
+            if (error.status === 404 || error.status === 400) return false;
+            // Retry once for other transient errors (e.g., network issues)
+            return failureCount < 1;
+        },
+        ...options, // Spread any additional options passed by the caller
+    });
+};
 
 /**
  * Fetches a paginated list of publicly available active products for a given business.

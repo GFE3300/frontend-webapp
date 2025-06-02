@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useCallback, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { InputField, Dropdown } from '../../register/subcomponents';
 import Icon from '../../../components/common/Icon';
 import scriptLines from '../utils/script_lines';
@@ -10,6 +10,10 @@ import scriptLines from '../utils/script_lines';
 const getDiscountTypeOptions = (currencySymbol = '$') => [
     { value: 'percentage', label: scriptLines.createDiscountCodeModal.discountTypePercentageLabel || 'Percentage Off Product (%)' },
     { value: 'fixed_amount_product', label: (scriptLines.createDiscountCodeModal.discountTypeFixedAmountProductLabel || 'Fixed Amount Off Product ({currencySymbol})').replace('{currencySymbol}', currencySymbol) },
+    // For now, only product-specific types are included as per problem description clarification.
+    // If order-level discounts were to be created here, they would be added:
+    // { value: 'order_total_percentage', label: (scriptLines.createDiscountCodeModal.discountTypeOrderPercentageLabel || 'Percentage Off Entire Order (%)')},
+    // { value: 'order_total_fixed_amount', label: (scriptLines.createDiscountCodeModal.discountTypeOrderFixedAmountLabel || 'Fixed Amount Off Entire Order ({currencySymbol})').replace('{currencySymbol}', currencySymbol)},
 ];
 
 
@@ -33,11 +37,11 @@ const CreateDiscountCodeModal = ({
     const currencySymbol = scriptLines.currencySymbolDefault || '$'; // Or from a global config
 
     // Use passed options or generate default ones
-    const currentDiscountTypeOptions = useMemo(() => 
+    const currentDiscountTypeOptions = useMemo(() =>
         discountTypeOptionsProp || getDiscountTypeOptions(currencySymbol),
         [discountTypeOptionsProp, currencySymbol]
     );
-    
+
     useEffect(() => {
         if (isOpen) {
             setCodeName('');
@@ -53,8 +57,8 @@ const CreateDiscountCodeModal = ({
     }, [isOpen, currentDiscountTypeOptions]);
 
     const CODE_NAME_MIN_LENGTH = 3;
-    const CODE_NAME_MAX_LENGTH = 25;
-    const DESCRIPTION_MAX_LENGTH = 100;
+    const CODE_NAME_MAX_LENGTH = 25; // Backend's DiscountMaster.code_name is max_length=50, but frontend can be stricter.
+    const DESCRIPTION_MAX_LENGTH = 100; // Backend's DiscountMaster.internal_description is TextField.
 
     const validateForm = useCallback(() => {
         const newErrors = {};
@@ -72,10 +76,13 @@ const CreateDiscountCodeModal = ({
         }
 
         if (!trimmedDescription) {
-            // This description is for 'internal_description'
             newErrors.description = sl.errorRequired.replace('{fieldName}', sl.descriptionLabel);
         } else if (trimmedDescription.length > DESCRIPTION_MAX_LENGTH) {
             newErrors.description = sl.errorDescriptionMaxLength.replace('{maxLength}', String(DESCRIPTION_MAX_LENGTH));
+        }
+
+        if (!discountType) { // Should always have a default, but good practice
+            newErrors.discountType = sl.errorRequired.replace('{fieldName}', sl.discountTypeLabel);
         }
 
         const numDiscountValue = parseFloat(discountValue);
@@ -86,6 +93,7 @@ const CreateDiscountCodeModal = ({
         } else if (discountType === 'percentage' && numDiscountValue > 100) {
             newErrors.discountValue = sl.errorDiscountPercentageMax;
         }
+        // Add validation for fixed amount if there's a practical upper limit, e.g., > 10000
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -104,6 +112,7 @@ const CreateDiscountCodeModal = ({
                 description: description.trim(), // This is internal_description
                 type: discountType,
                 value: parseFloat(discountValue),
+                requires_code: true, // **MODIFIED**: Added requires_code
             };
             await onCreateDiscount(discountDataForParent); // This calls handleCreateDiscountCode in Step5
             onClose(); // Close modal on success
@@ -121,19 +130,30 @@ const CreateDiscountCodeModal = ({
             setIsCreating(false);
         }
     }, [validateForm, codeName, description, discountType, discountValue, onCreateDiscount, onClose, sl]);
-    
-    const backdropVariants = { /* ... (no change) ... */ };
-    const modalVariants = { /* ... (no change) ... */ };
+
+    const prefersReducedMotion = useReducedMotion();
+    const backdropVariants = {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.3, ease: "easeInOut" }
+    };
+    const modalCardVariants = {
+        initial: { scale: prefersReducedMotion ? 1 : 0.95, opacity: 0, y: prefersReducedMotion ? 0 : 20 },
+        animate: { scale: 1, opacity: 1, y: 0 },
+        exit: { scale: prefersReducedMotion ? 1 : 0.95, opacity: 0, y: prefersReducedMotion ? 0 : 20 },
+        transition: { type: "spring", stiffness: 280, damping: 25, duration: 0.3 }
+    };
 
     const codeNameHelp = sl.codeNameHelpText
         .replace('{minLength}', String(CODE_NAME_MIN_LENGTH))
         .replace('{maxLength}', String(CODE_NAME_MAX_LENGTH));
 
-    const discountValueLabelText = discountType === 'percentage' 
-        ? sl.discountValueLabelPercentage 
+    const discountValueLabelText = discountType === 'percentage'
+        ? sl.discountValueLabelPercentage
         : sl.discountValueLabelAmount.replace('{currencySymbol}', currencySymbol);
-    const discountValueHelpText = discountType === 'percentage' 
-        ? sl.discountValueHelpTextPercentage 
+    const discountValueHelpText = discountType === 'percentage'
+        ? sl.discountValueHelpTextPercentage
         : sl.discountValueHelpTextAmount.replace('{currencySymbol}', currencySymbol);
     const discountValueSuffix = discountType === 'percentage' ? "%" : currencySymbol;
 
@@ -152,7 +172,7 @@ const CreateDiscountCodeModal = ({
                 >
                     <motion.div
                         key="create-discount-content"
-                        variants={modalVariants}
+                        variants={modalCardVariants}
                         className="bg-white dark:bg-neutral-800 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                         role="dialog" aria-modal="true" aria-labelledby="create-discount-modal-title"
@@ -173,26 +193,27 @@ const CreateDiscountCodeModal = ({
                         </div>
 
                         <form onSubmit={handleSubmit} className="max-h-[65vh] overflow-y-auto">
-                            <div className="px-6 py-5 space-y-6"> {/* Reduced space-y-12 to space-y-6 */}
+                            <div className="px-6 py-5 space-y-5"> {/* Adjusted space-y from 6 to 5 for compactness */}
                                 <InputField
                                     ref={codeNameInputRef}
                                     id="newDiscountCodeName" label={sl.codeNameLabel}
-                                    value={codeName} onChange={e => setCodeName(e.target.value)} // Uppercasing at submission
+                                    value={codeName} onChange={e => setCodeName(e.target.value)}
                                     error={errors.codeName} required placeholder={sl.codeNamePlaceholder}
                                     maxLength={CODE_NAME_MAX_LENGTH} helptext={codeNameHelp}
+                                    autoFocus
                                 />
                                 <InputField
                                     id="newDiscountDescription" label={sl.descriptionLabel}
                                     value={description} onChange={e => setDescription(e.target.value)}
                                     error={errors.description} required placeholder={sl.descriptionPlaceholder}
                                     maxLength={DESCRIPTION_MAX_LENGTH} helptext={sl.descriptionHelpText}
-                                    isTextArea rows={3} // Make it a textarea
+                                    isTextArea rows={2} // Reduced rows for compactness
                                 />
                                 <Dropdown
                                     id="newDiscountType" label={sl.discountTypeLabel}
-                                    options={currentDiscountTypeOptions} // Use dynamic options
+                                    options={currentDiscountTypeOptions}
                                     value={discountType} onChange={setDiscountType}
-                                    error={errors.discountType} helptext={sl.discountTypeHelpText}
+                                    error={errors.discountType} helptext={sl.discountTypeHelpText} required
                                 />
                                 <InputField
                                     id="newDiscountValue" label={discountValueLabelText}
@@ -249,10 +270,5 @@ CreateDiscountCodeModal.propTypes = {
         label: PropTypes.string.isRequired,
     })),
 };
-
-// Default props for discountTypeOptions can be removed if getDiscountTypeOptions is always used internally
-// CreateDiscountCodeModal.defaultProps = {
-//    discountTypeOptions: getDiscountTypeOptions(), // This would call it at module load time
-// };
 
 export default memo(CreateDiscountCodeModal);
