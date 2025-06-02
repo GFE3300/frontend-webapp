@@ -10,6 +10,143 @@ const PAGE_SIZE = 10;
 
 // --- Custom Hooks for Data Fetching ---
 
+/**
+ * Fetches a paginated list of publicly available active products for a given business.
+ *
+ * @param {string} businessIdentifier - The slug or UUID of the business.
+ * @param {object} filters - Optional filters ({ category_id: string|null, tag_ids: string[]|null, search_query: string|null }).
+ * @param {object} paginationParams - Pagination parameters ({ page: number, page_size: number }).
+ * @param {object} options - Optional TanStack Query options.
+ * @returns {QueryResult} The result of the TanStack Query operation.
+ *                        On success, `data` will be the API response structure,
+ *                        typically { results: Product[], count: number, next: string|null, previous: string|null }.
+ */
+export const usePublicProductsList = (businessIdentifier, filters = {}, paginationParams = { page: 1, page_size: 20 }, options = {}) => {
+    const queryParams = {
+        ...filters, // category_id, tag_ids (comma-separated string), search_query
+        page: paginationParams.page,
+        page_size: paginationParams.page_size,
+        // is_active: true, // Backend should enforce this for public/menu endpoint
+    };
+
+    // Clean up undefined/null filters to avoid sending them as empty query params
+    Object.keys(queryParams).forEach(key => {
+        if (queryParams[key] === null || queryParams[key] === undefined || queryParams[key] === '') {
+            delete queryParams[key];
+        }
+    });
+    if (queryParams.tag_ids && Array.isArray(queryParams.tag_ids)) {
+        queryParams.tag_ids = queryParams.tag_ids.join(','); // Convert array to comma-separated string if needed by backend
+        if (!queryParams.tag_ids) delete queryParams.tag_ids; // Remove if empty after join
+    }
+
+
+    return useQuery({
+        queryKey: queryKeys.publicProductsList(businessIdentifier, filters, paginationParams),
+        queryFn: async () => {
+            console.log(`[usePublicProductsList] Fetching public products for business: ${businessIdentifier}`, queryParams);
+            try {
+                // Backend endpoint: /api/products/public/menu/{business_identifier}/products/
+                const response = await apiService.get(`products/public/menu/${businessIdentifier}/products/`, queryParams);
+                console.log('[usePublicProductsList] Successfully fetched public products:', response.data);
+                return response.data; // Expects { results: [], count, next, previous }
+            } catch (error) {
+                console.error(`[usePublicProductsList] Error fetching public products for business ${businessIdentifier}:`, error.response?.data || error.message);
+                const errorMessage = error.response?.data?.detail || "Could not load products for this menu.";
+                const customError = new Error(errorMessage);
+                customError.status = error.response?.status;
+                throw customError;
+            }
+        },
+        // Enable the query only when businessIdentifier is provided and any explicit enabled option is true.
+        enabled: !!businessIdentifier && (options.enabled !== false),
+        staleTime: 1000 * 60 * 2, // Cache products for 2 minutes
+        keepPreviousData: true, // Good for pagination and filtering experience
+        refetchOnWindowFocus: false,
+        retry: (failureCount, error) => {
+            if (error.status === 404) return false; // Business not found for products
+            return failureCount < 2;
+        },
+        ...options,
+    });
+};
+
+/**
+ * Fetches publicly available categories for a given business.
+ *
+ * @param {string} businessIdentifier - The slug or UUID of the business.
+ * @param {object} options - Optional TanStack Query options.
+ * @returns {QueryResult} The result of the TanStack Query operation.
+ *                        On success, `data` will be an array of category objects.
+ */
+export const usePublicCategories = (businessIdentifier, options = {}) => {
+    return useQuery({
+        queryKey: queryKeys.publicCategories(businessIdentifier),
+        queryFn: async () => {
+            console.log(`[usePublicCategories] Fetching public categories for business: ${businessIdentifier}`);
+            try {
+                // Backend endpoint: /api/products/public/menu/{business_identifier}/categories/
+                const response = await apiService.get(`products/public/menu/${businessIdentifier}/categories/`);
+                console.log('[usePublicCategories] Successfully fetched public categories:', response.data);
+                // Assuming backend returns an array of categories directly, or { results: [] }
+                return Array.isArray(response.data) ? response.data : response.data.results || [];
+            } catch (error) {
+                console.error(`[usePublicCategories] Error fetching public categories for business ${businessIdentifier}:`, error.response?.data || error.message);
+                const errorMessage = error.response?.data?.detail || "Could not load categories for this menu.";
+                 const customError = new Error(errorMessage);
+                customError.status = error.response?.status;
+                throw customError;
+            }
+        },
+        enabled: !!businessIdentifier && (options.enabled !== false),
+        staleTime: 1000 * 60 * 10, // Categories change less frequently
+        refetchOnWindowFocus: false,
+        retry: (failureCount, error) => {
+            if (error.status === 404) return false;
+            return failureCount < 1;
+        },
+        ...options,
+    });
+};
+
+/**
+ * Fetches publicly visible product attribute tags for a given business.
+ *
+ * @param {string} businessIdentifier - The slug or UUID of the business.
+ * @param {object} options - Optional TanStack Query options.
+ * @returns {QueryResult} The result of the TanStack Query operation.
+ *                        On success, `data` will be an array of tag objects.
+ */
+export const usePublicProductTags = (businessIdentifier, options = {}) => {
+    return useQuery({
+        queryKey: queryKeys.publicProductTags(businessIdentifier),
+        queryFn: async () => {
+            console.log(`[usePublicProductTags] Fetching public tags for business: ${businessIdentifier}`);
+            try {
+                // Backend endpoint: /api/products/public/menu/{business_identifier}/tags/
+                const response = await apiService.get(`products/public/menu/${businessIdentifier}/tags/`);
+                console.log('[usePublicProductTags] Successfully fetched public tags:', response.data);
+                // Assuming backend returns an array of tags directly, or { results: [] }
+                // Backend ensures these are is_publicly_visible=True
+                return Array.isArray(response.data) ? response.data : response.data.results || [];
+            } catch (error) {
+                console.error(`[usePublicProductTags] Error fetching public tags for business ${businessIdentifier}:`, error.response?.data || error.message);
+                const errorMessage = error.response?.data?.detail || "Could not load product tags for this menu.";
+                const customError = new Error(errorMessage);
+                customError.status = error.response?.status;
+                throw customError;
+            }
+        },
+        enabled: !!businessIdentifier && (options.enabled !== false),
+        staleTime: 1000 * 60 * 10, // Tags change less frequently
+        refetchOnWindowFocus: false,
+        retry: (failureCount, error) => {
+            if (error.status === 404) return false;
+            return failureCount < 1;
+        },
+        ...options,
+    });
+};
 
 /**
  * Fetches product search suggestions.
@@ -340,6 +477,8 @@ export const useCreateTaxRate = (options = {}) => {
         ...options,
     });
 };
+
+
 
 // Note: No actual <ProductDataContext.Provider> is needed here.
 // TanStack Query's <QueryClientProvider> at the app root handles the context.

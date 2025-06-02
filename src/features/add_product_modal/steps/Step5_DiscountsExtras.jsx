@@ -1,3 +1,4 @@
+// frontend/src/features/add_product_modal/steps/Step5_DiscountsExtras.jsx
 import React, { memo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line
@@ -6,13 +7,13 @@ import { InputField } from '../../../features/register/subcomponents';
 import AppliedDiscountsManager from '../stage_5/AppliedDiscountsManager';
 import CreateDiscountCodeModal from '../stage_5/CreateDiscountCodeModal';
 import { useMasterDiscountCodes, useCreateMasterDiscountCode } from '../../../contexts/ProductDataContext';
-import scriptLines from '../utils/script_lines'; // MODIFIED: Adjust path as needed
+import scriptLines from '../utils/script_lines';
 
 const generateId = (prefix = 'id_') => `${prefix}${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
 const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, activeBusinessId }) => {
     const [isCreateDiscountModalOpen, setIsCreateDiscountModalOpen] = useState(false);
-    const sl = scriptLines.step5DiscountsExtras; // MODIFIED: Alias for shorter access
+    const sl = scriptLines.step5DiscountsExtras;
 
     const { data: masterCodesData, isLoading: isLoadingMasterCodes, error: masterCodesError } = useMasterDiscountCodes();
     const availableMasterCodes = masterCodesData || [];
@@ -22,16 +23,15 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
     const handleApplyCode = useCallback((masterCode) => {
         const alreadyApplied = (formData.appliedDiscounts || []).some(ad => ad.discount_master === masterCode.id);
         if (alreadyApplied) {
-            console.warn(sl.warnDiscountAlreadyApplied); // MODIFIED
-            // Optionally: updateField('errors', { ...errors, appliedDiscounts: sl.errorAppliedDiscountsGeneric });
+            console.warn(sl.warnDiscountAlreadyApplied);
             return;
         }
 
         const newAppliedDiscount = {
-            id: generateId('applied_disc_'),
-            discount_master: masterCode.id,
+            id: generateId('applied_disc_'), // UI key
+            discount_master: masterCode.id, // Actual FK to DiscountMaster
             codeName: masterCode.code_name,
-            description: masterCode.description,
+            description: masterCode.internal_description || masterCode.public_display_name || '', // Prefer internal
             discount_percentage_override: masterCode.type === 'percentage' ? parseFloat(masterCode.default_value) : null,
         };
         updateField('appliedDiscounts', [...(formData.appliedDiscounts || []), newAppliedDiscount]);
@@ -52,31 +52,52 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
 
     const handleCreateDiscountCode = async (newDiscountDataFromModal) => {
         if (!activeBusinessId) {
-            console.error(sl.errorMissingBusinessId); // MODIFIED
-            throw new Error(sl.errorBusinessContextMissing); // MODIFIED
+            console.error(sl.errorMissingBusinessId);
+            throw new Error(sl.errorBusinessContextMissing);
         }
 
         try {
             const payload = {
-                code_name: newDiscountDataFromModal.codeName,
-                description: newDiscountDataFromModal.description,
+                code_name: newDiscountDataFromModal.codeName.trim().toUpperCase(),
+                internal_description: newDiscountDataFromModal.description.trim(),
                 type: newDiscountDataFromModal.type,
-                default_value: newDiscountDataFromModal.value,
+                default_value: parseFloat(newDiscountDataFromModal.value),
                 business: activeBusinessId,
+                // public_display_name, requires_code, is_active will use backend defaults or further logic
             };
+            // console.log("Payload to create master discount:", payload); // For debugging
             await createMasterDiscountMutation.mutateAsync(payload);
-            setIsCreateDiscountModalOpen(false);
+            // Modal is expected to close itself on successful submission from its own logic
         } catch (err) {
-            console.error(sl.errorFailedCreateMasterCode, err); // MODIFIED
-            throw err;
+            console.error(sl.errorFailedCreateMasterCode, err);
+            // Propagate field-specific errors if available, or a general message
+            const apiErrors = err.response?.data;
+            if (apiErrors && typeof apiErrors === 'object') {
+                const fieldSpecificErrors = {};
+                // Map backend field names to frontend state/field names if they differ
+                for (const key in apiErrors) {
+                    const frontendKey = {
+                        'internal_description': 'description', // map internal_description error to 'description' field
+                        'default_value': 'discountValue',     // map default_value error to 'discountValue' field
+                        'code_name': 'codeName',               // map code_name error to 'codeName' field
+                        'type': 'discountType',               // map type error to 'discountType' field
+                        'business': 'form'                    // map business error to general form error for modal
+                    }[key] || key;
+                    fieldSpecificErrors[frontendKey] = Array.isArray(apiErrors[key]) ? apiErrors[key][0] : String(apiErrors[key]);
+                }
+                if (Object.keys(fieldSpecificErrors).length > 0) {
+                    err.fieldErrors = fieldSpecificErrors; // Add structured errors to the error object
+                }
+            }
+            throw err; // Re-throw to be caught by the modal's handleSubmit and display errors
         }
     };
 
     if (isLoadingMasterCodes) {
-        return <div className="py-10 text-center">{sl.loadingMasterCodes}</div>; // MODIFIED
+        return <div className="py-10 text-center">{sl.loadingMasterCodes}</div>;
     }
     if (masterCodesError) {
-        return <div className="py-10 text-center text-red-500">{sl.errorLoadingMasterCodesPrefix} {masterCodesError.message}</div>; // MODIFIED
+        return <div className="py-10 text-center text-red-500">{sl.errorLoadingMasterCodesPrefix} {masterCodesError.message}</div>;
     }
 
     return (
@@ -87,16 +108,16 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
             >
                 <div>
                     <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100 mb-1">
-                        {sl.mainTitle} {/* MODIFIED */}
+                        {sl.mainTitle}
                     </h2>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                        {sl.mainDescription} {/* MODIFIED */}
+                        {sl.mainDescription}
                     </p>
                 </div>
 
                 <div className="p-5 bg-neutral-50 dark:bg-neutral-700/30 rounded-lg shadow">
                     <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-200 border-b pb-2 mb-4 dark:border-neutral-600">
-                        {sl.productSpecificDiscountsTitle} {/* MODIFIED */}
+                        {sl.productSpecificDiscountsTitle}
                     </h3>
                     <AppliedDiscountsManager
                         appliedDiscounts={(formData.appliedDiscounts || []).map(ad => ({
@@ -106,31 +127,39 @@ const Step5_DiscountsExtras_Actual = memo(({ formData, updateField, errors, acti
                             description: ad.description,
                             discountPercentage: ad.discount_percentage_override,
                         }))}
-                        availableMasterCodes={availableMasterCodes}
+                        availableMasterCodes={availableMasterCodes.map(mc => ({
+                            id: mc.id,
+                            codeName: mc.code_name,
+                            description: mc.internal_description || mc.public_display_name || '',
+                            type: mc.type,
+                            default_value: mc.default_value,
+                        }))}
                         onApplyCode={handleApplyCode}
                         onUpdateAppliedPercentage={handleUpdateAppliedPercentage}
                         onRemoveAppliedCode={handleRemoveAppliedCode}
                         onTriggerCreateNewCode={() => setIsCreateDiscountModalOpen(true)}
-                        formErrors={errors} // Pass all form errors for context if needed by manager
-                        errors={errors?.appliedDiscounts}
+                        errors={errors?.appliedDiscounts} // Pass array-level errors if any
                     />
+                    {errors?.appliedDiscounts && typeof errors.appliedDiscounts === 'string' && (
+                        <p className="mt-2 text-xs text-red-600 dark:text-red-400">{errors.appliedDiscounts}</p>
+                    )}
                 </div>
 
                 <div className="p-5 bg-neutral-50 dark:bg-neutral-700/30 rounded-lg shadow">
                     <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-200 border-b pb-2 mb-4 dark:border-neutral-600">
-                        {sl.additionalNotesTitle} {/* MODIFIED */}
+                        {sl.additionalNotesTitle}
                     </h3>
                     <div className='flex h-15 items-end w-full'>
                         <InputField
-                            label={sl.additionalNotesLabel} // MODIFIED
+                            label={sl.additionalNotesLabel}
                             className="w-full"
                             isTextArea={true} rows={4}
                             value={formData.additionalNotes || ''}
                             onChange={(e) => updateField('additionalNotes', e.target.value)}
                             error={errors?.additionalNotes}
-                            placeholder={sl.additionalNotesPlaceholder} // MODIFIED
+                            placeholder={sl.additionalNotesPlaceholder}
                             maxLength={500}
-                            hidelabel // Assuming label is shown by h3, if not, remove hidelabel and set label from sl
+                            hideLabel
                         />
                     </div>
                 </div>
@@ -150,13 +179,11 @@ Step5_DiscountsExtras_Actual.propTypes = {
     formData: PropTypes.object.isRequired,
     updateField: PropTypes.func.isRequired,
     errors: PropTypes.object,
-    activeBusinessId: PropTypes.string.isRequired, // Added activeBusinessId to propTypes
+    activeBusinessId: PropTypes.string, // Kept as optional, but handleCreateDiscountCode checks it
 };
 
-// Added defaultProp for activeBusinessId if it can sometimes be undefined initially, though isRequired suggests it must be there.
-// Step5_DiscountsExtras_Actual.defaultProps = {
-//    activeBusinessId: null, 
-// };
-
+Step5_DiscountsExtras_Actual.defaultProps = {
+    activeBusinessId: null,
+};
 
 export default Step5_DiscountsExtras_Actual;

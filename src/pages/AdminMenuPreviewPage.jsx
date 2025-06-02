@@ -1,74 +1,93 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../utils/ThemeProvider';
-import Icon from '../components/common/Icon';
-import Spinner from '../components/common/Spinner';
-import Modal from '../components/animated_alerts/Modal';
-import apiService from '../services/api';
-import { queryKeys } from '../services/queryKeys';
+// src/pages/AdminMenuPreviewPage.jsx
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 
-// Core Menu Subcomponents
-import MenuDisplayLayout from '../features/menu_view/subcomponents/MenuDisplayLayout';
-import ProductOptionsPopup from '../features/menu_view/subcomponents/ProductOptionsPopup';
-import OrderSummaryPanel from '../features/menu_view/subcomponents/OrderSummaryPanel';
-import FlyingItemAnimator from '../features/menu_view/subcomponents/FlyingItemAnimator';
-import BottomNav from '../features/menu_view/subcomponents/BottomNav'; // Import BottomNav
-import { getEffectiveDisplayPrice } from '../features/menu_view/utils/productUtils';
+// Subcomponents from menu_view (adapted paths for pages directory)
+import MenuDisplayLayout from '../features/menu_view/subcomponents/MenuDisplayLayout.jsx';
+import OrderSummaryPanel from '../features/menu_view/subcomponents/OrderSummaryPanel.jsx';
+import ProductOptionsPopup from '../features/menu_view/subcomponents/ProductOptionsPopup.jsx';
+import FlyingItemAnimator from '../features/menu_view/subcomponents/FlyingItemAnimator.jsx';
+import BottomNav from '../features/menu_view/subcomponents/BottomNav.jsx';
+import SnakesGameComponent from '../features/menu_view/SnakesGame'; // index.tsx handles export
 
-const useAdminMenuPreviewProducts = () => {
-    const { user } = useAuth();
+// Common Components
+import Modal from '../components/animated_alerts/Modal.jsx';
+import Icon from '../components/common/Icon.jsx';
+import Spinner from '../components/common/Spinner.jsx';
+
+// Contexts, Theme, API
+import { useTheme, ThemeProvider } from '../utils/ThemeProvider.jsx';
+import { ThemeToggleButton } from '../utils/ThemeToggleButton.jsx';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import apiService from '../services/api.js';
+import { queryKeys } from '../services/queryKeys.js';
+
+// Assets
+import LogoLight from '../assets/icons/Logo.png';
+import LogoDark from '../assets/icons/LogoDark.png';
+
+// Utils
+import { getEffectiveDisplayPrice } from '../features/menu_view/utils/productUtils.js'; // productUtils.js needed
+
+// Custom Hook for fetching admin menu preview products
+const useAdminMenuPreviewProducts = (isEnabled, businessId) => {
     return useQuery({
-        queryKey: queryKeys.adminMenuPreviewProducts(user?.activeBusinessId || 'admin_default_preview'),
+        queryKey: queryKeys.adminMenuPreviewProducts(businessId),
         queryFn: async () => {
-            const response = await apiService.get('products/', { params: { is_active: 'true' } });
+            const response = await apiService.getAdminMenuPreviewProducts();
             if (response.data && Array.isArray(response.data.results)) {
                 return response.data.results;
             } else if (Array.isArray(response.data)) {
                 return response.data;
             }
-            console.error("AdminMenuPreview: Unexpected data structure for products:", response.data);
-            throw new Error("Unexpected data structure for admin menu preview products.");
+            console.error("AdminMenuPreviewPage: Unexpected data structure for admin menu products:", response.data);
+            throw new Error("Unexpected data structure for admin menu products.");
         },
-        enabled: !!user && !!user.activeBusinessId,
-        staleTime: 1000 * 60 * 1,
-        refetchOnWindowFocus: true,
+        enabled: !!isEnabled && !!businessId, // Ensure businessId is present
+        staleTime: 1000 * 60 * 2, // 2 minutes
+        refetchOnWindowFocus: true, // Good for admin context
     });
 };
 
-const AdminMenuPreviewPage = () => {
-    const { user } = useAuth();
+function AdminMenuPreviewPageContent() {
     const { theme } = useTheme();
+    const { user: adminUser } = useAuth();
 
-    const [previewOrderItems, setPreviewOrderItems] = useState([]);
-    const [isOptionsPopupOpen, setIsOptionsPopupOpen] = useState(false);
-    const [currentItemForOptions, setCurrentItemForOptions] = useState(null);
-    const [flyingItem, setFlyingItem] = useState(null);
+    const currentLogo = theme === 'dark' ? LogoDark : LogoLight;
 
-    const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-    const [statusModalProps, setStatusModalProps] = useState({ title: '', message: '', type: 'info', isLoading: false });
-
-    const [currentPage, setCurrentPage] = useState('menu'); // 'menu', 'order' (more could be added if needed)
+    // State for UI and interactions
+    const [currentPage, setCurrentPage] = useState('menu'); // Mobile nav: 'menu', 'order', 'deals', 'discounts'
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024); // lg breakpoint
 
-    const orderPanelRefDesktop = useRef(null); // For desktop animation target
-    const orderNavTabRefMobile = useRef(null); // For mobile BottomNav animation target
+    // Order and product option states
+    const [previewOrderItems, setPreviewOrderItems] = useState([]);
+    const [isOptionsPopupOpen, setIsOptionsPopupOpen] = useState(false);
+    const [currentItemForOptions, setCurrentItemForOptions] = useState(null); // { product, imageRect }
+    const [flyingItem, setFlyingItem] = useState(null);
 
-    const { data: productsData, isLoading: isLoadingProducts, error: productsError, refetch: refetchProducts } = useAdminMenuPreviewProducts();
+    // Modal states
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+    const [userModalProps, setUserModalProps] = useState({ title: '', message: '', type: 'info', isLoading: false });
 
-    useEffect(() => {
-        const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    // Snake game easter egg
+    const [logoClickCount, setLogoClickCount] = useState(0);
+    const [showSnakeGame, setShowSnakeGame] = useState(false);
+
+    // Refs for animation targets
+    const orderNavTabRefMobile = useRef(null);
+    const orderPanelRefDesktop = useRef(null);
+
+    // Fetching product data
+    const businessId = adminUser?.activeBusinessId; // Get businessId from authenticated admin user
+    const { data: productsData, isLoading: isLoadingProducts, error: productsError } = useAdminMenuPreviewProducts(!!businessId, businessId);
 
     const categorizedProducts = useMemo(() => {
         if (!productsData) return {};
         const categoriesMap = {};
         productsData.forEach(product => {
             if (!product || !product.id || !product.category_details || !product.category_details.id) {
-                console.warn("AdminMenuPreview: Skipping product due to missing critical data for categorization:", product);
+                console.warn("AdminMenuPreviewPage: Skipping product due to missing critical data for categorization:", product);
                 return;
             }
             const catId = product.category_details.id;
@@ -77,7 +96,7 @@ const AdminMenuPreviewPage = () => {
                 categoriesMap[catId] = {
                     id: catId,
                     name: catDetails.name || "Uncategorized",
-                    color_class: catDetails.color_class || "bg-gray-500 dark:bg-gray-600",
+                    color_class: catDetails.color_class || "bg-gray-500",
                     icon_name: catDetails.icon_name || "label",
                     display_order: typeof catDetails.display_order === 'number' ? catDetails.display_order : 999,
                     items: []
@@ -87,12 +106,45 @@ const AdminMenuPreviewPage = () => {
             categoriesMap[catId].items.push(productWithOrder);
         });
         Object.values(categoriesMap).forEach(cat => {
-            cat.items.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+            cat.items.sort((a, b) => a.display_order - b.display_order);
         });
         return categoriesMap;
     }, [productsData]);
 
-    const addOrUpdatePreviewItem = useCallback((itemToAdd) => {
+    // Effect for handling window resize (desktop/mobile switch)
+    useEffect(() => {
+        const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Effect for closing modals on Escape key
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                if (isOptionsPopupOpen) {
+                    setIsOptionsPopupOpen(false); setCurrentItemForOptions(null);
+                } else if (isUserModalOpen && !userModalProps.isLoading) {
+                    setIsUserModalOpen(false);
+                } else if (showSnakeGame) {
+                    setShowSnakeGame(false);
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOptionsPopupOpen, isUserModalOpen, userModalProps.isLoading, showSnakeGame]);
+
+    const handleLogoClick = () => {
+        const newClickCount = logoClickCount + 1;
+        setLogoClickCount(newClickCount);
+        if (newClickCount >= 7) {
+            setShowSnakeGame(true);
+            setLogoClickCount(0);
+        }
+    };
+
+    const addToPreviewOrder = useCallback((itemToAdd, itemImageRect) => {
         setPreviewOrderItems(prevItems => {
             const existingItemIndex = prevItems.findIndex(item => item.id === itemToAdd.id);
             if (existingItemIndex > -1) {
@@ -105,21 +157,19 @@ const AdminMenuPreviewPage = () => {
             }
             return [...prevItems, itemToAdd];
         });
-    }, []);
 
-    const triggerFlyingAnimation = useCallback((imageUrl, imageRect) => {
         let targetRect = null;
-        if (isDesktop && orderPanelRefDesktop.current) { // Corrected: orderPanelRefDesktop
+        if (isDesktop && orderPanelRefDesktop.current) {
             targetRect = orderPanelRefDesktop.current.getBoundingClientRect();
         } else if (!isDesktop && orderNavTabRefMobile.current) {
             targetRect = orderNavTabRefMobile.current.getBoundingClientRect();
         }
 
-        if (imageRect && targetRect && imageUrl) {
+        if (itemImageRect && targetRect && itemToAdd.imageUrl) {
             setFlyingItem({
                 id: Date.now(),
-                imageUrl: imageUrl,
-                startRect: imageRect,
+                imageUrl: itemToAdd.imageUrl,
+                startRect: itemImageRect,
                 endRect: targetRect,
             });
         }
@@ -130,7 +180,7 @@ const AdminMenuPreviewPage = () => {
         if (!hasOptions) {
             const { displayPrice: effectiveBasePrice } = getEffectiveDisplayPrice(product);
             const simpleItemToAdd = {
-                id: `${product.id}-base-${Date.now()}`,
+                id: `${product.id}-base-${Date.now()}`, // Unique ID for preview order
                 originalId: product.id,
                 name: product.name,
                 imageUrl: product.image_url,
@@ -138,13 +188,12 @@ const AdminMenuPreviewPage = () => {
                 quantity: 1,
                 selectedOptionsSummary: null,
             };
-            addOrUpdatePreviewItem(simpleItemToAdd);
-            triggerFlyingAnimation(product.image_url, imageRect);
+            addToPreviewOrder(simpleItemToAdd, imageRect);
         } else {
             setCurrentItemForOptions({ product, imageRect });
             setIsOptionsPopupOpen(true);
         }
-    }, [addOrUpdatePreviewItem, triggerFlyingAnimation]);
+    }, [addToPreviewOrder]);
 
     const handleConfirmWithOptions = useCallback((originalProduct, configuredItemDetailsPayload) => {
         const { quantity, selectedOptions, finalPricePerItem } = configuredItemDetailsPayload;
@@ -154,6 +203,7 @@ const AdminMenuPreviewPage = () => {
 
         const optionIdsString = selectedOptions.map(opt => opt.optionId).sort().join('_');
         const uniqueOrderItemId = `${originalProduct.id}-${optionIdsString || 'custombasepreview'}-${Date.now()}`;
+
 
         const newItem = {
             id: uniqueOrderItemId,
@@ -165,14 +215,12 @@ const AdminMenuPreviewPage = () => {
             selectedOptionsSummary: optionsSummary,
         };
 
-        addOrUpdatePreviewItem(newItem);
-        triggerFlyingAnimation(originalProduct.image_url, currentItemForOptions?.imageRect);
-
+        addToPreviewOrder(newItem, currentItemForOptions?.imageRect);
         setIsOptionsPopupOpen(false);
         setCurrentItemForOptions(null);
-    }, [addOrUpdatePreviewItem, triggerFlyingAnimation, currentItemForOptions]);
+    }, [addToPreviewOrder, currentItemForOptions]);
 
-    const handleUpdatePreviewQuantity = useCallback((itemId, newQuantity) => {
+    const updatePreviewQuantity = useCallback((itemId, newQuantity) => {
         if (newQuantity <= 0) {
             setPreviewOrderItems(prevItems => prevItems.filter(item => item.id !== itemId));
         } else {
@@ -185,164 +233,183 @@ const AdminMenuPreviewPage = () => {
     }, []);
 
     const handleSimulatedConfirmOrderAction = useCallback(async (orderDetailsPayload) => {
-        setStatusModalProps({ title: "Processing Preview...", message: "Simulating order submission...", type: "info", isLoading: true });
-        setIsStatusModalOpen(true);
+        setUserModalProps({ title: "Simulating Order...", message: "Processing preview order details.", type: "info", isLoading: true });
+        setIsUserModalOpen(true);
 
-        console.log("Admin Menu Preview - Simulated Order Payload:", JSON.stringify(orderDetailsPayload, null, 2));
+        console.log("ADMIN PREVIEW - SIMULATED ORDER PAYLOAD:", JSON.stringify(orderDetailsPayload, null, 2));
+
+        // Simulate API call delay
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        setStatusModalProps({
-            title: "Preview Order Actioned!",
-            message: "This is a simulation. The order details have been logged to the console. No actual order was placed.",
+        setUserModalProps({
+            title: "Preview Order Confirmed (Simulated)",
+            message: `This is a simulation. The order details have been logged to the console. Order for: ${orderDetailsPayload.user_name || 'Admin Preview'}, Table: ${orderDetailsPayload.table_number || 'N/A'}. Total: $${orderDetailsPayload.total_amount.toFixed(2)}.`,
             type: "success",
             isLoading: false,
         });
-        setPreviewOrderItems([]);
+        setPreviewOrderItems([]); // Clear the preview order
         if (!isDesktop) {
-            setCurrentPage('menu');
+            setCurrentPage('menu'); // Navigate to menu on mobile after "order"
         }
     }, [isDesktop]);
 
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.key === 'Escape') {
-                if (isOptionsPopupOpen) {
-                    setIsOptionsPopupOpen(false); setCurrentItemForOptions(null);
-                } else if (isStatusModalOpen) {
-                    if (!statusModalProps.isLoading) setIsStatusModalOpen(false);
-                }
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOptionsPopupOpen, isStatusModalOpen, statusModalProps.isLoading]);
+    const handleUserModalClose = () => {
+        setIsUserModalOpen(false);
+        setUserModalProps({ title: '', message: '', type: 'info', isLoading: false });
+    };
 
-    if (isLoadingProducts) { /* ... loading state ... */
+    // Loading and error states for product fetching
+    if (isLoadingProducts && !productsData) { // Show full page loader only on initial load without data
         return (
-            <div className="flex flex-col min-h-screen items-center justify-center bg-gray-100 dark:bg-neutral-900">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-slate-100 dark:bg-neutral-900">
                 <Spinner size="xl" />
-                <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-300">Loading Menu Preview...</p>
+                <p className="mt-4 text-neutral-600 dark:text-neutral-300 text-lg">Loading Menu Preview...</p>
             </div>
         );
     }
-    if (productsError) { /* ... error state ... */
+
+    if (productsError) {
         return (
-            <div className="flex flex-col min-h-screen items-center justify-center bg-gray-100 dark:bg-neutral-900 p-6 text-center">
-                <Icon name="error_outline" className="w-20 h-20 text-red-500 mb-4" />
-                <h2 className="text-2xl font-semibold text-red-700 dark:text-red-400 mb-3">Failed to Load Menu Data</h2>
-                <p className="text-neutral-600 dark:text-neutral-300 mb-6 max-w-md">
-                    There was an error fetching product data: {productsError.message || "An unknown error occurred."}
+            <div className="flex flex-col items-center justify-center min-h-screen bg-slate-100 dark:bg-neutral-900 p-6">
+                <Icon name="error_outline" className="w-16 h-16 text-red-500 dark:text-red-400 mb-4" />
+                <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100 mb-2">Error Loading Menu</h2>
+                <p className="text-neutral-600 dark:text-neutral-400 text-center max-w-md">
+                    Could not fetch product data for the preview. Message: {productsError.message}. Please try refreshing the page or check your connection.
                 </p>
-                <button
-                    onClick={() => refetchProducts()}
-                    className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900"
-                > Try Again </button>
             </div>
         );
     }
 
-    const previewPageTitle = "Live Customer Menu Preview";
+    if (!businessId) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-slate-100 dark:bg-neutral-900 p-6">
+                <Icon name="business_center" className="w-16 h-16 text-orange-500 dark:text-orange-400 mb-4" />
+                <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100 mb-2">No Active Business</h2>
+                <p className="text-neutral-600 dark:text-neutral-400 text-center max-w-md">
+                    An active business is required to preview the menu. Please ensure you have an active business selected in your profile.
+                </p>
+            </div>
+        );
+    }
 
-    // Define content for mobile view based on currentPage
-    const mobileMenuContent = (
-        <div className={`flex-1 overflow-y-auto bg-gray-50 dark:bg-neutral-850 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 pb-16`}> {/* Added pb-16 for BottomNav */}
-            {productsData && (
-                <MenuDisplayLayout
-                    categorizedProducts={categorizedProducts}
-                    onOpenOptionsPopup={handleOpenOptionsPopup}
-                    pageTitle={previewPageTitle}
-                />
-            )}
-        </div>
-    );
 
-    const mobileOrderContent = (
-        <div className="flex-1 flex flex-col overflow-y-auto bg-neutral-100 dark:bg-neutral-900 pb-16"> {/* Added pb-16 for BottomNav */}
-            <OrderSummaryPanel
-                orderItems={previewOrderItems}
-                onUpdateQuantity={handleUpdatePreviewQuantity}
-                onConfirmOrderAction={handleSimulatedConfirmOrderAction}
-                isSidebarVersion={false}
-                isPreviewMode={true}
-                tableNumber="Preview Table"
-                userName={user?.firstName || user?.email || 'Admin'}
-                navigateToMenu={() => setCurrentPage('menu')}
-            />
-        </div>
-    );
-
+    // Main page layout
     return (
-        <div className={`flex flex-col min-h-screen font-sans ${theme === 'dark' ? 'dark' : ''}`}>
-            <header className="bg-white dark:bg-neutral-800 shadow-md p-3 sm:p-4 sticky top-0 z-30">
-                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center max-w-screen-2xl px-2 sm:px-0">
-                    <h1 className="text-lg sm:text-2xl font-bold text-gray-800 dark:text-neutral-100 mb-2 sm:mb-0">
-                        <Icon name="visibility" className="inline-block mr-2 align-text-bottom" />
-                        Admin Menu Preview
-                    </h1>
-                    {user && (
-                        <div className="text-xs sm:text-sm text-gray-600 dark:text-neutral-400 text-center sm:text-right">
-                            <p>Viewing as: <span className="font-semibold">{user.firstName || user.email || 'Admin'}</span></p>
-                            {user.activeBusinessName && <p>Business: <span className="font-semibold">{user.activeBusinessName}</span></p>}
+        <div className="flex flex-col min-h-screen bg-slate-100 dark:bg-neutral-900 font-sans">
+            {/* Header */}
+            <header className="bg-white dark:bg-neutral-800 shadow-md sticky top-0 z-30 px-4 py-2.5">
+                <div className="container mx-auto flex items-center justify-between">
+                    <div className="flex items-center">
+                        <img src={currentLogo} alt="Smore Logo" className="h-9 md:h-10 object-contain cursor-pointer mr-3 md:mr-4" onClick={handleLogoClick} />
+                        <div>
+                            <h1 className="text-lg md:text-xl font-bold text-neutral-800 dark:text-neutral-100">Admin Menu Preview</h1>
+                            {adminUser && (
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                    Previewing as: {adminUser.firstName || 'Admin'} for {adminUser.activeBusinessName || 'Current Business'}
+                                </p>
+                            )}
                         </div>
-                    )}
+                    </div>
+                    <ThemeToggleButton />
                 </div>
             </header>
 
-            <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+            {/* Main Content Area */}
+            <div className="flex-1 flex container mx-auto overflow-hidden max-w-full"> {/* Max-w-full to allow panels to take space */}
                 {isDesktop ? (
                     <>
-                        {/* Desktop: Menu Display Area */}
-                        <div className="flex-1 lg:w-2/3 xl:w-3/4 overflow-y-auto bg-gray-50 dark:bg-neutral-850 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700">
-                            {productsData && (
-                                <MenuDisplayLayout
-                                    categorizedProducts={categorizedProducts}
-                                    onOpenOptionsPopup={handleOpenOptionsPopup}
-                                    pageTitle={previewPageTitle}
-                                />
-                            )}
-                        </div>
-                        {/* Desktop: Order Summary Panel */}
-                        <aside
-                            ref={orderPanelRefDesktop} // Corrected ref name
-                            className="lg:w-1/3 xl:w-1/4 flex flex-col bg-neutral-100 dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-700 shadow-lg"
-                            role="complementary" aria-label="Simulated order summary"
-                        >
+                        {/* Desktop: Main Menu Display Area */}
+                        <main className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700">
+                            {isLoadingProducts && productsData && <div className="flex justify-center py-4"><Spinner /> <span className="ml-2 dark:text-white">Updating menu...</span></div>}
+                            <MenuDisplayLayout
+                                categorizedProducts={categorizedProducts}
+                                onOpenOptionsPopup={handleOpenOptionsPopup}
+                                pageTitle="Interactive Menu Preview"
+                            />
+                        </main>
+
+                        {/* Desktop: Order Summary Sidebar */}
+                        <aside ref={orderPanelRefDesktop} className="w-full md:w-[320px] lg:w-[380px] xl:w-[420px] bg-neutral-800 text-white flex flex-col shadow-lg border-l border-neutral-700">
                             <OrderSummaryPanel
                                 orderItems={previewOrderItems}
-                                onUpdateQuantity={handleUpdatePreviewQuantity}
+                                onUpdateQuantity={updatePreviewQuantity}
                                 onConfirmOrderAction={handleSimulatedConfirmOrderAction}
                                 isSidebarVersion={true}
                                 isPreviewMode={true}
-                                tableNumber="Preview Table"
-                                userName={user?.firstName || user?.email || 'Admin'}
+                                tableNumber="Admin Preview" // Example static values for admin
+                                userName={adminUser?.firstName || "Admin"}
                             />
                         </aside>
                     </>
                 ) : (
-                    // Mobile: Content switches based on currentPage
-                    <div className="flex-1 flex flex-col overflow-hidden"> {/* Ensure mobile also has flex container */}
-                        {currentPage === 'menu' && mobileMenuContent}
-                        {currentPage === 'order' && mobileOrderContent}
-                        {/* Add other pages like 'deals', 'discounts' here if needed for preview */}
-                    </div>
+                    // Mobile: Single main content area, BottomNav switches content
+                    <main className="flex-1 overflow-y-auto w-full pb-16"> {/* pb-16 for BottomNav */}
+                        {isLoadingProducts && productsData && <div className="flex justify-center py-4"><Spinner /> <span className="ml-2 dark:text-white">Updating menu...</span></div>}
+                        <AnimatePresence mode="wait">
+                            {currentPage === 'menu' && (
+                                <MenuDisplayLayout
+                                    key="menuMobile"
+                                    categorizedProducts={categorizedProducts}
+                                    onOpenOptionsPopup={handleOpenOptionsPopup}
+                                    pageTitle="Interactive Menu Preview"
+                                />
+                            )}
+                            {currentPage === 'order' && (
+                                <motion.div
+                                    key="orderMobile"
+                                    initial={{ opacity: 0, x: 100 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -100 }}
+                                    transition={{ type: 'tween', ease: 'easeInOut', duration: 0.3 }}
+                                    className="h-full" // Ensure it takes height for scrolling
+                                >
+                                    <OrderSummaryPanel
+                                        orderItems={previewOrderItems}
+                                        onUpdateQuantity={updatePreviewQuantity}
+                                        onConfirmOrderAction={handleSimulatedConfirmOrderAction}
+                                        isSidebarVersion={false}
+                                        isPreviewMode={true}
+                                        navigateToMenu={() => setCurrentPage('menu')}
+                                        tableNumber="Admin Preview"
+                                        userName={adminUser?.firstName || "Admin"}
+                                    />
+                                </motion.div>
+                            )}
+                            {/* Placeholder for Deals and Discounts for mobile */}
+                            {(currentPage === 'deals' || currentPage === 'discounts') && (
+                                <motion.div
+                                    key={currentPage}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="p-6 text-center text-neutral-600 dark:text-neutral-300"
+                                >
+                                    <Icon name={currentPage === 'deals' ? "loyalty" : "local_offer"} className="w-12 h-12 mx-auto mb-3 text-neutral-400 dark:text-neutral-500" />
+                                    <h2 className="text-xl font-semibold mb-2">{currentPage.charAt(0).toUpperCase() + currentPage.slice(1)} Preview</h2>
+                                    <p>This section is for previewing {currentPage}. Content will be displayed here when available.</p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </main>
                 )}
-            </main>
+            </div>
 
+            {/* Mobile Bottom Navigation */}
             {!isDesktop && (
                 <BottomNav
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
                     orderItemCount={previewOrderItems.reduce((sum, item) => sum + item.quantity, 0)}
                     orderTabRefProp={orderNavTabRefMobile}
-                // For admin preview, we might only need 'Menu' and 'Order' tabs.
-                // If 'Deals' and 'Discounts' pages are not part of this preview scope,
-                // BottomNav could be simplified or configured to show fewer items.
-                // For now, assuming full BottomNav for complete UX preview.
                 />
             )}
 
-            {/* Modals & Global Animators */}
-            {currentItemForOptions && productsData && ( /* ... ProductOptionsPopup ... */
+            {/* Modals and Animators */}
+            <Modal isOpen={isUserModalOpen} onClose={handleUserModalClose} title={userModalProps.title} type={userModalProps.type} isLoading={userModalProps.isLoading}>
+                <p>{userModalProps.message}</p>
+            </Modal>
+
+            {currentItemForOptions && productsData && (
                 <ProductOptionsPopup
                     isOpen={isOptionsPopupOpen}
                     onClose={() => { setIsOptionsPopupOpen(false); setCurrentItemForOptions(null); }}
@@ -350,30 +417,30 @@ const AdminMenuPreviewPage = () => {
                     onConfirmWithOptions={handleConfirmWithOptions}
                 />
             )}
-            <Modal isOpen={isStatusModalOpen} /* ... Status Modal ... */
-                onClose={() => { if (!statusModalProps.isLoading) setIsStatusModalOpen(false); }}
-                title={statusModalProps.title}
-                type={statusModalProps.type}
-                isLoading={statusModalProps.isLoading} >
-                <p>{statusModalProps.message}</p>
-            </Modal>
+
             <AnimatePresence>
-                { flyingItem && (
-                    <FlyingItemAnimator
-                        key={flyingItem.id}
-                        imageUrl={flyingItem.imageUrl}
-                        startRect={flyingItem.startRect}
-                        endRect={flyingItem.endRect}
-                        onAnimationComplete={() => setFlyingItem(null)}
-                    />
-                )}
+                {flyingItem && <FlyingItemAnimator key={flyingItem.id} imageUrl={flyingItem.imageUrl} startRect={flyingItem.startRect} endRect={flyingItem.endRect} onAnimationComplete={() => setFlyingItem(null)} />}
             </AnimatePresence>
 
-            <footer className="bg-white dark:bg-neutral-800 p-3 text-center text-xs text-gray-500 dark:text-neutral-400 border-t dark:border-neutral-700">
-                Admin Preview Mode © {new Date().getFullYear()} Smore. All Rights Reserved.
-            </footer>
+            {showSnakeGame && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 10000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px', boxSizing: 'border-box' }}>
+                    <div style={{ position: 'relative', borderRadius: '8px', width: '100%', height: `calc(100% - 70px)`, overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <SnakesGameComponent />
+                    </div>
+                    <button onClick={() => setShowSnakeGame(false)} style={{ marginTop: '20px', padding: '12px 25px', fontSize: '1rem', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}>
+                        Close Game
+                    </button>
+                </div>
+            )}
         </div>
     );
-};
+}
 
-export default AdminMenuPreviewPage;
+// Wrapper to provide ThemeContext and other global contexts if needed for this page
+export default function AdminMenuPreviewPage() {
+    return (
+        <ThemeProvider> {/* Ensures useTheme works within AdminMenuPreviewPageContent */}
+            <AdminMenuPreviewPageContent />
+        </ThemeProvider>
+    );
+}
