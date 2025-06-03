@@ -1,30 +1,47 @@
-// frontend/src/features/menu_view/subcomponents/OrderItem.jsx
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import Icon from '../../../components/common/Icon'; // Path from frontend.txt structure
+import Icon from '../../../components/common/Icon';
 
-const FALLBACK_IMAGE_URL_ORDER_ITEM = 'https://via.placeholder.com/64/F3F4F6/9CA3AF?text=Item'; // Neutral placeholder
+// Color Palette (Guideline 2.1)
+const NEUTRAL_BG_ITEM = "bg-white dark:bg-neutral-700/80"; // Slightly transparent dark bg for depth
+const NEUTRAL_BG_ITEM_PREVIEW = "bg-neutral-100 dark:bg-neutral-700/70"; // Preview mode bg
+const NEUTRAL_TEXT_PRIMARY = "text-neutral-800 dark:text-neutral-100";
+const NEUTRAL_TEXT_SECONDARY = "text-neutral-600 dark:text-neutral-300";
+const NEUTRAL_TEXT_MUTED = "text-neutral-500 dark:text-neutral-400";
+const NEUTRAL_BORDER = "border-neutral-200 dark:border-neutral-600"; // Image border
 
-/**
- * Displays a single item within the order summary.
- *
- * @param {object} props - The component's props.
- * @param {object} props.item - The order item object.
- *   Expected structure: { id: string, originalId: string, name: string, imageUrl?: string, price: number, quantity: number, selectedOptionsSummary?: string, detailedSelectedOptions?: array }
- * @param {function} props.onUpdateQuantity - Callback: `(itemId: string, newQuantity: number) => void`.
- * @param {boolean} [props.isPreviewMode=false] - If true, might adjust styling or behavior (not currently used for major changes in this refinement).
- * @param {object} [props.appliedItemDiscountDetails] - Optional discount details for this specific item.
- *   Expected structure: { amount: number, description: string, originalItemTotal: number }
- *     - amount: The monetary value of the discount applied to this entire line item.
- *     - description: A short description of the discount (e.g., "10% OFF", "SAVE $2.00").
- *     - originalItemTotal: The total price of this line item *before* this specific discount was applied.
- * @returns {JSX.Element | null} The rendered OrderItem component, or null if item is invalid.
- */
+const STEPPER_BUTTON_BG = "bg-neutral-200 dark:bg-neutral-600";
+const STEPPER_BUTTON_BG_HOVER = "hover:bg-neutral-300 dark:hover:bg-neutral-500";
+const STEPPER_BUTTON_TEXT = "text-neutral-700 dark:text-neutral-200";
+const STEPPER_RING_FOCUS = "focus:ring-rose-500 dark:focus:ring-rose-400"; // Using Rose for active interaction focus
+
+// Semantic Colors (Guideline 2.1)
+const DISCOUNT_BADGE_BG = "bg-green-100 dark:bg-green-700/30";
+const DISCOUNT_BADGE_TEXT = "text-green-700 dark:text-green-300";
+const DISCOUNT_PRICE_TEXT = "text-green-600 dark:text-green-400";
+
+// Typography (Guideline 2.2)
+const FONT_INTER = "font-inter";
+const ITEM_NAME_TEXT_SIZE = "text-sm sm:text-base"; // Body Medium
+const ITEM_OPTIONS_TEXT_SIZE = "text-xs sm:text-sm"; // Body Small
+const ITEM_PRICE_UNIT_TEXT_SIZE = "text-xs"; // Body Extra Small
+const ITEM_TOTAL_PRICE_TEXT_SIZE = "text-sm sm:text-base"; // Body Medium
+const STEPPER_TEXT_SIZE = "text-sm sm:text-base"; // Body Medium (for quantity display)
+
+// Borders & Corner Radii (Guideline 2.6)
+const ITEM_CARD_RADIUS = "rounded-lg"; // Standard card radius
+const IMAGE_RADIUS = "rounded-md"; // Image radius
+const STEPPER_BUTTON_RADIUS = "rounded-md"; // Stepper buttons
+
+// Shadows & Elevation (Guideline 2.5)
+const ITEM_CARD_SHADOW = "shadow-sm hover:shadow-md"; // Subtle shadow, increases on hover
+
+const FALLBACK_IMAGE_URL_ORDER_ITEM = 'https://via.placeholder.com/64/F3F4F6/9CA3AF?text=Item';
+
 function OrderItem({ item, onUpdateQuantity, isPreviewMode = false, appliedItemDiscountDetails }) {
     if (!item || typeof item.id === 'undefined' || typeof item.price === 'undefined' || typeof item.quantity === 'undefined') {
         console.error('[OrderItem] Invalid item prop:', item);
-        return null; // Return null or a placeholder error UI if item data is critically missing
+        return null;
     }
 
     const handleIncrement = () => {
@@ -32,122 +49,129 @@ function OrderItem({ item, onUpdateQuantity, isPreviewMode = false, appliedItemD
     };
 
     const handleDecrement = () => {
-        onUpdateQuantity(item.id, item.quantity - 1); // Parent OrderSummaryPanel will handle quantity <= 0
+        onUpdateQuantity(item.id, item.quantity - 1);
     };
 
     const itemBasePricePerUnit = parseFloat(item.price) || 0;
-    
-    // Calculate totals considering item-specific discount
+
     const originalLineTotal = itemBasePricePerUnit * item.quantity;
     let displayLineTotal = originalLineTotal;
     let showDiscountedPrice = false;
     let discountDescriptionToShow = null;
 
-    if (appliedItemDiscountDetails && 
-        typeof appliedItemDiscountDetails.amount === 'number' && 
+    if (appliedItemDiscountDetails &&
+        typeof appliedItemDiscountDetails.amount === 'number' &&
         appliedItemDiscountDetails.amount > 0) {
-        
-        // Use originalItemTotal from discount details if available, otherwise calculate
+
         const baseForDiscountDisplay = typeof appliedItemDiscountDetails.originalItemTotal === 'number'
             ? appliedItemDiscountDetails.originalItemTotal
             : originalLineTotal;
 
         displayLineTotal = baseForDiscountDisplay - appliedItemDiscountDetails.amount;
-        if (displayLineTotal < 0) displayLineTotal = 0; // Price cannot be negative
-        
+        if (displayLineTotal < 0) displayLineTotal = 0;
+
         showDiscountedPrice = true;
         discountDescriptionToShow = appliedItemDiscountDetails.description;
     }
 
+    // Animation variants (Guideline 4.1, 4.3)
     const itemVariants = {
         initial: { opacity: 0, y: 20, scale: 0.95 },
-        animate: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 25 } },
+        animate: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 25, duration: 0.3 } },
         exit: { opacity: 0, x: -30, scale: 0.9, transition: { duration: 0.2, ease: "easeIn" } },
     };
 
-    const itemBgClass = isPreviewMode
-        ? "bg-neutral-100 dark:bg-neutral-700/70" // Slightly more subdued for preview
-        : "bg-white dark:bg-neutral-700/80";
+    const itemBgClass = isPreviewMode ? NEUTRAL_BG_ITEM_PREVIEW : NEUTRAL_BG_ITEM;
 
     return (
         <motion.div
-            layout // Enables smooth reordering if list changes
+            layout // Guideline 4.3 - Component Enter/Exit for lists
             variants={itemVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`flex items-start ${itemBgClass} p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-150 my-1.5`}
+            className={`flex items-start ${itemBgClass} p-3 ${ITEM_CARD_RADIUS} ${ITEM_CARD_SHADOW} transition-shadow duration-150 my-1.5 ${FONT_INTER}`}
             role="listitem"
             aria-label={`${item.name}, quantity ${item.quantity}, final price ${displayLineTotal.toFixed(2)} dollars ${showDiscountedPrice ? `(discounted from ${originalLineTotal.toFixed(2)} dollars, ${discountDescriptionToShow})` : ''}`}
         >
+            {/* Image (Guideline 2.4, 2.6) */}
             <img
                 src={item.imageUrl || FALLBACK_IMAGE_URL_ORDER_ITEM}
-                alt={item.name || 'Order item image'} // Provide alt text
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-md object-cover mr-3 flex-shrink-0 border border-neutral-200 dark:border-neutral-600"
+                alt={item.name || 'Order item image'} // Guideline 7: Alt text
+                className={`w-14 h-14 sm:w-16 sm:h-16 ${IMAGE_RADIUS} object-cover mr-3 flex-shrink-0 border ${NEUTRAL_BORDER}`}
                 onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE_URL_ORDER_ITEM; }}
                 loading="lazy"
             />
             <div className="flex-grow min-w-0"> {/* min-w-0 for proper truncation */}
-                <h4 className="font-semibold text-sm sm:text-base leading-tight text-neutral-800 dark:text-neutral-100 truncate" title={item.name}>
+                {/* Item Name (Guideline 2.2 Body Medium) */}
+                <h4 className={`font-semibold ${ITEM_NAME_TEXT_SIZE} leading-tight ${NEUTRAL_TEXT_PRIMARY} truncate`} title={item.name}>
                     {item.name || "Unnamed Item"}
                 </h4>
+                {/* Selected Options (Guideline 2.2 Body Small) */}
                 {item.selectedOptionsSummary && (
-                    <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5 truncate" title={item.selectedOptionsSummary}>
+                    <p className={`${ITEM_OPTIONS_TEXT_SIZE} ${NEUTRAL_TEXT_MUTED} mt-0.5 truncate`} title={item.selectedOptionsSummary}>
                         {item.selectedOptionsSummary}
                     </p>
                 )}
-                <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1">
+                {/* Price Per Unit (Guideline 2.2 Body Extra Small) */}
+                <p className={`${ITEM_PRICE_UNIT_TEXT_SIZE} ${NEUTRAL_TEXT_SECONDARY} mt-1`}>
                     ${itemBasePricePerUnit.toFixed(2)} / unit
                 </p>
 
-                {/* Discount Badge/Label */}
+                {/* Discount Badge (Guideline 6.10 Tags & Pills, Semantic Color 2.1) */}
                 {showDiscountedPrice && discountDescriptionToShow && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1, duration: 0.2 }}
-                        className="mt-1.5 inline-flex items-center" // Changed mt-1 to mt-1.5 for a bit more space
+                        className="mt-1.5 inline-flex items-center"
                     >
-                        <span className="bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300 text-xs font-medium px-2 py-0.5 rounded-full flex items-center">
-                            <Icon name="local_offer" className="w-3 h-3 mr-1" /> {/* Using local_offer icon */}
+                        <span className={`${DISCOUNT_BADGE_BG} ${DISCOUNT_BADGE_TEXT} text-xs font-medium px-2 py-0.5 rounded-full flex items-center`}>
+                            {/* Icon (Guideline 2.3 Small) */}
+                            <Icon name="local_offer" className="w-3 h-3 mr-1" />
                             {discountDescriptionToShow}
                         </span>
                     </motion.div>
                 )}
             </div>
 
+            {/* Quantity Stepper & Price (Guideline 6.11, 2.2 Typography) */}
             <div className="flex flex-col items-end space-y-1.5 ml-2 flex-shrink-0 w-28 sm:w-32">
-                {/* Quantity Controls */}
-                <div className="flex items-center space-x-1 sm:space-x-1.5 text-sm">
+                <div className="flex items-center space-x-1 sm:space-x-1.5">
+                    {/* Stepper Buttons (Guideline 6.1 Buttons - Icon Button style adjusted, 4.4 States) */}
                     <motion.button
                         onClick={handleDecrement}
-                        className="bg-neutral-200 dark:bg-neutral-600 hover:bg-neutral-300 dark:hover:bg-neutral-500 text-neutral-700 dark:text-neutral-200 w-7 h-7 sm:w-8 sm:h-8 rounded-md flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400"
+                        className={`${STEPPER_BUTTON_BG} ${STEPPER_BUTTON_BG_HOVER} ${STEPPER_BUTTON_TEXT} w-7 h-7 sm:w-8 sm:h-8 ${STEPPER_BUTTON_RADIUS} flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 ${STEPPER_RING_FOCUS}`}
                         whileTap={{ scale: 0.9 }}
                         aria-label={`Decrease quantity of ${item.name}`}
                     >
+                        {/* Icon (Guideline 2.3 Small) */}
                         <Icon name="remove" className="w-4 h-4" />
                     </motion.button>
-                    <span className="text-sm sm:text-base font-medium text-neutral-700 dark:text-neutral-200 w-6 sm:w-8 text-center tabular-nums" aria-live="polite" aria-atomic="true">
+                    {/* Quantity Display (Guideline 2.2 Body Medium) */}
+                    <span className={`${STEPPER_TEXT_SIZE} font-medium ${NEUTRAL_TEXT_SECONDARY} w-6 sm:w-8 text-center tabular-nums`} aria-live="polite" aria-atomic="true">
                         {item.quantity}
                     </span>
                     <motion.button
                         onClick={handleIncrement}
-                        className="bg-neutral-200 dark:bg-neutral-600 hover:bg-neutral-300 dark:hover:bg-neutral-500 text-neutral-700 dark:text-neutral-200 w-7 h-7 sm:w-8 sm:h-8 rounded-md flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400"
+                        className={`${STEPPER_BUTTON_BG} ${STEPPER_BUTTON_BG_HOVER} ${STEPPER_BUTTON_TEXT} w-7 h-7 sm:w-8 sm:h-8 ${STEPPER_BUTTON_RADIUS} flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 ${STEPPER_RING_FOCUS}`}
                         whileTap={{ scale: 0.9 }}
                         aria-label={`Increase quantity of ${item.name}`}
                     >
                         <Icon name="add" className="w-4 h-4" />
                     </motion.button>
                 </div>
-                
-                {/* Price Display */}
+
+                {/* Price Display (Guideline 2.2 Typography) */}
                 <div className="text-right">
                     {showDiscountedPrice && (
-                        <del className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 block" aria-label={`Original price ${originalLineTotal.toFixed(2)}`}>
+                        // Original Price (Guideline 2.2 Body Small)
+                        <del className={`${ITEM_OPTIONS_TEXT_SIZE} ${NEUTRAL_TEXT_MUTED} block`} aria-label={`Original price ${originalLineTotal.toFixed(2)}`}>
                             ${originalLineTotal.toFixed(2)}
                         </del>
                     )}
-                    <p className={`text-sm sm:text-base font-semibold ${showDiscountedPrice ? 'text-green-600 dark:text-green-400' : 'text-neutral-800 dark:text-neutral-100'}`} aria-label={`Current price ${displayLineTotal.toFixed(2)}`}>
+                    {/* Final Price (Guideline 2.2 Body Medium, Semantic Color for discount) */}
+                    <p className={`${ITEM_TOTAL_PRICE_TEXT_SIZE} font-semibold ${showDiscountedPrice ? DISCOUNT_PRICE_TEXT : NEUTRAL_TEXT_PRIMARY}`} aria-label={`Current price ${displayLineTotal.toFixed(2)}`}>
                         ${displayLineTotal.toFixed(2)}
                     </p>
                 </div>

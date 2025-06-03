@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 // Subcomponents from menu_view (adapted paths for pages directory)
 import MenuDisplayLayout from '../features/menu_view/subcomponents/MenuDisplayLayout.jsx';
 import OrderSummaryPanel from '../features/menu_view/subcomponents/OrderSummaryPanel.jsx';
-import ProductOptionsPopup from '../features/menu_view/subcomponents/ProductOptionsPopup.jsx';
 import FlyingItemAnimator from '../features/menu_view/subcomponents/FlyingItemAnimator.jsx';
 import BottomNav from '../features/menu_view/subcomponents/BottomNav.jsx';
 import SnakesGameComponent from '../features/menu_view/SnakesGame'; // index.tsx handles export
@@ -408,15 +407,6 @@ function AdminMenuPreviewPageContent() {
             <Modal isOpen={isUserModalOpen} onClose={handleUserModalClose} title={userModalProps.title} type={userModalProps.type} isLoading={userModalProps.isLoading}>
                 <p>{userModalProps.message}</p>
             </Modal>
-
-            {currentItemForOptions && productsData && (
-                <ProductOptionsPopup
-                    isOpen={isOptionsPopupOpen}
-                    onClose={() => { setIsOptionsPopupOpen(false); setCurrentItemForOptions(null); }}
-                    product={currentItemForOptions.product}
-                    onConfirmWithOptions={handleConfirmWithOptions}
-                />
-            )}
 
             <AnimatePresence>
                 {flyingItem && <FlyingItemAnimator key={flyingItem.id} imageUrl={flyingItem.imageUrl} startRect={flyingItem.startRect} endRect={flyingItem.endRect} onAnimationComplete={() => setFlyingItem(null)} />}

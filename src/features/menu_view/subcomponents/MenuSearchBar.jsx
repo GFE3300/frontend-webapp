@@ -1,4 +1,4 @@
-// src/features/menu_view/subcomponents/MenuSearchBar.jsx
+// frontend/src/features/menu_view/subcomponents/MenuSearchBar.jsx
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
@@ -6,47 +6,73 @@ import Spinner from '../../../components/common/Spinner';
 import { usePublicProductSuggestions } from '../../../contexts/ProductDataContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 
-// Fallback image for product suggestions if image_url is missing
+// Color Palette (Guideline 2.1)
+const INPUT_BG = "bg-neutral-100 dark:bg-neutral-200"; // from 6.2 (neutral-100 dark:bg-neutral-200)
+const INPUT_BG_FOCUSED = "bg-white dark:bg-neutral-700"; // Custom for focus differentiation, similar to InputField.jsx's dark mode text color on light bg
+const INPUT_TEXT_COLOR = "text-neutral-900 dark:text-neutral-800"; // From 6.2 (neutral-900 dark:text-neutral-800)
+const INPUT_PLACEHOLDER_COLOR = "placeholder-neutral-400 dark:placeholder-neutral-500"; // From 6.2 (neutral-400/500)
+const INPUT_RING_FOCUSED = "ring-2 ring-rose-400 dark:ring-rose-500"; // From 6.2 (focus:ring-rose-400)
+const INPUT_ICON_COLOR = "text-neutral-400 dark:text-neutral-500"; // From 2.3 (neutral-500/400)
+
+const DROPDOWN_PANEL_BG = "bg-white dark:bg-neutral-800"; // From 6.3
+const DROPDOWN_PANEL_BORDER = "border border-neutral-200 dark:border-neutral-700"; // From 6.3
+const DROPDOWN_ITEM_HOVER_BG = "hover:bg-rose-50 dark:hover:bg-rose-700/20"; // From 6.3
+const DROPDOWN_ITEM_ACTIVE_BG = "bg-rose-50 dark:bg-rose-700/30"; // From 6.3 (selected state, using for active keyboard nav)
+const DROPDOWN_ITEM_ACTIVE_TEXT = "text-rose-700 dark:text-rose-300"; // From 6.3
+const DROPDOWN_ITEM_TEXT_PRIMARY = "text-neutral-700 dark:text-neutral-200";
+const DROPDOWN_ITEM_TEXT_SECONDARY = "text-neutral-500 dark:text-neutral-400";
+
+// Typography (Guideline 2.2)
+const FONT_INTER = "font-inter";
+const INPUT_TEXT_SIZE = "text-sm"; // Body Medium (14px for inputs is common, alt to 16px)
+const SUGGESTION_NAME_TEXT_SIZE = "text-sm"; // Body Medium
+const SUGGESTION_DETAIL_TEXT_SIZE = "text-xs"; // Body Small/Extra Small
+
+// Shadows & Elevation (Guideline 2.5)
+const DROPDOWN_SHADOW = "shadow-lg"; // From 6.3 Dropdowns
+
+// Borders & Corner Radii (Guideline 2.6)
+const INPUT_RADIUS = "rounded-full"; // From 6.2 (rounded-full)
+const DROPDOWN_RADIUS = "rounded-lg"; // From 6.3 Dropdowns (rounded-xl is also an option, using -lg here)
+const SUGGESTION_IMAGE_RADIUS = "rounded-md";
+
+const ERROR_TEXT = "text-red-600 dark:text-red-400";
+
 const FALLBACK_SUGGESTION_IMAGE = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=40&h=40&q=60';
 
 const MenuSearchBar = ({
     onSearchSubmit,
     onSuggestionSelect,
-    businessIdentifier, // Slug or UUID for API calls
+    businessIdentifier,
     className = "",
 }) => {
     const [inputValue, setInputValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-    const [showSuggestionsList, setShowSuggestionsList] = useState(false); // Explicit state for list visibility
-    const [activeIndex, setActiveIndex] = useState(-1); // For keyboard navigation
+    const [showSuggestionsList, setShowSuggestionsList] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(-1);
 
-    const debouncedSearchTerm = useDebounce(inputValue, 300); // Debounce from guidelines (300-500ms)
+    const debouncedSearchTerm = useDebounce(inputValue, 300); // Guideline 4.1: 150-350ms, 300ms is good
 
     const {
-        data: rawSuggestions = [], // Default to empty array
+        data: rawSuggestions = [],
         isLoading: isLoadingSuggestions,
         isError: isSuggestionsError,
         error: suggestionsError,
-        // isFetching, // Could be used for a subtle loading indicator within dropdown
     } = usePublicProductSuggestions(businessIdentifier, debouncedSearchTerm, {
         enabled: !!businessIdentifier && debouncedSearchTerm.trim().length >= 2 && isFocused,
-        // staleTime: 1000 * 30, // Cache suggestions for 30s
-        // refetchOnWindowFocus: false, // Usually not needed for search suggestions
     });
 
-    // Add "General Search" option if input has value and API suggestions are loaded
     const suggestions = useMemo(() => {
         const baseSuggestions = Array.isArray(rawSuggestions) ? rawSuggestions : [];
         if (debouncedSearchTerm.trim().length > 0 && !isLoadingSuggestions && !isSuggestionsError) {
-            // Check if a "General Search" type already exists from backend to avoid duplication
             const hasGeneralSearch = baseSuggestions.some(s => s.type === 'GeneralSearch');
             if (!hasGeneralSearch) {
                 return [
                     ...baseSuggestions,
                     {
-                        id: `general-search-${debouncedSearchTerm}`, // Unique ID for the general search option
+                        id: `general-search-${debouncedSearchTerm.replace(/\s+/g, '_').toLowerCase()}`,
                         name: `Search all items for "${debouncedSearchTerm}"`,
-                        type: 'GeneralSearch', // Custom type
+                        type: 'GeneralSearch',
                         query: debouncedSearchTerm.trim(),
                     },
                 ];
@@ -55,17 +81,14 @@ const MenuSearchBar = ({
         return baseSuggestions;
     }, [rawSuggestions, debouncedSearchTerm, isLoadingSuggestions, isSuggestionsError]);
 
-
     const searchContainerRef = useRef(null);
     const inputRef = useRef(null);
     const suggestionsListRef = useRef(null);
 
-    // Close suggestions on click outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
                 setShowSuggestionsList(false);
-                // setIsFocused(false); // Don't blur input if user clicks on page body, only if clicking away from search
                 setActiveIndex(-1);
             }
         };
@@ -73,49 +96,40 @@ const MenuSearchBar = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Control suggestion list visibility
     useEffect(() => {
-        if (isFocused && inputValue.trim().length >= 2 && suggestions.length > 0) {
+        if (isFocused && inputValue.trim().length >= 2 && (suggestions.length > 0 || isLoadingSuggestions || isSuggestionsError)) {
             setShowSuggestionsList(true);
         } else {
-            setShowSuggestionsList(false); // Hide if not focused, query too short, or no suggestions
+            setShowSuggestionsList(false);
         }
-        // Reset active index when suggestions change or list visibility changes
         if (!showSuggestionsList) setActiveIndex(-1);
-
-    }, [isFocused, inputValue, suggestions, showSuggestionsList]);
+    }, [isFocused, inputValue, suggestions, isLoadingSuggestions, isSuggestionsError, showSuggestionsList]);
 
 
     const handleInputChange = (event) => {
         setInputValue(event.target.value);
-        // Suggestions visibility will be handled by the useEffect above
     };
 
     const handleFocus = () => {
         setIsFocused(true);
-        // Suggestions visibility will be handled by the useEffect above
     };
     
-    const handleBlur = (event) => {
-        // Delay blur to allow click on suggestion item
+    const handleBlur = () => {
         setTimeout(() => {
             if (suggestionsListRef.current && suggestionsListRef.current.contains(document.activeElement)) {
-                // If focus moved to a suggestion item, don't hide
                 return;
             }
             setIsFocused(false);
-            // setShowSuggestionsList(false); // This will be handled by useEffect or clickOutside
-        }, 100);
+        }, 150); // Delay to allow click on suggestion
     };
-
 
     const handleSuggestionClick = (suggestion) => {
         if (suggestion.type === 'GeneralSearch') {
             onSearchSubmit(suggestion.query);
-            setInputValue(suggestion.query); // Keep the query in the input for general search
+            setInputValue(suggestion.query); 
         } else {
             onSuggestionSelect(suggestion);
-            setInputValue(''); // Clear input for specific item/category/tag selection
+            setInputValue(''); 
         }
         setShowSuggestionsList(false);
         setIsFocused(false);
@@ -129,19 +143,17 @@ const MenuSearchBar = ({
             handleSuggestionClick(suggestions[activeIndex]);
         } else if (inputValue.trim()) {
             onSearchSubmit(inputValue.trim());
-            // setInputValue(''); // Optional: clear input on general search submit
             setShowSuggestionsList(false);
         }
         setIsFocused(false);
         inputRef.current?.blur();
     };
 
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event) => { // Guideline 7: Keyboard Navigation
         if (!showSuggestionsList || suggestions.length === 0) {
             if (event.key === 'Enter' && inputValue.trim()) handleSubmit(event);
             return;
         }
-
         switch (event.key) {
             case 'ArrowDown':
                 event.preventDefault();
@@ -155,7 +167,7 @@ const MenuSearchBar = ({
                 event.preventDefault();
                 if (activeIndex >= 0 && suggestions[activeIndex]) {
                     handleSuggestionClick(suggestions[activeIndex]);
-                } else if (inputValue.trim()) { // Fallback to submit current input value
+                } else if (inputValue.trim()) {
                     handleSubmit(event);
                 }
                 break;
@@ -171,144 +183,148 @@ const MenuSearchBar = ({
         }
     };
     
-    useEffect(() => { // Scroll active suggestion into view
+    useEffect(() => {
         if (activeIndex >= 0 && suggestionsListRef.current) {
             const activeElement = suggestionsListRef.current.children[activeIndex];
             activeElement?.scrollIntoView({
-                behavior: 'smooth',
+                behavior: 'smooth', // Guideline 4.1: Subtle animation
                 block: 'nearest',
             });
         }
     }, [activeIndex]);
 
-    const getIconForSuggestionType = (type) => {
+    const getIconForSuggestionType = (type) => { // Guideline 2.3
         switch (type) {
             case 'product': return 'fastfood';
             case 'category': return 'category';
             case 'tag': return 'label';
             case 'GeneralSearch': return 'search';
-            default: return 'help_outline'; // Fallback icon
+            default: return 'help_outline';
         }
     };
     
-    // Input styling from Guidelines 6.2
-    const inputBgClass = isFocused ? 'bg-white dark:bg-neutral-700' : 'bg-neutral-100 dark:bg-neutral-700/50';
-    const inputRingClass = isFocused ? 'ring-2 ring-rose-400 dark:ring-rose-500 border-transparent' : 'border border-transparent';
+    // Input styling (Guideline 6.2)
+    const currentInputBgClass = isFocused ? INPUT_BG_FOCUSED : INPUT_BG;
+    const currentInputRingClass = isFocused ? INPUT_RING_FOCUSED : 'border border-transparent';
 
     return (
-        <div ref={searchContainerRef} className={`relative w-full ${className}`}>
+        <div ref={searchContainerRef} className={`relative w-full ${className} ${FONT_INTER}`}>
             <form onSubmit={handleSubmit} role="search" aria-label="Menu search">
                 <div className="relative">
-                    {/* Search Icon (Guidelines 6.7 - Small) */}
+                    {/* Search Icon (Guideline 2.3 Small/Medium) */}
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <Icon name="search" className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
+                        <Icon name="search" className={`w-5 h-5 ${INPUT_ICON_COLOR}`} /> {/* Medium icon size */}
                     </div>
                     <input
                         ref={inputRef}
-                        type="search" // Using type="search" enables native clear button in some browsers
+                        type="search"
                         value={inputValue}
                         onChange={handleInputChange}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         onKeyDown={handleKeyDown}
                         placeholder="Search menu..."
-                        className={`w-full h-10 pl-10 pr-10 py-2 text-sm font-inter text-neutral-800 dark:text-neutral-200 ${inputBgClass} placeholder-neutral-500 dark:placeholder-neutral-400 rounded-full focus:outline-none transition-all duration-150 ${inputRingClass}`}
-                        aria-label="Search menu items, categories, or tags"
+                        className={`w-full h-10 pl-10 pr-10 py-2 ${INPUT_TEXT_SIZE} ${FONT_INTER} ${INPUT_TEXT_COLOR} ${currentInputBgClass} ${INPUT_PLACEHOLDER_COLOR} ${INPUT_RADIUS} focus:outline-none transition-all duration-150 ${currentInputRingClass}`}
+                        aria-label="Search menu items, categories, or tags" // Guideline 7
                         aria-autocomplete="list"
                         aria-expanded={showSuggestionsList && suggestions.length > 0}
                         aria-controls="search-suggestions-listbox"
-                        aria-activedescendant={activeIndex >= 0 ? `suggestion-item-${activeIndex}` : undefined}
+                        aria-activedescendant={activeIndex >= 0 && suggestionsListRef.current && suggestionsListRef.current.children[activeIndex] ? suggestionsListRef.current.children[activeIndex].id : undefined}
                     />
-                    {/* Clear Button (Guidelines 6.7 - X-Small icon if possible, or Small) */}
                     {inputValue && (
                          <button
                             type="button"
                             onClick={() => {
                                 setInputValue('');
-                                // onSearchSubmit(''); // Optionally trigger search with empty query to reset
                                 inputRef.current?.focus();
                             }}
-                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors"
+                            className={`absolute inset-y-0 right-0 pr-3.5 flex items-center ${INPUT_ICON_COLOR} hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors`}
                             aria-label="Clear search input"
                         >
-                            <Icon name="close" className="w-4 h-4"/> {/* X-Small icon */}
+                            {/* Icon (Guideline 2.3 Small) */}
+                            <Icon name="close" className="w-4 h-4"/>
                         </button>
                     )}
                 </div>
             </form>
 
-            {/* Suggestions Dropdown (Guidelines 6.3) */}
+            {/* Suggestions Dropdown (Guideline 6.3 Dropdowns & Selectors) */}
             <AnimatePresence>
                 {showSuggestionsList && (
                     <motion.ul
                         id="search-suggestions-listbox"
                         ref={suggestionsListRef}
-                        className="absolute top-full left-0 right-0 mt-1.5 w-full bg-white dark:bg-neutral-800 rounded-lg shadow-lg overflow-y-auto z-20 border border-neutral-200 dark:border-neutral-700"
-                        style={{ maxHeight: '300px' }}
+                        // Styling: Panel bg, border, shadow, radius
+                        className={`absolute top-full left-0 right-0 mt-1.5 w-full ${DROPDOWN_PANEL_BG} ${DROPDOWN_RADIUS} ${DROPDOWN_SHADOW} overflow-y-auto z-20 ${DROPDOWN_PANEL_BORDER}`}
+                        style={{ maxHeight: '300px' }} // Fixed max height for scrollability
+                        // Animation (Guideline 4.3 Transitions)
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25, duration: 0.2 }}
-                        role="listbox"
+                        role="listbox" // Guideline 7: ARIA
                         aria-label="Search results"
                     >
                         {isLoadingSuggestions && (
-                            <li className="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400 flex items-center justify-center">
+                            // Loader Feedback (Guideline 4.5)
+                            <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${DROPDOWN_ITEM_TEXT_SECONDARY} flex items-center justify-center`}>
                                 <Spinner size="sm" className="mr-2" /> Searching...
                             </li>
                         )}
                         {!isLoadingSuggestions && isSuggestionsError && (
-                             <li className="px-4 py-3 text-sm text-red-600 dark:text-red-400 text-center">
+                             <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${ERROR_TEXT} text-center`}>
                                 <Icon name="error_outline" className="inline w-4 h-4 mr-1 align-text-bottom" /> 
                                 {suggestionsError?.message || "Error loading suggestions."}
                             </li>
                         )}
                         {!isLoadingSuggestions && !isSuggestionsError && suggestions.length === 0 && debouncedSearchTerm.trim().length >=2 && (
-                            <li className="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400 text-center">
+                            <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${DROPDOWN_ITEM_TEXT_SECONDARY} text-center`}>
                                 No suggestions for "{debouncedSearchTerm}".
                             </li>
                         )}
 
                         {!isLoadingSuggestions && !isSuggestionsError && suggestions.map((suggestion, index) => (
                             <li
-                                key={suggestion.id || `${suggestion.type}-${index}-${suggestion.name}`} // More robust key
-                                id={`suggestion-item-${activeIndex === index ? 'active-suggestion' : `suggestion-item-${index}`}`} // Ensure unique ID for active descendant
+                                key={suggestion.id || `${suggestion.type}-${index}-${suggestion.name}`}
+                                id={`suggestion-item-${index}`} // Unique ID for aria-activedescendant
                                 role="option"
                                 aria-selected={activeIndex === index}
+                                // Styling: Item padding, hover/active states (Guideline 6.3)
                                 className={`px-3 py-2.5 flex items-center cursor-pointer transition-colors duration-100
                                     ${activeIndex === index
-                                        ? 'bg-rose-50 dark:bg-rose-700/30 text-rose-700 dark:text-rose-300' // Active state from Guidelines 6.3
-                                        : 'hover:bg-neutral-100 dark:hover:bg-neutral-700/60 text-neutral-700 dark:text-neutral-200'
+                                        ? `${DROPDOWN_ITEM_ACTIVE_BG} ${DROPDOWN_ITEM_ACTIVE_TEXT}`
+                                        : `${DROPDOWN_ITEM_HOVER_BG} ${DROPDOWN_ITEM_TEXT_PRIMARY}`
                                     }`}
                                 onClick={() => handleSuggestionClick(suggestion)}
-                                onMouseEnter={() => setActiveIndex(index)}
+                                onMouseEnter={() => setActiveIndex(index)} // Update active index on mouse enter for visual cue
                             >
-                                {/* Suggestion Icon/Image */}
-                                <div className="w-8 h-8 rounded-md bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center mr-2.5 flex-shrink-0 overflow-hidden border border-neutral-200 dark:border-neutral-600">
+                                {/* Suggestion Icon/Image (Guideline 2.3 Iconography, 2.4 Imagery, 2.6 Corner Radii) */}
+                                <div className={`w-8 h-8 ${SUGGESTION_IMAGE_RADIUS} bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center mr-2.5 flex-shrink-0 overflow-hidden border border-neutral-200 dark:border-neutral-600`}>
                                     {suggestion.type === 'product' && suggestion.details?.image_url ? (
                                         <img
                                             src={suggestion.details.image_url}
-                                            alt="" // Alt text ideally should be suggestion.name but can be decorative
+                                            alt="" // Decorative, main info is in text
                                             className="w-full h-full object-cover"
                                             onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_SUGGESTION_IMAGE; }}
                                         />
                                     ) : (
-                                        <Icon name={getIconForSuggestionType(suggestion.type)} className={`w-4 h-4 ${suggestion.details?.color_class ? '' : 'text-neutral-500 dark:text-neutral-400'}`} 
-                                              style={suggestion.details?.color_class ? { color: suggestion.details.color_class.startsWith('#') ? suggestion.details.color_class : `var(--color-${suggestion.details.color_class})` } : {}} // Example if color_class is direct hex or CSS var
-                                        />
+                                        // Icon (Guideline 2.3 Small size for inline with text)
+                                        <Icon name={getIconForSuggestionType(suggestion.type)} className={`w-4 h-4 ${activeIndex === index ? 'opacity-90' : DROPDOWN_ITEM_TEXT_SECONDARY }`} />
                                     )}
                                 </div>
                                 
-                                {/* Suggestion Text */}
+                                {/* Suggestion Text (Guideline 2.2 Typography) */}
                                 <div className="flex-grow min-w-0">
-                                    <span className="text-sm font-medium block truncate" title={suggestion.name}>{suggestion.name}</span>
+                                    {/* Name: Body Medium */}
+                                    <span className={`${SUGGESTION_NAME_TEXT_SIZE} font-medium block truncate`} title={suggestion.name}>{suggestion.name}</span>
+                                    {/* Detail: Body Small/Extra Small */}
                                     {suggestion.type !== 'GeneralSearch' && suggestion.details?.category_name && suggestion.type === 'product' && (
-                                        <span className="text-xs text-neutral-500 dark:text-neutral-400 block truncate" title={suggestion.details.category_name}>
+                                        <span className={`${SUGGESTION_DETAIL_TEXT_SIZE} ${activeIndex === index ? 'opacity-80' : DROPDOWN_ITEM_TEXT_SECONDARY} block truncate`} title={suggestion.details.category_name}>
                                             In: {suggestion.details.category_name}
                                         </span>
                                     )}
                                     {suggestion.type !== 'GeneralSearch' && suggestion.type !== 'product' && (
-                                         <span className="text-xs text-neutral-500 dark:text-neutral-400 capitalize">
+                                         <span className={`${SUGGESTION_DETAIL_TEXT_SIZE} ${activeIndex === index ? 'opacity-80' : DROPDOWN_ITEM_TEXT_SECONDARY} capitalize`}>
                                             {suggestion.type.replace('_', ' ')}
                                         </span>
                                     )}
