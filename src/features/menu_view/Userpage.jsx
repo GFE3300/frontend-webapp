@@ -1,5 +1,5 @@
 // frontend/src/features/menu_view/Userpage.jsx
-// (Focusing on ProductDetailModal integration and related state/callbacks)
+// (Focusing on removing ProductOptionsPopup and related code)
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
@@ -20,8 +20,8 @@ import Modal from '../../components/animated_alerts/Modal.jsx';
 
 // Menu Subcomponents
 import MenuDisplayLayout from './subcomponents/MenuDisplayLayout';
-// import ProductOptionsPopup from './subcomponents/ProductOptionsPopup'; // Likely to be deprecated
-import ProductDetailModal from './subcomponents/ProductDetailModal.jsx'; // NEW
+// ProductOptionsPopup import is REMOVED
+import ProductDetailModal from './subcomponents/ProductDetailModal.jsx';
 import FlyingItemAnimator from './subcomponents/FlyingItemAnimator';
 import OrderSummaryPanel from './subcomponents/OrderSummaryPanel';
 import BottomNav from './subcomponents/BottomNav.jsx';
@@ -99,8 +99,8 @@ function AppContent() {
                 businessName: publicTableInfoData.business_name,
                 businessUUID: publicTableInfoData.business_uuid,
                 businessIdentifierForAPI: publicTableInfoData.business_slug || publicTableInfoData.business_uuid,
-                userName: 'Guest', // Default, will be updated by SetupStage
-                numberOfPeople: 1, // Default, will be updated by SetupStage
+                userName: 'Guest',
+                numberOfPeople: 1,
             });
             setAppStage('setup');
         }
@@ -124,7 +124,7 @@ function AppContent() {
 
     const {
         data: publicProductsApiResponse,
-        isLoading: isLoadingProductsInitial,
+        isLoading: isLoadingProducts, // Renamed for clarity, this is the main products loading
         isError: isProductsError,
         error: productsError,
         isFetching: isFetchingProducts
@@ -137,6 +137,10 @@ function AppContent() {
             keepPreviousData: true
         }
     );
+
+    // isLoadingProductsInitial will be true if isLoadingProducts is true AND isFetching is false (or first fetch)
+    const isLoadingProductsInitial = isLoadingProducts && !isFetchingProducts;
+
 
     const productsData = useMemo(() => publicProductsApiResponse?.results || [], [publicProductsApiResponse]);
 
@@ -195,13 +199,12 @@ function AppContent() {
     const [flyingItem, setFlyingItem] = useState(null);
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
-    // NEW state for ProductDetailModal
     const [isProductDetailModalOpen, setIsProductDetailModalOpen] = useState(false);
     const [currentProductForDetailModal, setCurrentProductForDetailModal] = useState(null);
-    // Old state for ProductOptionsPopup (can be removed later if ProductOptionsPopup is fully deprecated)
+
+    // REMOVED: State for old ProductOptionsPopup
     // const [isOptionsPopupOpen, setIsOptionsPopupOpen] = useState(false);
     // const [currentItemForOptions, setCurrentItemForOptions] = useState(null);
-
 
     useEffect(() => {
         const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -229,7 +232,7 @@ function AppContent() {
 
     const addToOrder = useCallback((itemToAdd, itemImageRect) => {
         setOrderItems(prevOrderItems => {
-            const existingItemIndex = prevOrderItems.findIndex(item => item.id === itemToAdd.id); // Assumes itemToAdd.id is unique (originalId + options)
+            const existingItemIndex = prevOrderItems.findIndex(item => item.id === itemToAdd.id);
             if (existingItemIndex > -1) return prevOrderItems.map((item, index) => index === existingItemIndex ? { ...item, quantity: item.quantity + itemToAdd.quantity } : item);
             return [...prevOrderItems, itemToAdd];
         });
@@ -239,20 +242,17 @@ function AppContent() {
         }
     }, [isDesktop]);
 
-    // NEW: Handler to open ProductDetailModal
-    const handleOpenProductDetailModal = useCallback((product, imageRect) => { // imageRect might not be used by modal but kept for potential future anim
+    const handleOpenProductDetailModal = useCallback((product, imageRect) => {
         setCurrentProductForDetailModal(product);
         setIsProductDetailModalOpen(true);
+        // imageRect is passed but not used by ProductDetailModal directly for opening animation currently.
+        // Kept for potential future use (e.g., if modal itself initiated a fly-to-cart on confirm).
     }, []);
 
-    // NEW: Handler for confirming from ProductDetailModal
     const handleConfirmProductDetailModal = useCallback((originalProduct, configuredItemDetails) => {
         const { quantity, selectedOptions, finalPricePerItem } = configuredItemDetails;
-        const optionsSummary = selectedOptions.map(opt => opt.name).join(', ') || null; // Corrected from opt.optionName
-
-        // Construct a unique ID based on product ID and selected option IDs
-        // This ensures that items with different option configurations are treated as distinct in the cart.
-        const selectedOptionIdsString = selectedOptions.map(o => o.id).sort().join('-'); // Sort IDs for consistency
+        const optionsSummary = selectedOptions.map(opt => opt.name).join(', ') || null;
+        const selectedOptionIdsString = selectedOptions.map(o => o.id).sort().join('-');
         const uniqueOrderItemId = `${originalProduct.id}-${selectedOptionIdsString || 'base'}`;
 
         addToOrder({
@@ -260,15 +260,26 @@ function AppContent() {
             originalId: originalProduct.id,
             name: originalProduct.name,
             imageUrl: originalProduct.image_url,
-            price: finalPricePerItem, // This is price per unit with options
+            price: finalPricePerItem,
             quantity: quantity,
             selectedOptionsSummary: optionsSummary,
-            detailedSelectedOptions: selectedOptions // Store the full option details
-        }, null); // imageRect is null because the modal is the source, not the card directly
+            detailedSelectedOptions: selectedOptions
+        }, null); // No imageRect here, as the source is the modal confirmation.
 
-        setIsProductDetailModalOpen(false); // Close modal on confirm
+        setIsProductDetailModalOpen(false);
         setCurrentProductForDetailModal(null);
     }, [addToOrder]);
+
+    // REMOVED: handleOpenOptionsPopup and handleConfirmWithOptions (for old ProductOptionsPopup)
+    // const handleOpenOptionsPopup = useCallback((product, imageRect) => {
+    //     setCurrentItemForOptions({ product, imageRect });
+    //     setIsOptionsPopupOpen(true);
+    // }, []);
+    // const handleConfirmWithOptions = useCallback((originalProduct, configuredItemDetails) => {
+    //     // ... old logic ...
+    //     addToOrder({ /* ... */ }, currentItemForOptions?.imageRect); // Used imageRect from old state
+    //     setIsOptionsPopupOpen(false); setCurrentItemForOptions(null);
+    // }, [addToOrder, currentItemForOptions]);
 
 
     const handleUpdateQuantity = useCallback((itemId, newQuantity) => {
@@ -322,7 +333,6 @@ function AppContent() {
         setProductsPagination(prev => ({ ...prev, page: 1 }));
     }, []);
 
-    // --- Loading and Error States ---
     if (appStage === 'loading') return <FullPageSpinner message={!tableLayoutItemId ? "Invalid link..." : "Loading Restaurant Info..."} />;
     if (appStage === 'error') {
         const canRetryTableInfo = publicTableInfoError && typeof refetchPublicTableInfo === 'function';
@@ -334,11 +344,8 @@ function AppContent() {
             <div className="flex flex-col items-center justify-center min-h-screen bg-green-50 dark:bg-green-900/30 p-8 text-center">
                 <Icon name="check_circle" className="w-24 h-24 text-green-500 dark:text-green-400 mb-6" />
                 <h2 className="text-3xl font-bold text-green-700 dark:text-green-200 mb-4">Order Confirmed!</h2>
-                <p className="text-green-600 dark:text-green-300 max-w-md mb-8">
-                    Thank you! Your order has been successfully placed. Our team is on it.
-                </p>
-                <button
-                    onClick={() => { setOrderItems([]); setAppStage('main'); }}
+                <p className="text-green-600 dark:text-green-300 max-w-md mb-8"> Thank you! Your order has been successfully placed. Our team is on it. </p>
+                <button onClick={() => { setOrderItems([]); setAppStage('main'); }}
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors"
                 > Place Another Order </button>
             </div>
@@ -373,31 +380,38 @@ function AppContent() {
             </header>
 
             <div className="container mx-auto sticky top-[calc(var(--header-height,9rem)+0.25rem)] z-20 bg-slate-100 dark:bg-neutral-900 py-1 shadow-sm">
-                {isLoadingCategories ? (<div className="h-12 flex items-center justify-center"><Spinner size="sm" message="Loading categories..." /></div>
-                ) : isCategoriesError ? (<div className="h-12 flex items-center justify-center text-red-500 dark:text-red-400 text-xs px-4 text-center"><Icon name="error" className="mr-1 w-4 h-4" />Could not load categories. ({categoriesError?.message || 'Unknown error'})</div>
-                ) : (<CategoryFilterBar categoriesData={categoriesData} activeCategoryId={activeCategoryFilter} onSelectCategory={handleSelectCategory} />
-                )}
+                {/* MODIFIED: Pass isLoading, isError, error props to CategoryFilterBar */}
+                <CategoryFilterBar
+                    categoriesData={categoriesData}
+                    activeCategoryId={activeCategoryFilter}
+                    onSelectCategory={handleSelectCategory}
+                    isLoading={isLoadingCategories}
+                    isError={isCategoriesError}
+                    error={categoriesError}
+                />
 
-                {isLoadingAllPublicTags ? (<div className="h-10 flex items-center justify-center"><Spinner size="xs" message="Loading tags..." /></div>
-                ) : isAllPublicTagsError ? (<div className="h-10 flex items-center justify-center text-red-500 dark:text-red-400 text-xs px-4 text-center"><Icon name="error" className="mr-1 w-4 h-4" />Could not load tags. ({allPublicTagsError?.message || 'Unknown error'})</div>
-                ) : (
-                    <TagFilterPills tagsData={displayedTagsData} activeTagIds={activeTagFilters} onToggleTag={handleToggleTag} />
-                )}
+                {/* MODIFIED: Pass isLoading, isError, error props to TagFilterPills */}
+                <TagFilterPills
+                    tagsData={displayedTagsData}
+                    activeTagIds={activeTagFilters}
+                    onToggleTag={handleToggleTag}
+                    isLoading={isLoadingAllPublicTags}
+                    isError={isAllPublicTagsError}
+                    error={allPublicTagsError}
+                />
             </div>
 
             <div ref={menuDisplayLayoutRef} className="container mx-auto flex flex-1 flex-col lg:flex-row mt-1 lg:mt-2 min-h-0">
                 {isDesktop && (<aside className="w-full lg:w-64 xl:w-72 p-4 pt-0 lg:pt-4 lg:pr-0 shrink-0 hidden lg:block"></aside>)}
                 <main className={`flex-1 p-4 min-h-0 ${isOrderDrawerOpen && !isDesktop ? 'overflow-hidden fixed inset-0 pt-[calc(var(--header-height,9rem)+2.75rem)]' : 'overflow-y-auto'}`}>
-                    {isLoadingProductsInitial && !isFetchingProducts && (<div className="flex justify-center items-center h-64 pt-8"><Spinner size="lg" message="Loading menu..." /></div>)}
-                    {isProductsError && !isLoadingProductsInitial && (<div className="p-4 text-center text-red-500 dark:text-red-400"><Icon name="warning" className="inline mr-2 w-5 h-5" /> Error: {productsError?.message || "Could not load products."}</div>)}
-                    {!isLoadingProductsInitial && !isProductsError && (
-                        <MenuDisplayLayout
-                            categorizedProducts={categorizedProducts}
-                            onOpenProductDetailModal={handleOpenProductDetailModal} // UPDATED PROP
-                            isFiltered={!!searchQuery || activeCategoryFilter !== null || activeTagFilters.length > 0}
-                            isFetchingWhileFiltered={isFetchingProducts && !isLoadingProductsInitial}
-                        />
-                    )}
+                    {/* MODIFIED: Pass isLoadingProductsInitial to MenuDisplayLayout */}
+                    <MenuDisplayLayout
+                        categorizedProducts={categorizedProducts}
+                        onOpenProductDetailModal={handleOpenProductDetailModal}
+                        isFiltered={!!searchQuery || activeCategoryFilter !== null || activeTagFilters.length > 0}
+                        isFetchingWhileFiltered={isFetchingProducts && !isLoadingProducts} // If isFetching and not initial load
+                        isLoadingProductsInitial={isLoadingProductsInitial} // Pass the new prop
+                    />
                 </main>
                 {isDesktop && venueContext && (
                     <aside ref={orderPanelRefDesktop} className="lg:w-80 xl:w-96 p-4 lg:pl-0 shrink-0">
@@ -457,7 +471,6 @@ function AppContent() {
                 )}
             </AnimatePresence>
 
-            {/* NEW ProductDetailModal */}
             <ProductDetailModal
                 isOpen={isProductDetailModalOpen}
                 onClose={() => { setIsProductDetailModalOpen(false); setCurrentProductForDetailModal(null); }}
@@ -465,17 +478,7 @@ function AppContent() {
                 onConfirmWithOptions={handleConfirmProductDetailModal}
             />
 
-            {/* Old ProductOptionsPopup (can be removed once ProductDetailModal fully replaces its use cases) */}
-            {/* <AnimatePresence>
-                {isOptionsPopupOpen && currentItemForOptions && (
-                    <ProductOptionsPopup
-                        isOpen={isOptionsPopupOpen}
-                        onClose={() => { setIsOptionsPopupOpen(false); setCurrentItemForOptions(null); }}
-                        product={currentItemForOptions.product}
-                        onConfirmWithOptions={handleConfirmWithOptions} // This would need to be adapted or removed
-                    />
-                )}
-            </AnimatePresence> */}
+            {/* REMOVED: Rendering of old ProductOptionsPopup */}
 
             <AnimatePresence>
                 {flyingItem && (

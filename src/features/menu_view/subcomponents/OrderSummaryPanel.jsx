@@ -1,15 +1,15 @@
 // frontend/src/features/menu_view/subcomponents/OrderSummaryPanel.jsx
+// (Focusing on integrating userName and numberOfPeople from venueContext)
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import OrderItem from "./OrderItem";
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
-import { useValidatePromoCode } from "../../../contexts/ProductDataContext"; // Path from frontend.txt
+import { useValidatePromoCode } from "../../../contexts/ProductDataContext";
 
-const PANEL_BG_CUSTOMER_LIGHT = "bg-rose-50 dark:bg-neutral-800"; // Not used directly in this refined version
-const PANEL_BG_DRAWER = "bg-white dark:bg-neutral-800"; // For mobile drawer
-const PANEL_BG_SIDEBAR_LIGHT = "bg-neutral-50 dark:bg-neutral-800/80"; // For desktop sidebar
+const PANEL_BG_DRAWER = "bg-white dark:bg-neutral-800";
+const PANEL_BG_SIDEBAR_LIGHT = "bg-neutral-50 dark:bg-neutral-800/80";
 
 const BUTTON_PRIMARY_CLASSES = "bg-rose-600 hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 dark:focus:ring-offset-neutral-800 disabled:opacity-60";
 const BUTTON_TERTIARY_CLASSES = "bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-700/60 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 font-semibold py-2.5 px-4 rounded-md text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-rose-400 dark:focus:ring-offset-neutral-800";
@@ -20,7 +20,7 @@ const sectionEntryVariants = {
     exit: { opacity: 0, height: 0, y: -10, transition: { duration: 0.2, ease: "circIn" } }
 };
 
-const itemAppearVariants = { // For messages and discount line items
+const itemAppearVariants = {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
     exit: { opacity: 0, y: -10, transition: { duration: 0.2, ease: "easeIn" } }
@@ -32,22 +32,20 @@ function OrderSummaryPanel({
     onConfirmOrderAction,
     navigateToMenu,
     isSidebarVersion = false,
-    isPreviewMode = false, // If true, disables confirmation and promo code input
-    venueContext, // { businessIdentifierForAPI, tableNumber, userName, numberOfPeople }
-    hidePanelTitle = false, // For mobile drawer view primarily
+    isPreviewMode = false,
+    venueContext, // { businessIdentifierForAPI, tableNumber, userName, numberOfPeople, businessName }
+    hidePanelTitle = false,
 }) {
     const [localPromoCodeInput, setLocalPromoCodeInput] = useState("");
     const [localOrderNotes, setLocalOrderNotes] = useState("");
-    const [isConfirming, setIsConfirming] = useState(false); // For the main "Place Order" button
-    const [promoValidationResult, setPromoValidationResult] = useState(null); // Stores API response for promo validation
+    const [isConfirming, setIsConfirming] = useState(false);
+    const [promoValidationResult, setPromoValidationResult] = useState(null);
 
     const { mutate: validatePromoCode, isLoading: isApplyingPromo } = useValidatePromoCode({
         onSuccess: (data) => {
-            // data structure from backend: { valid, code_name, type, value, public_display_name, message, applicability, minimum_order_value_for_order_discount }
-            // or { valid: false, message, code_name, error_code }
             setPromoValidationResult(data);
             if (data.valid && data.code_name) {
-                setLocalPromoCodeInput(data.code_name); // Update input with validated/formatted code
+                setLocalPromoCodeInput(data.code_name);
             }
         },
         onError: (error) => {
@@ -56,17 +54,16 @@ function OrderSummaryPanel({
             setPromoValidationResult({ 
                 valid: false, 
                 message: errorMessage, 
-                error: true, // Explicitly mark as an error from our side
+                error: true, 
                 errorCode: errorCode 
             });
         }
     });
 
-    // Effect to update localPromoCodeInput from validation result (e.g. if backend uppercases it)
     useEffect(() => {
         if (promoValidationResult && promoValidationResult.valid && promoValidationResult.code_name) {
             setLocalPromoCodeInput(promoValidationResult.code_name);
-        } else if (promoValidationResult === null) { // When promo is cleared
+        } else if (promoValidationResult === null) {
             setLocalPromoCodeInput("");
         }
     }, [promoValidationResult]);
@@ -77,33 +74,33 @@ function OrderSummaryPanel({
             setPromoValidationResult({ valid: false, message: "Please enter a promo code.", error: true, errorCode: 'INPUT_EMPTY' });
             return;
         }
-        if (!venueContext?.businessIdentifierForAPI) { // Check businessIdentifierForAPI from venueContext
+        if (!venueContext?.businessIdentifierForAPI) {
             setPromoValidationResult({ valid: false, message: "Business information is missing to validate promo.", error: true, errorCode: 'MISSING_BUSINESS_CONTEXT' });
             return;
         }
 
         const currentSubtotalForPayload = orderItems.reduce((sum, item) => (sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 0)), 0);
         const orderItemsContextForPayload = orderItems.map(item => ({
-            product_id: item.originalId, // Assuming item.originalId holds the Product UUID
+            product_id: item.originalId,
             quantity: item.quantity,
-            base_price_per_unit: (parseFloat(item.price) || 0).toFixed(2) // Price per unit before any item-specific UI discount
+            base_price_per_unit: (parseFloat(item.price) || 0).toFixed(2)
         }));
 
         const payload = {
-            code_name: localPromoCodeInput.trim().toUpperCase(), // Send standardized code
+            code_name: localPromoCodeInput.trim().toUpperCase(),
             business_identifier: venueContext.businessIdentifierForAPI,
             current_order_subtotal: currentSubtotalForPayload.toFixed(2),
             order_items_context: orderItemsContextForPayload,
         };
         
-        setPromoValidationResult(null); // Clear previous validation message
+        setPromoValidationResult(null);
         validatePromoCode(payload);
 
     }, [localPromoCodeInput, venueContext, orderItems, validatePromoCode]);
 
     const handleRemovePromo = useCallback(() => {
         setLocalPromoCodeInput("");
-        setPromoValidationResult(null); // Clear validation result to remove discount
+        setPromoValidationResult(null);
     }, []);
 
     const { subtotal, totalDiscountAmount, finalTotal, appliedPromoUIDetails, itemLevelDiscountsMap } = useMemo(() => {
@@ -119,7 +116,7 @@ function OrderSummaryPanel({
 
         if (promoValidationResult && promoValidationResult.valid === true && !promoValidationResult.error) {
             const { type: promoType, value: promoValueStr, applicability, minimum_order_value_for_order_discount, public_display_name, code_name } = promoValidationResult;
-            const promoValue = parseFloat(promoValueStr); // e.g., 10 for 10% or 5 for $5 fixed
+            const promoValue = parseFloat(promoValueStr);
 
             if (!isNaN(promoValue)) {
                 let meetsMinOrderValueForOrderDiscount = true;
@@ -127,7 +124,6 @@ function OrderSummaryPanel({
                     const minOrderValue = parseFloat(minimum_order_value_for_order_discount);
                     if (!isNaN(minOrderValue) && currentSubtotal < minOrderValue) {
                         meetsMinOrderValueForOrderDiscount = false;
-                        // Message for this scenario is handled by promoValidationResult.message from backend/hook
                     }
                 }
 
@@ -138,23 +134,21 @@ function OrderSummaryPanel({
                     } else if (promoType === "ORDER_TOTAL_FIXED_AMOUNT") {
                         calculatedOverallDiscount = promoValue;
                         if (calculatedOverallDiscount > 0) uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || `$${promoValue.toFixed(2)} Off Order`, type: promoType };
-                    } else if (promoType === "percentage" || promoType === "fixed_amount_product") { // These are item-specific types from DiscountMaster.DiscountType
+                    } else if (promoType === "percentage" || promoType === "fixed_amount_product") {
                         const applicableProductUUIDs = new Set(applicability?.applicable_target_product_uuids || []);
                         let sumOfItemDiscounts = 0;
 
                         orderItems.forEach(orderItem => {
-                            // Ensure orderItem.originalId matches the UUID format expected by applicableProductUUIDs
                             if (orderItem.originalId && applicableProductUUIDs.has(orderItem.originalId)) {
-                                const itemPriceBeforeOptions = parseFloat(orderItem.price) || 0; // This price should be the one after product-level options are applied by ProductOptionsPopup
+                                const itemPriceBeforeOptions = parseFloat(orderItem.price) || 0;
                                 const itemQuantity = parseInt(orderItem.quantity, 10) || 0;
                                 const originalItemLineTotal = itemPriceBeforeOptions * itemQuantity;
                                 let discountAmountForThisLineItem = 0;
 
                                 if (promoType === "percentage") {
                                     discountAmountForThisLineItem = originalItemLineTotal * (promoValue / 100);
-                                } else { // fixed_amount_product
-                                    // Fixed amount is per unit, so multiply by quantity
-                                    let discountPerUnit = Math.min(promoValue, itemPriceBeforeOptions); // Cap discount at item's unit price
+                                } else { 
+                                    let discountPerUnit = Math.min(promoValue, itemPriceBeforeOptions);
                                     discountAmountForThisLineItem = discountPerUnit * itemQuantity;
                                 }
                                 
@@ -162,7 +156,7 @@ function OrderSummaryPanel({
 
                                 if (discountAmountForThisLineItem > 0) {
                                     sumOfItemDiscounts += discountAmountForThisLineItem;
-                                    tempItemDiscountsMap.set(orderItem.id, { // Use orderItem.id (unique per configuration)
+                                    tempItemDiscountsMap.set(orderItem.id, {
                                         amount: discountAmountForThisLineItem,
                                         description: public_display_name || (promoType === "percentage" ? `${promoValue}% off` : `$${promoValue.toFixed(2)} off`),
                                         originalItemTotal: parseFloat(originalItemLineTotal.toFixed(2)),
@@ -189,7 +183,7 @@ function OrderSummaryPanel({
             totalDiscountAmount: parseFloat(calculatedOverallDiscount.toFixed(2)),
             finalTotal: Math.max(0, parseFloat(currentTotal.toFixed(2))),
             appliedPromoUIDetails: uiPromoDetailsForDisplay,
-            itemLevelDiscountsMap: tempItemDiscountsMap, // This map will be used by OrderItem
+            itemLevelDiscountsMap: tempItemDiscountsMap,
         };
     }, [orderItems, promoValidationResult]);
 
@@ -197,10 +191,8 @@ function OrderSummaryPanel({
     const handleActualConfirmOrder = useCallback(async () => {
         if (!onConfirmOrderAction || orderItems.length === 0) return;
         if (!venueContext?.businessIdentifierForAPI || !venueContext?.tableNumber) {
-            // This component shouldn't directly call `alert`. Userpage.jsx should handle system-wide alerts/modals.
-            // For now, logging and preventing action.
             console.error("[OrderSummaryPanel] Cannot place order: Missing critical business or table information in venueContext.");
-            // Potentially call a Userpage provided modal function here: showUserModal("Error", "Missing table/business info.", "error");
+            // Userpage.jsx is responsible for showing a user-facing error modal here.
             return;
         }
 
@@ -208,34 +200,28 @@ function OrderSummaryPanel({
         const orderDetailsPayload = {
             business_identifier: venueContext.businessIdentifierForAPI,
             table_number: venueContext.tableNumber,
+            // MODIFIED: Include userName and numberOfPeople from venueContext
             customer_name: venueContext.userName || null,
             number_of_guests: venueContext.numberOfPeople || null,
             notes: localOrderNotes.trim() || null,
             items: orderItems.map(item => ({
-                product_id: item.originalId, // This should be the base Product UUID
+                product_id: item.originalId,
                 quantity: item.quantity,
-                selected_options: item.detailedSelectedOptions // Array of {group_id, option_id} as expected by backend OrderItemCreateSerializer
-                    ? item.detailedSelectedOptions.map(opt => ({ group_id: opt.groupId, option_id: opt.optionId }))
+                selected_options: item.detailedSelectedOptions
+                    ? item.detailedSelectedOptions.map(opt => ({ group_id: opt.groupId, option_id: opt.id })) // Corrected: opt.id for optionId
                     : [],
             })),
-            // Send promo code name if a discount was successfully applied AND resulted in a discount amount
             order_level_promo_code_name: (promoValidationResult && promoValidationResult.valid && promoValidationResult.code_name && totalDiscountAmount > 0)
                 ? promoValidationResult.code_name 
                 : null,
-            // Backend will recalculate prices and discounts based on this payload.
-            // No need to send item_specific_promo_codes here if order_level_promo_code_name handles item-specific discounts via its applicability.
-            // If backend expects item-specific codes distinctly, this payload needs adjustment.
-            // Current backend `get_validated_discount_details` seems to handle one code that can be order-level or product-specific.
         };
 
         try {
-            await onConfirmOrderAction(orderDetailsPayload); // This is Userpage's handleConfirmOrderAction
-            // Reset local state after successful order placement (Userpage handles global state like orderItems)
+            await onConfirmOrderAction(orderDetailsPayload);
             setLocalOrderNotes("");
             setPromoValidationResult(null);
             setLocalPromoCodeInput("");
         } catch (error) {
-            // Error display is handled by Userpage.jsx via showUserModal
             console.error("[OrderSummaryPanel] Error during order confirmation (onConfirmOrderAction callback threw):", error);
         } finally {
             setIsConfirming(false);
@@ -249,7 +235,12 @@ function OrderSummaryPanel({
     const innerPanelContentClass = isSidebarVersion
         ? "flex flex-col h-full"
         : "flex flex-col flex-1"; 
-    const headerTextColorClass = isSidebarVersion ? "text-neutral-800 dark:text-neutral-100" : "text-rose-700 dark:text-rose-300"; // Keep rose for drawer title
+    
+    // Determine header text color based on panel type
+    const headerTextColorClass = isSidebarVersion 
+        ? "text-neutral-800 dark:text-neutral-100" 
+        : (hidePanelTitle ? "text-neutral-800 dark:text-neutral-100" : "text-rose-700 dark:text-rose-300"); // Rose only if title shown in drawer
+    
     const notesLabelColorClass = "text-neutral-600 dark:text-neutral-300";
     const BORDER_COLOR_LIGHT = "border-neutral-200 dark:border-neutral-700";
     const BORDER_DASHED_COLOR_LIGHT = "border-neutral-300 dark:border-neutral-600";
@@ -260,7 +251,7 @@ function OrderSummaryPanel({
     const renderOrderContent = () => (
         <>
             <div className={`flex-1 ${orderItems.length > 0 ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-500 scrollbar-track-transparent' : 'flex items-center justify-center'} ${isSidebarVersion ? 'p-4 sm:p-5' : 'p-4'}`}>
-                <AnimatePresence mode="popLayout"> {/* Ensures items animate out correctly */}
+                <AnimatePresence mode="popLayout">
                     {orderItems.length === 0 ? (
                         <motion.div 
                             key="empty-order-state"
@@ -284,20 +275,20 @@ function OrderSummaryPanel({
                         </motion.div>
                     ) : (
                         <motion.div
-                            key="order-items-list" // Key for AnimatePresence
+                            key="order-items-list"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.1 } }}
                             exit={{ opacity: 0 }}
                             className="space-y-2.5 sm:space-y-3"
                         >
-                            <AnimatePresence> {/* Inner AnimatePresence for individual item add/remove */}
+                            <AnimatePresence>
                                 {orderItems.map(item => (
                                     <OrderItem 
-                                        key={item.id} // item.id is unique for configured items
+                                        key={item.id}
                                         item={item} 
                                         onUpdateQuantity={onUpdateQuantity} 
                                         isPreviewMode={isPreviewMode}
-                                        appliedItemDiscountDetails={itemLevelDiscountsMap.get(item.id)} // Pass item-specific discount
+                                        appliedItemDiscountDetails={itemLevelDiscountsMap.get(item.id)}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -306,7 +297,6 @@ function OrderSummaryPanel({
                 </AnimatePresence>
             </div>
 
-            {/* Footer section only shown if there are items or in preview mode */}
             <AnimatePresence>
                 {(orderItems.length > 0 || isPreviewMode) && (
                     <motion.div
@@ -314,7 +304,6 @@ function OrderSummaryPanel({
                         key="order-summary-details-block"
                         variants={sectionEntryVariants} initial="initial" animate="animate" exit="exit"
                     >
-                        {/* Promo Code Section */}
                         {!isPreviewMode && (
                             <div className={`px-4 sm:px-5 pt-4 pb-2 ${isSidebarVersion ? '' : `border-b ${BORDER_COLOR_LIGHT}`}`}>
                                 <label htmlFor="promoCodeInputPanel" className="block text-sm font-medium text-neutral-600 dark:text-neutral-300 mb-1.5">Promo Code</label>
@@ -348,7 +337,6 @@ function OrderSummaryPanel({
                             </div>
                         )}
                         
-                        {/* Order Notes Section */}
                         <div className={`px-4 sm:px-5 pt-3 pb-3 ${isSidebarVersion ? '' : `border-b ${BORDER_COLOR_LIGHT}`}`}>
                             <label htmlFor="orderNotesPanel" className={`block text-sm font-medium ${notesLabelColorClass} mb-1.5`}>Order Notes {isPreviewMode ? "(Preview)" : ""}</label>
                             <textarea id="orderNotesPanel" rows="2" value={localOrderNotes} onChange={(e) => setLocalOrderNotes(e.target.value)}
@@ -356,10 +344,8 @@ function OrderSummaryPanel({
                                 placeholder="e.g., no onions, extra spicy..." disabled={isPreviewMode || isConfirming}></textarea>
                         </div>
 
-                        {/* Dashed line for sidebar version */}
                         {isSidebarVersion && ( <div className="relative h-0 my-3 mx-4"><div className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 ${currentPanelBg} rounded-full z-10`}></div><div className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-5 h-5 ${currentPanelBg} rounded-full z-10`}></div><div className={`absolute left-3 right-3 top-1/2 -translate-y-px border-t-2 border-dashed ${BORDER_DASHED_COLOR_LIGHT}`}></div></div> )}
 
-                        {/* Totals and Confirm Button */}
                         <div className="px-4 sm:px-5 pt-3 pb-4 sm:pb-5">
                             <div className={`space-y-1.5 text-sm text-neutral-600 dark:text-neutral-300`}>
                                 <div className="flex justify-between">
@@ -374,7 +360,7 @@ function OrderSummaryPanel({
                                 <AnimatePresence>
                                     {isPromoSuccessfullyAppliedAndActive && totalDiscountAmount > 0 && (
                                         <motion.div 
-                                            key="order-discount-line" // Unique key for AnimatePresence
+                                            key="order-discount-line"
                                             variants={itemAppearVariants} initial="initial" animate="animate" exit="exit"
                                             className="flex justify-between"
                                         >
@@ -384,7 +370,6 @@ function OrderSummaryPanel({
                                     )}
                                 </AnimatePresence>
                                 
-                                {/* Optional "New Subtotal" if an order-level discount was applied */}
                                 {isPromoSuccessfullyAppliedAndActive && totalDiscountAmount > 0 && (promoValidationResult?.type === "ORDER_TOTAL_PERCENTAGE" || promoValidationResult?.type === "ORDER_TOTAL_FIXED_AMOUNT") && (
                                      <motion.div 
                                         key="new-subtotal-line"
@@ -396,7 +381,7 @@ function OrderSummaryPanel({
                                     </motion.div>
                                 )}
 
-                                <div className={`flex justify-between text-lg font-bold mt-2 pt-2 border-t ${BORDER_COLOR_LIGHT} ${isSidebarVersion ? headerTextColorClass : 'text-neutral-800 dark:text-neutral-100'}`}>
+                                <div className={`flex justify-between text-lg font-bold mt-2 pt-2 border-t ${BORDER_COLOR_LIGHT} ${headerTextColorClass}`}>
                                     <span>Total</span><span>${finalTotal.toFixed(2)}</span>
                                 </div>
                             </div>
@@ -417,16 +402,23 @@ function OrderSummaryPanel({
     return (
         <div className={panelContainerClass} role="region" aria-labelledby={!hidePanelTitle ? "order-summary-panel-title" : undefined}>
             <div className={innerPanelContentClass}>
-                {!isSidebarVersion && !hidePanelTitle && ( // Only show this header in the mobile drawer if not explicitly hidden
-                     <div className={`p-4 sm:p-5 border-b ${BORDER_COLOR_LIGHT} shrink-0 bg-white dark:bg-neutral-800`}>
+                {/* MODIFIED: Conditional Header Display */}
+                {!hidePanelTitle && (
+                     <div className={`p-4 sm:p-5 border-b ${BORDER_COLOR_LIGHT} shrink-0 ${isSidebarVersion ? 'bg-transparent' : 'bg-white dark:bg-neutral-800'}`}>
                         <div className="flex items-center justify-between">
                             <h2 id="order-summary-panel-title" className={`font-montserrat text-xl sm:text-2xl font-bold ${headerTextColorClass}`}>
                                 {isPreviewMode ? "Order Preview" : "Your Order"}
                             </h2>
-                            {(venueContext?.tableNumber || venueContext?.userName) && !isPreviewMode && (
+                             {/* MODIFIED: Display userName and numberOfPeople if available */}
+                            {(venueContext?.tableNumber || venueContext?.userName || venueContext?.numberOfPeople) && !isPreviewMode && (
                                 <div className={`text-xs text-neutral-500 dark:text-neutral-400 text-right`}>
                                     {venueContext?.tableNumber && <span className="block sm:inline">Table: {venueContext.tableNumber}</span>}
-                                    {venueContext?.userName && <span className="block sm:inline sm:ml-2">For: {venueContext.userName}</span>}
+                                    {(venueContext?.userName || venueContext?.numberOfPeople) && 
+                                        <span className="block sm:inline sm:ml-2">
+                                            For: {venueContext.userName || 'Guest'}
+                                            {venueContext.numberOfPeople && ` (${venueContext.numberOfPeople} ${venueContext.numberOfPeople === 1 ? 'guest' : 'guests'})`}
+                                        </span>
+                                    }
                                 </div>
                             )}
                         </div>
