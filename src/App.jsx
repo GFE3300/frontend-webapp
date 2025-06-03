@@ -20,6 +20,9 @@ import VenueDesignerPage from './features/venue_management/subcomponents/layout_
 // NEW: Customer Menu Page (Userpage)
 import UserpageWrapper from './features/menu_view/Userpage.jsx'; // Path to be created
 
+import { KitchenDisplaySystemPage } from './features/kitchen_display_system';
+
+
 // Components
 import PrivateRoute from './components/common/PrivateRoute.jsx';
 
@@ -127,6 +130,11 @@ const router = createBrowserRouter([
         element: <VenueDesignerPage />,
         errorElement: <NotFoundPage />,
     },
+    {
+        path: "/kitchen",
+        element: <KitchenDisplaySystemPage />,
+        errorElement: <NotFoundPage />,
+    }
 ]);
 
 function App() {

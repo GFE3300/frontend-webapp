@@ -40,6 +40,7 @@ export const scriptLines = {
 
     // --- Venue Management Feature ---
     venueManagement: {
+        // ... (all your existing venueManagement strings) ...
         liveOrderDashboard: {
             title: "Bakery Orders",
             hideSidebar: "Hide Sidebar",
@@ -68,7 +69,6 @@ export const scriptLines = {
             confirmChargeCancelText: "No, Not Yet",
             alertNoTablesForSimulateTitle: "No Tables Defined",
             alertNoTablesForSimulateMessage: "Please design the table layout first before simulating orders.",
-            // Strings for alerts coming from useLayoutData will be added when refactoring that hook
         },
         useLayoutData: {
             loadingErrorTitle: "Loading Error",
@@ -114,24 +114,20 @@ export const scriptLines = {
             unsavedChangesTooltip: "Unsaved Changes",
             focusModeTooltip: "Focus Mode",
             downloadQrTooltip: "Download All QR Codes",
-            qrButtonText: "QRs", // Short text for the QR button when space is limited
-            // Back to Dashboard tooltip could be added if that button becomes active
-            // backToDashboardTooltip: "Back to Dashboard",
+            qrButtonText: "QRs",
         },
         layoutEditor: {
             canvasAreaLabel: "Layout Design Canvas Area",
-            mainRegionLabel: "Layout Design Canvas Area", // For the motion.main
-            propertiesInspectorRegionLabel: "Item Properties Inspector", // If PropertiesInspector is part of LayoutEditor's direct render
+            mainRegionLabel: "Layout Design Canvas Area",
+            propertiesInspectorRegionLabel: "Item Properties Inspector",
             confirmClearTitle: "Clear Entire Layout",
             confirmClearMessage: "Are you sure you want to clear all items and reset grid settings to default? This action will be recorded in history but directly clearing is a significant step.",
             confirmClearConfirmText: "Yes, Clear All & Reset",
             confirmClearCancelText: "Cancel",
             saveErrorNotConfigured: "Save function (onSaveTrigger) not configured for LayoutEditor.",
-            validationErrorTitle: "Layout Validation Error", // Used by validateLayoutForSave
-            // Messages for validateLayoutForSave (can be more granular if needed)
+            validationErrorTitle: "Layout Validation Error",
             validationErrorInvalidTables: "Ensure all tables have valid, positive numbers.",
             validationErrorDuplicateTableNumbers: "Table numbers must be unique.",
-            // Tool interaction messages (might be logged or used in future subtle UI feedback)
             toolSelectedForPlacement: "Tool selected for placement: {toolName}",
             toolDeselectedForPlacement: "Tool deselected for placement.",
             cellClickedNewItem: "Cell clicked for NEW item placement. Tool: {toolName}, Target: R{row}C{col}",
@@ -139,58 +135,49 @@ export const scriptLines = {
         },
         editorToolbar: {
             toolbarLabel: "Layout Editor Toolbar",
-            elementsCategory: "Elements", // Fallback category name
-            categoryLabelSuffix: "", // e.g., " Tools" if you want "Furniture Tools"
+            elementsCategory: "Elements", 
+            categoryLabelSuffix: "", 
             rowsLabel: "R:",
             colsLabel: "C:",
             gridRowsAriaLabel: "Grid Rows",
             gridColsAriaLabel: "Grid Columns",
             gridSubdivisionAriaLabel: "Grid Subdivision",
-            subdivisionOptionSuffix: "x{value}", // For 2x2, 4x4 options
+            subdivisionOptionSuffix: "x{value}", 
             zoomOutTooltip: "Zoom Out (-)",
             resetZoomTooltip: "Reset Zoom ({percentage}%)",
             zoomInTooltip: "Zoom In (+)",
             undoTooltip: "Undo (Ctrl+Z)",
             redoTooltip: "Redo (Ctrl+Y)",
             saveLayoutTooltip: "Save Layout (Ctrl+S)",
-            saveButtonText: "Save", // Text for save button if not in zen/mobile
+            saveButtonText: "Save", 
             clearLayoutTooltip: "Clear Entire Layout",
             focusModeEnterTooltip: "Enter Focus Mode",
             focusModeExitTooltip: "Exit Focus Mode (Esc)",
             eraserActivateTooltip: "Activate Eraser (E)",
             eraserDeactivateTooltip: "Deactivate Eraser (E)",
-            // Tool specific tooltips/aria-labels can be constructed dynamically if needed,
-            // or added here if they are very specific and static.
-            // For DraggableTool itself, its title/aria-label construction will be handled in DraggableTool.jsx
         },
         editorCanvas: {
-            mainCanvasAreaLabel: "Venue Layout Design Canvas", // For the main div wrapper
-            gridRegionLabel: "Layout Grid Area", // For the grid itself (canvasGridRef)
-            resizePreviewAriaHidden: "true", // Standard for decorative/status elements
-            // If resize preview itself had text (it doesn't currently), that would go here.
+            mainCanvasAreaLabel: "Venue Layout Design Canvas",
+            gridRegionLabel: "Layout Grid Area", 
+            resizePreviewAriaHidden: "true", 
         },
         canvasCell: {
-            gridCellRoleDescription: "Layout grid cell", // Could be used for a more descriptive aria-label if needed
-            // Dynamic aria-labels based on current interaction (e.g., "Place {toolName}", "Move to R{row}C{col}")
-            // will be constructed in the component.
-            // No explicit static strings seem to be directly rendered by CanvasCell.
-            // Tooltips are usually handled by the parent (EditorCanvas/LayoutEditor via draggedItemPreview or activeTool)
-            // or by PlacedItem for items themselves.
+            gridCellRoleDescription: "Layout grid cell",
         },
         placedItem: {
             defaultRendererMissingText: "Renderer Missing",
             defaultRendererTypeLabel: "Type: {itemType}",
             defaultRendererIdLabel: "ID: {itemId}",
-            itemBaseTitle: "{itemName}", // Base for constructing titles
+            itemBaseTitle: "{itemName}", 
             itemFixedSuffix: "(Fixed)",
-            itemProvisionalSuffix: "(Provisional - Click in Editor to set number)", // For tables
-            itemMoveCandidateSuffix: "Click a cell to move {itemName}", // When it's the moveCandidate
+            itemProvisionalSuffix: "(Provisional - Click in Editor to set number)", 
+            itemMoveCandidateSuffix: "Click a cell to move {itemName}", 
             itemEraserActionText: "Tap to erase {itemName}",
             itemSelectActionText: "Tap to select {itemName}",
-            itemDefaultAriaRole: "button", // Default role if not otherwise specified by interactions
+            itemDefaultAriaRole: "button", 
         },
         resizeHandle: {
-            tooltipPrefix: "Resize {direction}", // e.g., "Resize North"
+            tooltipPrefix: "Resize {direction}", 
             directionN: "North",
             directionS: "South",
             directionE: "East",
@@ -202,14 +189,13 @@ export const scriptLines = {
         },
         propertiesInspector: {
             defaultTitle: "Properties",
-            itemPropertiesTitleSuffix: "Properties", // e.g., "Table Properties", "{itemName} Properties"
+            itemPropertiesTitleSuffix: "Properties", 
             closeButtonTooltip: "Close Properties Panel",
             closeButtonAriaLabel: "Close Properties Panel",
-            minimizedTabTooltip: "Show Properties", // For the desktop minimized button
-            mobilePeekTitleSuffix: "Properties", // For the mobile peek state, e.g., "Table Properties"
+            minimizedTabTooltip: "Show Properties", 
+            mobilePeekTitleSuffix: "Properties", 
             noItemSelectedMessage: "Select an item on the canvas to view its properties.",
-            // DefaultInspectorContent strings (already in placedItem, but can be aliased or duplicated if preferred for clarity)
-            defaultInspectorContent_rendererMissingText: "Renderer Missing", // Re-using or can be specific
+            defaultInspectorContent_rendererMissingText: "Renderer Missing", 
             defaultInspectorContent_typeLabel: "Type: {itemType}",
             defaultInspectorContent_idLabel: "ID: {itemId}",
             defaultInspectorContent_noEditorConfigured: "No specific editor configured for this item type, or the configured key is not matched.",
@@ -221,9 +207,9 @@ export const scriptLines = {
             tableNumberHelpText: "Edit number on the table itself. Click to select, then click number to edit.",
             seatsLabel: "Number of Seats",
             seatsPlaceholder: "e.g., 4 or empty for default",
-            seatsTooltip: "Enter a number or leave empty for default seats.", // Tooltip for the input field
-            seatsHelpText: "Enter a number or leave empty for default seats.", // Helper text below input
-            infoSectionTitle: "Table Information", // Optional title for the info section
+            seatsTooltip: "Enter a number or leave empty for default seats.", 
+            seatsHelpText: "Enter a number or leave empty for default seats.", 
+            infoSectionTitle: "Table Information", 
             itemIdLabel: "Item ID:",
             defaultShapeLabel: "Default shape:",
             rotationLabel: "Rotation:",
@@ -236,7 +222,7 @@ export const scriptLines = {
             thicknessLabel: "Visual Thickness (minor cells)",
             thicknessTooltip: "Visual thickness of the wall within its own cell.",
             thicknessHelpText: "Thickness within its own grid cell. Does not affect collision. Max: {maxThickness}.",
-            infoSectionTitle: "Wall Information", // Optional
+            infoSectionTitle: "Wall Information", 
             itemIdLabel: "Item ID:",
             lengthLabel: "Length (major units):",
             baseWidthLabel: "Base Width (minor):",
@@ -250,11 +236,11 @@ export const scriptLines = {
             swingDirectionLabel: "Swing Direction",
             leftSwingOption: "Left Swing",
             rightSwingOption: "Right Swing",
-            selectSwingPlaceholder: "Select Swing Direction", // For Dropdown component
-            infoSectionTitle: "Door Information", // Optional
+            selectSwingPlaceholder: "Select Swing Direction", 
+            infoSectionTitle: "Door Information", 
             itemIdLabel: "Item ID:",
             typeLabel: "Type:",
-            standardDoorType: "Standard Door", // Default type if item.shape is missing
+            standardDoorType: "Standard Door", 
             rotationLabel: "Rotation:",
             fixedLabel: "Fixed:",
             yesValue: "Yes",
@@ -269,10 +255,10 @@ export const scriptLines = {
             heightLabel: "Height (minor cells)",
             heightTooltip: "Height of the item's base before rotation.",
             dimensionsHelpText: "Dimensions apply to the item's base before rotation.",
-            infoSectionTitle: "Decor Information", // Optional
+            infoSectionTitle: "Decor Information", 
             itemIdLabel: "Item ID:",
             decorTypeLabel: "Decor Type:",
-            decorTypeGeneric: "Generic", // Fallback if item.decorType is missing
+            decorTypeGeneric: "Generic", 
             shapeConfigLabel: "Shape Config:",
             rotationLabel: "Rotation:",
             fixedLabel: "Fixed:",
@@ -287,8 +273,8 @@ export const scriptLines = {
             lengthPlaceholder: "e.g., 2",
             lengthTooltip: "Length of the counter along its main axis, in major grid cells.",
             lengthHelpText: "Defines length along its main axis. Thickness is 1 major unit.",
-            invalidItemError: "Error: Invalid item for Counter Editor.", // Error message if wrong item type
-            infoSectionTitle: "Counter Information", // Optional
+            invalidItemError: "Error: Invalid item for Counter Editor.", 
+            infoSectionTitle: "Counter Information", 
             itemIdLabel: "Item ID:",
             decorTypeLabel: "Decor Type (if any):",
             shapeConfigLabel: "Shape Config:",
@@ -303,34 +289,29 @@ export const scriptLines = {
             fixedTooltipSuffix: "(Fixed)",
             provisionalTooltipText: "Provisional Table (Click in Editor to set number)",
             tableTooltipPrefix: "Table {number}",
-            provisionalDisplayValue: "Nº?", // Text displayed on provisional tables
-            tableNumberPrefix: "T", // Prefix for displayed table number, e.g., "T5"
-            tableNumberNotSet: "", // Value if number is null/undefined and not provisional (e.g., display only "T")
+            provisionalDisplayValue: "Nº?", 
+            tableNumberPrefix: "T", 
+            tableNumberNotSet: "", 
         },
         counterRenderer: {
-            defaultLabel: "Counter", // Fallback text if item.label is empty
+            defaultLabel: "Counter", 
         },
         useLayoutDesignerStateManagement: {
-            // Config errors (critical, point to setup issues)
             configErrorMissingConfigTitle: "Configuration Error",
             configErrorMissingConfigMessage: "Missing configuration for item type: {itemType}. Please contact support.",
             configErrorMissingFactoryTitle: "Configuration Error",
             configErrorMissingFactoryMessage: "Missing properties factory for item type: {itemType}. Please contact support.",
             factoryErrorTitle: "Factory Error",
             factoryErrorMessage: "Error creating properties for new item ({itemType}).",
-            // Dimension/Placement errors
             dimensionErrorTitle: "Dimension Error",
             dimensionErrorMinMessage: "Invalid base dimensions for new item. Minimum dimension is {minCells} cell(s).",
             placementErrorTitle: "Placement Error",
             placementErrorOccupiedOrOutOfBounds: "Cannot place item: Space occupied or out of bounds.",
             resizeErrorConflictOrOutOfBounds: "Resized/moved item conflicts or is out of bounds.",
-            // Rotation errors
             rotationErrorTitle: "Rotation Error",
             rotationErrorConflictOrOutOfBounds: "Cannot rotate: new orientation conflicts or is out of bounds.",
-            // Sizing errors (e.g., for counters)
-            sizingErrorTitle: "Sizing Error", // Generic title
+            sizingErrorTitle: "Sizing Error", 
             counterSizingErrorConflict: "Counter cannot be resized: new size conflicts or is out of bounds.",
-            // Input validation errors
             invalidInputTitle: "Invalid Input",
             invalidRotationAngle: "Invalid rotation angle.",
             invalidRotationType: "Invalid rotation type.",
@@ -341,7 +322,6 @@ export const scriptLines = {
             duplicateTableNumberMessage: "Table number {number} is already in use.",
             invalidSeatCountTitle: "Invalid Seat Count",
             invalidSeatCountMessage: "Seat count must be a non-negative integer or empty.",
-            // Grid manipulation
             gridDimensionErrorTitle: "Invalid Dimension",
             gridDimensionErrorRange: "Grid dimensions out of range. Min/Max Rows: {minRows}-{maxRows}, Cols: {minCols}-{maxCols}.",
             gridResizeErrorOutOfBoundsTitle: "Resize Error",
@@ -350,20 +330,17 @@ export const scriptLines = {
             invalidSubdivisionMessage: "Grid subdivision level is invalid.",
             subdivisionChangedTitle: "Subdivision Changed",
             subdivisionChangedMessage: "Grid subdivision has been updated. Existing items' dimensions are in minor cells and will not automatically scale. Manual adjustment may be needed if their intended size was relative to major grid units.",
-            // Clear/Reset actions
             designerClearedTitle: "Designer Cleared",
             designerClearedMessage: "All items have been removed from the layout.",
             designerResetTitle: "Designer Reset",
             designerResetMessage: "Layout and grid settings have been reset to default.",
         },
         useQrCodeManager: {
-            // Fetch errors
             qrFetchErrorTitleGeneric: "Network Error",
             qrFetchErrorTitleHttp: "QR Error (HTTP {status})",
             qrFetchErrorMessage: "Could not fetch QR for Table {tableIdentifier}: {errorMessage}",
             qrFetchServiceUnavailableTitle: "QR Service Info",
             qrFetchServiceUnavailableMessage: "QR code generation for Table {tableIdentifier} is currently unavailable (endpoint not ready).",
-            // Download errors/info
             downloadErrorTitle: "Download Error",
             downloadErrorInvalidTable: "Invalid table data for QR download.",
             qrNotAvailableForDownloadTitle: "QR Not Available",
@@ -374,15 +351,15 @@ export const scriptLines = {
             noQrCodesToDownloadMessage: "There are no valid, numbered tables to download QR codes for.",
             downloadStartingTitle: "Download Starting",
             downloadStartingMessage: "Preparing to download available QR code(s) for {count} table(s). This may take a moment.",
-            downloadStartingSomeUnavailable: " Some QRs are unavailable or errored.", // Appended to downloadStartingMessage
-            downloadStartingSomeServiceDisabled: " Some QRs are unavailable (service disabled).", // Appended
-            downloadStartingSomeFailed: " Some QRs previously failed to generate.", // Appended
+            downloadStartingSomeUnavailable: " Some QRs are unavailable or errored.", 
+            downloadStartingSomeServiceDisabled: " Some QRs are unavailable (service disabled).", 
+            downloadStartingSomeFailed: " Some QRs previously failed to generate.", 
             downloadCompleteTitle: "Download Complete",
             downloadCompleteMessage: "Successfully downloaded {count} QR codes.",
             downloadPartialTitle: "Download Partial",
-            downloadPartialMessageSuccess: "Successfully downloaded {downloadedCount} QR codes.", // Part 1
-            downloadPartialMessageFailed: " {failedCount} failed.", // Part 2 (appended)
-            downloadPartialMessageSkipped: " {skippedCount} skipped (service unavailable).", // Part 3 (appended)
+            downloadPartialMessageSuccess: "Successfully downloaded {downloadedCount} QR codes.", 
+            downloadPartialMessageFailed: " {failedCount} failed.", 
+            downloadPartialMessageSkipped: " {skippedCount} skipped (service unavailable).", 
             downloadFailedTitle: "Download Failed",
             downloadFailedAllMessage: "All {count} QR codes could not be downloaded at this time.",
             downloadUnavailableAllServiceMessage: "All QR codes are currently unavailable because the generation service is offline.",
@@ -390,31 +367,23 @@ export const scriptLines = {
             downloadIssueMixedMessage: "No QR codes downloaded. {failedCount} failed, {skippedCount} skipped (service unavailable).",
         },
         itemConfigs: {
-            // Placed Item Display Names (used by ITEM_CONFIGS)
             placedTableDisplayName: "Table",
             placedWallDisplayName: "Wall",
             placedDoorDisplayName: "Door",
             placedDecorDisplayName: "Decor",
             placedCounterDisplayName: "Counter",
-
-            // Tool Names (used by toolDefinitions)
             squareTableToolName: "Square Table",
-            rectTableToolName: "Rect. Table", // Abbreviation kept for consistency with original
+            rectTableToolName: "Rect. Table", 
             roundTableToolName: "Round Table",
             counterToolName: "Counter",
             wallToolName: "Wall",
             doorToolName: "Door",
             plantToolName: "Plant",
             rugToolName: "Rug",
-
-            // Tool Categories (if we want to localize these too, though original uses hardcoded strings)
-            // categoryFurniture: "Furniture",
-            // categoryStructure: "Structure",
-            // categoryDecor: "Decor",
         },
         draggableTool: {
             tooltipActivePlacement: "Tool '{toolName}' active. Click a cell to place.",
-            tooltipDefaultZenMode: "{toolName}", // Tooltip in Zen mode is just the name
+            tooltipDefaultZenMode: "{toolName}", 
             tooltipDefaultFullMode: "Click to select, or Drag to add {toolName}",
             ariaLabelActivePlacement: "{toolName} tool. Currently active for placement.",
             ariaLabelDefault: "{toolName} tool. Click to select or drag to add.",
@@ -424,20 +393,19 @@ export const scriptLines = {
             previewUnavailableMessage: "It seems there's no layout data to display, or grid dimensions are invalid. <br />Please design your layout in 'Design Mode' first.",
             qrSidebarTitle: "Table QR Codes",
             qrTableNumberLabel: "Table {number}",
-            qrSeatsLabel: "{seats} Seats", // e.g., "4 Seats"
+            qrSeatsLabel: "{seats} Seats", 
             qrSeatsNotAvailable: "N/A Seats",
-            qrShapeLabel: "{shape}", // e.g., "square-1x1"
+            qrShapeLabel: "{shape}", 
             qrDownloadButtonTooltip: "Download QR Code",
-            qrStatusLoading: "Loading QR...", // Alt text or status if image fails
+            qrStatusLoading: "Loading QR...", 
             qrStatusError: "Error loading QR",
             qrStatusSkipped: "QR Generation Offline",
             qrStatusPending: "QR Pending",
-            qrErrorMessage: "Could not load.", // Displayed below QR if error
-            qrSkippedMessage: "Unavailable.", // Displayed below QR if skipped
+            qrErrorMessage: "Could not load.", 
+            qrSkippedMessage: "Unavailable.", 
             noTablesForQrTitle: "No Tables for QR Codes",
             noTablesForQrMessage: "Switch to 'Design Mode' to add tables to your layout and assign them numbers.",
             downloadAllQrsButtonText: "Download All QRs",
-            // Tooltips for items in the grid (can be constructed dynamically)
             gridItemTableTooltip: "Table {number} - Click to see QR in sidebar",
             gridItemDefaultTooltip: "{itemName}",
         },
@@ -445,8 +413,44 @@ export const scriptLines = {
             defaultPreviewRendererTitle: "{itemName} (ID: {itemId})",
             defaultPreviewRendererItemNameFallback: "Unknown Item",
         },
-    }
-};
+    }, // End of venueManagement
+
+    // --- Kitchen Display System Feature ---
+    kitchenDisplaySystem: {
+        pageTitle: "Kitchen Order Display",
+        loadingOrders: "Loading Orders...",
+        noOrdersTitle: "No Active Orders",
+        noOrdersMessage: "Currently, there are no orders to display. New orders will appear here automatically.",
+        orderCard: {
+            tableLabel: "Table {tableNumber}",
+            orderIdLabel: "Order ID: {orderId}",
+            orderedAtLabel: "Ordered: {time}",
+            itemsLabel: "Items",
+            markAsPreparing: "Mark as Preparing",
+            markAsReady: "Mark as Ready",
+            markAsServed: "Mark as Served/Complete",
+            paidStatus: "Paid",
+            markAsPaid: "Mark as Paid",
+            preparingStatus: "Preparing",
+            readyStatus: "Ready",
+            newStatus: "New",
+            servedStatus: "Served",
+            itemQuantity: "x{quantity}",
+            itemNotesLabel: "Notes:"
+        },
+        header: { // <<<< ENSURE THIS 'header' OBJECT IS PRESENT AND CORRECTLY NESTED
+            filterAll: "All",
+            filterNew: "New",
+            filterPreparing: "Preparing",
+            filterReady: "Ready",
+            groupByTableToggle: "Group by Table",
+        },
+        errorFetchingOrders: "Error fetching kitchen orders. Please try again.",
+        errorUpdatingStatus: "Error updating order status. Please try again.",
+        statusUpdateSuccess: "Order status updated successfully.",
+    }, // End of kitchenDisplaySystem
+
+}; // End of scriptLines object
 
 // Helper for interpolation
 export const interpolate = (str, params) => {
