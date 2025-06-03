@@ -51,13 +51,13 @@ export const formatCurrency = (value) => {
 
 export const calculateRawRecipeCost = (recipeComponents, availableInventoryItems) => {
 
-    console.log(
+    /* console.log(
         'calculateRawRecipeCost',
         'first', !recipeComponents,
         'second', recipeComponents.length === 0,
         'third', !availableInventoryItems,
         'fourth', availableInventoryItems.length === 0
-    )
+    ) */
 
     if (!recipeComponents || recipeComponents.length === 0 || !availableInventoryItems || availableInventoryItems.length === 0) {
         return 0;

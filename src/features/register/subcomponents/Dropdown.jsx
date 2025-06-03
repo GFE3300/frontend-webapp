@@ -229,19 +229,6 @@ const Dropdown = memo(({
             ref={dropdownRef}
             data-testid="dropdown-container"
         >
-            {/* Floating Label (mimics InputField) */}
-            <motion.label
-                htmlFor={CONTROL_ID}
-                id={LABEL_ID}
-                className={`absolute -top-7 left-3 origin-bottom-left pointer-events-none font-montserrat
-                    `}
-                layout // Animate label position with LayoutGroup (if Dropdown is wrapped in one with other fields)
-                transition={animationConfig.labelSpring}
-            >
-                <span className='text-sm font-medium font-montserrat transition-colors duration-200 text-neutral-700 dark:text-gray-300'>
-                    {label}
-                </span>
-            </motion.label>
 
             {/* Control Button */}
             <button
@@ -253,7 +240,7 @@ const Dropdown = memo(({
                 onKeyDown={handleKeyDown}
                 disabled={disabled}
                 className={`
-                    dropdown-button group w-full h-9 py-2 pl-4 pr-3 rounded-full font-montserrat font-medium
+                    dropdown-button relative group w-full h-9 py-2 pl-4 pr-3 rounded-full font-montserrat font-medium
                     flex items-center justify-between text-left
                     bg-neutral-100 dark:bg-neutral-200
                     focus:outline-none focus-visible:ring-2 ${currentTheme.focusRing}
@@ -271,6 +258,20 @@ const Dropdown = memo(({
                 data-testid="dropdown-button"
                 {...restProps} // Pass onFocus, onBlur if needed
             >
+                {/* Floating Label (mimics InputField) */}
+                <motion.label
+                    htmlFor={CONTROL_ID}
+                    id={LABEL_ID}
+                    className={`absolute -top-7 left-3 origin-bottom-left pointer-events-none font-montserrat
+                    `}
+                    layout // Animate label position with LayoutGroup (if Dropdown is wrapped in one with other fields)
+                    transition={animationConfig.labelSpring}
+                >
+                    <span className='text-sm font-medium font-montserrat transition-colors duration-200 text-neutral-700 dark:text-gray-300'>
+                        {label}
+                    </span>
+                </motion.label>
+
                 <span
                     className={`truncate ${!hasValue && placeholder ? 'text-neutral-500 dark:text-neutral-500' : 'text-neutral-900 dark:text-neutral-800'}`}
                     data-testid="dropdown-selected-value"
@@ -333,7 +334,7 @@ const Dropdown = memo(({
                             </li>
                         )) : (
                             <li className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400 italic">
-                               {scriptLines.Dropdown.line1} 
+                                {scriptLines.Dropdown.line1}
                             </li>
                         )}
                     </motion.ul>

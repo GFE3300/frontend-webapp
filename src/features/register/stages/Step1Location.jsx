@@ -1,4 +1,5 @@
-// src/features/register/stages/Step1Location.jsx
+// frontend/src/features/register/stages/Step1Location.jsx
+// MODIFIED: Added useState
 import React, { memo, useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce'; // For debouncing geocoding
@@ -13,6 +14,10 @@ import AutocompleteInput from '../maps/AutocompleteInput';
 import GeolocationButton from '../maps/GeolocationButton';
 import MapLoader from '../maps/MapLoader';
 import MapDisplayContextProvider from '../maps/MapDisplayContextProvider';
+// MapLoader and MapDisplayContextProvider are used in Step1LocationWrapper below
+// import MapLoader from '../maps/MapLoader';
+// import MapDisplayContextProvider from '../maps/MapDisplayContextProvider';
+
 
 // Placeholder for localized strings if needed for this component directly
 // const scriptLines_Step1Location = { /* ... */ };
@@ -76,7 +81,12 @@ const Step1Location = memo(({ formData, updateField, errors, countryOptions }) =
         clearGeocodingError,
     } = useReverseGeocoder();
 
-    // Local state to track if the *user* has interacted, to prevent initial geocode if address exists
+    // NEW: Task 1.1: Define local state variables
+    const [addressSource, setAddressSource] = useState('initial'); // 'initial', 'user_typed_address', 'map_interaction', 'autocomplete_selection', 'geolocation_result'
+    const [isGeocodingFromMap, setIsGeocodingFromMap] = useState(false);
+    // END NEW
+
+    // Local state to track if the *user* has interacted, to prevent initial geocode if address exists (Kept from original for initial geocode logic)
     const [hasUserInteractedWithMapSource, setHasUserInteractedWithMapSource] = useState(false);
 
     // --- Effects for Synchronization and Initialization ---
@@ -90,141 +100,149 @@ const Step1Location = memo(({ formData, updateField, errors, countryOptions }) =
             updateMapVisualCenter(coords);
         } else {
             // console.log("Step1Location Effect 1: No valid coords, clearing marker.");
-            updateMarkerVisualPosition(null); // <--- POTENTIAL CULPRIT
+            updateMarkerVisualPosition(null);
         }
     }, [formData?.locationCoords, updateMarkerVisualPosition, updateMapVisualCenter]);
 
-    // Effect 2: Handle results from useReverseGeocoder hook
+    // Effect 2: MODIFIED - Task 1.3: Handle results from useReverseGeocoder hook
     useEffect(() => {
-        if (geocodedAddress) {
-            // Only update formData's address if the geocoded one is different
-            // to prevent potential loops if parsing is slightly different.
-            // A deepEqual might be too strict if formattedAddress differs but components are same.
-            // For now, we'll update if the geocodedAddress object itself is new.
-            if (formData?.address?.formattedAddress !== geocodedAddress.formattedAddress ||
-                formData?.address?.street !== geocodedAddress.street ||
-                formData?.address?.city !== geocodedAddress.city) { // Add more checks if needed
+        if (geocodedAddress && isGeocodingFromMap) { // MODIFIED: Check isGeocodingFromMap
+            // Conditionally update formData.address
+            if (addressSource === 'map_interaction' || addressSource === 'geolocation_result') {
+                console.log("Step1Location Effect 2: Updating formData.address from geocode result. Source:", addressSource, "New Address:", geocodedAddress);
                 updateField('address', geocodedAddress);
+            } else {
+                console.log("Step1Location Effect 2: Geocode result received, but addressSource is", addressSource, "- NOT updating formData.address.");
             }
-        } else if (geocodingError && hasUserInteractedWithMapSource) {
-            // If geocoding failed *after a user interaction that triggered it*,
-            // we might want to clear the address or show an error.
-            // For now, AddressForm will show its fields based on formData.address
-            // And Step1Location could display geocodingError if needed.
-            // Clearing the address might be too destructive if user had typed something.
-            // updateField('address', createEmptyAddress());
+            setIsGeocodingFromMap(false); // MODIFIED: Reset flag
+        } else if (geocodingError && isGeocodingFromMap) { // MODIFIED: Check isGeocodingFromMap
+            if (addressSource === 'map_interaction' || addressSource === 'geolocation_result') {
+                console.error("Step1Location Effect 2: Geocoding error after map interaction. Source:", addressSource, "Error:", geocodingError);
+                // Do not clear formData.address based on error. Let user decide.
+            }
+            setIsGeocodingFromMap(false); // MODIFIED: Reset flag
         }
-    }, [geocodedAddress, geocodingError, updateField, formData?.address, hasUserInteractedWithMapSource]);
-
+    }, [geocodedAddress, geocodingError, updateField, addressSource, isGeocodingFromMap]); // MODIFIED: Added addressSource and isGeocodingFromMap to dependencies
+    // END MODIFIED
 
     // Effect 3: Initial geocode if coords exist but address doesn't (e.g., on page load with persisted coords)
     useEffect(() => {
-        // Only run on initial mount and if API is ready
-        if (isApiLoaded && formData?.locationCoords && !formData?.address && !hasUserInteractedWithMapSource) {
-            // If we have coordinates but no address, and the user hasn't interacted yet to cause a geocode,
-            // perform an initial geocode. This handles loading persisted state.
-            debouncedGeocode(formData?.locationCoords);
+        if (isApiLoaded && formData?.locationCoords && !formData?.address?.formattedAddress && !hasUserInteractedWithMapSource && addressSource === 'initial') {
+            console.log("Step1Location Effect 3: Initial geocode triggered due to existing coords and missing address on load.");
+            setIsGeocodingFromMap(true); // Assume this initial geocode is map-driven for now
+            // We could introduce another addressSource like 'initial_geocode' if finer control is needed.
+            // For now, treating it as if map set it.
+            setAddressSource('map_interaction'); // Or a new source type e.g. 'initial_load_geocode'
+            debouncedGeocode(formData.locationCoords);
+            setHasUserInteractedWithMapSource(true); // Prevent re-running this initial geocode.
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isApiLoaded, formData?.locationCoords, formData?.address]); // Deliberately run once on initial relevant data
-    // `hasUserInteractedWithMapSource` and `debouncedGeocode` are stable.
-
+    }, [isApiLoaded, formData?.locationCoords, formData?.address?.formattedAddress, addressSource]); // MODIFIED: Refined dependencies
+    // hasUserInteractedWithMapSource and debouncedGeocode are stable.
 
     // --- Event Handlers ---
 
     const debouncedGeocode = useDebouncedCallback(
         (coordsToGeocode) => {
-            if (isApiLoaded) { // Ensure API is still loaded
+            if (isApiLoaded && isValidCoords(coordsToGeocode)) { // MODIFIED: Added isValidCoords check
                 geocodeCoordinates(coordsToGeocode);
+            } else {
+                console.warn("Debounced geocode skipped: API not loaded or invalid coords.", coordsToGeocode);
+                setIsGeocodingFromMap(false); // Reset if geocode is skipped
             }
         },
-        750 // Debounce reverse geocoding calls (e.g., during rapid marker dragging)
+        750
     );
 
+    // MODIFIED: Task 1.2.3
     const handleMarkerDragEnd = useCallback((coords) => {
         setHasUserInteractedWithMapSource(true);
-        updateField('locationCoords', coords); // Update SSoT first
-        // Visual update already handled by Effect 1 reacting to formData.locationCoords change
-        // or could be called here for immediate feedback: updateMarkerVisualPosition(coords);
-        clearGeocodingError(); // Clear any previous geocoding error
-        debouncedGeocode(coords);
-    }, [updateField, debouncedGeocode, clearGeocodingError]);
-
-    const handleGeolocationLocated = useCallback((coords) => {
-        console.log("Geolocation SUCCESS - Coords:", coords); // Log received coords
-        if (!isValidCoords(coords)) { // Assuming you have isValidCoords helper
-            console.error("Invalid coords from geolocation:", coords);
-            // Potentially set an error state for the user
-            return;
-        }
-
-        setHasUserInteractedWithMapSource(true);
         updateField('locationCoords', coords);
-        updateField('address', createEmptyAddress());
+        setAddressSource('map_interaction'); // NEW
+        setIsGeocodingFromMap(true);         // NEW
         clearGeocodingError();
         debouncedGeocode(coords);
     }, [updateField, debouncedGeocode, clearGeocodingError]);
+    // END MODIFIED
 
-    const handlePlaceSelectedFromAutocomplete = useCallback((selection) => {
+    // MODIFIED: Task 1.2.2
+    const handleGeolocationLocated = useCallback((coords) => {
+        console.log("Geolocation SUCCESS - Coords:", coords);
+        if (!isValidCoords(coords)) {
+            console.error("Invalid coords from geolocation:", coords);
+            return;
+        }
         setHasUserInteractedWithMapSource(true);
+        updateField('locationCoords', coords);
+        // updateField('address', createEmptyAddress()); // MODIFIED: Decision - Do not clear address here, wait for geocode.
+        setAddressSource('geolocation_result'); // NEW
+        setIsGeocodingFromMap(true);            // NEW
+        clearGeocodingError();
+        debouncedGeocode(coords);
+    }, [updateField, debouncedGeocode, clearGeocodingError]);
+    // END MODIFIED
 
-        if (selection && selection.location) {
+    // MODIFIED: Task 1.2.1
+    const handlePlaceSelectedFromAutocomplete = useCallback((selection) => {
+        setHasUserInteractedWithMapSource(true); // Considered a map-source interaction for simplicity.
+
+        if (selection && selection.location && isValidCoords(selection.location)) {
             updateField('locationCoords', selection.location);
         } else {
             console.error("Invalid locationCoords from autocomplete:", selection?.location);
+            // Don't update locationCoords if invalid, potentially clear it or leave as is.
+            // For now, let's not clear it, user might have had a valid pin previously.
         }
 
         if (selection && selection.autoFormValues) {
             updateField('address', selection.autoFormValues);
         } else {
             console.error("Missing autoFormValues from autocomplete:", selection);
+            // If autoFormValues are missing, don't update the address field.
         }
+
+        setAddressSource('autocomplete_selection'); // NEW
+        setIsGeocodingFromMap(false);               // NEW
 
         // Visual updates can still try to use selection.location
-        if (selection && selection.location) {
-            updateMarkerVisualPosition(selection.location);
-            updateMapVisualCenter(selection.location);
-        }
+        // These are handled by Effect 1 reacting to formData.locationCoords.
+        // If immediate visual update is desired before SSoT update propagates:
+        // if (selection && selection.location && isValidCoords(selection.location)) {
+        //     updateMarkerVisualPosition(selection.location);
+        //     updateMapVisualCenter(selection.location);
+        // }
 
         clearGeocodingError();
-    }, [updateField, clearGeocodingError, updateMarkerVisualPosition, updateMapVisualCenter]);
+    }, [updateField, clearGeocodingError]); // updateMarkerVisualPosition, updateMapVisualCenter removed as Effect 1 handles it
+    // END MODIFIED
 
+    // MODIFIED: Task 1.4
     const handleAddressFormFieldChange = useCallback((fieldName, value) => {
-        setHasUserInteractedWithMapSource(true); // Manual address input is a map-related interaction
+        setHasUserInteractedWithMapSource(true);
         const newAddress = {
             ...(formData?.address || createEmptyAddress()),
             [fieldName]: value,
         };
         updateField('address', newAddress);
-
-        // When user types an address, the link to current map coordinates is less certain.
-        // Option: Clear locationCoords if address is manually changed significantly?
-        // updateField('locationCoords', null);
-        // This would remove the marker. For now, let's keep marker as is.
-        // If address changes, clear any geocoding error, as user is now overriding.
+        setAddressSource('user_typed_address'); // NEW
+        setIsGeocodingFromMap(false);           // NEW - Ensure this is false as it's not a map-driven geocode trigger
         clearGeocodingError();
     }, [formData?.address, updateField, clearGeocodingError]);
+    // END MODIFIED
 
-    // Determine if AddressForm should be disabled (e.g., during geocoding after a map interaction)
-    // Can be refined: perhaps only disable if geocoding was triggered by map/geo, not autocomplete.
-    const isAddressFormDisabled = isGeocodingLoading;
+    const isAddressFormDisabled = isGeocodingLoading && isGeocodingFromMap; // MODIFIED: Only disable if geocoding was from map/geo
 
-
-    // --- Render ---
-    // Add a general loading state for the whole map section if API is not ready
     if (!isApiLoaded) {
         return <div className="p-4 text-center text-gray-500">Loading map services...</div>;
     }
 
     return (
-        <div className="flex flex-col gap-y-4"> {/* Outer container for the location step UI */}
-            {/* Top section: Autocomplete and Geolocation Button */}
+        <div className="flex flex-col gap-y-4">
             <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="w-full sm:flex-grow">
                     <AutocompleteInput
                         onPlaceSelected={handlePlaceSelectedFromAutocomplete}
-                        // initialInputValue={formData.address?.formattedAddress || ''} // Can prefill if desired
-                        disabled={!isApiLoaded} // Disable if API not ready
+                        disabled={!isApiLoaded}
                     />
                 </div>
                 <div className="flex-shrink-0">
@@ -236,29 +254,25 @@ const Step1Location = memo(({ formData, updateField, errors, countryOptions }) =
                 </div>
             </div>
 
-            {/* Middle section: Map Viewport */}
             <div>
-                {/* Label for MapViewport (consider accessibility and styling) */}
                 <label htmlFor="location-map-viewport" className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
                     Adjust pin on map:
                 </label>
                 <MapViewport
-                    // mapOptions={{}} // Pass any custom map options
                     onMarkerDragEnd={handleMarkerDragEnd}
-                    // onMapIdle={/* handle map idle if needed */}
-                    isMarkerDraggable={isApiLoaded} // Only allow drag if API ready
-                // The MapViewport reads markerVisualPosition and mapVisualCenter from MapDisplayContext,
-                // which are updated based on formData.locationCoords by Effect 1.
+                    isMarkerDraggable={isApiLoaded}
                 />
             </div>
 
-
-            {/* Bottom section: Address Form */}
+            {(isGeocodingLoading && isGeocodingFromMap) && <p className="text-sm text-gray-600 dark:text-neutral-400">Fetching address for pinned location...</p>}
+            {geocodingError && (addressSource === 'map_interaction' || addressSource === 'geolocation_result') && (
+                <p style={{ color: 'red' }} className="text-sm">{geocodingError}</p>
+            )}
             <div className='mt-8'>
                 <AddressForm
                     addressData={formData?.address || createEmptyAddress()}
                     onFieldChange={handleAddressFormFieldChange}
-                    validationErrors={errors?.address} // Pass specific address errors
+                    validationErrors={errors?.address}
                     countryOptions={countryOptions}
                     disabled={isAddressFormDisabled || !isApiLoaded}
                 />
@@ -272,8 +286,8 @@ Step1Location.displayName = 'Step1Location';
 Step1Location.propTypes = {
     formData: PropTypes.shape({
         locationCoords: PropTypes.shape({
-            lat: PropTypes.number, // Not isRequired, can be null
-            lng: PropTypes.number, // Not isRequired, can be null
+            lat: PropTypes.number,
+            lng: PropTypes.number,
         }),
         address: PropTypes.shape({
             street: PropTypes.string,
@@ -285,23 +299,27 @@ Step1Location.propTypes = {
     }).isRequired,
     updateField: PropTypes.func.isRequired,
     errors: PropTypes.object,
-    countryOptions: PropTypes.arrayOf(PropTypes.object), // More specific shape if available
+    countryOptions: PropTypes.arrayOf(PropTypes.object),
 };
 
 Step1Location.defaultProps = {
     errors: {},
-    countryOptions: undefined, // Let AddressForm use its default if not provided
+    countryOptions: undefined,
 };
 
+// Wrapper component remains the same as in the original `frontend.txt`
 export default function Step1LocationWrapper(props) {
     const { formData, updateField, errors, countryOptions } = props;
 
     const initialCoords = formData?.locationCoords;
-    const initialCenter = initialCoords || undefined;
-    const initialMarkerPosition = initialCoords || null;
+
+    // If formData.locationCoords is null/undefined, initialCenter will use DEFAULT_MAP_CENTER (from MapDisplayContextProvider's default prop)
+    // and initialMarkerPosition will be null (correct).
+    const initialCenter = isValidCoords(initialCoords) ? initialCoords : undefined; // Pass undefined to let provider use default
+    const initialMarkerPosition = isValidCoords(initialCoords) ? initialCoords : null;
 
     return (
-        <MapLoader /* pass mapLoadingComponent, mapErrorComponent from props if needed */ >
+        <MapLoader>
             <MapDisplayContextProvider
                 initialCenter={initialCenter}
                 initialMarkerPosition={initialMarkerPosition}
@@ -317,7 +335,6 @@ export default function Step1LocationWrapper(props) {
     );
 }
 
-// Add prop types for Step1LocationWrapper
 Step1LocationWrapper.propTypes = {
     formData: PropTypes.object.isRequired,
     updateField: PropTypes.func.isRequired,

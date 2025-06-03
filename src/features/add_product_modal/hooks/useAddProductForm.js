@@ -76,7 +76,6 @@ const step4Schema = yup.object().shape({
 const appliedDiscountSchema = yup.object().shape({
     id: yup.string().required(), // UI key, can be temp ID or DB ID
     discount_master: yup.string().uuid(scriptLines.error_appliedDiscount_masterId_invalidUUID || "Selected discount code is invalid.").required(scriptLines.error_appliedDiscount_masterId_required), // UUID of DiscountMaster
-    // codeName, description, etc., are for UI logic based on selected discount_master, not direct user input validation here
     discount_percentage_override: yup.number()
         .typeError(scriptLines.error_appliedDiscount_overridePercentage_type)
         .min(0, scriptLines.error_appliedDiscount_overridePercentage_min)
@@ -108,7 +107,98 @@ const getInitialFormData = (initialProductData = null, initialProductDataFromPro
         return defaults;
     }
 
-    // console.log("[getInitialFormData] Mapping from initialProductData:", JSON.parse(JSON.stringify(initialProductData)));
+    console.log("[getInitialFormData] Received initialProductData:", JSON.parse(JSON.stringify(initialProductData)));
+
+    let appliedDiscountsSource = null;
+    let sourceName = "";
+
+    if (initialProductData.all_applied_discounts_admin && Array.isArray(initialProductData.all_applied_discounts_admin)) {
+        appliedDiscountsSource = initialProductData.all_applied_discounts_admin;
+        sourceName = "all_applied_discounts_admin";
+        console.log("[getInitialFormData] Using 'all_applied_discounts_admin' for applied discounts population.");
+    } else if (initialProductData.applied_product_discounts && Array.isArray(initialProductData.applied_product_discounts)) {
+        appliedDiscountsSource = initialProductData.applied_product_discounts;
+        sourceName = "applied_product_discounts (fallback)";
+        console.warn("[getInitialFormData] Warning: 'all_applied_discounts_admin' not found in initialProductData. Falling back to 'applied_product_discounts'. Admin view of discounts might be incomplete.");
+    } else if (initialProductData.active_applied_product_discounts && Array.isArray(initialProductData.active_applied_product_discounts)) {
+        appliedDiscountsSource = initialProductData.active_applied_product_discounts;
+        sourceName = "active_applied_product_discounts (last resort fallback)";
+        console.warn("[getInitialFormData] Warning: Neither 'all_applied_discounts_admin' nor 'applied_product_discounts' found. Falling back to 'active_applied_product_discounts'. This is likely not suitable for admin editing.");
+    } else {
+        appliedDiscountsSource = [];
+        sourceName = "none (default empty array)";
+        console.log("[getInitialFormData] No source for applied discounts found in initialProductData. Defaulting to empty array.");
+    }
+
+    let mappedAppliedDiscounts = [];
+
+    if (sourceName === "all_applied_discounts_admin") {
+        mappedAppliedDiscounts = (appliedDiscountsSource || []).map(item => {
+            if (!item.discount_master || !item.discount_master_code_name || !item.discount_master_type || item.discount_master_default_value == null) {
+                console.warn("[getInitialFormData] Item in 'all_applied_discounts_admin' is missing critical discount_master details:", item);
+                return null;
+            }
+
+            let overrideValue = null;
+            if (item.discount_percentage_override !== null && item.discount_percentage_override !== undefined) {
+                overrideValue = parseFloat(item.discount_percentage_override);
+            } else if (item.discount_master_type === 'percentage') {
+                overrideValue = parseFloat(item.discount_master_default_value);
+            }
+
+            const descriptionText = item.discount_master_code_name || `Discount (${item.discount_master_type})`;
+
+            return {
+                id: item.id || generateTempId('applied_disc_'),
+                discount_master: item.discount_master,
+                codeName: item.discount_master_code_name,
+                description: descriptionText,
+                discount_master_type: item.discount_master_type,
+                discount_master_default_value: parseFloat(item.discount_master_default_value),
+                discount_percentage_override: overrideValue,
+            };
+        }).filter(Boolean);
+        console.log("[getInitialFormData] Mapped appliedDiscounts from 'all_applied_discounts_admin':", JSON.parse(JSON.stringify(mappedAppliedDiscounts)));
+    } else if (sourceName.includes("fallback")) {
+        // This handles 'applied_product_discounts' and 'active_applied_product_discounts' (which have nested discount_master object)
+        mappedAppliedDiscounts = (appliedDiscountsSource || []).map(applied => {
+            const master = applied.discount_master;
+
+            let masterDetails = {};
+            if (typeof master === 'object' && master !== null && master.id) {
+                masterDetails = {
+                    id: master.id,
+                    code_name: master.code_name || 'N/A',
+                    internal_description: master.internal_description || '',
+                    public_display_name: master.public_display_name || '',
+                    type: master.type,
+                    default_value: master.default_value,
+                };
+            } else {
+                console.warn("[getInitialFormData] Fallback discount item is missing valid discount_master object:", applied);
+                return null;
+            }
+
+            let overrideValue = null;
+            if (applied.discount_percentage_override !== null && applied.discount_percentage_override !== undefined) {
+                overrideValue = parseFloat(applied.discount_percentage_override);
+            } else if (masterDetails.type === 'percentage') {
+                overrideValue = parseFloat(masterDetails.default_value);
+            }
+
+            return {
+                id: applied.id || generateTempId('applied_disc_'),
+                discount_master: masterDetails.id,
+                codeName: masterDetails.code_name,
+                description: masterDetails.internal_description || masterDetails.public_display_name || masterDetails.code_name || `Discount (${masterDetails.type})`,
+                discount_master_type: masterDetails.type,
+                discount_master_default_value: parseFloat(masterDetails.default_value),
+                discount_percentage_override: overrideValue,
+            };
+        }).filter(Boolean);
+        console.log(`[getInitialFormData] Mapped appliedDiscounts from fallback source '${sourceName}':`, JSON.parse(JSON.stringify(mappedAppliedDiscounts)));
+    }
+
 
     return {
         ...defaults,
@@ -116,13 +206,13 @@ const getInitialFormData = (initialProductData = null, initialProductDataFromPro
         productName: initialProductData.name || '',
         subtitle: initialProductData.subtitle || '',
         description: initialProductData.description || '',
-        category: initialProductData.category || '', // Expects category ID string (UUID)
+        category: initialProductData.category || '',
         productAttributes: (initialProductData.product_tags_details || []).map(tag => ({
-            id: tag.id, // UUID of ProductAttributeTag
+            id: tag.id,
             label: tag.name,
             iconName: tag.icon_name || null,
         })),
-        productImage: initialProductData.image_url || null, // URL string or null
+        productImage: initialProductData.image_url || null,
 
         // Step 2 Data
         editableAttributes: (initialProductData.editable_attribute_groups || []).map(group => ({
@@ -142,36 +232,23 @@ const getInitialFormData = (initialProductData = null, initialProductDataFromPro
 
         // Step 3 Data
         productType: initialProductData.product_type || 'made_in_house',
-
-        // Step 4 Data
         recipeComponents: (initialProductDataFromProp?.recipe_components || []).map((comp, index) => {
-            let invItemId = null; // Will store the UUID string of the InventoryItem
-            let invItemName = ''; // For UI display in the RecipeComponentRow search input
+            let invItemId = null;
+            let invItemName = '';
 
-            // Defensive check: Ensure 'comp' is a valid object
             if (comp && typeof comp === 'object') {
                 if (comp.inventory_item) {
-                    // Backend contract: comp.inventory_item is the UUID string (PK) of the InventoryItem.
-                    // Ensure it's treated as a string, even if backend sends it as a number (unlikely for UUIDs).
                     invItemId = String(comp.inventory_item);
-
-                    // Prioritize name from nested details (inventory_item_details)
                     if (comp.inventory_item_details && typeof comp.inventory_item_details.name === 'string') {
                         invItemName = comp.inventory_item_details.name;
                     } else {
-                        // Fallback: If inventory_item_details.name is missing, try to find the name
-                        // from a list of all available inventory items (if provided within initialProductDataFromProp).
-                        // This is a secondary fallback; the primary source should be inventory_item_details.
                         const availableItemsList = (initialProductDataFromProp?.availableInventoryItemsForLookup ||
                             initialProductDataFromProp?.availableInventoryItems ||
                             []);
                         const foundItem = availableItemsList.find(item => String(item.id) === invItemId);
-
                         if (foundItem && typeof foundItem.name === 'string') {
                             invItemName = foundItem.name;
                         } else {
-                            // If name is still not found, use a placeholder. This indicates a potential
-                            // data consistency issue or that the inventory item is new/not fully detailed.
                             invItemName = invItemId ? `Item (ID: ${invItemId.substring(0, 8)}...)` : '';
                             if (invItemId) {
                                 console.warn(
@@ -183,42 +260,23 @@ const getInitialFormData = (initialProductData = null, initialProductDataFromPro
                         }
                     }
                 }
-                // If comp.inventory_item is null or undefined, invItemId and invItemName remain as initialized (null, '').
-                // This is fine for a recipe component row that doesn't have an ingredient selected yet.
             } else {
-                // If 'comp' is not a valid object (e.g., null in the array), log an error and skip.
                 console.error('[getInitialFormData] Invalid recipe component structure:', comp);
-                // Return a minimal valid structure or filter this out later. For now, create a blank-ish entry.
                 return {
                     id: generateTempId('invalid_comp_'),
-                    inventoryItemId: null,
-                    inventoryItemName: '',
-                    quantity: '',
-                    unit: '',
-                    display_order: index,
+                    inventoryItemId: null, inventoryItemName: '', quantity: '', unit: '', display_order: index,
                 };
             }
-
-            // Ensure 'quantity' is a number for the form state, or an empty string if not set/invalid.
             let quantityValue;
             if (comp.quantity !== null && comp.quantity !== undefined && String(comp.quantity).trim() !== '') {
                 const numQuantity = Number(comp.quantity);
-                // If parsing results in NaN (e.g., non-numeric string), set to empty string for the input field.
-                // Otherwise, use the parsed number.
                 quantityValue = isNaN(numQuantity) ? '' : numQuantity;
             } else {
-                quantityValue = ''; // Default to empty string for the input if null, undefined, or whitespace.
+                quantityValue = '';
             }
-
             return {
-                // Retain existing RecipeComponent ID (from DB) if present, otherwise generate a temporary one for new/template rows.
                 id: comp.id || generateTempId('comp_'),
-                inventoryItemId: invItemId,     // This MUST be the UUID string of the InventoryItem or null.
-                inventoryItemName: invItemName, // This is primarily for initializing the search input in RecipeComponentRow.
-                quantity: quantityValue,
-                unit: comp.unit || '',          // Default to empty string if not present.
-                // Use display_order from data if valid, otherwise fallback to array index.
-                // Ensure display_order is a non-negative integer.
+                inventoryItemId: invItemId, inventoryItemName: invItemName, quantity: quantityValue, unit: comp.unit || '',
                 display_order: (comp.display_order !== null && comp.display_order !== undefined && Number.isInteger(Number(comp.display_order)) && Number(comp.display_order) >= 0)
                     ? Number(comp.display_order)
                     : index,
@@ -231,36 +289,10 @@ const getInitialFormData = (initialProductData = null, initialProductDataFromPro
         // Step 4 Data
         laborAndOverheadCost: initialProductData.labor_overhead_cost != null ? parseFloat(initialProductData.labor_overhead_cost) : null,
         sellingPrice: initialProductData.selling_price_excl_tax != null ? parseFloat(initialProductData.selling_price_excl_tax) : null,
-        taxRateId: initialProductData.tax_rate || null, // Expects tax_rate ID string (UUID) or null
+        taxRateId: initialProductData.tax_rate || null,
 
         // Step 5 Data
-        // Backend ProductSerializer (GET /products/{id}/) for `applied_product_discounts`
-        // should return an array where each item is:
-        // {
-        //   id: "ProductAppliedDiscount_UUID",
-        //   discount_master: { id: "DiscountMaster_UUID", code_name: "...", internal_description: "...", type: "...", default_value: "..." },
-        //   discount_percentage_override: "..." | null
-        // }
-        appliedDiscounts: (initialProductData.applied_product_discounts || []).map(applied => {
-            if (!applied.discount_master || typeof applied.discount_master !== 'object' || !applied.discount_master.id) {
-                console.warn("Applied discount in initialProductData is missing valid discount_master details:", applied);
-                return null;
-            }
-            const master = applied.discount_master;
-            return {
-                id: applied.id || generateTempId('applied_disc_'), // ID of ProductAppliedDiscount instance
-                discount_master: master.id, // UUID of the DiscountMaster
-                codeName: master.code_name || 'N/A',
-                description: master.internal_description || master.public_display_name || '',
-                discount_master_type: master.type,
-                discount_master_default_value: parseFloat(master.default_value),
-                discount_percentage_override: applied.discount_percentage_override != null
-                    ? parseFloat(applied.discount_percentage_override)
-                    // If override is null AND type is percentage, then the effective value is master's default.
-                    // The form field for override should reflect this or be clearable.
-                    : (master.type === 'percentage' ? parseFloat(master.default_value) : null),
-            };
-        }).filter(Boolean),
+        appliedDiscounts: mappedAppliedDiscounts,
 
         additionalNotes: initialProductData.additional_notes || '',
         isTemplateCandidate: initialProductData.is_template_candidate || false,
@@ -377,11 +409,9 @@ export const useAddProductForm = ({ initialData: initialProductDataFromProp = nu
             const stepErrors = {};
             if (err.inner && err.inner.length > 0) {
                 err.inner.forEach(error => {
-                    // Ensure error.path is defined, which Yup should provide.
                     if (error.path) {
                         stepErrors[error.path] = error.message;
                     } else {
-                        // Fallback for errors without a path, though unusual for Yup field errors.
                         stepErrors[`step${stepNumberToValidate}_general_unknown_path`] = error.message;
                     }
                 });

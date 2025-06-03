@@ -120,7 +120,7 @@ const DiscountCodeSelector = memo(({
                             className="px-4 py-2.5 border-t border-neutral-200 dark:border-neutral-700 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-600/20 cursor-pointer flex items-center gap-2 font-medium"
                             role="button" // Changed to button for better semantics
                         >
-                            <Icon name="add_circle" className="w-5 h-5" /> {sl.createNew}
+                            <Icon name="add_circle" className="w-6 h-6" /> {sl.createNew}
                         </div>
                     </motion.div>
                 )}

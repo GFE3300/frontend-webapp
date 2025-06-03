@@ -9,21 +9,21 @@ const TagPill = React.memo(({ tag, isActive, onToggle }) => {
         tap: { scale: 0.96 } // Subtle tap effect
     };
 
-    // Styling from design_guidelines.txt (6.10 Tags & Pills)
-    // Active: Rose-500 bg, white text
-    // Inactive: Neutral-200/Dark:Neutral-700 bg, Neutral-700/Dark:Neutral-300 text
-    // Hover (Inactive): Neutral-300/Dark:Neutral-600 bg
+    // Styling based on "6.10. Tags & Pills" from design_guidelines.txt (interpreted)
     const baseClasses = "group flex items-center justify-center px-3 py-1 rounded-full cursor-pointer transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900";
 
-    let activeStateClasses = "";
-    let inactiveStateClasses = "";
+    let stateSpecificClasses = "";
     let iconColorClass = "";
 
     if (isActive) {
-        activeStateClasses = "bg-rose-500 text-white focus-visible:ring-rose-300 dark:focus-visible:ring-rose-600";
-        iconColorClass = "text-white";
+        // Active State: Rose-500 bg, white text
+        stateSpecificClasses = "bg-rose-500 text-white focus-visible:ring-rose-300 dark:focus-visible:ring-rose-600";
+        iconColorClass = "text-white"; // Icon color for active state
     } else {
-        inactiveStateClasses = "bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500";
+        // Inactive State: Neutral-200/Dark:Neutral-700 bg, Neutral-700/Dark:Neutral-300 text
+        // Hover (Inactive): Neutral-300/Dark:Neutral-600 bg
+        stateSpecificClasses = "bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500";
+        // Icon color for inactive state - ensure group-hover affects icon if needed
         iconColorClass = "text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-200";
     }
 
@@ -32,10 +32,10 @@ const TagPill = React.memo(({ tag, isActive, onToggle }) => {
             variants={pillVariants}
             whileTap="tap"
             onClick={() => onToggle(tag.id)}
-            className={`${baseClasses} ${isActive ? activeStateClasses : inactiveStateClasses}`}
-            role="checkbox" // Indicates a toggleable state (mixed state not applicable here)
+            className={`${baseClasses} ${stateSpecificClasses}`}
+            role="checkbox" // Correct role for a toggleable filter item
             aria-checked={isActive} // Communicates the selected state
-            title={tag.name || "Tag"}
+            title={tag.name || "Tag"} // Tooltip for clarity
         >
             {tag.icon_name && (
                 // Icon Size X-Small (Guidelines 6.7) - w-3.5 h-3.5 is 0.875rem (14px)
@@ -60,29 +60,19 @@ TagPill.displayName = 'TagPill';
  */
 function TagFilterPills({ tagsData = [], activeTagIds = [], onToggleTag }) {
     if (!tagsData || tagsData.length === 0) {
-        // Render nothing or a very subtle placeholder if no tags are available/applicable.
-        // Given Userpage.jsx context, this might mean no tags for current category or no tags at all.
-        return null;
+        return null; // No tags to display
     }
 
-    // Sort tags by display_order if available, then by name.
-    // This sorting should ideally happen in Userpage.jsx before passing `displayedTagsData`.
-    // If `tagsData` is guaranteed to be sorted, this step can be skipped.
-    const sortedTags = [...tagsData].sort((a, b) => {
-        const orderA = a.display_order || Infinity; // Default to end if no order
-        const orderB = b.display_order || Infinity;
-        if (orderA !== orderB) {
-            return orderA - orderB;
-        }
-        return (a.name || "").localeCompare(b.name || "");
-    });
+    // Assuming tagsData is already sorted as needed by Userpage.jsx
+    // If not, sorting logic would go here:
+    // const sortedTags = [...tagsData].sort((a, b) => { /* sort logic */ });
 
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.04, // Slightly faster stagger for smaller pills
+                staggerChildren: 0.04,
                 delayChildren: 0.05,
             }
         }
@@ -95,17 +85,18 @@ function TagFilterPills({ tagsData = [], activeTagIds = [], onToggleTag }) {
 
     return (
         // py-2 for vertical padding around the HorizontalScroll component itself
-        <div className="py-2">
-            <HorizontalScroll className="pb-2"> {/* pb-2 for some space below scroll track */}
+        // This matches the CategoryFilterBar wrapper for consistent spacing
+        <div className="py-2"> 
+            <HorizontalScroll className="pb-2"> {/* pb-2 for some space below scroll track, matching CategoryFilterBar */}
                 <motion.div
                     className="flex items-center space-x-2 px-4" // px-4 for start/end padding, space-x for inter-pill spacing
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    role="toolbar" // Or "group" if "toolbar" feels too strong for simple filters
+                    role="toolbar" // Or "group" - "toolbar" implies a set of controls
                     aria-label="Filter by tags"
                 >
-                    {sortedTags.map(tag => (
+                    {tagsData.map(tag => ( // Use tagsData directly, assuming sorted by Userpage
                         <motion.div key={tag.id} variants={itemVariants}>
                             <TagPill
                                 tag={tag}

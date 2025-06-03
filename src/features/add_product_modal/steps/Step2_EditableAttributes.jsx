@@ -95,10 +95,10 @@ const Step2_EditableAttributes_Actual = memo(({ formData, updateField, errors })
                 <motion.button
                     type="button"
                     onClick={handleAddGroup}
-                    className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2 px-4 py-2 text-xs sm:text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500 dark:focus-visible:ring-offset-neutral-800"
+                    className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2 px-4 py-2 text-xs sm:text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-full shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500 dark:focus-visible:ring-offset-neutral-800"
                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 >
-                    <Icon name="add_circle" className="w-5 h-5" /> {sl.addButtonText} {/* MODIFIED */}
+                    <Icon name="add_circle" className="w-4 h-4" style={{ fontSize: '1rem' }} /> {sl.addButtonText} {/* MODIFIED */}
                 </motion.button>
             </div>
             <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 -mt-4 sm:-mt-6">

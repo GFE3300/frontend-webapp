@@ -22,30 +22,38 @@ export const useValidatePromoCode = (options = {}) => {
 
     return useMutation({
         mutationFn: async (payload) => {
-            // Expected payload: { code_name: string, business_identifier: string, context_product_ids: string[] }
+            // Task 1.2: Payload Expectation
+            // The payload is constructed by the calling component (OrderSummaryPanel.jsx).
+            // Expected structure: { code_name: string, business_identifier: string, order_items_context?: array, current_order_subtotal?: string }
             console.log('[useValidatePromoCode] Attempting to validate promo code. Payload:', payload);
+
+            // Basic client-side check for essential fields.
+            // More robust validation and payload construction happens in the calling component.
             if (!payload.code_name || !payload.business_identifier) {
-                // Basic client-side validation, more robust validation might be in the calling component
                 const error = new Error("Promo code name and business identifier are required for validation.");
-                error.isClientValidationError = true; // Custom flag
+                error.isClientValidationError = true; // Custom flag for easier identification by caller
+                error.code = 'CLIENT_VALIDATION_ERROR'; // Provide a code for client-side errors
                 throw error;
             }
-            // The API endpoint is POST /api/discounts/validate-promo-code/
-            // apiService.post will prepend /api/
+
+            // Task 1.1: API Endpoint
+            // Backend endpoint: POST /api/discounts/validate-promo-code/
+            // apiService.post correctly prepends /api/ from its baseURL config.
             const response = await apiService.post('discounts/validate-promo-code/', payload);
             console.log('[useValidatePromoCode] Promo code validation API response:', response.data);
-            return response.data; // Return the data part of the response
+
+            // Task 1.3: Success/Error Handling - Return raw response.data on success.
+            return response.data;
         },
         onSuccess: (data, variables, context) => {
+            // Task 1.3: Existing logging is good.
             console.log('[useValidatePromoCode] Promo code validation successful. Data:', data, 'Variables:', variables);
-            // Invalidation logic can be added here if promo validation affects other cached data.
-            // For now, Userpage.jsx will handle UI updates based on this success.
             if (options.onSuccess) {
                 options.onSuccess(data, variables, context);
             }
         },
         onError: (error, variables, context) => {
-            // Log the full error structure for better debugging
+            // Task 1.3: Propagate full error object. Existing logging is good.
             console.error(
                 '[useValidatePromoCode] Promo code validation failed.',
                 'Variables:', variables,
@@ -54,8 +62,6 @@ export const useValidatePromoCode = (options = {}) => {
                 'Error message:', error.message,
                 'Full error object:', error
             );
-            // Error handling will be primarily done in the component using this hook (Userpage.jsx)
-            // to show appropriate UI feedback (toasts, messages).
             if (options.onError) {
                 options.onError(error, variables, context);
             }
@@ -124,47 +130,51 @@ export const usePublicProductSuggestions = (businessIdentifier, debouncedQuery, 
  * @param {object} paginationParams - Pagination parameters ({ page: number, page_size: number }).
  * @param {object} options - Optional TanStack Query options.
  * @returns {QueryResult} The result of the TanStack Query operation.
- *                        On success, `data` will be the API response structure,
- *                        typically { results: Product[], count: number, next: string|null, previous: string|null }.
  */
 export const usePublicProductsList = (businessIdentifier, filters = {}, paginationParams = { page: 1, page_size: 20 }, options = {}) => {
-    const queryParams = {
-        ...filters, // category_id, tag_ids (comma-separated string), search_query
+    // Construct the queryParams object that will be used for both the queryKey and the API request.
+    // This ensures consistency.
+    const queryParamsForHook = {
         page: paginationParams.page,
         page_size: paginationParams.page_size,
-        // is_active: true, // Backend should enforce this for public/menu endpoint
     };
 
-    // Clean up undefined/null filters to avoid sending them as empty query params
-    Object.keys(queryParams).forEach(key => {
-        if (queryParams[key] === null || queryParams[key] === undefined || queryParams[key] === '') {
-            delete queryParams[key];
-        }
-    });
-    if (queryParams.tag_ids && Array.isArray(queryParams.tag_ids)) {
-        queryParams.tag_ids = queryParams.tag_ids.join(','); // Convert array to comma-separated string if needed by backend
-        if (!queryParams.tag_ids) delete queryParams.tag_ids; // Remove if empty after join
+    if (filters.category_id) {
+        queryParamsForHook.category_id = filters.category_id;
+    }
+    if (filters.search_query && filters.search_query.trim()) {
+        queryParamsForHook.search_query = filters.search_query.trim();
     }
 
+    // TASK 3: Handle tag_ids filter
+    // Convert array of tag_ids to a comma-separated string for the API
+    if (filters.tag_ids && Array.isArray(filters.tag_ids) && filters.tag_ids.length > 0) {
+        queryParamsForHook.tag_ids = filters.tag_ids.join(',');
+    }
+    // Note: If filters.tag_ids is an empty array, queryParamsForHook.tag_ids will remain undefined,
+    // so it won't be sent to the API, which is correct.
+
+    const currentQueryKey = queryKeys.publicProductsList(businessIdentifier, queryParamsForHook);
 
     return useQuery({
-        queryKey: queryKeys.publicProductsList(businessIdentifier, filters, paginationParams),
+        queryKey: currentQueryKey,
         queryFn: async () => {
-            console.log(`[usePublicProductsList] Fetching public products for business: ${businessIdentifier}`, queryParams);
+            // console.log(`[usePublicProductsList] Fetching public products for business: ${businessIdentifier} with params:`, queryParamsForHook);
             try {
                 // Backend endpoint: /api/products/public/menu/{business_identifier}/products/
-                const response = await apiService.get(`products/public/menu/${businessIdentifier}/products/`, queryParams);
-                console.log('[usePublicProductsList] Successfully fetched public products:', response.data);
+                // The backend PublicProductListView expects 'tag_ids' as a comma-separated string
+                // and handles the conversion to product_tags__id__in.
+                const response = await apiService.get(`products/public/menu/${businessIdentifier}/products/`, queryParamsForHook);
+                // console.log('[usePublicProductsList] Successfully fetched public products:', response.data);
                 return response.data; // Expects { results: [], count, next, previous }
             } catch (error) {
-                console.error(`[usePublicProductsList] Error fetching public products for business ${businessIdentifier}:`, error.response?.data || error.message);
+                console.error(`[usePublicProductsList] Error fetching public products for business ${businessIdentifier} with params ${JSON.stringify(queryParamsForHook)}:`, error.response?.data || error.message);
                 const errorMessage = error.response?.data?.detail || "Could not load products for this menu.";
                 const customError = new Error(errorMessage);
                 customError.status = error.response?.status;
                 throw customError;
             }
         },
-        // Enable the query only when businessIdentifier is provided and any explicit enabled option is true.
         enabled: !!businessIdentifier && (options.enabled !== false),
         staleTime: 1000 * 60 * 2, // Cache products for 2 minutes
         keepPreviousData: true, // Good for pagination and filtering experience
@@ -199,7 +209,7 @@ export const usePublicCategories = (businessIdentifier, options = {}) => {
             } catch (error) {
                 console.error(`[usePublicCategories] Error fetching public categories for business ${businessIdentifier}:`, error.response?.data || error.message);
                 const errorMessage = error.response?.data?.detail || "Could not load categories for this menu.";
-                 const customError = new Error(errorMessage);
+                const customError = new Error(errorMessage);
                 customError.status = error.response?.status;
                 throw customError;
             }

@@ -11,10 +11,9 @@ const getDiscountTypeOptions = (currencySymbol = '$') => [
     { value: 'percentage', label: scriptLines.createDiscountCodeModal.discountTypePercentageLabel || 'Percentage Off Product (%)' },
     { value: 'fixed_amount_product', label: (scriptLines.createDiscountCodeModal.discountTypeFixedAmountProductLabel || 'Fixed Amount Off Product ({currencySymbol})').replace('{currencySymbol}', currencySymbol) },
     // For now, only product-specific types are included as per problem description clarification.
-    // If order-level discounts were to be created here, they would be added:
-    // { value: 'order_total_percentage', label: (scriptLines.createDiscountCodeModal.discountTypeOrderPercentageLabel || 'Percentage Off Entire Order (%)')},
-    // { value: 'order_total_fixed_amount', label: (scriptLines.createDiscountCodeModal.discountTypeOrderFixedAmountLabel || 'Fixed Amount Off Entire Order ({currencySymbol})').replace('{currencySymbol}', currencySymbol)},
 ];
+
+const COMMON_INPUT_CLASSNAME = 'flex h-15 items-end w-full';
 
 
 const CreateDiscountCodeModal = ({
@@ -22,7 +21,6 @@ const CreateDiscountCodeModal = ({
     onClose,
     onCreateDiscount,
     existingCodes,
-    // discountTypeOptions prop is kept if parent wants to override, but default is now dynamic
     discountTypeOptions: discountTypeOptionsProp,
 }) => {
     const [codeName, setCodeName] = useState('');
@@ -34,9 +32,8 @@ const CreateDiscountCodeModal = ({
 
     const codeNameInputRef = useRef(null);
     const sl = scriptLines.createDiscountCodeModal;
-    const currencySymbol = scriptLines.currencySymbolDefault || '$'; // Or from a global config
+    const currencySymbol = scriptLines.currencySymbolDefault || '$';
 
-    // Use passed options or generate default ones
     const currentDiscountTypeOptions = useMemo(() =>
         discountTypeOptionsProp || getDiscountTypeOptions(currencySymbol),
         [discountTypeOptionsProp, currencySymbol]
@@ -46,7 +43,6 @@ const CreateDiscountCodeModal = ({
         if (isOpen) {
             setCodeName('');
             setDescription('');
-            // Set default discountType from potentially dynamic options
             setDiscountType(currentDiscountTypeOptions[0]?.value || 'percentage');
             setDiscountValue('');
             setErrors({});
@@ -57,8 +53,8 @@ const CreateDiscountCodeModal = ({
     }, [isOpen, currentDiscountTypeOptions]);
 
     const CODE_NAME_MIN_LENGTH = 3;
-    const CODE_NAME_MAX_LENGTH = 25; // Backend's DiscountMaster.code_name is max_length=50, but frontend can be stricter.
-    const DESCRIPTION_MAX_LENGTH = 100; // Backend's DiscountMaster.internal_description is TextField.
+    const CODE_NAME_MAX_LENGTH = 25;
+    const DESCRIPTION_MAX_LENGTH = 100;
 
     const validateForm = useCallback(() => {
         const newErrors = {};
@@ -81,7 +77,7 @@ const CreateDiscountCodeModal = ({
             newErrors.description = sl.errorDescriptionMaxLength.replace('{maxLength}', String(DESCRIPTION_MAX_LENGTH));
         }
 
-        if (!discountType) { // Should always have a default, but good practice
+        if (!discountType) {
             newErrors.discountType = sl.errorRequired.replace('{fieldName}', sl.discountTypeLabel);
         }
 
@@ -93,32 +89,30 @@ const CreateDiscountCodeModal = ({
         } else if (discountType === 'percentage' && numDiscountValue > 100) {
             newErrors.discountValue = sl.errorDiscountPercentageMax;
         }
-        // Add validation for fixed amount if there's a practical upper limit, e.g., > 10000
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     }, [codeName, description, discountValue, discountType, existingCodes, sl]);
 
-    const handleSubmit = useCallback(async (e) => {
-        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    const handleSubmit = useCallback(async () => { // Removed 'e' as it's not from form submit
         if (!validateForm()) return;
 
         setIsCreating(true);
-        setErrors(prev => ({ ...prev, form: null })); // Clear general form error
+        setErrors(prev => ({ ...prev, form: null }));
 
         try {
-            const discountDataForParent = { // Data to be sent to parent (Step5)
-                codeName: codeName.trim(), // Uppercasing will happen in Step5 or backend
-                description: description.trim(), // This is internal_description
+            const discountDataForParent = {
+                codeName: codeName.trim(),
+                description: description.trim(),
                 type: discountType,
                 value: parseFloat(discountValue),
-                requires_code: true, // **MODIFIED**: Added requires_code
+                requires_code: true,
             };
-            await onCreateDiscount(discountDataForParent); // This calls handleCreateDiscountCode in Step5
-            onClose(); // Close modal on success
+            await onCreateDiscount(discountDataForParent);
+            onClose();
         } catch (error) {
             console.error(sl.errorConsoleFailedCreate, error);
-            if (error.fieldErrors) { // Check for structured field errors from parent
+            if (error.fieldErrors) {
                 setErrors(prev => ({ ...prev, ...error.fieldErrors, form: null }));
             } else {
                 setErrors(prev => ({
@@ -173,11 +167,12 @@ const CreateDiscountCodeModal = ({
                     <motion.div
                         key="create-discount-content"
                         variants={modalCardVariants}
-                        className="bg-white dark:bg-neutral-800 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
+                        className="bg-white dark:bg-neutral-800 rounded-xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden" // Added flex flex-col
                         onClick={(e) => e.stopPropagation()}
                         role="dialog" aria-modal="true" aria-labelledby="create-discount-modal-title"
                         data-testid="create-discount-modal-content"
                     >
+                        {/* Header */}
                         <div className="px-6 pt-5 pb-4 flex justify-between items-center border-b border-neutral-200 dark:border-neutral-700">
                             <h2 id="create-discount-modal-title" className="text-lg sm:text-xl font-semibold text-neutral-800 dark:text-neutral-100">
                                 {sl.title}
@@ -192,65 +187,71 @@ const CreateDiscountCodeModal = ({
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="max-h-[65vh] overflow-y-auto">
-                            <div className="px-6 py-5 space-y-5"> {/* Adjusted space-y from 6 to 5 for compactness */}
-                                <InputField
-                                    ref={codeNameInputRef}
-                                    id="newDiscountCodeName" label={sl.codeNameLabel}
-                                    value={codeName} onChange={e => setCodeName(e.target.value)}
-                                    error={errors.codeName} required placeholder={sl.codeNamePlaceholder}
-                                    maxLength={CODE_NAME_MAX_LENGTH} helptext={codeNameHelp}
-                                    autoFocus
-                                />
-                                <InputField
-                                    id="newDiscountDescription" label={sl.descriptionLabel}
-                                    value={description} onChange={e => setDescription(e.target.value)}
-                                    error={errors.description} required placeholder={sl.descriptionPlaceholder}
-                                    maxLength={DESCRIPTION_MAX_LENGTH} helptext={sl.descriptionHelpText}
-                                    isTextArea rows={2} // Reduced rows for compactness
-                                />
-                                <Dropdown
-                                    id="newDiscountType" label={sl.discountTypeLabel}
-                                    options={currentDiscountTypeOptions}
-                                    value={discountType} onChange={setDiscountType}
-                                    error={errors.discountType} helptext={sl.discountTypeHelpText} required
-                                />
-                                <InputField
-                                    id="newDiscountValue" label={discountValueLabelText}
-                                    type="number" value={discountValue} onChange={e => setDiscountValue(e.target.value)}
-                                    error={errors.discountValue}
-                                    min="0.01" step={discountType === 'percentage' ? "1" : "0.01"}
-                                    max={discountType === 'percentage' ? "100" : undefined}
-                                    required suffix={discountValueSuffix} helptext={discountValueHelpText}
-                                />
+                        {/* Body - No longer a form tag */}
+                        <div className="px-6 py-5 space-y-5 w-full max-h-[calc(100vh-220px)] sm:max-h-[65vh] overflow-y-auto"> {/* Adjusted max-h for viewport fit */}
+                            <InputField
+                                ref={codeNameInputRef}
+                                id="newDiscountCodeName" label={sl.codeNameLabel}
+                                value={codeName} onChange={e => setCodeName(e.target.value)}
+                                error={errors.codeName} required placeholder={sl.codeNamePlaceholder}
+                                maxLength={CODE_NAME_MAX_LENGTH} helptext={codeNameHelp}
+                                className={COMMON_INPUT_CLASSNAME}
+                                autoFocus
+                            />
+                            <InputField
+                                id="newDiscountDescription" label={sl.descriptionLabel}
+                                value={description} onChange={e => setDescription(e.target.value)}
+                                error={errors.description} required placeholder={sl.descriptionPlaceholder}
+                                maxLength={DESCRIPTION_MAX_LENGTH} helptext={sl.descriptionHelpText}
+                                isTextArea rows={2}
+                                className={COMMON_INPUT_CLASSNAME}
+                            />
+                            <Dropdown
+                                id="newDiscountType" label={sl.discountTypeLabel}
+                                options={currentDiscountTypeOptions}
+                                value={discountType} onChange={setDiscountType}
+                                error={errors.discountType} helptext={sl.discountTypeHelpText} required
+                                className={COMMON_INPUT_CLASSNAME}
+                            />
+                            <InputField
+                                id="newDiscountValue" label={discountValueLabelText}
+                                type="number" value={discountValue} onChange={e => setDiscountValue(e.target.value)}
+                                error={errors.discountValue}
+                                min="0.01" step={discountType === 'percentage' ? "1" : "0.01"}
+                                max={discountType === 'percentage' ? "100" : undefined}
+                                required suffix={discountValueSuffix} helptext={discountValueHelpText}
+                                className={COMMON_INPUT_CLASSNAME}
+                            />
 
-                                {errors.form && (
-                                    <p className="text-sm text-red-600 dark:text-red-400 p-2.5 bg-red-50 dark:bg-red-900/30 rounded-md flex items-center gap-1.5" role="alert" data-testid="form-level-error">
-                                        <Icon name="error_outline" className="w-6 h-6 flex-shrink-0" />
-                                        {errors.form}
-                                    </p>
+                            {errors.form && (
+                                <p className="text-sm text-red-600 dark:text-red-400 p-2.5 bg-red-50 dark:bg-red-900/30 rounded-md flex items-center gap-1.5" role="alert" data-testid="form-level-error">
+                                    <Icon name="error_outline" className="w-6 h-6 flex-shrink-0" />
+                                    {errors.form}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="px-6 py-4 bg-neutral-50 dark:bg-neutral-700/60 rounded-b-xl flex justify-end items-center space-x-3 border-t border-neutral-200 dark:border-neutral-700">
+                            <button
+                                type="button" onClick={onClose} disabled={isCreating}
+                                className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-600 border border-neutral-300 dark:border-neutral-500 rounded-md transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 disabled:opacity-70"
+                            >
+                                {sl.cancelButtonText}
+                            </button>
+                            <button
+                                type="button" // Changed from submit to button
+                                onClick={handleSubmit} // Added onClick handler
+                                disabled={isCreating || Object.keys(errors).some(key => errors[key] && key !== 'form')}
+                                className="px-5 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-md transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {isCreating ? (
+                                    <><Icon name="progress_activity" className="w-4 h-4 animate-spin inline mr-2" />{sl.creatingButtonText}</>
+                                ) : (
+                                    sl.createButtonText
                                 )}
-                            </div>
-
-                            <div className="px-6 py-4 bg-neutral-50 dark:bg-neutral-700/60 rounded-b-xl flex justify-end items-center space-x-3 border-t border-neutral-200 dark:border-neutral-700">
-                                <button
-                                    type="button" onClick={onClose} disabled={isCreating}
-                                    className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-600 border border-neutral-300 dark:border-neutral-500 rounded-md transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 disabled:opacity-70"
-                                >
-                                    {sl.cancelButtonText}
-                                </button>
-                                <button
-                                    type="submit" disabled={isCreating || Object.keys(errors).some(key => errors[key] && key !== 'form')}
-                                    className="px-5 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-md transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    {isCreating ? (
-                                        <><Icon name="progress_activity" className="w-4 h-4 animate-spin inline mr-2" />{sl.creatingButtonText}</>
-                                    ) : (
-                                        sl.createButtonText
-                                    )}
-                                </button>
-                            </div>
-                        </form>
+                            </button>
+                        </div>
                     </motion.div>
                 </motion.div>
             )}

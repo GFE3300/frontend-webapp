@@ -1,4 +1,7 @@
 const scriptLines = {
+    addProductModal_error_activeBusinessMissing: "Cannot proceed: Active business context is missing. Please ensure you're logged in with an active business selected.",
+    categoryDropdown_categoryCreatedSuccess: "Category created successfully!",
+    customTagModal_tagCreatedSuccess: "Tag created successfully!",
 
     // General
     error_unknownValidation: "An unknown validation error occurred.",
@@ -460,6 +463,8 @@ const scriptLines = {
         errorMissingBusinessId: "Step5: Active business ID is missing. Cannot create discount code.",
         errorBusinessContextMissing: "Your business context is missing. Please try again or contact support.", // For UI if thrown
         errorFailedCreateMasterCode: "Step5: Failed to create master discount code:",
+
+        errorLoadingMasterCodesTitle: "Error Loading Discounts"
     },
 
 
@@ -534,7 +539,7 @@ const scriptLines = {
     modalStepIndicator_aria_currentStep: "{stepName}, current step", // Placeholder for stepName
     modalStepIndicator_aria_goToStep: "Go to {stepName}", // Placeholder for stepName
     // Note: The plain step name is used as a fallback aria-label for pending steps.
-    
+
     // --- Updated/New keys for ProductFormStep (flattened from previous internal structure) ---
     productFormStepButtonBack: "Back",
     productFormStepButtonContinue: "Continue",
@@ -544,7 +549,7 @@ const scriptLines = {
     productFormStepButtonSaving: "Saving...", // Used when isEditMode is true and submitting
     productFormStepButtonSaveChanges: "Save Changes", // Used when isEditMode is true, not submitting
 
-    
+
     productFormStepErrorSummaryTitle: "Please correct the following to continue:",
     productFormStepErrorSummaryMore: "and {count} more...",
 };
