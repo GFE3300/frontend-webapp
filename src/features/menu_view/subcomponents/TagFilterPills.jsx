@@ -137,7 +137,7 @@ function TagFilterPills({
     }
     
     if (!tagsData || tagsData.length === 0) {
-        return null; // Render nothing if no tags, consistent with previous behavior
+        return null;
     }
 
     return (
