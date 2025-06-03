@@ -1,30 +1,31 @@
 // frontend/src/features/menu_view/subcomponents/MenuItemCard.jsx
+// (Focusing on changes to trigger ProductDetailModal)
 
 import React, { useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Icon from '../../../components/common/Icon.jsx';
-import WavingBackground from "../../../components/animations/WavingLine.jsx"; // Path from frontend.txt
-import { getEffectiveDisplayPrice } from "../utils/productUtils.js"; // Path from frontend.txt
-import { useTheme } from "../../../utils/ThemeProvider.jsx"; // Import useTheme
+import WavingBackground from "../../../components/animations/WavingLine.jsx";
+import { getEffectiveDisplayPrice } from "../utils/productUtils.js";
+import { useTheme } from "../../../utils/ThemeProvider.jsx";
 
 // Constants for card layout
 const CARD_CONTENT_WIDTH_PX = 240;
 const CARD_CONTENT_HEIGHT_PX = 270;
 const IMAGE_DIAMETER_PX = 128;
-const IMAGE_PROTRUSION_PX = 48; // Image protrudes from the top
-const TEXT_AREA_TOP_CLEARANCE_FROM_CARD_TOP_PX = (IMAGE_DIAMETER_PX - IMAGE_PROTRUSION_PX) + 12; // Space for image below its center
+const IMAGE_PROTRUSION_PX = 48;
+const TEXT_AREA_TOP_CLEARANCE_FROM_CARD_TOP_PX = (IMAGE_DIAMETER_PX - IMAGE_PROTRUSION_PX) + 12;
 
 const FALLBACK_IMAGE_URL = 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=100&q=60';
 
 /**
  * Displays a single menu item card.
  * @param {object} product - The product object.
- * @param {function} onOpenOptionsPopup - Callback: (product, imageRect) => void
+ * @param {function} onOpenProductDetailModal - Callback: (product, imageRect) => void; Renamed from onOpenOptionsPopup
  */
-export default function MenuItemCard({ product, onOpenOptionsPopup }) {
+export default function MenuItemCard({ product, onOpenProductDetailModal }) { // Prop renamed
     const [isEffectActive, setIsEffectActive] = useState(false);
     const imageAnimationStartRef = useRef(null);
-    const { theme } = useTheme(); // Get current theme
+    const { theme } = useTheme();
 
     const { originalPrice, displayPrice, bestDiscountApplied } = useMemo(
         () => getEffectiveDisplayPrice(product),
@@ -33,14 +34,16 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
 
     const handleCardClick = () => {
         setIsEffectActive(true);
-        setTimeout(() => setIsEffectActive(false), 1200); // Duration of WavingBackground
+        setTimeout(() => setIsEffectActive(false), 1200);
 
-        if (imageAnimationStartRef.current) {
-            const imageRect = imageAnimationStartRef.current.getBoundingClientRect();
-            onOpenOptionsPopup(product, imageRect);
-        } else {
-            onOpenOptionsPopup(product, null);
-        }
+        // The imageRect is kept here in case a future animation needs it.
+        // For now, ProductDetailModal doesn't use it for its opening animation.
+        const imageRect = imageAnimationStartRef.current 
+            ? imageAnimationStartRef.current.getBoundingClientRect() 
+            : null;
+            
+        // Call the new handler to open ProductDetailModal
+        onOpenProductDetailModal(product, imageRect); 
     };
 
     const name = product?.name || "Unnamed Product";
@@ -50,8 +53,8 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
     
     const publicTags = useMemo(() =>
         (Array.isArray(product?.product_tags_details) ? product.product_tags_details : [])
-            .filter(tag => tag.is_publicly_visible === true) // Ensure only public tags
-            .slice(0, 3), // Max 3 tags as per requirement
+            .filter(tag => tag.is_publicly_visible === true)
+            .slice(0, 3),
         [product?.product_tags_details]
     );
 
@@ -78,11 +81,13 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
         hover: { y: -3, transition: { type: "spring", stiffness: 350, damping: 18 } }
     };
 
+    // Determine if the product has configurable options to adjust button text/icon
+    // The modal will handle all configuration, but the button text can reflect this.
     const hasOptions = product.editable_attribute_groups && product.editable_attribute_groups.length > 0;
 
     const wavingBgColors = {
-        light: ['#F43F5E', '#FDA4AF', '#FECDD3'], // Rose-500, Rose-300, Rose-200 (Guidelines 2.1 Rose Theme)
-        dark: ['#E11D48', '#F472B6', '#FDA4AF']   // Rose-600, Rose-400, Rose-300 (Darker variants for dark theme)
+        light: ['#F43F5E', '#FDA4AF', '#FECDD3'],
+        dark: ['#E11D48', '#F472B6', '#FDA4AF']
     };
     const currentWaveColors = theme === 'dark' ? wavingBgColors.dark : wavingBgColors.light;
 
@@ -96,12 +101,12 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
                 width: `${CARD_CONTENT_WIDTH_PX}px`,
                 height: `${totalComponentHeight}px`,
             }}
-            aria-label={`Menu item: ${name}, price ${displayPrice.toFixed(2)}. ${hasOptions ? 'Tap to configure options.' : 'Tap to add to order.'}`}
+            aria-label={`Menu item: ${name}, price ${displayPrice.toFixed(2)}. Tap to view details${hasOptions ? ' and configure options.' : '.'}`}
             onClick={handleCardClick}
             role="button"
             tabIndex={0}
             onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && handleCardClick()}
-            id={`product-card-${product?.id}`} // ID for scrolling
+            id={`product-card-${product?.id}`}
         >
             <AnimatePresence>
                 {isEffectActive && (
@@ -193,13 +198,11 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
                             <div className="flex-grow min-h-[calc(1.4em*2)] my-1.5" aria-hidden="true"></div>
                         )}
 
-                        {/* TASK 2: Public Tag Display */}
                         {publicTags.length > 0 && (
                             <div className="flex flex-wrap justify-center items-center gap-1 my-1.5 max-h-[46px] overflow-hidden flex-shrink-0">
                                 {publicTags.map(tag => (
                                     <span
                                         key={tag.id}
-                                        // Styling for tags inside cards - more compact (Pills - Compact version from Guidelines 6.10)
                                         className="font-medium text-[10px] bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 whitespace-nowrap"
                                         title={tag.name}
                                     >
@@ -213,7 +216,6 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
 
                     <div className="w-full flex items-end justify-between pt-2 border-t border-neutral-200 dark:border-neutral-700 mt-auto flex-shrink-0">
                         <div className="flex flex-col items-start text-left">
-                            {/* TASK 1: Price Display with Discounts */}
                             {bestDiscountApplied ? (
                                 <>
                                     <span className="font-montserrat text-xs line-through text-neutral-400 dark:text-neutral-500">
@@ -222,10 +224,6 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
                                     <span className="font-montserrat text-lg font-bold text-red-600 dark:text-red-400 leading-tight">
                                         ${displayPrice.toFixed(2)}
                                     </span>
-                                    {/* Optional: Display discount description if small enough */}
-                                    {/* <span className="text-[10px] text-red-500 dark:text-red-400 leading-none mt-0.5 truncate" title={bestDiscountApplied.description}>
-                                        {bestDiscountApplied.description}
-                                    </span> */}
                                 </>
                             ) : (
                                 <span className="font-montserrat text-lg font-bold text-neutral-700 dark:text-neutral-200">
@@ -233,21 +231,22 @@ export default function MenuItemCard({ product, onOpenOptionsPopup }) {
                                 </span>
                             )}
                         </div>
-
-                        {/* TASK 3: "Options" / "Add" Button */}
+                        
+                        {/* Button text indicates if options are available or if it's a direct "Add" action (though now all go to modal) */}
                         <div
                             className={`flex items-center justify-center gap-1.5 shadow-md text-white font-montserrat font-semibold text-xs py-1.5 px-2.5 rounded-lg pointer-events-none transition-colors duration-150
                                 ${hasOptions 
                                     ? 'bg-sky-500 group-hover:bg-sky-600 dark:bg-sky-600 dark:group-hover:bg-sky-500' // Sky for "Options"
-                                    : 'bg-rose-500 group-hover:bg-rose-600 dark:bg-rose-600 dark:group-hover:bg-rose-500' // Rose for "Add"
+                                    : 'bg-rose-500 group-hover:bg-rose-600 dark:bg-rose-600 dark:group-hover:bg-rose-500' // Rose for "View" or "Add"
                                 }`}
                         >
                             <Icon
-                                name={hasOptions ? "tune" : "add_shopping_cart"}
+                                name={hasOptions ? "tune" : "visibility"} // Changed to "visibility" if no options, indicating "View Details"
                                 className="w-3.5 h-3.5" 
                                 variations={{ fill: 1, weight: 500 }}
                             />
-                            <span>{hasOptions ? "Options" : "Add"}</span>
+                            {/* Button text changed to "View" if no options, "Options" if options exist */}
+                            <span>{hasOptions ? "Options" : "View"}</span>
                         </div>
                     </div>
                 </motion.div>

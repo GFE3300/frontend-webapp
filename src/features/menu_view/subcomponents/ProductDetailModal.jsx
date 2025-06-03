@@ -1,393 +1,383 @@
 // frontend/src/features/menu_view/subcomponents/ProductDetailModal.jsx
-import React, { useState, useEffect, useMemo } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// Assuming a utility function exists for price calculation
-// import { calculateItemPriceWithSelectedOptions } from '../../../utils/priceUtils'; 
-// Assuming a utility function exists for display price
-// import { getEffectiveDisplayPrice } from '../../../utils/productUtils';
-// Assuming NumberStepperfix.jsx is available
-// import NumberStepperfix from './NumberStepperfix'; 
+import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
+import Icon from '../../../components/common/Icon.jsx';
+import { getEffectiveDisplayPrice, calculateItemPriceWithSelectedOptions } from '../utils/productUtils.js';
 
-// Placeholder for actual utility functions until they are provided/confirmed
-const calculateItemPriceWithSelectedOptions = (basePrice, selectedOptionsMap, product) => {
-    let currentItemPrice = basePrice;
-    let calculatedSelectedOptions = [];
+// Styling Constants (as per prompt)
+const SINGLE_SELECT = 'single_select';
+const MULTI_SELECT = 'multi_select';
 
-    if (product && product.editable_attribute_groups) {
-        product.editable_attribute_groups.forEach(group => {
-            const selectedOptionId = selectedOptionsMap[group.id];
-            if (selectedOptionId) {
-                const option = group.options.find(opt => opt.id === selectedOptionId);
-                if (option && option.price_adjustment) {
-                    currentItemPrice += option.price_adjustment;
-                }
-                if (option) {
-                    calculatedSelectedOptions.push({
-                        group_id: group.id,
-                        group_name: group.name,
-                        option_id: option.id,
-                        option_name: option.name,
-                        price_adjustment: option.price_adjustment || 0,
-                    });
-                }
-            } else if (group.type === 'MULTI_SELECT' && selectedOptionsMap[group.id] && Array.isArray(selectedOptionsMap[group.id])) {
-                const selectedOptionIds = selectedOptionsMap[group.id];
-                selectedOptionIds.forEach(optId => {
-                    const option = group.options.find(opt => opt.id === optId);
-                    if (option && option.price_adjustment) {
-                        currentItemPrice += option.price_adjustment;
-                    }
-                    if (option) {
-                        calculatedSelectedOptions.push({
-                            group_id: group.id,
-                            group_name: group.name,
-                            option_id: option.id,
-                            option_name: option.name,
-                            price_adjustment: option.price_adjustment || 0,
-                        });
-                    }
-                });
-            }
-        });
-    }
-    return { currentItemPriceWithOptionsMenu: currentItemPrice, detailedSelectedOptions: calculatedSelectedOptions };
-};
+const ROSE_PRIMARY_BG = "bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500";
+const ROSE_PRIMARY_TEXT = "text-white";
+const ROSE_PRIMARY_RING_FOCUS = "focus:ring-rose-400 dark:focus:ring-rose-500";
 
-const getEffectiveDisplayPrice = (product) => {
-    // Placeholder logic, replace with actual implementation
-    return { displayPrice: product?.price || 0, basePrice: product?.price || 0 };
-};
+const NEUTRAL_BG_LIGHT = "bg-neutral-100 dark:bg-neutral-700";
+const NEUTRAL_BG_HOVER_LIGHT = "hover:bg-neutral-200 dark:hover:bg-neutral-600";
+const NEUTRAL_TEXT_PRIMARY = "text-neutral-800 dark:text-neutral-100";
+const NEUTRAL_TEXT_SECONDARY = "text-neutral-700 dark:text-neutral-200";
+const NEUTRAL_TEXT_MUTED = "text-neutral-500 dark:text-neutral-400";
+const NEUTRAL_BORDER = "border-neutral-300 dark:border-neutral-600";
+const NEUTRAL_BORDER_LIGHTER = "border-neutral-200 dark:border-neutral-700";
+const NEUTRAL_RING_FOCUS = "focus:ring-neutral-400 dark:focus:ring-neutral-500";
 
-// Placeholder for NumberStepperfix until provided
-const NumberStepperfix = ({ value, onChange, minValue = 1, maxValue = 99 }) => {
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button
-                onClick={() => onChange(Math.max(minValue, value - 1))}
-                disabled={value <= minValue}
-                aria-label="Decrease quantity"
-            >
-                -
-            </button>
-            <span aria-live="polite">{value}</span>
-            <button
-                onClick={() => onChange(Math.min(maxValue, value + 1))}
-                disabled={value >= maxValue}
-                aria-label="Increase quantity"
-            >
-                +
-            </button>
-        </div>
-    );
-};
-NumberStepperfix.propTypes = {
-    value: PropTypes.number.isRequired,
-    onChange: PropTypes.func.isRequired,
-    minValue: PropTypes.number,
-    maxValue: PropTypes.number,
-};
+const ACTIVE_OPTION_BG = "bg-rose-500 dark:bg-rose-600";
+const ACTIVE_OPTION_TEXT = "text-white";
+const ACTIVE_OPTION_BORDER = "border-rose-500 dark:border-rose-600";
+const ACTIVE_OPTION_CHECKBOX_CONTAINER_BG = "bg-rose-50 dark:bg-rose-900/40";
+
+const CHECKBOX_CLASSES = `h-4 w-4 rounded ${NEUTRAL_BORDER} text-rose-600 dark:text-rose-500 focus:ring-rose-500 dark:focus:ring-offset-neutral-800 shadow-sm cursor-pointer`;
+const CHECKBOX_LABEL_TEXT = `ml-3 text-sm ${NEUTRAL_TEXT_SECONDARY} cursor-pointer`;
+
+const FONT_MONTSERRAT = "font-montserrat";
+const FONT_INTER = "font-inter";
+
+const FALLBACK_PRODUCT_IMAGE_MODAL = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&h=200&q=80';
 
 
-const ProductDetailModal = ({
-    isOpen,
-    onClose,
-    product,
-    onConfirmWithOptions,
-}) => {
+export default function ProductDetailModal({ isOpen, onClose, product, onConfirmWithOptions }) {
     const [quantity, setQuantity] = useState(1);
     const [selectedOptionsMap, setSelectedOptionsMap] = useState({});
     const [validationErrors, setValidationErrors] = useState({});
 
-    const { displayPrice: baseProductPrice } = useMemo(() => {
-        if (!product) return { displayPrice: 0 };
-        return getEffectiveDisplayPrice(product);
+    const modalContentRef = useRef(null);
+    const confirmButtonRef = useRef(null);
+    const closeButtonRef = useRef(null);
+    const groupErrorRefs = useRef({}); // To store refs for each group title for scrolling
+
+    const basePriceForOptions = useMemo(() => {
+        if (!product) return 0;
+        return getEffectiveDisplayPrice(product).displayPrice;
     }, [product]);
 
     useEffect(() => {
-        if (product) {
-            // Reset state when product changes or modal opens
+        if (isOpen && product) {
+            const initialSelections = {};
+            if (product.editable_attribute_groups) {
+                product.editable_attribute_groups.forEach(group => {
+                    groupErrorRefs.current[group.id] = React.createRef(); // Initialize refs for error scrolling
+                    if (group.options && group.options.length > 0) {
+                        const sortedOptions = [...group.options].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+                        if (group.type === SINGLE_SELECT) {
+                            const defaultOption = sortedOptions.find(opt => opt.is_default);
+                            if (defaultOption) {
+                                initialSelections[group.id] = defaultOption.id;
+                            } else if (group.is_required && sortedOptions.length > 0) {
+                                initialSelections[group.id] = sortedOptions[0].id;
+                            } else {
+                                initialSelections[group.id] = null;
+                            }
+                        } else if (group.type === MULTI_SELECT) {
+                            initialSelections[group.id] = sortedOptions
+                                .filter(opt => opt.is_default)
+                                .map(opt => opt.id);
+                        }
+                    }
+                });
+            }
+            setSelectedOptionsMap(initialSelections);
             setQuantity(1);
-            const initialSelectedOptions = {};
-            // Pre-select default options if any (not specified, but good practice)
-            // Or ensure required single-select groups have a selection if a default is marked
-            product.editable_attribute_groups?.forEach(group => {
-                if (group.type === 'SINGLE_SELECT' && group.options.length > 0) {
-                    // Example: pre-select the first option if no specific default logic
-                    // initialSelectedOptions[group.id] = group.options[0].id; 
-                } else if (group.type === 'MULTI_SELECT') {
-                    initialSelectedOptions[group.id] = [];
+            setValidationErrors({});
+            setTimeout(() => closeButtonRef.current?.focus(), 100);
+        }
+    }, [isOpen, product]);
+
+    const handleOptionChange = useCallback((groupId, optionId, groupType) => {
+        setSelectedOptionsMap(prev => {
+            const newSelections = { ...prev };
+            if (groupType === SINGLE_SELECT) {
+                newSelections[groupId] = optionId;
+            } else if (groupType === MULTI_SELECT) {
+                const currentGroupSelections = prev[groupId] || [];
+                if (currentGroupSelections.includes(optionId)) {
+                    newSelections[groupId] = currentGroupSelections.filter(id => id !== optionId);
+                } else {
+                    newSelections[groupId] = [...currentGroupSelections, optionId];
+                }
+            }
+            return newSelections;
+        });
+        if (validationErrors[groupId]) {
+            setValidationErrors(prevErrors => {
+                const newErrors = { ...prevErrors };
+                delete newErrors[groupId];
+                return newErrors;
+            });
+        }
+    }, [validationErrors]);
+
+    const { currentItemPriceWithOptionsMenu, totalPriceForQuantity, detailedSelectedOptions } = useMemo(() => {
+        if (!product) return { currentItemPriceWithOptionsMenu: 0, totalPriceForQuantity: 0, detailedSelectedOptions: [] };
+
+        const resolvedOptionsFromMap = [];
+        if (product.editable_attribute_groups) {
+            product.editable_attribute_groups.forEach(group => {
+                const selectionForGroup = selectedOptionsMap[group.id];
+                if (group.options && Array.isArray(group.options)) {
+                    if (group.type === SINGLE_SELECT && selectionForGroup) {
+                        const optDetail = group.options.find(opt => opt.id === selectionForGroup);
+                        if (optDetail) resolvedOptionsFromMap.push({ ...optDetail, groupId: group.id, groupName: group.name, groupType: group.type });
+                    } else if (group.type === MULTI_SELECT && Array.isArray(selectionForGroup)) {
+                        selectionForGroup.forEach(optId => {
+                            const optDetail = group.options.find(opt => opt.id === optId);
+                            if (optDetail) resolvedOptionsFromMap.push({ ...optDetail, groupId: group.id, groupName: group.name, groupType: group.type });
+                        });
+                    }
                 }
             });
-            setSelectedOptionsMap(initialSelectedOptions);
-            setValidationErrors({});
         }
-    }, [product, isOpen]);
 
-    const handleOptionChange = (groupId, optionId, groupType) => {
-        setSelectedOptionsMap(prev => {
-            const newSelectedOptions = { ...prev };
-            if (groupType === 'SINGLE_SELECT') {
-                newSelectedOptions[groupId] = optionId;
-            } else if (groupType === 'MULTI_SELECT') {
-                const currentSelection = prev[groupId] || [];
-                if (currentSelection.includes(optionId)) {
-                    newSelectedOptions[groupId] = currentSelection.filter(id => id !== optionId);
-                } else {
-                    newSelectedOptions[groupId] = [...currentSelection, optionId];
-                }
-            }
-            return newSelectedOptions;
-        });
-        // Clear validation error for this group upon selection
-        setValidationErrors(prev => ({ ...prev, [groupId]: null }));
-    };
+        const itemPriceWithOptions = calculateItemPriceWithSelectedOptions(basePriceForOptions, resolvedOptionsFromMap);
+        const totalForQty = itemPriceWithOptions * quantity;
 
-    const { currentItemPriceWithOptionsMenu, detailedSelectedOptions } = useMemo(() => {
-        if (!product) return { currentItemPriceWithOptionsMenu: 0, detailedSelectedOptions: [] };
-        return calculateItemPriceWithSelectedOptions(baseProductPrice, selectedOptionsMap, product);
-    }, [baseProductPrice, selectedOptionsMap, product]);
+        return {
+            currentItemPriceWithOptionsMenu: itemPriceWithOptions,
+            totalPriceForQuantity: totalForQty < 0 ? 0 : parseFloat(totalForQty.toFixed(2)),
+            detailedSelectedOptions: resolvedOptionsFromMap.map(opt => ({
+                ...opt, // Spread all original option properties
+                price_adjustment: parseFloat(opt.price_adjustment) || 0 // Ensure price_adjustment is a number
+            })),
+        };
+    }, [product, selectedOptionsMap, quantity, basePriceForOptions]);
 
-    const totalPriceForQuantity = currentItemPriceWithOptionsMenu * quantity;
-
-    const validateSelections = () => {
+    const validateSelections = useCallback(() => {
         if (!product || !product.editable_attribute_groups) return true;
         const errors = {};
-        product.editable_attribute_groups.forEach(group => {
+        let firstErrorKey = null;
+
+        const sortedGroups = [...product.editable_attribute_groups].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+        for (const group of sortedGroups) {
             if (group.is_required) {
                 const selection = selectedOptionsMap[group.id];
-                if (group.type === 'SINGLE_SELECT' && !selection) {
-                    errors[group.id] = `${group.name} is required.`;
-                } else if (group.type === 'MULTI_SELECT' && (!selection || selection.length === 0)) {
-                    errors[group.id] = `${group.name} is required. Please select at least one option.`;
+                let hasError = false;
+                if (group.type === SINGLE_SELECT && (selection === null || selection === undefined || selection === '')) {
+                    errors[group.id] = `Please make a selection for ${group.name}.`;
+                    hasError = true;
+                } else if (group.type === MULTI_SELECT && (!Array.isArray(selection) || selection.length === 0)) {
+                    errors[group.id] = `Please select at least one option for ${group.name}.`;
+                    hasError = true;
                 }
-                // Potentially add min/max selections for MULTI_SELECT if that becomes a feature
+                if (hasError && !firstErrorKey) firstErrorKey = group.id;
             }
-        });
+        }
         setValidationErrors(errors);
+
+        if (firstErrorKey && groupErrorRefs.current[firstErrorKey]?.current) {
+            groupErrorRefs.current[firstErrorKey].current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
         return Object.keys(errors).length === 0;
-    };
+    }, [product, selectedOptionsMap]);
 
     const handleConfirm = () => {
-        if (!validateSelections()) {
-            return;
-        }
-        const configuredItemDetails = {
-            quantity,
-            selectedOptions: detailedSelectedOptions, // Use the detailed structure
-            finalPricePerItem: currentItemPriceWithOptionsMenu,
-            totalPriceForQuantity,
+        if (!validateSelections()) return;
+        onConfirmWithOptions(product, {
+            quantity, selectedOptions: detailedSelectedOptions,
+            finalPricePerItem: currentItemPriceWithOptionsMenu, totalPriceForQuantity: totalPriceForQuantity,
+        });
+        onClose(); // Close modal after confirming
+    };
+
+    // Focus trap logic
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const focusableElements = modalContentRef.current?.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusableElements || focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        const handleKeyDown = (event) => {
+            if (event.key === 'Tab') {
+                if (event.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        lastElement.focus();
+                        event.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastElement) {
+                        firstElement.focus();
+                        event.preventDefault();
+                    }
+                }
+            } else if (event.key === 'Escape') {
+                onClose();
+            }
         };
-        onConfirmWithOptions(product, configuredItemDetails);
-        onClose();
-    };
 
-    if (!isOpen || !product) {
-        return null;
-    }
-
-    // Sort attribute groups and options by display_order
-    const sortedAttributeGroups = useMemo(() =>
-        product.editable_attribute_groups?.sort((a, b) => a.display_order - b.display_order) || [],
-        [product.editable_attribute_groups]
-    );
-
-    // Framer Motion variants
-    const backdropVariants = {
-        visible: { opacity: 1 },
-        hidden: { opacity: 0 },
-    };
-
-    const modalVariants = {
-        hidden: { y: "100vh", opacity: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
-        visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 30 } },
-        exit: { y: "100vh", opacity: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
-    };
+        const currentModalContent = modalContentRef.current;
+        currentModalContent?.addEventListener('keydown', handleKeyDown);
+        return () => currentModalContent?.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
 
 
-    // TODO: Replace inline styles with classes adhering to design_guidelines.txt
-    // TODO: Implement actual RadioButton/Checkbox components or styling for options based on design_guidelines.txt
-    // TODO: Add ARIA attributes for accessibility (aria-labelledby, aria-describedby, etc.)
-    // TODO: Focus management (trap focus within modal)
+    if (!product) return null;
+
+    const popupWidth = "w-[90vw] sm:w-full max-w-md"; // As per requirements
+    const imageUrl = product.image_url || FALLBACK_PRODUCT_IMAGE_MODAL;
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div
-                    key="backdrop"
-                    variants={backdropVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    onClick={onClose}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        background: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1000, // design_guidelines.txt Section 6.4 Modals (z-index)
-                    }}
-                    aria-modal="true"
-                    role="dialog"
-                // aria-labelledby="product-modal-title"
-                // aria-describedby="product-modal-description"
-                >
+                <>
                     <motion.div
-                        key="modal"
-                        variants={modalVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-                        style={{
-                            background: 'white', // design_guidelines.txt Section 6.4 Modals (background)
-                            padding: '24px', // design_guidelines.txt Section 6.4 Modals (padding)
-                            borderRadius: '8px', // design_guidelines.txt Section 6.4 Modals (radii)
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)', // design_guidelines.txt Section 6.4 Modals (shadows)
-                            width: '90%',
-                            maxWidth: '600px', // design_guidelines.txt Section 6.4 Modals (max-width)
-                            maxHeight: '90vh',
-                            overflowY: 'auto',
-                            position: 'relative', // For close button positioning
-                        }}
-                    // id="product-modal-content"
+                        className="fixed inset-0 z-40 bg-black/30 dark:bg-black/50 backdrop-blur-sm"
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "circOut" }}
+                        onClick={onClose} aria-hidden="true"
+                    />
+                    <motion.div
+                        ref={modalContentRef}
+                        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${popupWidth} ${FONT_INTER} bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden`}
+                        style={{ maxHeight: 'calc(100vh - 40px)' }}
+                        initial={{ scale: 0.9, opacity: 0, y: 30 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                        transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                        role="dialog" aria-modal="true" aria-labelledby="product-options-title"
                     >
-                        <button
-                            onClick={onClose}
-                            aria-label="Close product details"
-                            style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
-                                background: 'transparent',
-                                border: 'none',
-                                fontSize: '1.5rem',
-                                cursor: 'pointer'
-                                // Styling from design_guidelines.txt for close button
-                            }}
-                        >
-                            × {/* Replace with actual icon from design_guidelines.txt */}
-                        </button>
-
-                        {/* Product Image */}
-                        {product.image_url && (
-                            <img
-                                src={product.image_url}
-                                alt={product.name}
-                                style={{
-                                    width: '100%',
-                                    maxHeight: '200px', // Or as per design guidelines
-                                    objectFit: 'cover',
-                                    borderRadius: '4px', // design_guidelines.txt
-                                    marginBottom: '16px'
-                                }}
-                            />
-                        )}
-
-                        {/* Product Information */}
-                        {/* <h2 id="product-modal-title" style={{ marginTop: 0 }}>{product.name}</h2> */}
-                        <h2 style={{ marginTop: 0 /* design_guidelines.txt for typography */ }}>{product.name}</h2>
-                        {product.subtitle && <p style={{ color: '#555' /* design_guidelines.txt for typography */ }}>{product.subtitle}</p>}
-                        {/* <p id="product-modal-description">{product.description}</p> */}
-                        <p>{product.description}</p>
-
-                        {/* Attribute Groups & Options */}
-                        {sortedAttributeGroups.length > 0 && (
-                            <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-                                <h3>Options</h3>
-                                {sortedAttributeGroups.map(group => (
-                                    <fieldset key={group.id} style={{ marginBottom: '16px', border: '1px solid #eee', padding: '10px', borderRadius: '4px' }}>
-                                        <legend style={{ fontWeight: 'bold' /* design_guidelines.txt */ }}>
-                                            {group.name} {group.is_required && <span style={{ color: 'red' /* design_guidelines.txt for required indicator */ }}>*</span>}
-                                        </legend>
-                                        {group.options?.sort((a, b) => a.display_order - b.display_order).map(option => (
-                                            <div key={option.id} style={{ marginBottom: '8px' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                                                    <input
-                                                        type={group.type === 'SINGLE_SELECT' ? 'radio' : 'checkbox'}
-                                                        name={`group-${group.id}`}
-                                                        value={option.id}
-                                                        checked={
-                                                            group.type === 'SINGLE_SELECT'
-                                                                ? selectedOptionsMap[group.id] === option.id
-                                                                : (selectedOptionsMap[group.id] || []).includes(option.id)
-                                                        }
-                                                        onChange={() => handleOptionChange(group.id, option.id, group.type)}
-                                                    // Style input with design_guidelines.txt (6.9 Toggles & Checkboxes)
-                                                    />
-                                                    <span style={{ marginLeft: '8px' }}>{option.name}</span>
-                                                    {option.price_adjustment !== 0 && (
-                                                        <span style={{ marginLeft: 'auto', color: option.price_adjustment > 0 ? 'green' : 'red' /* design_guidelines.txt */ }}>
-                                                            {option.price_adjustment > 0 ? '+' : ''}
-                                                            {`$${(option.price_adjustment / 100).toFixed(2)}`} {/* Assuming price is in cents */}
-                                                        </span>
-                                                    )}
-                                                </label>
-                                            </div>
-                                        ))}
-                                        {validationErrors[group.id] && <p style={{ color: 'red', fontSize: '0.875em', marginTop: '4px' }}>{validationErrors[group.id]}</p>}
-                                    </fieldset>
-                                ))}
+                        {/* Header */}
+                        <div className={`flex items-start justify-between p-4 sm:p-5 border-b ${NEUTRAL_BORDER_LIGHTER} shrink-0`}>
+                            <div className="flex-1 min-w-0">
+                                <h2 id="product-options-title" className={`${FONT_MONTSERRAT} font-medium text-xl ${NEUTRAL_TEXT_PRIMARY} truncate pr-2`} title={product.name}>
+                                    {product.name || "Configure Item"}
+                                </h2>
+                                {product.subtitle && <p className={`text-xs ${NEUTRAL_TEXT_MUTED} mt-0.5 truncate`} title={product.subtitle}>{product.subtitle}</p>}
                             </div>
-                        )}
-
-                        {/* Quantity Selector */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <span style={{ fontWeight: 'bold' /* design_guidelines.txt */ }}>Quantity:</span>
-                            <NumberStepperfix value={quantity} onChange={setQuantity} minValue={1} />
+                            <button
+                                ref={closeButtonRef}
+                                onClick={onClose}
+                                className={`p-1.5 rounded-full ${NEUTRAL_TEXT_SECONDARY} hover:${NEUTRAL_BG_HOVER_LIGHT} focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-neutral-800 ${ROSE_PRIMARY_RING_FOCUS} transition-colors`}
+                                aria-label="Close options popup"
+                            >
+                                <Icon name="close" className="w-5 h-5" />
+                            </button>
                         </div>
 
-                        {/* Dynamic Price Display */}
-                        <div style={{ marginBottom: '20px', textAlign: 'right' }}>
-                            <p>
-                                Item Price:
-                                <span style={{ fontWeight: 'bold' /* design_guidelines.txt */ }}>
-                                    ${(currentItemPriceWithOptionsMenu / 100).toFixed(2)} {/* Assuming price is in cents */}
-                                </span>
-                            </p>
-                            <p style={{ fontSize: '1.2em' /* design_guidelines.txt */ }}>
-                                Total:
-                                <span style={{ fontWeight: 'bold' /* design_guidelines.txt */ }}>
-                                    ${(totalPriceForQuantity / 100).toFixed(2)} {/* Assuming price is in cents */}
-                                </span>
-                            </p>
+                        {/* Content Area */}
+                        <div className="flex-1 p-4 sm:p-5 space-y-5 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent">
+                            {/* Product Image */}
+                            <div className="w-full aspect-[3/2] rounded-lg overflow-hidden mb-4 bg-neutral-100 dark:bg-neutral-700">
+                                <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_PRODUCT_IMAGE_MODAL; }} />
+                            </div>
+
+                            {/* Product Description */}
+                            {product.description && (
+                                <div className="mb-4">
+                                    <h3 className={`text-sm font-semibold ${NEUTRAL_TEXT_SECONDARY} mb-1`}>Description</h3>
+                                    <p className={`text-sm ${NEUTRAL_TEXT_MUTED} leading-relaxed`}>{product.description}</p>
+                                </div>
+                            )}
+
+                            {/* Attribute Groups */}
+                            {product.editable_attribute_groups && product.editable_attribute_groups
+                                .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+                                .map((group) => (
+                                    <div key={group.id} id={`group-${group.id}`} ref={groupErrorRefs.current[group.id]}>
+                                        <h3 className={`${FONT_INTER} text-base sm:text-lg font-semibold ${NEUTRAL_TEXT_SECONDARY} mb-2.5 flex items-center`}>
+                                            {group.name}
+                                            {group.is_required && <span className="ml-2 text-xs font-normal text-red-500 dark:text-red-400">(Required)</span>}
+                                        </h3>
+                                        <div className={`flex ${group.type === SINGLE_SELECT ? 'flex-wrap gap-2.5' : 'flex-col space-y-2'}`}>
+                                            {group.options && group.options
+                                                .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+                                                .map(option => {
+                                                    const priceAdjustmentNum = parseFloat(option.price_adjustment) || 0;
+                                                    const isSelected = group.type === SINGLE_SELECT
+                                                        ? selectedOptionsMap[group.id] === option.id
+                                                        : (selectedOptionsMap[group.id] || []).includes(option.id);
+
+                                                    return group.type === SINGLE_SELECT ? (
+                                                        <button
+                                                            key={option.id}
+                                                            onClick={() => handleOptionChange(group.id, option.id, group.type)}
+                                                            className={`px-3.5 py-2 rounded-lg text-sm font-medium border-2 transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-neutral-800
+                                                            ${isSelected
+                                                                    ? `${ACTIVE_OPTION_BG} ${ACTIVE_OPTION_TEXT} ${ACTIVE_OPTION_BORDER} ${ROSE_PRIMARY_RING_FOCUS}`
+                                                                    : `${NEUTRAL_BG_LIGHT} ${NEUTRAL_BG_HOVER_LIGHT} ${NEUTRAL_TEXT_SECONDARY} ${NEUTRAL_BORDER_LIGHTER} hover:${ACTIVE_OPTION_BORDER} dark:hover:${ACTIVE_OPTION_BORDER} hover:${NEUTRAL_TEXT_PRIMARY} dark:hover:${NEUTRAL_TEXT_PRIMARY} ${NEUTRAL_RING_FOCUS}`
+                                                                }`}
+                                                            aria-pressed={isSelected}
+                                                            title={`${option.name}${priceAdjustmentNum !== 0 ? ` (${priceAdjustmentNum > 0 ? '+' : ''}${priceAdjustmentNum.toFixed(2)})` : ''}`}
+                                                        >
+                                                            {option.name}
+                                                            {priceAdjustmentNum !== 0 &&
+                                                                <span className={`ml-1.5 text-xs ${isSelected ? 'opacity-80' : 'opacity-70'}`}>
+                                                                    ({priceAdjustmentNum > 0 ? '+' : ''}{priceAdjustmentNum.toFixed(2)})
+                                                                </span>}
+                                                        </button>
+                                                    ) : (
+                                                        <label key={option.id} htmlFor={`option-${group.id}-${option.id}`}
+                                                            className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors border-2
+                                                        ${isSelected
+                                                                    ? `${ACTIVE_OPTION_CHECKBOX_CONTAINER_BG} ${ACTIVE_OPTION_BORDER}`
+                                                                    : `${NEUTRAL_BG_LIGHT} ${NEUTRAL_BORDER_LIGHTER} hover:border-rose-300 dark:hover:border-rose-400`
+                                                                }`}
+                                                        >
+                                                            <input
+                                                                id={`option-${group.id}-${option.id}`}
+                                                                type="checkbox"
+                                                                checked={isSelected}
+                                                                onChange={() => handleOptionChange(group.id, option.id, group.type)}
+                                                                className={CHECKBOX_CLASSES}
+                                                            />
+                                                            <span className={CHECKBOX_LABEL_TEXT}>{option.name}</span>
+                                                            {priceAdjustmentNum !== 0 && (
+                                                                <span className={`ml-auto text-sm ${NEUTRAL_TEXT_MUTED}`}>
+                                                                    {priceAdjustmentNum > 0 ? '+' : ''}{priceAdjustmentNum.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                        </label>
+                                                    );
+                                                })}
+                                        </div>
+                                        {validationErrors[group.id] && <p className="text-xs text-red-500 dark:text-red-400 mt-1.5 pl-1" role="alert">{validationErrors[group.id]}</p>}
+                                    </div>
+                                ))}
+
+                            {/* Quantity Selector */}
+                            <div>
+                                <h3 className={`${FONT_INTER} text-base sm:text-lg font-semibold ${NEUTRAL_TEXT_SECONDARY} mb-2.5`}>Quantity</h3>
+                                <NumberStepperfix
+                                    id="productDetailQuantity"
+                                    min={1}
+                                    max={product?.max_quantity_per_order || 20}
+                                    value={quantity}
+                                    onChange={setQuantity}
+                                    label="Item quantity"
+                                    hideLabel={true}
+                                    inputClassName={`text-center h-10 sm:h-11 w-12 sm:w-14 rounded-md border ${NEUTRAL_BORDER} bg-white dark:bg-neutral-700 ${NEUTRAL_TEXT_SECONDARY} focus:ring-2 ${ROSE_PRIMARY_RING_FOCUS} shadow-sm`}
+                                    buttonClassName={`w-10 h-10 sm:w-11 sm:h-11 rounded-md ${NEUTRAL_BG_LIGHT} ${NEUTRAL_BG_HOVER_LIGHT} ${NEUTRAL_TEXT_SECONDARY} focus:ring-2 ${NEUTRAL_RING_FOCUS} shadow-sm`}
+                                    containerClassName="flex justify-center items-center space-x-2 sm:space-x-3"
+                                />
+                            </div>
                         </div>
 
-                        {/* "Add to Order" Button */}
-                        <button
-                            onClick={handleConfirm}
-                            style={{
-                                width: '100%',
-                                padding: '12px', // design_guidelines.txt for primary button
-                                background: '#007bff', // design_guidelines.txt for primary button color
-                                color: 'white', // design_guidelines.txt
-                                border: 'none',
-                                borderRadius: '4px', // design_guidelines.txt
-                                fontSize: '1em', // design_guidelines.txt
-                                cursor: 'pointer',
-                                // Add disabled styles from design_guidelines.txt
-                            }}
-                        // disabled={Object.keys(validationErrors).some(key => validationErrors[key])} // Could refine this
-                        >
-                            Add {quantity} to Order - ${(totalPriceForQuantity / 100).toFixed(2)}
-                        </button>
+                        {/* Footer */}
+                        <div className={`p-4 sm:p-5 border-t ${NEUTRAL_BORDER_LIGHTER} bg-neutral-50 dark:bg-neutral-800/70 shrink-0`}>
+                            <div className="flex justify-between items-center mb-3 sm:mb-4">
+                                <span className={`text-lg font-semibold ${NEUTRAL_TEXT_PRIMARY}`}>Total:</span>
+                                <span className={`${FONT_MONTSERRAT} text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400`}>
+                                    ${totalPriceForQuantity.toFixed(2)}
+                                </span>
+                            </div>
+                            <motion.button
+                                ref={confirmButtonRef}
+                                onClick={handleConfirm}
+                                className={`w-full font-semibold py-3 rounded-lg shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 disabled:opacity-60 disabled:cursor-not-allowed
+                                            ${ROSE_PRIMARY_BG} ${ROSE_PRIMARY_TEXT} ${ROSE_PRIMARY_RING_FOCUS}`}
+                                whileTap={{ scale: 0.98 }}
+                                disabled={Object.keys(validationErrors).length > 0 || quantity <= 0}
+                            >
+                                Add {quantity} to Order
+                            </motion.button>
+                        </div>
                     </motion.div>
-                </motion.div>
+                </>
             )}
         </AnimatePresence>
     );
-};
-
-ProductDetailModal.propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    product: PropTypes.object, // Product can be null initially
-    onConfirmWithOptions: PropTypes.func.isRequired,
-};
-
-export default React.memo(ProductDetailModal);
+}
