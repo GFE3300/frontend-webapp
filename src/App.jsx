@@ -1,6 +1,3 @@
-// frontend/src/App.jsx
-// (Showing relevant parts for modification)
-
 import React from 'react';
 // Router
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -13,12 +10,10 @@ import RegistrationPage from './features/register/RegistrationPage.jsx';
 import BusinessLoginPage from './pages/BusinessLoginPage.jsx';
 import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
 import AdminMenuPreviewPage from './pages/AdminMenuPreviewPage.jsx';
+import UserpageWrapper from './features/menu_view/Userpage.jsx';
 
 // Venue Layout Management (Existing)
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
-
-// NEW: Customer Menu Page (Userpage)
-import UserpageWrapper from './features/menu_view/Userpage.jsx'; // Path to be created
 
 // Components
 import PrivateRoute from './components/common/PrivateRoute.jsx';
