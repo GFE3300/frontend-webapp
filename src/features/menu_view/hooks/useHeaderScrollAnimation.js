@@ -42,8 +42,8 @@ export const useHeaderScrollAnimation = (scrollThreshold, animationDuration = DE
         : "-100%"; // Hide header
 
     const headerTransition = shouldReduceMotion
-        ? { type: "tween", duration: 0.01, ease: "linear" } // Virtually instant for reduced motion
-        : { type: "tween", ease: "easeInOut", duration: animationDuration };
+        ? { type: "spring", stiffness: 100, damping: 20 }
+        : { type: "spring", stiffness: 100, damping: 20, duration: animationDuration };
 
     return {
         headerTargetY,

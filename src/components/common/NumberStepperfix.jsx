@@ -11,7 +11,8 @@ export default function NumberStepper({
     min,
     max,
     value,
-    onChange
+    onChange,
+    labelClassName = 'text-gray-800 text-sm font-semibold',
 }) {
     const intervalRef = useRef(null);
     // This ref, when true, indicates that a touch event has just processed
@@ -147,7 +148,7 @@ export default function NumberStepper({
             animate={{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200, damping: 25 } }}
         >
             <motion.label
-                className="block text-xs text-neutral-500 mb-1"
+                className={`block font-montserrat mb-1 ${labelClassName}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, transition: { delay: 0.1 } }}
             >
@@ -155,21 +156,21 @@ export default function NumberStepper({
             </motion.label>
 
             <motion.div
-                className="inline-flex w-full h-10 px-2 items-center justify-between border border-neutral-200 dark:border-neutral-800 rounded-full overflow-hidden bg-neutral-50 dark:bg-neutral-950 shadow-xl"
+                className="inline-flex w-full h-10 px-2 items-center justify-between border border-neutral-200 dark:border-neutral-800 rounded-full overflow-hidden bg-neutral-100 dark:bg-neutral-200 shadow-xl"
             >
                 {/* Decrement Button */}
                 <motion.button
                     type="button"
                     className={`
-                        w-6 h-6 flex items-center justify-center rounded-full inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800
-                        ${isDecrementDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}
+                        w-6 h-6 flex items-center justify-center rounded-full inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-600
+                        ${isDecrementDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-100 dark:hover:bg-neutral-600'}
                         transition duration-200 ease-in-out`}
                     {...getButtonEventHandlers(-1, isDecrementDisabled)}
                     disabled={isDecrementDisabled}
                     whileTap={{ scale: !isDecrementDisabled ? 0.8 : 1 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
-                    <Icon name="remove" className={'w-4 h-4'} style={{ fontSize: '16px' }} />
+                    <Icon name="remove" className={'w-4 h-4 text-neutral-800 dark:text-neutral-600 hover:dark:text-neutral-200'} style={{ fontSize: '16px' }} />
                 </motion.button>
 
                 {/* Value Display */}
@@ -180,7 +181,7 @@ export default function NumberStepper({
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
                             exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
-                            className="absolute font-montserrat inset-0 flex items-center justify-center"
+                            className="absolute font-montserrat inset-0 flex items-center justify-center font-medium text-neutral-600 dark:text-neutral-600"
                         >
                             {value.toString().padStart(2, '0')}
                         </motion.span>
@@ -191,15 +192,15 @@ export default function NumberStepper({
                 <motion.button
                     type="button"
                     className={`
-                        w-6 h-6 flex items-center justify-center rounded-full inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-800
-                        ${isIncrementDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}
+                        w-6 h-6 flex items-center justify-center rounded-full inset-shadow-sm inset-shadow-neutral-300 dark:inset-shadow-neutral-600
+                        ${isIncrementDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-100 dark:hover:bg-neutral-600'}
                         transition duration-200 ease-in-out`}
                     {...getButtonEventHandlers(1, isIncrementDisabled)}
                     disabled={isIncrementDisabled}
                     whileTap={{ scale: !isIncrementDisabled ? 0.8 : 1 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
-                    <Icon name="add" className={'w-4 h-4'} style={{ fontSize: '16px' }} />
+                    <Icon name="add" className={'w-4 h-4 text-neutral-800 dark:text-neutral-600 hover:dark:text-neutral-200'} style={{ fontSize: '16px' }} />
                 </motion.button>
             </motion.div>
         </motion.div>

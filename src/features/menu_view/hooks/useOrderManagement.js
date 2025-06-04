@@ -1,15 +1,11 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useToast } from '../../../contexts/ToastContext';
 
 export const useOrderManagement = (promoValidationResult = null) => {
     const [orderItems, setOrderItems] = useState([]);
     const [flyingItem, setFlyingItem] = useState(null);
-    
-    // Placeholder if useToast is not actually implemented yet for this exercise
-    const addToast = useCallback((toastData) => {
-        console.log('[Toast Triggered]:', toastData.message, 'Type:', toastData.type || 'info');
-        // In a real app, this would interact with a ToastContext to display a toast.
-    }, []);
-    // const { addToast } = useToast(); // Uncomment this if you have a ToastContext
+
+    const { addToast } = useToast();
 
     const addToOrder = useCallback((itemToAdd, itemImageRect, flyingImageTargetRef) => {
         setOrderItems(prevOrderItems => {
@@ -32,26 +28,35 @@ export const useOrderManagement = (promoValidationResult = null) => {
                 endRect: flyingImageTargetRef.current.getBoundingClientRect(),
             });
         }
-        
-        // Trigger toast notification
-        addToast({ message: `"${itemToAdd.name}" added to order!`, type: "success" });
+
+        // NEW: Trigger toast notification
+        // Ensure itemToAdd.name is available and a string
+        const itemName = itemToAdd.name || 'Item'; // Fallback name
+        addToast(`"${itemName}" added to order!`, "success", 3000);
 
     }, [addToast]); // addToast is now a dependency
 
     const handleUpdateQuantity = useCallback((itemId, newQuantity) => {
         setOrderItems(prevItems => {
             if (newQuantity <= 0) {
+                // Optionally add a toast for item removal if desired
+                // const removedItem = prevItems.find(item => item.id === itemId);
+                // if (removedItem) {
+                //     addToast(`"${removedItem.name}" removed from order.`, "info", 2500);
+                // }
                 return prevItems.filter(item => item.id !== itemId);
             }
             return prevItems.map(item =>
                 item.id === itemId ? { ...item, quantity: newQuantity } : item
             );
         });
-    }, []);
+    }, []); // addToast could be a dependency here if item removal toasts are implemented
 
     const clearOrder = useCallback(() => {
         setOrderItems([]);
-    }, []);
+        // Optionally add a toast when order is cleared, e.g., after successful placement
+        // addToast("Order cleared.", "info", 2000);
+    }, []); // addToast could be a dependency here too
 
     const { subtotal, totalDiscountAmount, finalTotal, appliedPromoUIDetails, itemLevelDiscountsMap } = useMemo(() => {
         const currentSubtotal = orderItems.reduce((sum, item) => {
@@ -62,7 +67,7 @@ export const useOrderManagement = (promoValidationResult = null) => {
 
         let calculatedOverallDiscount = 0;
         let uiPromoDetailsForDisplay = null;
-        const tempItemDiscountsMap = new Map(); 
+        const tempItemDiscountsMap = new Map();
 
         if (promoValidationResult && promoValidationResult.valid === true && !promoValidationResult.error) {
             const {
@@ -81,6 +86,9 @@ export const useOrderManagement = (promoValidationResult = null) => {
                     const minOrderValue = parseFloat(minimum_order_value_for_order_discount);
                     if (!isNaN(minOrderValue) && currentSubtotal < minOrderValue) {
                         meetsMinOrderValueForOrderDiscount = false;
+                        // Note: The actual update to promoValidationResult if min order value isn't met
+                        // is handled in OrderSummaryPanel.jsx. This hook just calculates based on the
+                        // promoValidationResult it receives.
                     }
                 }
 
@@ -91,20 +99,20 @@ export const useOrderManagement = (promoValidationResult = null) => {
                     } else if (promoType === "ORDER_TOTAL_FIXED_AMOUNT") {
                         calculatedOverallDiscount = promoValue;
                         if (calculatedOverallDiscount > 0) uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || `$${promoValue.toFixed(2)} Off Order`, type: promoType };
-                    } else if (promoType === "percentage" || promoType === "fixed_amount_product") { 
+                    } else if (promoType === "percentage" || promoType === "fixed_amount_product") {
                         const applicableProductUUIDs = new Set(applicability?.applicable_target_product_uuids || []);
                         let sumOfItemDiscounts = 0;
 
                         orderItems.forEach(orderItem => {
                             if (orderItem.originalId && applicableProductUUIDs.has(orderItem.originalId)) {
-                                const itemPriceBeforeOptions = parseFloat(orderItem.price) || 0; 
+                                const itemPriceBeforeOptions = parseFloat(orderItem.price) || 0;
                                 const itemQuantity = parseInt(orderItem.quantity, 10) || 0;
                                 const originalItemLineTotal = itemPriceBeforeOptions * itemQuantity;
                                 let discountAmountForThisLineItem = 0;
 
                                 if (promoType === "percentage") {
                                     discountAmountForThisLineItem = originalItemLineTotal * (promoValue / 100);
-                                } else { 
+                                } else {
                                     const discountPerUnit = Math.min(promoValue, itemPriceBeforeOptions);
                                     discountAmountForThisLineItem = discountPerUnit * itemQuantity;
                                 }
@@ -113,10 +121,10 @@ export const useOrderManagement = (promoValidationResult = null) => {
 
                                 if (discountAmountForThisLineItem > 0) {
                                     sumOfItemDiscounts += discountAmountForThisLineItem;
-                                    tempItemDiscountsMap.set(orderItem.id, { 
+                                    tempItemDiscountsMap.set(orderItem.id, {
                                         amount: discountAmountForThisLineItem,
                                         description: public_display_name || (promoType === "percentage" ? `${promoValue}% off` : `$${promoValue.toFixed(2)} off`),
-                                        originalItemTotal: parseFloat(originalItemLineTotal.toFixed(2)), 
+                                        originalItemTotal: parseFloat(originalItemLineTotal.toFixed(2)),
                                     });
                                 }
                             }
@@ -138,17 +146,17 @@ export const useOrderManagement = (promoValidationResult = null) => {
         return {
             subtotal: parseFloat(currentSubtotal.toFixed(2)),
             totalDiscountAmount: parseFloat(calculatedOverallDiscount.toFixed(2)),
-            finalTotal: Math.max(0, parseFloat(currentTotal.toFixed(2))), 
-            appliedPromoUIDetails: uiPromoDetailsForDisplay, 
-            itemLevelDiscountsMap: tempItemDiscountsMap, 
+            finalTotal: Math.max(0, parseFloat(currentTotal.toFixed(2))),
+            appliedPromoUIDetails: uiPromoDetailsForDisplay,
+            itemLevelDiscountsMap: tempItemDiscountsMap,
         };
     }, [orderItems, promoValidationResult]);
 
     return {
         orderItems,
-        setOrderItems, 
+        setOrderItems,
         flyingItem,
-        setFlyingItem, 
+        setFlyingItem,
         addToOrder,
         handleUpdateQuantity,
         clearOrder,
@@ -156,6 +164,6 @@ export const useOrderManagement = (promoValidationResult = null) => {
         totalDiscountAmount,
         finalTotal,
         appliedPromoUIDetails,
-        itemLevelDiscountsMap, 
+        itemLevelDiscountsMap,
     };
 };

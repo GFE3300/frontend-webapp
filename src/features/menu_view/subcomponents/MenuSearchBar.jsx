@@ -1,44 +1,41 @@
-// frontend/src/features/menu_view/subcomponents/MenuSearchBar.jsx
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
 import { usePublicProductSuggestions } from '../../../contexts/ProductDataContext';
 import { useDebounce } from '../../../hooks/useDebounce';
+import { Weight } from 'lucide-react';
 
-// Color Palette (Guideline 2.1)
-const INPUT_BG = "bg-neutral-100 dark:bg-neutral-200"; // from 6.2 (neutral-100 dark:bg-neutral-200)
-const INPUT_BG_FOCUSED = "bg-white dark:bg-neutral-700"; // Custom for focus differentiation, similar to InputField.jsx's dark mode text color on light bg
-const INPUT_TEXT_COLOR = "text-neutral-900 dark:text-neutral-800"; // From 6.2 (neutral-900 dark:text-neutral-800)
-const INPUT_PLACEHOLDER_COLOR = "placeholder-neutral-400 dark:placeholder-neutral-500"; // From 6.2 (neutral-400/500)
-const INPUT_RING_FOCUSED = "ring-2 ring-rose-400 dark:ring-rose-500"; // From 6.2 (focus:ring-rose-400)
-const INPUT_ICON_COLOR = "text-neutral-400 dark:text-neutral-500"; // From 2.3 (neutral-500/400)
+const INPUT_BG = "bg-neutral-100 dark:bg-neutral-200"; 
+const INPUT_BG_FOCUSED = "bg-white dark:bg-neutral-700"; 
+const INPUT_TEXT_COLOR = "text-neutral-900 dark:text-neutral-800";
+const INPUT_PLACEHOLDER_COLOR = "placeholder-neutral-400 dark:placeholder-neutral-500";
+const INPUT_RING_FOCUSED = "ring-2 ring-rose-400 dark:ring-rose-500";
+const INPUT_ICON_COLOR = "text-neutral-400 dark:text-neutral-500";
 
-const DROPDOWN_PANEL_BG = "bg-white dark:bg-neutral-800"; // From 6.3
-const DROPDOWN_PANEL_BORDER = "border border-neutral-200 dark:border-neutral-700"; // From 6.3
-const DROPDOWN_ITEM_HOVER_BG = "hover:bg-rose-50 dark:hover:bg-rose-700/20"; // From 6.3
-const DROPDOWN_ITEM_ACTIVE_BG = "bg-rose-50 dark:bg-rose-700/30"; // From 6.3 (selected state, using for active keyboard nav)
-const DROPDOWN_ITEM_ACTIVE_TEXT = "text-rose-700 dark:text-rose-300"; // From 6.3
+const DROPDOWN_PANEL_BG = "bg-white dark:bg-neutral-800";
+const DROPDOWN_PANEL_BORDER = "border border-neutral-200 dark:border-neutral-700";
+const DROPDOWN_ITEM_HOVER_BG = "hover:bg-rose-50 dark:hover:bg-rose-700/20";
+const DROPDOWN_ITEM_ACTIVE_BG = "bg-rose-50 dark:bg-rose-700/30";
+const DROPDOWN_ITEM_ACTIVE_TEXT = "text-rose-700 dark:text-rose-300";
 const DROPDOWN_ITEM_TEXT_PRIMARY = "text-neutral-700 dark:text-neutral-200";
 const DROPDOWN_ITEM_TEXT_SECONDARY = "text-neutral-500 dark:text-neutral-400";
 
-// Typography (Guideline 2.2)
+// Typography 
 const FONT_INTER = "font-inter";
-const INPUT_TEXT_SIZE = "text-sm"; // Body Medium (14px for inputs is common, alt to 16px)
-const SUGGESTION_NAME_TEXT_SIZE = "text-sm"; // Body Medium
-const SUGGESTION_DETAIL_TEXT_SIZE = "text-xs"; // Body Small/Extra Small
+const INPUT_TEXT_SIZE = "text-sm";
+const SUGGESTION_NAME_TEXT_SIZE = "text-sm"; 
+const SUGGESTION_DETAIL_TEXT_SIZE = "text-xs"; 
 
-// Shadows & Elevation (Guideline 2.5)
-const DROPDOWN_SHADOW = "shadow-lg"; // From 6.3 Dropdowns
+// Shadows & Elevation
+const DROPDOWN_SHADOW = "shadow-lg";
 
-// Borders & Corner Radii (Guideline 2.6)
-const INPUT_RADIUS = "rounded-full"; // From 6.2 (rounded-full)
-const DROPDOWN_RADIUS = "rounded-lg"; // From 6.3 Dropdowns (rounded-xl is also an option, using -lg here)
-const SUGGESTION_IMAGE_RADIUS = "rounded-md";
+// Borders & Corner Radii
+const INPUT_RADIUS = "rounded-full";
+const DROPDOWN_RADIUS = "rounded-2xl";
+const SUGGESTION_IMAGE_RADIUS = "rounded-full";
 
 const ERROR_TEXT = "text-red-600 dark:text-red-400";
-
-const FALLBACK_SUGGESTION_IMAGE = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=40&h=40&q=60';
 
 const MenuSearchBar = ({
     onSearchSubmit,
@@ -51,7 +48,7 @@ const MenuSearchBar = ({
     const [showSuggestionsList, setShowSuggestionsList] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);
 
-    const debouncedSearchTerm = useDebounce(inputValue, 300); // Guideline 4.1: 150-350ms, 300ms is good
+    const debouncedSearchTerm = useDebounce(inputValue, 300);
 
     const {
         data: rawSuggestions = [],
@@ -120,7 +117,7 @@ const MenuSearchBar = ({
                 return;
             }
             setIsFocused(false);
-        }, 150); // Delay to allow click on suggestion
+        }, 150);
     };
 
     const handleSuggestionClick = (suggestion) => {
@@ -149,7 +146,7 @@ const MenuSearchBar = ({
         inputRef.current?.blur();
     };
 
-    const handleKeyDown = (event) => { // Guideline 7: Keyboard Navigation
+    const handleKeyDown = (event) => {
         if (!showSuggestionsList || suggestions.length === 0) {
             if (event.key === 'Enter' && inputValue.trim()) handleSubmit(event);
             return;
@@ -187,13 +184,13 @@ const MenuSearchBar = ({
         if (activeIndex >= 0 && suggestionsListRef.current) {
             const activeElement = suggestionsListRef.current.children[activeIndex];
             activeElement?.scrollIntoView({
-                behavior: 'smooth', // Guideline 4.1: Subtle animation
+                behavior: 'smooth',
                 block: 'nearest',
             });
         }
     }, [activeIndex]);
 
-    const getIconForSuggestionType = (type) => { // Guideline 2.3
+    const getIconForSuggestionType = (type) => {
         switch (type) {
             case 'product': return 'fastfood';
             case 'category': return 'category';
@@ -203,7 +200,6 @@ const MenuSearchBar = ({
         }
     };
     
-    // Input styling (Guideline 6.2)
     const currentInputBgClass = isFocused ? INPUT_BG_FOCUSED : INPUT_BG;
     const currentInputRingClass = isFocused ? INPUT_RING_FOCUSED : 'border border-transparent';
 
@@ -211,13 +207,12 @@ const MenuSearchBar = ({
         <div ref={searchContainerRef} className={`relative w-full ${className} ${FONT_INTER}`}>
             <form onSubmit={handleSubmit} role="search" aria-label="Menu search">
                 <div className="relative">
-                    {/* Search Icon (Guideline 2.3 Small/Medium) */}
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <Icon name="search" className={`w-5 h-5 ${INPUT_ICON_COLOR}`} /> {/* Medium icon size */}
+                        <Icon name="search" className={`w-5 h-5 ${INPUT_ICON_COLOR}`} style={{ fontSize: "1.25rem" }} variations={{ fill: 0, weight: 600, grade: 0, opsz: 48 }} />
                     </div>
                     <input
                         ref={inputRef}
-                        type="search"
+                        type="text"
                         value={inputValue}
                         onChange={handleInputChange}
                         onFocus={handleFocus}
@@ -225,11 +220,10 @@ const MenuSearchBar = ({
                         onKeyDown={handleKeyDown}
                         placeholder="Search menu..."
                         className={`w-full h-10 pl-10 pr-10 py-2 ${INPUT_TEXT_SIZE} ${FONT_INTER} ${INPUT_TEXT_COLOR} ${currentInputBgClass} ${INPUT_PLACEHOLDER_COLOR} ${INPUT_RADIUS} focus:outline-none transition-all duration-150 ${currentInputRingClass}`}
-                        aria-label="Search menu items, categories, or tags" // Guideline 7
+                        aria-label="Search menu items, categories, or tags" 
                         aria-autocomplete="list"
                         aria-expanded={showSuggestionsList && suggestions.length > 0}
                         aria-controls="search-suggestions-listbox"
-                        aria-activedescendant={activeIndex >= 0 && suggestionsListRef.current && suggestionsListRef.current.children[activeIndex] ? suggestionsListRef.current.children[activeIndex].id : undefined}
                     />
                     {inputValue && (
                          <button
@@ -241,23 +235,19 @@ const MenuSearchBar = ({
                             className={`absolute inset-y-0 right-0 pr-3.5 flex items-center ${INPUT_ICON_COLOR} hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors`}
                             aria-label="Clear search input"
                         >
-                            {/* Icon (Guideline 2.3 Small) */}
-                            <Icon name="close" className="w-4 h-4"/>
+                            <Icon name="close" className="w-4 h-4" style={{ fontSize: "1rem" }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 24 }}/>
                         </button>
                     )}
                 </div>
             </form>
 
-            {/* Suggestions Dropdown (Guideline 6.3 Dropdowns & Selectors) */}
             <AnimatePresence>
                 {showSuggestionsList && (
                     <motion.ul
                         id="search-suggestions-listbox"
                         ref={suggestionsListRef}
-                        // Styling: Panel bg, border, shadow, radius
-                        className={`absolute top-full left-0 right-0 mt-1.5 w-full ${DROPDOWN_PANEL_BG} ${DROPDOWN_RADIUS} ${DROPDOWN_SHADOW} overflow-y-auto z-20 ${DROPDOWN_PANEL_BORDER}`}
-                        style={{ maxHeight: '300px' }} // Fixed max height for scrollability
-                        // Animation (Guideline 4.3 Transitions)
+                        className={`absolute font-montserrat top-full left-0 right-0 mt-1.5 w-full ${DROPDOWN_PANEL_BG} ${DROPDOWN_RADIUS} ${DROPDOWN_SHADOW} overflow-y-auto z-20 ${DROPDOWN_PANEL_BORDER}`}
+                        style={{ maxHeight: '300px' }} 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
@@ -273,7 +263,7 @@ const MenuSearchBar = ({
                         )}
                         {!isLoadingSuggestions && isSuggestionsError && (
                              <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${ERROR_TEXT} text-center`}>
-                                <Icon name="error_outline" className="inline w-4 h-4 mr-1 align-text-bottom" /> 
+                                <Icon name="error_outline" className="inline w-4 h-4 mr-1 align-text-bottom" style={{ fontSize: "1rem" }} /> 
                                 {suggestionsError?.message || "Error loading suggestions."}
                             </li>
                         )}
@@ -305,11 +295,11 @@ const MenuSearchBar = ({
                                             src={suggestion.details.image_url}
                                             alt="" // Decorative, main info is in text
                                             className="w-full h-full object-cover"
-                                            onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_SUGGESTION_IMAGE; }}
+                                            onError={(e) => { e.target.onerror = null; }}
                                         />
                                     ) : (
                                         // Icon (Guideline 2.3 Small size for inline with text)
-                                        <Icon name={getIconForSuggestionType(suggestion.type)} className={`w-4 h-4 ${activeIndex === index ? 'opacity-90' : DROPDOWN_ITEM_TEXT_SECONDARY }`} />
+                                        <Icon name={getIconForSuggestionType(suggestion.type)} className={`w-4 h-4 ${activeIndex === index ? 'opacity-90' : DROPDOWN_ITEM_TEXT_SECONDARY }`} style={{ fontSize: "1rem" }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 24 }} />
                                     )}
                                 </div>
                                 

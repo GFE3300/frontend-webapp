@@ -1,33 +1,45 @@
-// frontend/src/features/menu_view/user_page/UserPageHeader.jsx
 import React from 'react';
-import { motion } from 'framer-motion'; // Ensured motion is imported
+// eslint-disable-next-line no-unused-vars
+import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon.jsx';
 import MenuSearchBar from '../subcomponents/MenuSearchBar';
 import CategoryFilterBar from '../subcomponents/CategoryFilterBar';
 import TagFilterPills from '../subcomponents/TagFilterPills';
 
-// Styling Constants (as per Userpage.jsx definitions for consistency)
-const CONTAINER_PADDING_X = "px-4 md:px-6"; // Used by this component directly
+const CONTAINER_PADDING_X = "px-4 md:px-6";
 const HEADER_AREA_PADDING_Y = "py-3 sm:py-4";
 const HEADER_AREA_BG_LIGHT = "bg-white";
 const HEADER_AREA_BG_DARK = "dark:bg-neutral-800";
-const HEADER_AREA_SHADOW = "shadow-md"; // Applied to the overall header and filter bar container
+const HEADER_AREA_SHADOW = "shadow-md";
 
-const LOGO_MAX_HEIGHT_MOBILE = "h-10";
-const LOGO_MAX_HEIGHT_DESKTOP = "h-12";
+const LOGO_MAX_HEIGHT_MOBILE = "h-12 w-12";
+const LOGO_MAX_HEIGHT_DESKTOP = "h-12 sm:w-12";
 const LOGO_MARGIN_RIGHT = "mr-3 sm:mr-4";
-const LOGO_FALLBACK_ICON_SIZE_MOBILE = "w-10 h-10"; // For icon when logo fails/missing
+const LOGO_FALLBACK_ICON_SIZE_MOBILE = "w-10 h-10";
 const LOGO_FALLBACK_ICON_SIZE_DESKTOP = "w-12 h-12";
 const LOGO_FALLBACK_ICON_COLOR = "text-neutral-400 dark:text-neutral-500";
-const LOGO_ROUNDED = "rounded-md"; // Radius for the actual logo image
+const LOGO_ROUNDED = "rounded-full";
 
 const FONT_MONTSERRAT = "font-montserrat";
 const FONT_INTER = "font-inter";
-const FULL_PAGE_TEXT_PRIMARY = "text-neutral-800 dark:text-neutral-100"; // Adjusted for UserPageHeader title
-const FULL_PAGE_TEXT_SECONDARY = "text-neutral-600 dark:text-neutral-300"; // Adjusted for UserPageHeader subtitle
+const FULL_PAGE_TEXT_PRIMARY = "text-neutral-800 dark:text-neutral-100";
+const FULL_PAGE_TEXT_SECONDARY = "text-neutral-600 dark:text-neutral-300";
 const NEUTRAL_TEXT_MUTED = "text-neutral-500 dark:text-neutral-400";
-const ROSE_ACCENT_RING_FOCUS = "focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400"; // For focus states
+const ROSE_ACCENT_RING_FOCUS = "focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400";
 
+/**
+ * Header component for the User Page, including the business logo, table & guest info, search bar, and category/tag filter bars.
+ * @param {Object} venueContext - Venue context object from the parent, containing business name, logo URL, table number, number of people, and user name.
+ * @param {Boolean} logoError - Flag indicating if the logo image failed to load.
+ * @param {Function} onLogoError - Callback to call when the logo image fails to load.
+ * @param {Function} onEditGuestProfile - Callback to call when the "Edit guest info" button is clicked.
+ * @param {Object} searchProps - Props for the MenuSearchBar component.
+ * @param {Object} categoryFilterProps - Props for the CategoryFilterBar component.
+ * @param {Object} tagFilterProps - Props for the TagFilterPills component.
+ * @param {Object} animationProps - Props controlling the animation of the header.
+ * @param {Function} scrollToProductCardFn - Callback to call when a suggestion is selected to scroll to the corresponding product card.
+ * @returns {React.ReactElement} The header component.
+ */
 const UserPageHeader = ({
     venueContext,
     logoError,
@@ -35,32 +47,35 @@ const UserPageHeader = ({
     onEditGuestProfile,
     searchProps,
     categoryFilterProps,
-    tagFilterProps,
-    animationProps, // { headerTargetY, headerTransition }
+    // tagFilterProps,
+    animationProps,
     scrollToProductCardFn,
 }) => {
     const businessName = venueContext?.businessName || "Restaurant Menu";
     const businessLogoUrl = venueContext?.businessLogoUrl;
 
-    // Task 3.1: Logo Display Verification
     const displayFallbackIcon = logoError || !businessLogoUrl;
 
     return (
         <motion.div
             className="sticky top-0 z-30"
-            animate={{ y: animationProps.headerTargetY }} // Task 3.2: Scroll Animation
-            transition={animationProps.headerTransition}   // Task 3.2: Scroll Animation
+            animate={{ y: animationProps.headerTargetY }}
+            transition={animationProps.headerTransition}
         >
             <header className={`${CONTAINER_PADDING_X} ${HEADER_AREA_PADDING_Y} ${HEADER_AREA_BG_LIGHT} ${HEADER_AREA_BG_DARK} ${HEADER_AREA_SHADOW}`} role="banner">
-                <div className="container mx-auto"> {/* Standard container for content centering & max-width */}
+                <div className="container mx-auto">
                     <div className="flex justify-between items-center mb-3 sm:mb-4">
-                        <div className="flex items-center flex-1 min-w-0"> {/* min-w-0 for truncation */}
+                        <div className="flex items-center flex-1 min-w-0">
                             {displayFallbackIcon ? (
-                                <Icon
-                                    name="storefront"
-                                    className={`${LOGO_FALLBACK_ICON_SIZE_MOBILE} sm:${LOGO_FALLBACK_ICON_SIZE_DESKTOP} ${LOGO_MARGIN_RIGHT} ${LOGO_FALLBACK_ICON_COLOR}`}
-                                    aria-label={`${businessName} logo placeholder`}
-                                />
+                                <div
+                                    className={`bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center ${LOGO_MAX_HEIGHT_MOBILE} sm:${LOGO_MAX_HEIGHT_DESKTOP} ${LOGO_ROUNDED} ${LOGO_FALLBACK_ICON_SIZE_MOBILE} sm:${LOGO_FALLBACK_ICON_SIZE_DESKTOP} ${LOGO_MARGIN_RIGHT} ${LOGO_FALLBACK_ICON_COLOR}`}
+                                >
+                                    <Icon
+                                        name="storefront"
+                                        aria-label={`${businessName} logo placeholder`}
+                                        variations={{ fill: 0, weight: 600, grade: 0, opsz: 48 }}
+                                    />
+                                </div>
                             ) : (
                                 <img
                                     src={businessLogoUrl}
@@ -73,11 +88,11 @@ const UserPageHeader = ({
                                     loading="lazy"
                                 />
                             )}
-                            <div className="flex-1 min-w-0"> {/* For text truncation */}
-                                <h1 className={`text-xl sm:text-2xl font-bold ${FONT_MONTSERRAT} ${FULL_PAGE_TEXT_PRIMARY} truncate`} title={businessName}>
+                            <div className="flex-1 min-w-0 font-montserrat">
+                                <h1 className={`text-xl sm:text-2xl font-semibold ${FONT_MONTSERRAT} ${FULL_PAGE_TEXT_PRIMARY} truncate`} title={businessName}>
                                     {businessName}
                                 </h1>
-                                <div className="flex items-center mt-0.5">
+                                <div className="flex items-center font-medium mt-0.5">
                                     <p className={`text-xs sm:text-sm ${FULL_PAGE_TEXT_SECONDARY} truncate ${FONT_INTER}`}>
                                         Table: {venueContext?.tableNumber || "N/A"}
                                         <span className="mx-1 sm:mx-1.5 select-none" aria-hidden="true">•</span>
@@ -85,15 +100,14 @@ const UserPageHeader = ({
                                         <span className="mx-1 sm:mx-1.5 select-none" aria-hidden="true">•</span>
                                         For: {venueContext?.userName || "Guest"}
                                     </p>
-                                    {/* Task 3.3: Edit Info Button */}
                                     {onEditGuestProfile && (
                                         <button
                                             onClick={onEditGuestProfile}
-                                            className={`ml-1.5 sm:ml-2 p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS}`}
+                                            className={`ml-1.5 sm:ml-2 p-1 flex items-center justify-center w-6 h-6 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS}`}
                                             aria-label="Edit guest name and number of guests"
                                             title="Edit guest info"
                                         >
-                                            <Icon name="edit" className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${NEUTRAL_TEXT_MUTED}`} />
+                                            <Icon name="edit" className={`w-4 h-4 ${NEUTRAL_TEXT_MUTED}`} style={{ fontSize: "1rem" }} />
                                         </button>
                                     )}
                                 </div>
@@ -110,8 +124,6 @@ const UserPageHeader = ({
                 </div>
             </header>
 
-            {/* Filter Bars Area - applies its own shadow if header is hidden */}
-            {/* The shadow here might need to be conditional based on scroll state if the main header part is very tall */}
             <div className={`${CONTAINER_PADDING_X} ${HEADER_AREA_BG_LIGHT} ${HEADER_AREA_BG_DARK} py-1 ${animationProps.headerTargetY === "-100%" ? HEADER_AREA_SHADOW : 'sm:shadow-sm'}`}>
                 <div className="container mx-auto">
                     <CategoryFilterBar
@@ -121,14 +133,6 @@ const UserPageHeader = ({
                         isLoading={categoryFilterProps.isLoading}
                         isError={categoryFilterProps.isError}
                         error={categoryFilterProps.error}
-                    />
-                    <TagFilterPills
-                        tagsData={tagFilterProps.tagsData}
-                        activeTagIds={tagFilterProps.activeTagIds}
-                        onToggleTag={tagFilterProps.onToggleTag}
-                        isLoading={tagFilterProps.isLoading}
-                        isError={tagFilterProps.isError}
-                        error={tagFilterProps.error}
                     />
                 </div>
             </div>

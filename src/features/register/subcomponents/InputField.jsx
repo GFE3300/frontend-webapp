@@ -17,6 +17,7 @@ const InputField = memo(forwardRef(({
     label,
     error,
     className,
+    labelClassName = 'text-neutral-700 dark:text-neutral-400',
     ...props
 }, ref) => {
     // ===========================================================================
@@ -68,13 +69,9 @@ const InputField = memo(forwardRef(({
         <div className={`relative ${className}`}>
             {/* Label Animation Container */}
             <motion.div className="relative w-full">
-                <label className="absolute -top-7 left-3 origin-bottom-left pointer-events-none max-h-4.5 max-w-[80%]">
+                <label className={`absolute -top-7 left-3 origin-bottom-left pointer-events-none max-h-4.5 max-w-[80%] `}>
                     <motion.span
-                        className={`text-sm overflow-hidden text-ellipsis whitespace-nowrap max-w-full font-medium font-montserrat transition-colors duration-200 ${
-                            isFocused || hasValue
-                                ? 'text-rose-400 dark:text-rose-400'
-                                : 'text-neutral-700 dark:text-gray-300'
-                        }`}
+                        className={`text-sm overflow-hidden text-ellipsis whitespace-nowrap max-w-full font-medium font-montserrat transition-colors duration-200 ${labelClassName}`}
                         animate={{
                             y: isFocused || hasValue ? -24 : 0,
                             scale: isFocused || hasValue ? 0.85 : 1,
@@ -142,7 +139,7 @@ const InputField = memo(forwardRef(({
                                 {errorText && (
                                     <motion.div
                                         {...animationConfig.tooltipAppear}
-                                        className="absolute z-50 top-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/5" 
+                                        className="absolute z-50 top-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/5"
                                     >
                                         <p className="
                                             bg-white dark:bg-gray-800 

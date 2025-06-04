@@ -1,80 +1,109 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-// eslint-disable-next-line
-import { motion, AnimatePresence } from 'framer-motion';
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import OrderSummaryPanel from '../subcomponents/OrderSummaryPanel';
 import Icon from '../../../components/common/Icon.jsx';
 import useWindowSize from '../../../hooks/useWindowSize.js';
-// or import from a shared location.
 
-// Styling Constants (subset relevant to this controller)
-const PEEK_BAR_HEIGHT_VALUE_PX = 72; // From Userpage
-const PEEK_BAR_TAILWIND_HEIGHT = "h-[72px]"; // From Userpage
-const PEEK_BAR_BG = "bg-rose-600 hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600"; // From Userpage (ROSE_PRIMARY_BUTTON_BG)
-const PEEK_BAR_TEXT_COLOR = "text-white"; // From Userpage (BUTTON_TEXT_ON_ACCENT)
-const PEEK_BAR_RADIUS = "rounded-t-2xl"; // From Userpage
+const PEEK_BAR_HEIGHT_VALUE_PX = 72;
+const PEEK_BAR_TAILWIND_HEIGHT = "h-[72px]";
+const PEEK_BAR_BG = "bg-rose-600 hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600";
+const PEEK_BAR_TEXT_COLOR = "text-white";
+const PEEK_BAR_RADIUS = "rounded-t-2xl";
 
-const PANEL_BG_DRAWER = "bg-white dark:bg-neutral-800"; // From Userpage
-const PANEL_BG_SIDEBAR_LIGHT = "bg-neutral-50 dark:bg-neutral-800/80"; // From Userpage
-const PANEL_RADIUS_SIDEBAR = "rounded-xl"; // From Userpage
+const PANEL_BG_DRAWER = "bg-white/60 dark:bg-neutral-800/60 backdrop-blur-sm";
+const PANEL_BG_SIDEBAR_LIGHT = "bg-neutral-50 dark:bg-neutral-800/80";
+const PANEL_RADIUS_SIDEBAR = "rounded-xl";
 
-const NEUTRAL_BORDER_LIGHTER = "border-neutral-200 dark:border-neutral-700"; // From Userpage
-const FULL_PAGE_TEXT_PRIMARY = "text-neutral-700 dark:text-neutral-200"; // From Userpage for titles
-const NEUTRAL_TEXT_MUTED = "text-neutral-500 dark:text-neutral-400"; // From Userpage for placeholders / muted icons
-const BODY_TEXT_MEDIUM = "text-sm"; // From Userpage for placeholder text
-const FONT_INTER = "font-inter"; // From Userpage
-const FONT_MONTSERRAT = "font-montserrat"; // From Userpage
-const ROSE_ACCENT_RING_FOCUS = "focus:ring-rose-500 dark:focus:ring-rose-400"; // From Userpage
+const NEUTRAL_BORDER_LIGHTER = "border-neutral-200 dark:border-neutral-700";
+const DRAWER_TITLE_TEXT_COLOR = "text-neutral-800 dark:text-neutral-100";
+const NEUTRAL_TEXT_MUTED = "text-neutral-500 dark:text-neutral-400";
+const BODY_TEXT_MEDIUM = "text-sm";
+const FONT_INTER = "font-inter";
+const FONT_MONTSERRAT = "font-montserrat";
+const ROSE_ACCENT_RING_FOCUS = "focus-visible:ring-2 focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800";
+
+const DRAWER_OPEN_MAX_HEIGHT_VH = 85;
+const BACKDROP_BG = "bg-black/60 dark:bg-black/70 backdrop-blur-sm";
+const DRAG_HANDLE_BG = "bg-neutral-300 dark:bg-neutral-500";
+
+const DRAG_SWIPE_THRESHOLD_VH_PERCENT = 30;
+const DRAG_VELOCITY_THRESHOLD = 200;
 
 /**
- * Manages and renders the order summary interface, adapting for mobile (peek bar & draggable drawer)
- * and desktop (sidebar).
- *
- * @param {Array} orderItems - Current items in the order.
- * @param {object} orderFinancials - Object with { subtotal, finalTotal, totalDiscountAmount, appliedPromoUIDetails, itemLevelDiscountsMap }.
- * @param {object} venueContext - Contains businessIdentifierForAPI, tableNumber, userName, numberOfPeople.
- * @param {boolean} isDesktop - True if the current view is desktop.
- * @param {function} onUpdateQuantity - Callback to update item quantity.
- * @param {function} onConfirmOrderAction - Callback to confirm and place the order.
- * @param {object | null} promoValidationResult - Current promo validation result.
- * @param {function} setPromoValidationResult - Function to update promo validation result.
- * @param {function} navigateToMenu - Callback for mobile "Browse Menu" button.
- * @param {React.Ref} interactionAreaRef - Ref for the mobile draggable area (for flying image target).
- * @param {boolean} [shouldReduceMotion=false] - From Framer Motion's useReducedMotion.
+ * Visual indicator for dragging the mobile drawer.
+ * @param {object} props - Component props.
+ * @param {string} [props.className=""] - Additional classes for the drag handle.
+ * @returns {React.ReactElement}
+ */
+const DragHandle = ({ className = "" }) => (
+    <div className={`absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1.5 ${DRAG_HANDLE_BG} rounded-full ${className}`} aria-hidden="true" />
+);
+
+/**
+ * Manages the display and interaction of the order summary,
+ * appearing as a draggable drawer on mobile or a sidebar on desktop.
+ * @param {object} props - Component props.
+ * @param {Array} [props.orderItems=[]] - Array of items in the current order.
+ * @param {object} props.orderFinancials - Object containing subtotal, totalDiscountAmount, finalTotal, appliedPromoUIDetails, itemLevelDiscountsMap.
+ * @param {object} props.venueContext - Contextual information about the venue.
+ * @param {boolean} props.isDesktop - Flag indicating if the view is for desktop.
+ * @param {Function} props.onUpdateQuantity - Callback to update item quantity.
+ * @param {Function} props.onConfirmOrderAction - Callback to confirm and place the order.
+ * @param {Function} props.onPromoValidationChange - Callback to inform parent of promo validation results.
+ * @param {Function} props.navigateToMenu - Callback to navigate to the menu (e.g., from empty order state).
+ * @param {React.RefObject} props.interactionAreaRef - Ref for the main draggable element.
+ * @returns {React.ReactElement | null}
  */
 const OrderInteractionController = ({
     orderItems = [],
-    orderFinancials, // { subtotal, finalTotal, ... }
+    orderFinancials,
     venueContext,
     isDesktop,
     onUpdateQuantity,
     onConfirmOrderAction,
-    promoValidationResult,
-    setPromoValidationResult, // Crucial for OrderSummaryPanel to update Userpage's state
+    onPromoValidationChange, // Added to destructuring
     navigateToMenu,
-    interactionAreaRef, // This ref is for the draggable motion.div on mobile
-    shouldReduceMotion = false,
+    interactionAreaRef,
 }) => {
     const [isDrawerOpenMobile, setIsDrawerOpenMobile] = useState(false);
     const drawerCloseButtonRef = useRef(null);
-    const { height: windowHeight } = useWindowSize(); // Hook to get window dimensions
+    const peekBarTriggerRef = useRef(null);
+    const { height: windowHeight } = useWindowSize();
+    const shouldReduceMotion = useReducedMotion();
 
     const hasOrderItems = orderItems && orderItems.length > 0;
 
-    // Toggle for mobile drawer
     const toggleMobileDrawer = useCallback(() => {
-        if (!hasOrderItems && !isDrawerOpenMobile) return; // Don't open empty drawer unless already open
+        if (!hasOrderItems && !isDrawerOpenMobile) return;
         setIsDrawerOpenMobile(prev => !prev);
     }, [hasOrderItems, isDrawerOpenMobile]);
 
-    // Effect for focus management in mobile drawer
     useEffect(() => {
-        if (!isDesktop && isDrawerOpenMobile && hasOrderItems && drawerCloseButtonRef.current) {
-            const timer = setTimeout(() => drawerCloseButtonRef.current?.focus(), 150);
-            return () => clearTimeout(timer);
+        if (!isDesktop && hasOrderItems) {
+            if (isDrawerOpenMobile && drawerCloseButtonRef.current) {
+                const timer = setTimeout(() => drawerCloseButtonRef.current?.focus(), 150);
+                return () => clearTimeout(timer);
+            }
         }
     }, [isDrawerOpenMobile, isDesktop, hasOrderItems]);
 
-    // Effect for body scroll lock on mobile when drawer is open
+    useEffect(() => {
+        if (!isDesktop && isDrawerOpenMobile) {
+            const handleKeyDown = (event) => {
+                if (event.key === 'Escape') toggleMobileDrawer();
+            };
+            document.addEventListener('keydown', handleKeyDown);
+            return () => document.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [isDrawerOpenMobile, isDesktop, toggleMobileDrawer]);
+
+    useEffect(() => {
+        if (interactionAreaRef && interactionAreaRef.current) {
+            interactionAreaRef.current.setAttribute('data-drawer-state', isDrawerOpenMobile ? 'open' : 'closed');
+        }
+    }, [isDrawerOpenMobile, interactionAreaRef]);
+
     useEffect(() => {
         if (!isDesktop && isDrawerOpenMobile && hasOrderItems) {
             document.body.style.overflow = 'hidden';
@@ -84,61 +113,58 @@ const OrderInteractionController = ({
         return () => { document.body.style.overflow = ''; };
     }, [isDrawerOpenMobile, isDesktop, hasOrderItems]);
 
-
     const handleOrderDrawerDragEnd = (event, info) => {
+        if (shouldReduceMotion) return;
         const { offset, velocity } = info;
-        const swipeThreshold = 50; // px
-        const velocityThreshold = 200; // px/s
+        const openDrawerHeightPx = windowHeight * (DRAWER_OPEN_MAX_HEIGHT_VH / 100);
+        const dragThresholdPx = openDrawerHeightPx * (DRAG_SWIPE_THRESHOLD_VH_PERCENT / 100);
 
-        if (isDrawerOpenMobile) { // If open, can only drag down to peek
-            if (offset.y > swipeThreshold || velocity.y > velocityThreshold) {
-                setIsDrawerOpenMobile(false); // Snap to peek
-            } else {
-                setIsDrawerOpenMobile(true); // Snap back open
-            }
-        } else { // If in peek, can only drag up to open
-            if (offset.y < -swipeThreshold || velocity.y < -velocityThreshold) {
-                setIsDrawerOpenMobile(true); // Snap open
-            } else {
-                setIsDrawerOpenMobile(false); // Snap back to peek
-            }
+        if (isDrawerOpenMobile) {
+            if (offset.y > dragThresholdPx || velocity.y > DRAG_VELOCITY_THRESHOLD) setIsDrawerOpenMobile(false);
+        } else {
+            if (offset.y < -dragThresholdPx || velocity.y < -DRAG_VELOCITY_THRESHOLD) setIsDrawerOpenMobile(true);
         }
     };
 
-    // Animation variants
-    const drawerTransition = shouldReduceMotion ? { duration: 0.01 } : { type: "spring", stiffness: 350, damping: 35, mass: 0.8 };
-    const backdropAnimation = { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } };
+    const drawerTransition = shouldReduceMotion
+        ? { duration: 0.01 }
+        : { type: "spring", stiffness: 380, damping: 32, mass: 0.9 };
+
+    const backdropAnimationVariants = shouldReduceMotion
+        ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.01 } }
+        : { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.3, ease: "circOut" } };
+
+    const openDrawerActualHeight = `${DRAWER_OPEN_MAX_HEIGHT_VH}vh`;
     const mobileDrawerVariants = {
-        open: { y: "0%", height: "85vh", cursor: "default" },
-        peek: { y: `calc(100% - ${PEEK_BAR_HEIGHT_VALUE_PX}px)`, height: `${PEEK_BAR_HEIGHT_VALUE_PX}px`, cursor: "grab" }
+        open: { y: 0, height: openDrawerActualHeight },
+        peek: { y: `calc(${openDrawerActualHeight} - ${PEEK_BAR_HEIGHT_VALUE_PX}px)`, height: openDrawerActualHeight }
     };
 
-    // --- Desktop Rendering ---
-    if (isDesktop) {
-        if (!venueContext) return null; // Should not happen if Userpage orchestrates correctly
+    const peekBarTotalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
+    const peekBarAriaLabel = `View your order. ${peekBarTotalItems} ${peekBarTotalItems === 1 ? 'item' : 'items'}. Total ${orderFinancials.finalTotal?.toFixed(2) || '0.00'}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
 
+    if (isDesktop) {
+        if (!venueContext) return null;
         return (
             <aside ref={interactionAreaRef} className="lg:w-80 xl:w-96 p-4 lg:pl-0 shrink-0" role="complementary" aria-labelledby="desktop-order-summary-title">
                 <h2 id="desktop-order-summary-title" className="sr-only">Order Summary</h2>
                 {hasOrderItems ? (
                     <OrderSummaryPanel
                         orderItems={orderItems}
-                        onUpdateQuantity={onUpdateQuantity}
-                        onConfirmOrderAction={onConfirmOrderAction}
-                        isSidebarVersion={true}
-                        venueContext={venueContext}
-                        hidePanelTitle={false}
-                        // Pass financials and promo state
                         subtotal={orderFinancials.subtotal}
                         totalDiscountAmount={orderFinancials.totalDiscountAmount}
                         finalTotal={orderFinancials.finalTotal}
                         appliedPromoUIDetails={orderFinancials.appliedPromoUIDetails}
                         itemLevelDiscountsMap={orderFinancials.itemLevelDiscountsMap}
-                        promoValidationResult={promoValidationResult}
-                        setPromoValidationResult={setPromoValidationResult}
+                        onUpdateQuantity={onUpdateQuantity}
+                        onConfirmOrderAction={onConfirmOrderAction}
+                        onPromoValidationChange={onPromoValidationChange} // Pass it down
+                        isSidebarVersion={true}
+                        venueContext={venueContext}
+                        hidePanelTitle={false}
                     />
                 ) : (
-                    <div className={`h-full flex items-center justify-center ${PANEL_BG_SIDEBAR_LIGHT} ${FULL_PAGE_TEXT_PRIMARY} shadow-xl ${PANEL_RADIUS_SIDEBAR} p-6 text-center`}>
+                    <div className={`h-full flex items-center justify-center ${PANEL_BG_SIDEBAR_LIGHT} ${DRAWER_TITLE_TEXT_COLOR} shadow-xl ${PANEL_RADIUS_SIDEBAR} p-6 text-center ${FONT_INTER}`}>
                         <p className={`${NEUTRAL_TEXT_MUTED} ${BODY_TEXT_MEDIUM}`}>Your order summary will appear here once you add items.</p>
                     </div>
                 )}
@@ -146,94 +172,99 @@ const OrderInteractionController = ({
         );
     }
 
-    // --- Mobile Rendering ---
-    if (!hasOrderItems) { // If no items on mobile, render nothing for order area
-        return null;
+    if (!hasOrderItems) {
+        return <div ref={interactionAreaRef} data-drawer-state="closed" />;
     }
 
     return (
         <>
             <AnimatePresence>
-                {isDrawerOpenMobile && ( // Backdrop only for full drawer
+                {isDrawerOpenMobile && (
                     <motion.div
-                        key="order-drawer-backdrop-oic" // Unique key
-                        className="fixed inset-0 bg-black/60 dark:bg-black/70 backdrop-blur-sm z-45" // Ensure z-index is below drawer
-                        variants={backdropAnimation}
+                        key="order-drawer-backdrop-oic"
+                        className={`fixed inset-0 ${BACKDROP_BG} z-40`}
+                        variants={backdropAnimationVariants}
                         initial="initial" animate="animate" exit="exit"
-                        transition={shouldReduceMotion ? { duration: 0.01 } : { duration: 0.3, ease: "circOut" }}
                         onClick={toggleMobileDrawer}
                         aria-hidden="true"
                     />
                 )}
             </AnimatePresence>
             <motion.div
-                key="mobile-order-interaction-area-oic" // Unique key
-                ref={interactionAreaRef} // Parent (Userpage) passes this ref
+                key="mobile-order-interaction-area-oic"
+                ref={interactionAreaRef}
                 className={`fixed left-0 right-0 bottom-0 z-50 ${PEEK_BAR_RADIUS} ${isDrawerOpenMobile ? PANEL_BG_DRAWER : PEEK_BAR_BG} shadow-2xl flex flex-col`}
-                drag="y"
-                dragConstraints={{ top: 0, bottom: Math.max(0, windowHeight - PEEK_BAR_HEIGHT_VALUE_PX) }}
+                drag={!shouldReduceMotion && hasOrderItems ? "y" : false}
+                dragConstraints={{ top: 0, bottom: parseFloat(mobileDrawerVariants.peek.y.match(/[\d.-]+/)[0]) }}
                 dragElastic={0.2}
+                dragSnapToOrigin={false}
                 onDragEnd={handleOrderDrawerDragEnd}
                 animate={isDrawerOpenMobile ? "open" : "peek"}
                 variants={mobileDrawerVariants}
                 transition={drawerTransition}
-                // onTap removed to prevent conflict with drag; click on peek content will handle open
-                role={isDrawerOpenMobile ? "dialog" : "button"} // Role changes based on state
+                role={isDrawerOpenMobile ? "dialog" : undefined}
                 aria-modal={isDrawerOpenMobile ? "true" : undefined}
-                aria-labelledby={isDrawerOpenMobile ? "order-drawer-title-mobile-oic" : "peek-bar-label-oic"}
+                aria-labelledby={isDrawerOpenMobile ? "order-drawer-title-mobile-oic" : undefined}
                 aria-expanded={isDrawerOpenMobile}
+                style={{ cursor: (hasOrderItems && !isDrawerOpenMobile && !shouldReduceMotion) ? "grab" : "default" }}
+                onDragStart={() => { if (hasOrderItems && !isDrawerOpenMobile && !shouldReduceMotion && interactionAreaRef.current) interactionAreaRef.current.style.cursor = "grabbing"; }}
+                onDragTransitionEnd={() => { if (interactionAreaRef.current) interactionAreaRef.current.style.cursor = (hasOrderItems && !isDrawerOpenMobile && !shouldReduceMotion) ? "grab" : "default"; }}
             >
-                {isDrawerOpenMobile ? (
+                <motion.div
+                    ref={peekBarTriggerRef}
+                    className={`flex font-montserrat items-center justify-between p-4 ${PEEK_BAR_TAILWIND_HEIGHT} ${PEEK_BAR_TEXT_COLOR} w-full shrink-0 
+                                ${hasOrderItems ? 'cursor-pointer' : 'cursor-default'} 
+                                ${isDrawerOpenMobile ? 'hidden' : 'flex'} transition-opacity duration-100`}
+                    onClick={hasOrderItems ? toggleMobileDrawer : undefined}
+                    tabIndex={hasOrderItems && !isDrawerOpenMobile ? 0 : -1}
+                    role={hasOrderItems && !isDrawerOpenMobile ? "button" : undefined}
+                    onKeyDown={(e) => { if (hasOrderItems && !isDrawerOpenMobile && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleMobileDrawer(); } }}
+                    aria-label={peekBarAriaLabel}
+                    aria-expanded="false"
+                >
+                    <DragHandle className={PEEK_BAR_BG === "bg-rose-600 hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600" ? "bg-rose-300 dark:bg-rose-300" : DRAG_HANDLE_BG} />
+                    <span className={`${FONT_INTER} font-medium text-sm`}>
+                        View Your Order ({peekBarTotalItems} {peekBarTotalItems === 1 ? 'item' : 'items'})
+                    </span>
+                    <span className={`${FONT_MONTSERRAT} font-bold text-base`}>
+                        ${orderFinancials.finalTotal?.toFixed(2) || '0.00'}
+                    </span>
+                </motion.div>
+
+                {isDrawerOpenMobile && (
                     <>
-                        {/* Drawer Header */}
-                        <div className={`p-3 flex justify-between items-center border-b ${NEUTRAL_BORDER_LIGHTER} shrink-0`}>
-                            <h3 id="order-drawer-title-mobile-oic" className={`text-lg font-semibold ${FONT_MONTSERRAT} ${FULL_PAGE_TEXT_PRIMARY} pl-2`}>
+                        <div className={`p-3 flex justify-between items-center border-b ${NEUTRAL_BORDER_LIGHTER} shrink-0 relative`}>
+                            <DragHandle className={DRAG_HANDLE_BG} />
+                            <h3 id="order-drawer-title-mobile-oic" className={`text-lg font-semibold ${FONT_MONTSERRAT} ${DRAWER_TITLE_TEXT_COLOR} pl-2`}>
                                 Your Order
                             </h3>
                             <button
                                 ref={drawerCloseButtonRef}
                                 onClick={toggleMobileDrawer}
-                                className={`p-1.5 rounded-full ${NEUTRAL_TEXT_MUTED} hover:text-neutral-700 dark:hover:text-neutral-200 focus:outline-none focus:ring-2 ${ROSE_ACCENT_RING_FOCUS} transition-colors`}
+                                className={`p-1.5 rounded-full ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none ${ROSE_ACCENT_RING_FOCUS} transition-colors`}
                                 aria-label="Close order summary"
                             >
                                 <Icon name="close" className="w-6 h-6" />
                             </button>
                         </div>
-                        {/* Scrollable Drawer Content */}
                         <div className="flex-1 overflow-y-auto">
                             <OrderSummaryPanel
                                 orderItems={orderItems}
-                                onUpdateQuantity={onUpdateQuantity}
-                                onConfirmOrderAction={onConfirmOrderAction}
-                                isSidebarVersion={false}
-                                venueContext={venueContext}
-                                navigateToMenu={navigateToMenu} // Pass down for "Browse Menu" button
-                                hidePanelTitle={true} // Title is in drawer header
-                                // Pass financials and promo state
                                 subtotal={orderFinancials.subtotal}
                                 totalDiscountAmount={orderFinancials.totalDiscountAmount}
                                 finalTotal={orderFinancials.finalTotal}
                                 appliedPromoUIDetails={orderFinancials.appliedPromoUIDetails}
                                 itemLevelDiscountsMap={orderFinancials.itemLevelDiscountsMap}
-                                promoValidationResult={promoValidationResult}
-                                setPromoValidationResult={setPromoValidationResult}
+                                onUpdateQuantity={onUpdateQuantity}
+                                onConfirmOrderAction={onConfirmOrderAction}
+                                onPromoValidationChange={onPromoValidationChange}
+                                isSidebarVersion={false}
+                                venueContext={venueContext}
+                                navigateToMenu={navigateToMenu}
+                                hidePanelTitle={true}
                             />
                         </div>
                     </>
-                ) : (
-                    // Peek Bar Content
-                    <div
-                        id="peek-bar-label-oic"
-                        className={`flex items-center justify-between p-4 ${PEEK_BAR_TAILWIND_HEIGHT} ${PEEK_BAR_TEXT_COLOR} w-full h-full cursor-pointer`}
-                        onClick={toggleMobileDrawer} // Open drawer on click
-                    >
-                        <span className={`${FONT_INTER} font-medium`}>
-                            View Your Order ({orderItems.reduce((sum, item) => sum + item.quantity, 0)} items)
-                        </span>
-                        <span className={`${FONT_MONTSERRAT} font-bold text-lg`}>
-                            ${orderFinancials.finalTotal?.toFixed(2) || '0.00'}
-                        </span>
-                    </div>
                 )}
             </motion.div>
         </>

@@ -40,7 +40,7 @@ const Spinner = ({
             className={`
                 ${spinnerSizeClass} 
                 ${thickness}
-                ${trackColor}              نابغه // Base border color for the track (all sides)
+                ${trackColor}                // Base border color for the track (all sides)
                 ${activeBorderSegmentColor}  // Active color for the top segment (overrides top border)
                 rounded-full 
                 animate-spin 

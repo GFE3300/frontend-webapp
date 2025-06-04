@@ -1,7 +1,7 @@
 import React from 'react';
 import MenuDisplayLayout from '../subcomponents/MenuDisplayLayout'; 
 
-const CONTAINER_PADDING_X = "px-4 md:px-6";
+const CONTAINER_PADDING_X = "px-0 md:px-6";
 
 const MenuContentArea = ({
     menuDisplayProps, 

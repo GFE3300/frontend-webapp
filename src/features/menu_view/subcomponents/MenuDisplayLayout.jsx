@@ -1,18 +1,17 @@
-// frontend/src/features/menu_view/subcomponents/MenuDisplayLayout.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion, useReducedMotion } from 'framer-motion'; // Added useReducedMotion
+import { motion, useReducedMotion } from 'framer-motion';
 import MenuItemCard from './MenuItemCard';
 import HorizontalScroll from './HorizontalScroll';
 import Icon from '../../../components/common/Icon.jsx';
 import Spinner from '../../../components/common/Spinner.jsx';
 import SkeletonProductCard from '../../../components/loaders/SkeletonProductCard.jsx';
 
-// Constants for desktop layout
 const DESKTOP_VERTICAL_SPACING_BETWEEN_PAIRED_ITEMS = 'space-y-5';
 
-// Styling constants from Userpage.jsx for consistency (can be centralized later)
-const ROSE_PRIMARY_BUTTON_BG = "bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500";
-const BUTTON_TEXT_ON_ACCENT = "text-white";
+const BUTTON_PRIMARY_BG = "bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500";
+const BUTTON_PRIMARY_TEXT = "text-white";
+const BUTTON_PRIMARY_CLASSES = `${BUTTON_PRIMARY_BG} ${BUTTON_PRIMARY_TEXT} font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-300 dark:focus-visible:ring-offset-neutral-900`;
+
 
 const chunkArray = (array, chunkSize) => {
     const chunks = [];
@@ -59,9 +58,9 @@ function MenuDisplayLayout({
     isFiltered,
     isFetchingWhileFiltered,
     isLoadingProductsInitial,
-    isError, // Added for product loading errors
-    error,   // Added for product loading errors
-    clearAllFilters // <<<< NEW PROP
+    isError,
+    error,
+    clearAllFilters // Passed down from Userpage.jsx, sourced from useMenuDataAndFilters.js
 }) {
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
     const shouldReduceMotion = useReducedMotion();
@@ -157,26 +156,25 @@ function MenuDisplayLayout({
         );
     }
     
-    // Handle product loading error state
     if (isError) {
         return (
             <motion.div
                 initial="initial" animate="in" exit="out"
                 variants={{ ...pageVariants, in: { ...pageVariants.in, transition: pageTransition } }}
                 className="flex flex-col items-center justify-center h-full p-8 text-center min-h-[calc(100vh-350px)]"
-                aria-live="polite"
+                aria-live="polite" 
+                role="alert"  
             >
                 <Icon name="error_outline" className="w-20 h-20 md:w-24 md:h-24 text-red-400 dark:text-red-500 mb-6" />
-                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3">
+                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3 font-montserrat"> 
                     Oops! Could not load menu.
                 </h2>
-                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base">
+                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base font-inter"> 
                     {error?.message || "There was a problem fetching the menu items."}
                 </p>
-                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6">
+                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6 font-inter"> 
                     Please try again in a moment, or contact staff if the issue persists.
                 </p>
-                {/* Optionally, a retry button could be added here if a refetch function is available */}
             </motion.div>
         );
     }
@@ -185,10 +183,10 @@ function MenuDisplayLayout({
     if (sortedCategoriesToRender.length === 0) {
         const message = isFiltered
             ? "No menu items match your current selection."
-            : "The menu is currently empty."; // Simplified general empty state
+            : "The menu is currently empty."; 
         const iconName = isFiltered ? "search_off" : "sentiment_very_dissatisfied";
         const suggestionText = isFiltered
-            ? "Try adjusting your search or filters." // Removed "explore all items" since button provides that
+            ? "Try adjusting your search or filters."
             : "Please check back later or ask our staff for assistance.";
 
         return (
@@ -196,24 +194,26 @@ function MenuDisplayLayout({
                 initial="initial" animate="in" exit="out"
                 variants={{ ...pageVariants, in: { ...pageVariants.in, transition: pageTransition } }}
                 className="flex flex-col items-center justify-center h-full p-8 text-center min-h-[calc(100vh-350px)]"
-                aria-live="polite"
+                aria-live="polite" // Guideline 7: ARIA
             >
                 <Icon name={iconName} className="w-20 h-20 md:w-24 md:h-24 text-neutral-400 dark:text-neutral-500 mb-6" />
-                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3">
+                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3 font-montserrat"> 
                     {isFiltered ? "No Results Found" : "Menu Empty"}
                 </h2>
-                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base">
+                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base font-inter"> 
                     {message}
                 </p>
-                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6">
+                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6 font-inter"> 
                     {suggestionText}
                 </p>
-                {isFiltered && clearAllFilters && ( // Check if clearAllFilters is provided
+                {/* G.2: Clear Filters & Search Button */}
+                {isFiltered && typeof clearAllFilters === 'function' && (
                     <motion.button
-                        onClick={clearAllFilters} // Call the passed function
-                        className={`mt-6 ${ROSE_PRIMARY_BUTTON_BG} ${BUTTON_TEXT_ON_ACCENT} font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-300 dark:focus-visible:ring-offset-neutral-900`}
+                        onClick={clearAllFilters}
+                        className={`mt-6 ${BUTTON_PRIMARY_CLASSES}`} // Using defined button styles
                         whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
                         whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
+                        aria-label="Clear all active filters and search query" // Guideline 7: ARIA
                     >
                         Clear Filters & Search
                     </motion.button>
@@ -244,7 +244,7 @@ function MenuDisplayLayout({
                         className="mb-10 last:mb-0"
                         variants={{ ...categorySectionVariants, animate: { ...categorySectionVariants.animate, transition: categorySectionTransition } }}
                         initial="initial"
-                        whileInView="animate" // Framer Motion will use the "animate" variant when in view
+                        whileInView="animate"
                         viewport={{ once: true, amount: 0.1 }}
                         aria-labelledby={`category-title-${categoryDetails.id}`}
                     >
@@ -257,14 +257,18 @@ function MenuDisplayLayout({
                             </span>
                             <h3
                                 id={`category-title-${categoryDetails.id}`}
-                                className="font-montserrat font-semibold text-2xl text-neutral-800 dark:text-neutral-100"
+                                className="font-montserrat font-semibold text-2xl text-neutral-800 dark:text-neutral-100" // Typography Guideline
                             >
                                 {categoryDetails.name}
                             </h3>
                         </motion.div>
 
                         <motion.div variants={{ ...itemsContainerVariants, animate: { ...itemsContainerVariants.animate, transition: itemsContainerTransition } }}>
-                            <HorizontalScroll className="pl-4 pr-2 md:pl-6 md:pr-4">
+                            <HorizontalScroll 
+                                className="
+                                    flex items-center h-90
+                                    pl-4 pr-2 md:pl-6 md:pr-4 overflow-y-visible"
+                            >
                                 {isDesktop ? (
                                     chunkArray(categoryDetails.items, 2).map((itemPair, pairIndex) => (
                                         <div
