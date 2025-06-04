@@ -1,3 +1,4 @@
+// frontend/src/services/api.js
 import axios from 'axios';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
@@ -170,9 +171,9 @@ const apiService = {
      */
     getActiveVenueLayout: async () => {
         try {
-            console.log("[API SERVICE] Attempting to fetch active venue layout from /api/venue/layout/active/");
+            // console.log("[API SERVICE] Attempting to fetch active venue layout from /api/venue/layout/active/");
             const response = await apiInstance.get('venue/layout/active/');
-            console.log("[API SERVICE] Active venue layout fetched successfully. Status:", response.status);
+            // console.log("[API SERVICE] Active venue layout fetched successfully. Status:", response.status);
             return response; // Consumers can access response.data
         } catch (error) {
             console.error("[API SERVICE] Error fetching active venue layout:", error.response?.data || error.message || error);
@@ -190,9 +191,9 @@ const apiService = {
     saveActiveVenueLayout: async (layoutData) => {
         try {
             // Using JSON.parse(JSON.stringify()) for logging ensures circular references are handled if any, and object is fully resolved.
-            console.log("[API SERVICE] Attempting to save active venue layout to /api/venue/layout/active/. Data snapshot:", JSON.parse(JSON.stringify(layoutData)));
+            // console.log("[API SERVICE] Attempting to save active venue layout to /api/venue/layout/active/. Data snapshot:", JSON.parse(JSON.stringify(layoutData)));
             const response = await apiInstance.put('venue/layout/active/', layoutData);
-            console.log("[API SERVICE] Active venue layout saved successfully. Status:", response.status);
+            // console.log("[API SERVICE] Active venue layout saved successfully. Status:", response.status);
             return response; // Consumers can access response.data
         } catch (error) {
             console.error("[API SERVICE] Error saving active venue layout:", error.response?.data || error.message || error);
@@ -213,11 +214,11 @@ const apiService = {
             return Promise.reject(new Error(errMsg));
         }
         try {
-            console.log(`[API SERVICE] Attempting to fetch QR code for itemId: ${itemId} from /api/venue/layout-item/${itemId}/qr-code/`);
+            // console.log(`[API SERVICE] Attempting to fetch QR code for itemId: ${itemId} from /api/venue/layout-item/${itemId}/qr-code/`);
             const response = await apiInstance.get(`venue/layout-item/${itemId}/qr-code/`, {
                 responseType: 'blob'
             });
-            console.log(`[API SERVICE] QR code for itemId ${itemId} fetched. Type: ${response.data?.type}, Size: ${response.data?.size}`);
+            // console.log(`[API SERVICE] QR code for itemId ${itemId} fetched. Type: ${response.data?.type}, Size: ${response.data?.size}`);
             return response.data;
         } catch (error) {
             let errorMessage = `[API SERVICE] Failed to fetch QR for item ${itemId}.`;
@@ -228,7 +229,7 @@ const apiService = {
                         const errorJson = JSON.parse(errorJsonText);
                         errorMessage += ` Server error: ${errorJson.detail || errorJson.message || errorJsonText}`;
                     } catch (e) {
-                        console.error("[API SERVICE] Failed to parse blob error response:", e);
+                        // console.error("[API SERVICE] Failed to parse blob error response:", e);
                         errorMessage += ` Server returned an error (could not parse blob response). Status: ${error.response.status}.`;
                     }
                 } else if (error.response.data?.detail) {
@@ -243,7 +244,7 @@ const apiService = {
             } else {
                 errorMessage += ` Error: ${error.message || 'Unknown error'}.`;
             }
-            console.error(`[API SERVICE] Error fetching QR code for itemId ${itemId}. Full error: `, error, "Constructed message:", errorMessage);
+            // console.error(`[API SERVICE] Error fetching QR code for itemId ${itemId}. Full error: `, error, "Constructed message:", errorMessage);
 
             const customError = new Error(errorMessage);
             customError.status = error.response?.status;
@@ -270,6 +271,19 @@ const apiService = {
             console.error("[API SERVICE] Error fetching admin menu preview products:", error.response?.data || error.message || error);
             throw error; // TanStack Query will handle this error
         }
+    },
+
+    // --- Payment Related API Signatures ---
+    /**
+     * Creates a Stripe Checkout session.
+     * @param {object} checkoutPayload - Payload containing the plan identifier, success_url, and cancel_url.
+     *        e.g., { plan_name: "your_internal_plan_id", success_url: "...", cancel_url: "...", customer_email?: "..." }
+     * @returns {Promise<AxiosResponse<object>>} The Axios response object containing session data (e.g., session ID).
+     */
+    createCheckoutSession: (checkoutPayload) => {
+        console.log("[API SERVICE] Attempting to create Stripe Checkout session with payload:", checkoutPayload);
+        // The endpoint here is 'stripe/create-checkout-session/' as per the PlanAndPaymentPage requirements
+        return apiInstance.post('stripe/create-checkout-session/', checkoutPayload);
     },
 };
 

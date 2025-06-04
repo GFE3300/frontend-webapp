@@ -1,5 +1,8 @@
+// frontend/src/services/queryKeys.js
 export const PRODUCTS_BASE_KEY = 'products';
 export const VENUE_BASE_KEY = 'venue';
+export const PAYMENTS_BASE_KEY = 'payments'; // New base key
+export const SUBSCRIPTIONS_BASE_KEY = 'subscriptions'; // New base key
 
 export const queryKeys = {
     // Product related data for dropdowns, selectors, etc. in AddProductModal
@@ -25,7 +28,7 @@ export const queryKeys = {
 
     // Public Venue/Menu Data (Customer Facing)
     publicTableInfo: (tableLayoutItemId) => [VENUE_BASE_KEY, 'public-table-info', tableLayoutItemId],
-    publicProductsList: (businessIdentifier, filters, paginationParams) => 
+    publicProductsList: (businessIdentifier, filters, paginationParams) =>
         [PRODUCTS_BASE_KEY, 'public-list', businessIdentifier, { ...filters, ...paginationParams }],
     publicCategories: (businessIdentifier) => [PRODUCTS_BASE_KEY, 'public-categories', businessIdentifier],
     publicProductTags: (businessIdentifier) => [PRODUCTS_BASE_KEY, 'public-tags', businessIdentifier],
@@ -34,4 +37,10 @@ export const queryKeys = {
     publicProductSuggestions: (businessIdentifier, query) =>
         [PRODUCTS_BASE_KEY, 'public-search-suggestions', businessIdentifier, query],
 
+    // Payment related keys (placeholder for now, mutations don't typically have queryKeys here but base is good)
+    // Example: paymentHistory: (userId) => [PAYMENTS_BASE_KEY, 'history', userId],
+
+    // Subscription related keys
+    subscriptionStatus: [SUBSCRIPTIONS_BASE_KEY, 'status'], // For fetching current user's subscription status
+    // Example: subscriptionDetails: (subscriptionId) => [SUBSCRIPTIONS_BASE_KEY, 'details', subscriptionId],
 };

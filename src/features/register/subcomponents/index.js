@@ -9,7 +9,6 @@ import { PasswordStrength } from './PasswordStrength';
 import { StageTracker } from './StageTracker';
 import TagInput from './TagInput';
 import TrustFooter from './TrustFooter';
-import PlanSelection from './PlanSelection';
 
 export {
     BubbleAnimation,
@@ -23,5 +22,4 @@ export {
     StageTracker,
     TagInput,
     TrustFooter,
-    PlanSelection
 };

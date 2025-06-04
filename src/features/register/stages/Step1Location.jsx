@@ -4,7 +4,7 @@ import React, { memo, useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce'; // For debouncing geocoding
 
-import { useGoogleMapsApi } from '../maps/MapLoader'; // To ensure API is loaded for geocoding
+import MapLoader, { useGoogleMapsApi } from '../maps/MapLoader'; // To ensure API is loaded for geocoding and provide MapLoader
 import { useMapDisplay } from '../maps/MapDisplayContextProvider';
 import { useReverseGeocoder } from '../maps/useReverseGeocoder'; // Our new hook
 
@@ -12,15 +12,7 @@ import MapViewport from '../maps/MapViewport';
 import AddressForm from '../maps/AddressForm';
 import AutocompleteInput from '../maps/AutocompleteInput';
 import GeolocationButton from '../maps/GeolocationButton';
-import MapLoader from '../maps/MapLoader';
 import MapDisplayContextProvider from '../maps/MapDisplayContextProvider';
-// MapLoader and MapDisplayContextProvider are used in Step1LocationWrapper below
-// import MapLoader from '../maps/MapLoader';
-// import MapDisplayContextProvider from '../maps/MapDisplayContextProvider';
-
-
-// Placeholder for localized strings if needed for this component directly
-// const scriptLines_Step1Location = { /* ... */ };
 
 /**
  * @typedef {import('../maps/AddressForm').AddressData} AddressData
@@ -104,7 +96,7 @@ const Step1Location = memo(({ formData, updateField, errors, countryOptions }) =
         }
     }, [formData?.locationCoords, updateMarkerVisualPosition, updateMapVisualCenter]);
 
-    // Effect 2: MODIFIED - Task 1.3: Handle results from useReverseGeocoder hook
+    // Handle results from useReverseGeocoder hook
     useEffect(() => {
         if (geocodedAddress && isGeocodingFromMap) { // MODIFIED: Check isGeocodingFromMap
             // Conditionally update formData.address
@@ -123,7 +115,6 @@ const Step1Location = memo(({ formData, updateField, errors, countryOptions }) =
             setIsGeocodingFromMap(false); // MODIFIED: Reset flag
         }
     }, [geocodedAddress, geocodingError, updateField, addressSource, isGeocodingFromMap]); // MODIFIED: Added addressSource and isGeocodingFromMap to dependencies
-    // END MODIFIED
 
     // Effect 3: Initial geocode if coords exist but address doesn't (e.g., on page load with persisted coords)
     useEffect(() => {
@@ -313,8 +304,6 @@ export default function Step1LocationWrapper(props) {
 
     const initialCoords = formData?.locationCoords;
 
-    // If formData.locationCoords is null/undefined, initialCenter will use DEFAULT_MAP_CENTER (from MapDisplayContextProvider's default prop)
-    // and initialMarkerPosition will be null (correct).
     const initialCenter = isValidCoords(initialCoords) ? initialCoords : undefined; // Pass undefined to let provider use default
     const initialMarkerPosition = isValidCoords(initialCoords) ? initialCoords : null;
 

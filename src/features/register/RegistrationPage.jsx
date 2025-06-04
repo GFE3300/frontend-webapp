@@ -17,12 +17,13 @@ import {
     Step4Preferences,
     Step5ProfileImage
 } from './stages';
+import { useToast } from '../../contexts/ToastContext';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
     FormStep,
     StageTracker,
     BubbleAnimation,
     TrustFooter,
-    PlanSelection
 } from './subcomponents';
 
 // Animation Configuration (defined once at the module level)
@@ -58,6 +59,7 @@ const RegistrationPage = () => {
     // ===========================================================================
     // State & Refs
     // ===========================================================================
+    const navigate = useNavigate();
     const { width } = useWindowSize();
     const vortexRef = useRef(null); // Ref for BubbleAnimation to trigger turbulence
     const formState = useFormState({
@@ -77,6 +79,8 @@ const RegistrationPage = () => {
     const [fileUploadErrors, setFileUploadErrors] = useState({});
 
     const { login: contextLogin } = useAuth();
+
+    const { addToast } = useToast();
 
     // ===========================================================================
     // Effects & Handlers
@@ -104,9 +108,11 @@ const RegistrationPage = () => {
         if (!isFinalStepValid) return;
 
         setFormFlowStatus('submitting_main');
-        setFileUploadErrors({}); 
+        setFileUploadErrors({});
 
         const businessAddressData = formState.formData.address || {};
+        const locationCoordsData = formState.formData.locationCoords || {};
+
         const registrationData = {
             email: formState.formData.email,
             password: formState.formData.password,
@@ -129,7 +135,18 @@ const RegistrationPage = () => {
             business_address_postal_code: businessAddressData.postalCode,
             business_address_country: businessAddressData.country,
             business_address_formatted: businessAddressData.formattedAddress,
+
+            business_latitude: typeof locationCoordsData.lat === 'number' ? locationCoordsData.lat : null,
+            business_longitude: typeof locationCoordsData.lng === 'number' ? locationCoordsData.lng : null,
         };
+
+        if (typeof locationCoordsData.lat === 'number' && isFinite(locationCoordsData.lat)) {
+            registrationData.business_latitude = locationCoordsData.lat;
+        }
+        if (typeof locationCoordsData.lng === 'number' && isFinite(locationCoordsData.lng)) {
+            registrationData.business_longitude = locationCoordsData.lng;
+        }
+
         const cleanRegistrationData = Object.fromEntries(
             Object.entries(registrationData).filter(([_, v]) => v !== null && v !== undefined && v !== '')
         );
@@ -176,15 +193,15 @@ const RegistrationPage = () => {
                         // For plain string errors (less common for DRF validation but possible)
                         messages.push(errorData);
                     }
-                    
+
                     if (messages.length > 0) {
                         errorMessage = messages.join('; ');
                     } else {
-                         // If errorData is present but couldn't be parsed into specific messages
+                        // If errorData is present but couldn't be parsed into specific messages
                         errorMessage = `An error occurred (Status: ${error.response.status}). Please check your input.`;
                     }
                 } else {
-                     // No error.response.data, but there is an error.response status
+                    // No error.response.data, but there is an error.response status
                     errorMessage = `An error occurred (Status: ${error.response.status}). Please try again.`;
                 }
             } else if (error.request) {
@@ -196,8 +213,8 @@ const RegistrationPage = () => {
             }
 
             formState.setGeneralError(errorMessage);
-            setFormFlowStatus('filling_form'); 
-            return; 
+            setFormFlowStatus('filling_form');
+            return;
         }
 
         // --- File Uploads ---
@@ -254,6 +271,18 @@ const RegistrationPage = () => {
             finalMessage += "You can manage these from your dashboard.";
             formState.setGeneralError(finalMessage);
             setFormFlowStatus('final_success_with_issues');
+        }
+
+        if (allUploadsSuccessful && Object.keys(fileUploadErrors).length === 0) {
+            // formState.resetForm(); // Optional: reset form if needed, though navigation will occur
+            addToast("Registration successful! Please choose a plan to activate your account.", "success"); // Optional toast
+            navigate('/plans'); // Redirect
+        } else {
+            // Handle success with issues, but still redirect to plans.
+            // The error message from formState.setGeneralError will still be relevant.
+            // The user can sort out file uploads later from their dashboard.
+            addToast("Account created! Some file uploads had issues, you can manage them from your dashboard. Please choose a plan.", "warning", 5000);
+            navigate('/plans'); // Redirect
         }
 
     }, [formState, contextLogin]);
@@ -361,21 +390,7 @@ const RegistrationPage = () => {
                         </motion.div>
                     )}
 
-                    {formFlowStatus === 'selecting_plan' && (
-                        <motion.div
-                            key="plan-selection"
-                            variants={ANIMATION_CONFIG.pageTransition}
-                            initial="initial" animate="animate" exit="exit"
-                        >
-                            <PlanSelection
-                                onPlanSelect={handlePlanSelectedAndSubmit}
-                                themeColor="rose"
-                                isLoading={formFlowStatus === 'submitting_final'}
-                            />
-                        </motion.div>
-                    )}
-
-                    {formFlowStatus === 'final_success' && ( // A view for final success message
+                    {formFlowStatus === 'final_success' && (
                         <motion.div
                             key="final-success-view"
                             // ... animation props for success page ...

@@ -1,8 +1,13 @@
+// frontend/src/features/payments/subcomponents/PlanSelection.jsx
+// Content is identical to the provided frontend/src/features/register/subcomponents/PlanSelection.jsx
+// The key change is its new file path and the import below:
+
 import React, { memo, useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion, useReducedMotion } from 'framer-motion';
 import Icon from "../../../components/common/Icon";
+// This import path is relative to the new location and should still work:
 import { scriptLines_Components as scriptLines } from '../utils/script_lines';
 
 /**
@@ -30,7 +35,7 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
     const PLANS_DATA = useMemo(() => {
         const staticPlanData = [ // Define non-localizable parts here
             {
-                id: 'basic',
+                id: 'starter_essentials', // Matches updated ID in script_lines
                 iconName: 'bolt',
                 featuresLogic: [true, true, true, true, true, false, false, false], // Corresponds to features text
                 theme: {
@@ -43,7 +48,7 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
                 highlight: false,
             },
             {
-                id: 'standard',
+                id: 'growth_accelerator', // Matches updated ID in script_lines
                 iconName: 'mode_heat',
                 featuresLogic: [true, true, true, true, true, true, true, true],
                 theme: { // Theme for standard plan depends on the global themeColor prop
@@ -61,7 +66,7 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
                 }
             },
             {
-                id: 'premium',
+                id: 'premium_pro_suite', // Matches updated ID in script_lines
                 iconName: 'verified',
                 featuresLogic: [true, true, true, true, true, true, true],
                 theme: {
@@ -122,6 +127,7 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
      * @param {Object} plan - The full plan object that was selected.
      */
     const handleSelectAndProceed = useCallback((plan) => {
+        console.log("[PlanSelection] handleSelectAndProceed() called for plan:", plan);
         if (isProcessingSelection || isLoading) return; // Prevent multiple clicks or selection during global load
 
         setIsProcessingSelection(true);
@@ -135,6 +141,7 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
             // and potentially resetting this component's `isProcessingSelection` via a prop if needed,
             // or this component will reset upon unmount/re-render if `isLoading` from parent changes.
             // For this example, we don't automatically reset isProcessingSelection here.
+            // setIsProcessingSelection(false); // Parent should control this via isLoading or other means
         }, 800); // 800ms delay for visual feedback of processing.
     }, [onPlanSelect, isProcessingSelection, isLoading]);
 
@@ -166,7 +173,8 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
             exit="exit"
             data-testid="plan-selection"
         >
-            {/* Page Header: Title and Subtitle */}
+            {/* Page Header: Title and Subtitle - This part is often handled by the parent page (PlanAndPaymentPage) */}
+            {/* 
             <motion.div
                 className="text-center mb-12 sm:mb-16"
                 initial={{ opacity: 0, y: prefersReducedMotion ? 0 : -20 }}
@@ -178,7 +186,8 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
                 <p className="mt-4 text-lg sm:text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
                     {scriptLines.planSelection.subtitle}
                 </p>
-            </motion.div>
+            </motion.div> 
+            */}
 
             {/* Plan Cards Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl w-full">
@@ -292,6 +301,7 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
                                     disabled={isProcessingSelection || isLoading}
                                     className={`w-full mt-auto py-3.5 px-6 rounded-lg font-semibold text-md sm:text-lg transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900
                                                 ${isProcessingSelection && selectedPlanId === plan.id ? 'opacity-70 cursor-wait' : ''}
+                                                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} 
                                                 ${plan.theme.buttonClass} shadow-md hover:shadow-lg`}
                                     whileHover={{ scale: (isProcessingSelection || isLoading) ? 1 : 1.03, y: (isProcessingSelection || isLoading) ? 0 : -2 }}
                                     whileTap={{ scale: (isProcessingSelection || isLoading) ? 1 : 0.97 }}
@@ -300,7 +310,7 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
                                 >
                                     {isProcessingSelection && selectedPlanId === plan.id ? (
                                         <> <Icon name="hourglass_top" className="animate-spin w-5 h-5 mr-2 inline" /> {scriptLines.planSelection.buttons.processing} </>
-                                    ) : selectedPlanId === plan.id ? (
+                                    ) : selectedPlanId === plan.id ? ( // This state might not be reached if parent handles redirect quickly
                                         <> <Icon name="done_all" className="w-5 h-5 mr-2 inline" /> {scriptLines.planSelection.buttons.planSelected} </>
                                     ) : (
                                         scriptLines.planSelection.buttons.chooseThisPlan
@@ -312,10 +322,12 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
                 })}
             </div>
 
-            {/* Footer Note */}
+            {/* Footer Note - This part is often handled by the parent page (PlanAndPaymentPage) */}
+            {/* 
             <p className="mt-12 sm:mt-16 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 text-center max-w-md mx-auto">
                 {scriptLines.planSelection.footerNote}
-            </p>
+            </p> 
+            */}
         </motion.div>
     );
 };
@@ -332,7 +344,7 @@ PlanSelection.propTypes = {
 
 // Specify default props for optional props.
 PlanSelection.defaultProps = {
-    themeColor: '', // Default theme color from localized strings
+    themeColor: scriptLines.planSelection.themeColorDefault, // Default theme color from localized strings
     isLoading: false, // Not loading by default
 };
 
