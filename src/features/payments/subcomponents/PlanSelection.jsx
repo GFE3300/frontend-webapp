@@ -212,9 +212,6 @@ const PlanSelection = ({ onPlanSelect, themeColor = '', isLoading = false }) => 
                             whileHover={!isProcessingSelection && !isLoading && (!selectedPlanId || selectedPlanId === plan.id) ? { y: prefersReducedMotion ? 0 : -8, transition: { type: 'spring', stiffness: 250, damping: 15 } } : {}}
                             data-testid={`plan-card-${plan.id}`}
                         >
-                            {/* Background Gradient Effect */}
-                            <div className={`absolute inset-0 opacity-30 ${plan.theme.gradientFrom} ${plan.theme.gradientTo}`} />
-
                             {/* Discount Badge (Top-Left, if applicable) */}
                             {discountActive && plan.discount.offerTitle && ( // Ensure offerTitle exists to display this badge
                                 <div className={`absolute -top-px -left-px px-4 py-1.5 text-xs font-semibold text-white ${discountBadgeBgColor} rounded-br-xl rounded-tl-lg shadow-md z-10`}>

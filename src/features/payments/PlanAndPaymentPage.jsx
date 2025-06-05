@@ -54,7 +54,7 @@ const PlanAndPaymentPage = () => {
             console.log('[PlanAndPaymentPage] Creating checkout session with payload:', payload);
             const response = await apiService.createCheckoutSession(payload); // Using the new method in apiService
 
-            const sessionId = response.data?.session_id;
+            const sessionId = response.data?.sessionId;
 
             if (!sessionId) {
                 console.error('[PlanAndPaymentPage] Session ID not received from backend. Response data:', response.data);

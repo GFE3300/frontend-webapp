@@ -1,8 +1,7 @@
-// frontend/src/services/queryKeys.js
 export const PRODUCTS_BASE_KEY = 'products';
 export const VENUE_BASE_KEY = 'venue';
-export const PAYMENTS_BASE_KEY = 'payments'; // New base key
-export const SUBSCRIPTIONS_BASE_KEY = 'subscriptions'; // New base key
+export const PAYMENTS_BASE_KEY = 'payments'; // Existing or ensure it's here
+export const SUBSCRIPTIONS_BASE_KEY = 'subscriptions'; // New or ensure it's here
 
 export const queryKeys = {
     // Product related data for dropdowns, selectors, etc. in AddProductModal
@@ -36,9 +35,6 @@ export const queryKeys = {
     // Public Product Suggestions (Customer Facing)
     publicProductSuggestions: (businessIdentifier, query) =>
         [PRODUCTS_BASE_KEY, 'public-search-suggestions', businessIdentifier, query],
-
-    // Payment related keys (placeholder for now, mutations don't typically have queryKeys here but base is good)
-    // Example: paymentHistory: (userId) => [PAYMENTS_BASE_KEY, 'history', userId],
 
     // Subscription related keys
     subscriptionStatus: [SUBSCRIPTIONS_BASE_KEY, 'status'], // For fetching current user's subscription status

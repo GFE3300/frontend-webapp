@@ -1,11 +1,15 @@
+// frontend/src/features/dashboard/DashboardHeader.jsx
+
 import React, { useState, useRef, useEffect, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSubscription } from '../../contexts/SubscriptionContext'; // Import useSubscription
 import Icon from '../../components/common/Icon';
 
 const DashboardHeader = () => {
     const { user, logout } = useAuth();
+    const { subscription, isLoading: isSubscriptionLoading, error: subscriptionError } = useSubscription(); // Use the hook
     const navigate = useNavigate();
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,6 +45,23 @@ const DashboardHeader = () => {
         visible: { opacity: 1, y: 0 },
     };
 
+    const getSubscriptionDisplay = () => {
+        if (isSubscriptionLoading) {
+            return <span className="text-xs text-neutral-500 dark:text-neutral-400">Loading plan...</span>;
+        }
+        if (subscriptionError) {
+            return <span className="text-xs text-red-500 dark:text-red-400">Plan error</span>;
+        }
+        if (subscription && subscription.is_active) {
+            return <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{subscription.plan_name_display}</span>;
+        }
+        if (subscription && !subscription.is_active) {
+             return <span className="text-xs text-amber-600 dark:text-amber-400">Plan: {subscription.plan_name_display} ({subscription.status_display})</span>;
+        }
+        return <Link to="/plans" className="text-xs text-rose-600 dark:text-rose-400 hover:underline">No Active Plan</Link>;
+    };
+
+
     if (!user) {
         // This shouldn't happen if the route is protected, but as a fallback
         return (
@@ -60,6 +81,7 @@ const DashboardHeader = () => {
                     {/* Left Section: Logo and Business Name */}
                     <div className="flex items-center">
                         <Link to="/dashboard/business" className="flex-shrink-0">
+                            {/* <img className="h-8 w-auto" src="/path/to/your/logo.svg" alt="Business Logo" /> */}
                             <span className="sr-only">Business Dashboard</span>
                         </Link>
                         <div className="hidden md:block ml-6">
@@ -67,8 +89,10 @@ const DashboardHeader = () => {
                                 <span className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
                                     {user.activeBusinessName || "Business Dashboard"}
                                 </span>
-                                {/* Optional: Tagline or breadcrumb placeholder */}
-                                {/* <span className="text-xs text-neutral-500 dark:text-neutral-400">/ Overview</span> */}
+                                {/* Display Subscription Plan */}
+                                <div className="ml-2 pl-2 border-l border-neutral-300 dark:border-neutral-600">
+                                    {getSubscriptionDisplay()}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -145,10 +169,12 @@ const DashboardHeader = () => {
                                         <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700">
                                             <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate">{user.firstName} {user.lastName}</p>
                                             <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{user.email}</p>
+                                            <div className="mt-1">{getSubscriptionDisplay()}</div> {/* Subscription display in profile dropdown */}
                                         </div>
                                         {/* Add more links as needed */}
                                         <Link to="/dashboard/business/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Your Profile</Link>
                                         <Link to="/dashboard/business/settings" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Account Settings</Link>
+                                        <Link to="/plans" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Manage Subscription</Link>
                                         {/* <button onClick={() => { alert('Switch Business Clicked'); setIsProfileMenuOpen(false); }} className="w-full text-left block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Switch Business</button> */}
                                         <button
                                             onClick={handleLogout}
@@ -178,6 +204,12 @@ const DashboardHeader = () => {
                         id="mobile-dashboard-menu"
                     >
                         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                            <div className="px-3 py-2">
+                                <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">
+                                    {user.activeBusinessName || "Business"}
+                                </span>
+                                <div className="mt-1">{getSubscriptionDisplay()}</div> {/* Subscription display in mobile menu */}
+                            </div>
                             {/* Mobile Nav Links - Placeholder */}
                             <Link to="/dashboard/business" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Dashboard</Link>
                             <Link to="/dashboard/business/orders" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Orders</Link>
@@ -200,6 +232,7 @@ const DashboardHeader = () => {
                             <div className="mt-3 px-2 space-y-1">
                                 <Link to="/dashboard/business/profile" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Your Profile</Link>
                                 <Link to="/dashboard/business/settings" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Settings</Link>
+                                <Link to="/plans" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Manage Subscription</Link>
                                 <button
                                     onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
                                     className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-700/20"

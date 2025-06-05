@@ -276,14 +276,22 @@ const apiService = {
     // --- Payment Related API Signatures ---
     /**
      * Creates a Stripe Checkout session.
-     * @param {object} checkoutPayload - Payload containing the plan identifier, success_url, and cancel_url.
-     *        e.g., { plan_name: "your_internal_plan_id", success_url: "...", cancel_url: "...", customer_email?: "..." }
+     * @param {object} checkoutPayload - Payload containing the plan identifier.
+     *        e.g., { plan_name: "your_internal_plan_id" }
      * @returns {Promise<AxiosResponse<object>>} The Axios response object containing session data (e.g., session ID).
      */
     createCheckoutSession: (checkoutPayload) => {
         console.log("[API SERVICE] Attempting to create Stripe Checkout session with payload:", checkoutPayload);
-        // The endpoint here is 'stripe/create-checkout-session/' as per the PlanAndPaymentPage requirements
-        return apiInstance.post('stripe/create-checkout-session/', checkoutPayload);
+        return apiInstance.post('payments/create-checkout-session/', checkoutPayload);
+    },
+
+    /**
+     * Fetches the current user's subscription status.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response object containing subscription data.
+     */
+    getSubscriptionStatus: () => {
+        console.log("[API SERVICE] Fetching subscription status from /api/payments/subscription-status/");
+        return apiInstance.get('payments/subscription-status/');
     },
 };
 

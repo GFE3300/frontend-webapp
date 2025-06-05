@@ -1,5 +1,3 @@
-// frontend/src/App.jsx
-
 import React from 'react';
 // Router
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -18,8 +16,8 @@ import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
 import AdminMenuPreviewPage from './pages/AdminMenuPreviewPage.jsx';
 import UserpageWrapper from './features/menu_view/Userpage.jsx';
 import PlanAndPaymentPage from './features/payments/PlanAndPaymentPage.jsx';
-import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx'; // Added
-import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';  // Added
+import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx'; 
+import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';  
 
 // Venue Layout Management (Existing)
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
@@ -30,10 +28,11 @@ import PrivateRoute from './components/common/PrivateRoute.jsx';
 // Contexts & Providers
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext'; // New Import
 import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
 import { ThemeProvider } from './utils/ThemeProvider.jsx';
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
-import { ToastProvider } from './contexts/ToastContext'; // Ensure ToastProvider is here
+import { ToastProvider } from './contexts/ToastContext'; 
 
 // DND Imports
 import { DndProvider } from 'react-dnd';
@@ -42,7 +41,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 
 // Initialize Stripe (outside of the component to avoid re-creating on re-renders)
-// Replace with your actual Stripe publishable key, ideally from environment variables
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 if (!stripePublishableKey) {
     console.error("Stripe publishable key is not set. Please set VITE_STRIPE_PUBLISHABLE_KEY in your .env file.");
@@ -70,7 +68,7 @@ const DNDBackendsConfig = {
             backend: TouchBackend,
             options: { enableMouseEvents: false, delayTouchStart: 150 },
             preview: true,
-            transition: { event: 'touchstart', capture: true }, // Simplified transition example
+            transition: { event: 'touchstart', capture: true }, 
         },
     ],
 };
@@ -79,7 +77,7 @@ const DNDBackendsConfig = {
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <VenueDesignerPage />,
+        element: <VenueDesignerPage />, // Or your landing page
         errorElement: <NotFoundPage />,
     },
     {
@@ -99,7 +97,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/logout",
-        // Placeholder
+        // Placeholder for logout logic, usually handled within AuthContext/components
     },
     {
         path: "/register",
@@ -135,14 +133,18 @@ const router = createBrowserRouter([
     },
     {
         path: "/venue-designer",
-        element: <VenueDesignerPage />,
+        element: ( // Assuming VenueDesignerPage might also need to be private
+            <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
+                 <VenueDesignerPage />
+            </PrivateRoute>
+        ),
         errorElement: <NotFoundPage />,
     },
     {
         path: "/plans",
         element: (
             <PrivateRoute requiredRoles={['USER', 'ADMIN', 'MANAGER', 'STAFF']}>
-                {stripePromise ? ( // Only render if stripePromise is loaded
+                {stripePromise ? ( 
                     <Elements stripe={stripePromise}>
                         <PlanAndPaymentPage />
                     </Elements>
@@ -154,12 +156,12 @@ const router = createBrowserRouter([
         errorElement: <NotFoundPage />,
     },
     {
-        path: "/payment-success", // Added
+        path: "/payment-success", 
         element: <PaymentSuccessPage />,
         errorElement: <NotFoundPage />,
     },
     {
-        path: "/payment-cancel",  // Added
+        path: "/payment-cancel",  
         element: <PaymentCancelPage />,
         errorElement: <NotFoundPage />,
     },
@@ -170,15 +172,17 @@ function App() {
         <React.StrictMode>
             <QueryClientProvider client={queryClient}>
                 <DndProvider backend={MultiBackend} options={DNDBackendsConfig}>
-                    <AuthProvider>
-                        <ToastProvider> {/* Make sure ToastProvider wraps components using useToast */}
-                            <FlyingImageProvider>
-                                <ThemeProvider>
-                                    <ThemeToggleButton />
-                                    <RouterProvider router={router} />
-                                </ThemeProvider>
-                            </FlyingImageProvider>
-                        </ToastProvider>
+                    <AuthProvider> {/* AuthProvider is outer */}
+                        <SubscriptionProvider> {/* SubscriptionProvider is inner */}
+                            <ToastProvider>
+                                <FlyingImageProvider>
+                                    <ThemeProvider>
+                                        <ThemeToggleButton />
+                                        <RouterProvider router={router} />
+                                    </ThemeProvider>
+                                </FlyingImageProvider>
+                            </ToastProvider>
+                        </SubscriptionProvider>
                     </AuthProvider>
                 </DndProvider>
             </QueryClientProvider>
