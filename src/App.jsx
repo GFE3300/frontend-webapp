@@ -12,12 +12,20 @@ import LoginPage from './pages/LoginPage.jsx';
 import CompleteProfilePage from './pages/CompleteProfilePage.jsx';
 import RegistrationPage from './features/register/RegistrationPage.jsx';
 import BusinessLoginPage from './pages/BusinessLoginPage.jsx';
-import BusinessDashboardPage from './pages/BusinessDashboardPage.jsx';
 import AdminMenuPreviewPage from './pages/AdminMenuPreviewPage.jsx';
 import UserpageWrapper from './features/menu_view/Userpage.jsx';
 import PlanAndPaymentPage from './features/payments/PlanAndPaymentPage.jsx';
-import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx'; 
-import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';  
+import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx';
+import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';
+
+import DashboardLayout from './features/dashboard/DashboardLayout.jsx';
+import OverviewPage from './features/dashboard/pages/OverviewPage.jsx';
+import OrdersPage from './features/dashboard/pages/OrdersPage.jsx';
+import ProductsPage from './features/dashboard/pages/ProductsPage.jsx';
+import InventoryPage from './features/dashboard/pages/InventoryPage.jsx';
+import VenuePage from './features/dashboard/pages/VenuePage.jsx'; // For dashboard context of venue management
+import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
+import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 
 // Venue Layout Management (Existing)
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
@@ -32,7 +40,8 @@ import { SubscriptionProvider } from './contexts/SubscriptionContext'; // New Im
 import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
 import { ThemeProvider } from './utils/ThemeProvider.jsx';
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
-import { ToastProvider } from './contexts/ToastContext'; 
+import { ToastProvider } from './contexts/ToastContext';
+import { Navigate } from 'react-router-dom';
 
 // DND Imports
 import { DndProvider } from 'react-dnd';
@@ -68,7 +77,7 @@ const DNDBackendsConfig = {
             backend: TouchBackend,
             options: { enableMouseEvents: false, delayTouchStart: 150 },
             preview: true,
-            transition: { event: 'touchstart', capture: true }, 
+            transition: { event: 'touchstart', capture: true },
         },
     ],
 };
@@ -77,7 +86,8 @@ const DNDBackendsConfig = {
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <VenueDesignerPage />, // Or your landing page
+        // element: <VenueDesignerPage />, // Changed to default to dashboard for now
+        element: <Navigate to="/dashboard/business" replace />, // Redirect root to dashboard
         errorElement: <NotFoundPage />,
     },
     {
@@ -109,14 +119,42 @@ const router = createBrowserRouter([
         element: <CompleteProfilePage />,
         errorElement: <NotFoundPage />,
     },
+
     {
-        path: "/dashboard/business",
+        path: "/dashboard/business", // Parent route for dashboard
         element: (
             <PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
-                <BusinessDashboardPage />
+                <DashboardLayout />
             </PrivateRoute>
         ),
         errorElement: <NotFoundPage />,
+        children: [ // Nested routes for dashboard sections
+            { index: true, element: <Navigate to="overview" replace /> }, // Default to overview
+            { path: "overview", element: <OverviewPage /> },
+            { path: "orders", element: <OrdersPage /> },
+            { path: "products", element: <ProductsPage /> },
+            { path: "inventory", element: <InventoryPage /> },
+            { path: "venue", element: <VenuePage /> }, // Main page for venue tools
+            { path: "analytics", element: <AnalyticsPage /> },
+            { path: "settings", element: <SettingsPage /> },
+            // Keep existing more specific dashboard routes if they are still needed or should be sub-routes
+            {
+                path: "menu-preview", // e.g. /dashboard/business/menu-preview
+                element: (
+                    <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
+                        <AdminMenuPreviewPage />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: "venue-designer", // e.g. /dashboard/business/venue-designer
+                element: (
+                    <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
+                        <VenueDesignerPage />
+                    </PrivateRoute>
+                ),
+            },
+        ]
     },
     {
         path: "/dashboard/unauthorized",
@@ -135,7 +173,7 @@ const router = createBrowserRouter([
         path: "/venue-designer",
         element: ( // Assuming VenueDesignerPage might also need to be private
             <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
-                 <VenueDesignerPage />
+                <VenueDesignerPage />
             </PrivateRoute>
         ),
         errorElement: <NotFoundPage />,
@@ -144,7 +182,7 @@ const router = createBrowserRouter([
         path: "/plans",
         element: (
             <PrivateRoute requiredRoles={['USER', 'ADMIN', 'MANAGER', 'STAFF']}>
-                {stripePromise ? ( 
+                {stripePromise ? (
                     <Elements stripe={stripePromise}>
                         <PlanAndPaymentPage />
                     </Elements>
@@ -156,12 +194,12 @@ const router = createBrowserRouter([
         errorElement: <NotFoundPage />,
     },
     {
-        path: "/payment-success", 
+        path: "/payment-success",
         element: <PaymentSuccessPage />,
         errorElement: <NotFoundPage />,
     },
     {
-        path: "/payment-cancel",  
+        path: "/payment-cancel",
         element: <PaymentCancelPage />,
         errorElement: <NotFoundPage />,
     },

@@ -1,42 +1,141 @@
-import React from 'react';
+// src/features/dashboard/Sidebar.jsx
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Icon from '../../components/common/Icon';
+import SidebarNavItem from './subcomponents/SidebarNavItem';
+import Icon from '../../components/common/Icon'; // Adjusted path
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../contexts/AuthContext'; // For business name
+
+// Optional SidebarHeader (simple version)
+const SidebarHeader = ({ isCollapsed, businessName }) => (
+    <div className={`h-16 flex items-center border-b border-neutral-200 dark:border-neutral-700 transition-all duration-300 ease-in-out ${isCollapsed ? 'px-2 justify-center' : 'px-6'}`}>
+        <Link to="/dashboard/business" className="flex items-center gap-2 overflow-hidden">
+            {/* Placeholder for a real logo */}
+            <div className={`flex-shrink-0 p-1.5 rounded-md ${isCollapsed ? 'bg-rose-500 dark:bg-rose-600' : 'bg-rose-100 dark:bg-rose-800'}`}>
+                <Icon name="donut_small" className={`w-6 h-6 transition-colors ${isCollapsed ? 'text-white' : 'text-rose-500 dark:text-rose-400'}`} />
+            </div>
+            <AnimatePresence>
+                {!isCollapsed && (
+                    <motion.span
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2, delay: 0.1 }}
+                        className="text-xl font-semibold text-neutral-800 dark:text-neutral-100 whitespace-nowrap"
+                    >
+                        {businessName || "SmoreDash"}
+                    </motion.span>
+                )}
+            </AnimatePresence>
+        </Link>
+    </div>
+);
+
+// Optional SidebarFooter (simple version with toggle)
+const SidebarFooter = ({ isCollapsed, toggleCollapse }) => (
+    <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
+        <button
+            onClick={toggleCollapse}
+            className={`w-full flex items-center h-10 px-3 rounded-lg text-sm font-medium 
+                        text-neutral-600 dark:text-neutral-300 
+                        hover:bg-neutral-100 dark:hover:bg-neutral-700 
+                        focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500
+                        transition-all duration-300 ease-in-out
+                        ${isCollapsed ? 'justify-center' : ''}
+                      `}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+            <Icon name={isCollapsed ? "chevron_right" : "chevron_left"} className="w-5 h-5 flex-shrink-0" />
+            <AnimatePresence>
+                {!isCollapsed && (
+                    <motion.span
+                        key="toggle-label"
+                        initial={{ opacity: 0, width: 0, marginLeft: 0 }}
+                        animate={{ opacity: 1, width: 'auto', marginLeft: '0.5rem' }}
+                        exit={{ opacity: 0, width: 0, marginLeft: 0 }}
+                        transition={{ duration: 0.2, ease: "easeInOut", delay: 0.1 }}
+                        className="overflow-hidden whitespace-nowrap"
+                    >
+                        Collapse
+                    </motion.span>
+                )}
+            </AnimatePresence>
+        </button>
+    </div>
+);
+
 
 const Sidebar = () => {
+    const { user } = useAuth();
+    const [isCollapsed, setIsCollapsed] = useState(localStorage.getItem('sidebarCollapsed') === 'true');
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // md breakpoint
+
+    useEffect(() => {
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }, [isCollapsed]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            if (mobile && !isCollapsed) { // Auto-collapse on mobile if expanded
+                setIsCollapsed(true);
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial check
+        return () => window.removeEventListener('resize', handleResize);
+    }, []); // Empty dependency to run once on mount
+
+    const toggleCollapse = () => {
+        if (isMobile && !isCollapsed) { // If mobile and trying to expand, it might not be desired
+            return; // Or handle mobile menu differently
+        }
+        setIsCollapsed(!isCollapsed);
+    };
+
     const navItems = [
-        { name: 'Overview', icon: 'dashboard', path: '/dashboard/business' },
+        { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview' },
         { name: 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders' },
-        { name: 'Products', icon: 'inventory_2', path: '/dashboard/business/products' },
+        { name: 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products' },
         { name: 'Inventory', icon: 'inventory', path: '/dashboard/business/inventory' },
-        { name: 'Customers', icon: 'groups', path: '/dashboard/business/customers' },
+        { name: 'Venue', icon: 'storefront', path: '/dashboard/business/venue' },
         { name: 'Analytics', icon: 'analytics', path: '/dashboard/business/analytics' },
         { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings' },
     ];
 
+    const sidebarVariants = {
+        expanded: { width: '16rem' }, // w-64
+        collapsed: { width: isMobile ? '0rem' : '5rem' }, // w-0 on mobile, w-20 on desktop
+    };
+
+    if (isMobile && isCollapsed) { // On mobile, completely hide sidebar if collapsed (or use off-canvas)
+        return null; // Or a button to toggle an off-canvas menu
+    }
+
+
     return (
-        <aside className="w-64 bg-white dark:bg-neutral-800 shadow-lg flex-shrink-0 print:hidden md:flex flex-col">
-            {/* Sidebar Header (Optional - could be part of main header for consistency) */}
-            <div className="h-16 flex items-center justify-center border-b border-neutral-200 dark:border-neutral-700">
-                {/* You could put a compact logo or business selector here */}
-                <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">SmoreDash</span>
-            </div>
-            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <motion.aside
+            initial={false}
+            animate={isCollapsed ? "collapsed" : "expanded"}
+            variants={sidebarVariants}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="bg-white dark:bg-neutral-800 shadow-lg flex-shrink-0 print:hidden flex flex-col h-screen fixed md:static z-30 md:z-auto left-0 top-0" // Fixed for mobile overlay idea
+        >
+            <SidebarHeader isCollapsed={isCollapsed} businessName={user?.activeBusinessName} />
+            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto"> {/* Reduced padding and space */}
                 {navItems.map((item) => (
-                    <Link
+                    <SidebarNavItem
                         key={item.name}
                         to={item.path}
-                        className="flex items-center px-3 py-2.5 text-sm font-medium text-neutral-600 dark:text-neutral-300 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-rose-600 dark:hover:text-rose-400 group transition-colors"
-                    >
-                        <Icon name={item.icon} className="mr-3 h-5 w-5 flex-shrink-0" />
-                        {item.name}
-                    </Link>
+                        iconName={item.icon}
+                        label={item.name}
+                        isCollapsed={isCollapsed}
+                    />
                 ))}
             </nav>
-            {/* Optional Footer in Sidebar */}
-            <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">© {new Date().getFullYear()} Smore</p>
-            </div>
-        </aside>
+            {!isMobile && <SidebarFooter isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />}
+        </motion.aside>
     );
 };
 

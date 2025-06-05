@@ -1,6 +1,5 @@
 import React from 'react';
 import DashboardLayout from '../features/dashboard/DashboardLayout';
-import StatCard from '../features/dashboard/StatCard';
 import Icon from '../components/common/Icon';
 import { useAuth } from '../contexts/AuthContext';
 import ProductsTable from '../features/products_table/ProductsTable';
@@ -29,20 +28,6 @@ const BusinessDashboardPage = () => {
                     </button>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {stats.map(stat => (
-                        <StatCard
-                            key={stat.title}
-                            title={stat.title}
-                            value={stat.value}
-                            iconName={stat.iconName}
-                            iconColorClass={stat.iconColorClass}
-                            trend={stat.trend}
-                            trendDirection={stat.trendDirection}
-                        />
-                    ))}
-                </div>
 
                 {/* Placeholder for Recent Activity / Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

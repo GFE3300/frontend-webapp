@@ -1,16 +1,26 @@
 // frontend/src/features/dashboard/DashboardHeader.jsx
 
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react'; // Added useCallback
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
-import { useSubscription } from '../../contexts/SubscriptionContext'; // Import useSubscription
+import { useSubscription } from '../../contexts/SubscriptionContext';
+import { useToast } from '../../contexts/ToastContext'; // Added useToast
+import apiService from '../../services/api'; // Added apiService
 import Icon from '../../components/common/Icon';
+import { scriptLines_Components as scriptLines } from '../payments/utils/script_lines'; // Using payment script lines for consistency
 
 const DashboardHeader = () => {
     const { user, logout } = useAuth();
-    const { subscription, isLoading: isSubscriptionLoading, error: subscriptionError } = useSubscription(); // Use the hook
+    const {
+        subscription,
+        isLoading: isSubscriptionLoading,
+        error: subscriptionError,
+        fetchSubscriptionStatus, // For potential refresh
+    } = useSubscription();
     const navigate = useNavigate();
+    const { addToast } = useToast(); // Initialize useToast
+
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
@@ -22,10 +32,10 @@ const DashboardHeader = () => {
             navigate('/login/business');
         } catch (error) {
             console.error("Logout error in header:", error);
+            addToast("Failed to logout. Please try again.", "error");
         }
     };
 
-    // Click outside handler for menus
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -45,25 +55,66 @@ const DashboardHeader = () => {
         visible: { opacity: 1, y: 0 },
     };
 
-    const getSubscriptionDisplay = () => {
+    const handleManageSubscriptionClick = useCallback(async () => {
+        setIsProfileMenuOpen(false); // Close menu
+        addToast("Redirecting to subscription management...", "info");
+        try {
+            const response = await apiService.post('payments/create-customer-portal-session/');
+            if (response.data.url) {
+                window.location.href = response.data.url;
+            } else {
+                addToast("Could not open subscription management portal. Please try again.", "error");
+            }
+        } catch (err) {
+            console.error("Error creating customer portal session from header:", err);
+            addToast(err.response?.data?.error || "Error accessing subscription management. Please try again.", "error");
+        }
+    }, [addToast]);
+
+    const getSubscriptionDisplay = useCallback(() => {
         if (isSubscriptionLoading) {
-            return <span className="text-xs text-neutral-500 dark:text-neutral-400">Loading plan...</span>;
+            return <span className="text-xs text-neutral-500 dark:text-neutral-400 animate-pulse">Loading plan...</span>;
         }
         if (subscriptionError) {
-            return <span className="text-xs text-red-500 dark:text-red-400">Plan error</span>;
+            return (
+                <span className="text-xs text-red-500 dark:text-red-400">
+                    Plan error
+                    <button onClick={() => fetchSubscriptionStatus()} className="ml-1 underline text-xs">(retry)</button>
+                </span>
+            );
         }
         if (subscription && subscription.is_active) {
-            return <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{subscription.plan_name_display}</span>;
+            return (
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    {subscription.plan_name_display}
+                    {subscription.status === 'trialing' && ' (Trial)'}
+                </span>
+            );
         }
         if (subscription && !subscription.is_active) {
-             return <span className="text-xs text-amber-600 dark:text-amber-400">Plan: {subscription.plan_name_display} ({subscription.status_display})</span>;
+            let statusText = subscription.status_display || 'Inactive';
+            if (subscription.cancel_at_period_end) {
+                statusText = `Cancels on ${new Date(subscription.current_period_end).toLocaleDateString()}`;
+            }
+            return (
+                <button
+                    onClick={handleManageSubscriptionClick}
+                    className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
+                    title={`Current plan: ${subscription.plan_name_display}. Status: ${statusText}. Click to manage.`}
+                >
+                    Plan: {subscription.plan_name_display} ({statusText})
+                </button>
+            );
         }
-        return <Link to="/plans" className="text-xs text-rose-600 dark:text-rose-400 hover:underline">No Active Plan</Link>;
-    };
+        return (
+            <Link to="/plans" className="text-xs text-rose-600 dark:text-rose-400 hover:underline">
+                No Active Plan - Choose Plan
+            </Link>
+        );
+    }, [isSubscriptionLoading, subscriptionError, subscription, fetchSubscriptionStatus, handleManageSubscriptionClick]);
 
 
     if (!user) {
-        // This shouldn't happen if the route is protected, but as a fallback
         return (
             <header className="bg-white dark:bg-neutral-900 shadow-md py-3 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-full mx-auto flex items-center justify-between">
@@ -78,10 +129,8 @@ const DashboardHeader = () => {
         <header className="bg-white dark:bg-neutral-800 shadow-sm sticky top-0 z-40 print:hidden">
             <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* Left Section: Logo and Business Name */}
                     <div className="flex items-center">
                         <Link to="/dashboard/business" className="flex-shrink-0">
-                            {/* <img className="h-8 w-auto" src="/path/to/your/logo.svg" alt="Business Logo" /> */}
                             <span className="sr-only">Business Dashboard</span>
                         </Link>
                         <div className="hidden md:block ml-6">
@@ -89,7 +138,6 @@ const DashboardHeader = () => {
                                 <span className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
                                     {user.activeBusinessName || "Business Dashboard"}
                                 </span>
-                                {/* Display Subscription Plan */}
                                 <div className="ml-2 pl-2 border-l border-neutral-300 dark:border-neutral-600">
                                     {getSubscriptionDisplay()}
                                 </div>
@@ -97,7 +145,6 @@ const DashboardHeader = () => {
                         </div>
                     </div>
 
-                    {/* Mobile Menu Button (Hamburger) */}
                     <div className="md:hidden flex items-center">
                         <button
                             id="mobile-menu-button"
@@ -111,31 +158,15 @@ const DashboardHeader = () => {
                         </button>
                     </div>
 
-                    {/* Right Section: Search (optional), Notifications, Profile */}
                     <div className="hidden md:flex md:items-center md:ml-6 space-x-4">
-                        {/* Optional Search Bar - Placeholder */}
-                        {/* <div className="relative">
-                            <input 
-                                type="search" 
-                                placeholder="Search orders, products..."
-                                className="bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500 text-sm rounded-full py-2 pl-10 pr-4 focus:ring-rose-500 focus:border-rose-500 w-64"
-                            />
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Icon name="search" className="h-5 w-5 text-neutral-400 dark:text-neutral-500" />
-                            </div>
-                        </div> */}
-
                         <button
                             title="Notifications"
                             className="p-2 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-100 dark:focus:ring-offset-neutral-800 focus:ring-rose-500 transition-colors"
                         >
                             <span className="sr-only">View notifications</span>
                             <Icon name="notifications" className="h-6 w-6" />
-                            {/* Optional: Notification count badge */}
-                            {/* <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-red-500" /> */}
                         </button>
 
-                        {/* Profile Dropdown */}
                         <div className="relative" ref={profileMenuRef}>
                             <button
                                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
@@ -169,13 +200,18 @@ const DashboardHeader = () => {
                                         <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700">
                                             <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate">{user.firstName} {user.lastName}</p>
                                             <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{user.email}</p>
-                                            <div className="mt-1">{getSubscriptionDisplay()}</div> {/* Subscription display in profile dropdown */}
+                                            <div className="mt-1">{getSubscriptionDisplay()}</div>
                                         </div>
-                                        {/* Add more links as needed */}
                                         <Link to="/dashboard/business/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Your Profile</Link>
                                         <Link to="/dashboard/business/settings" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Account Settings</Link>
-                                        <Link to="/plans" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Manage Subscription</Link>
-                                        {/* <button onClick={() => { alert('Switch Business Clicked'); setIsProfileMenuOpen(false); }} className="w-full text-left block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" role="menuitem">Switch Business</button> */}
+                                        {/* MODIFIED "Manage Subscription" button to use handler */}
+                                        <button
+                                            onClick={handleManageSubscriptionClick}
+                                            className="w-full text-left block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                                            role="menuitem"
+                                        >
+                                            {scriptLines.planSelection.buttons.manageSubscription}
+                                        </button>
                                         <button
                                             onClick={handleLogout}
                                             className="w-full text-left block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-700/20 transition-colors"
@@ -191,7 +227,6 @@ const DashboardHeader = () => {
                 </div>
             </div>
 
-            {/* Mobile Menu Dropdown */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
@@ -208,9 +243,8 @@ const DashboardHeader = () => {
                                 <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">
                                     {user.activeBusinessName || "Business"}
                                 </span>
-                                <div className="mt-1">{getSubscriptionDisplay()}</div> {/* Subscription display in mobile menu */}
+                                <div className="mt-1">{getSubscriptionDisplay()}</div>
                             </div>
-                            {/* Mobile Nav Links - Placeholder */}
                             <Link to="/dashboard/business" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Dashboard</Link>
                             <Link to="/dashboard/business/orders" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Orders</Link>
                             <Link to="/dashboard/business/products" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Products</Link>
@@ -232,7 +266,13 @@ const DashboardHeader = () => {
                             <div className="mt-3 px-2 space-y-1">
                                 <Link to="/dashboard/business/profile" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Your Profile</Link>
                                 <Link to="/dashboard/business/settings" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Settings</Link>
-                                <Link to="/plans" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">Manage Subscription</Link>
+                                {/* MODIFIED "Manage Subscription" button for mobile */}
+                                <button
+                                    onClick={() => { handleManageSubscriptionClick(); setIsMobileMenuOpen(false); }}
+                                    className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                                >
+                                    {scriptLines.planSelection.buttons.manageSubscription}
+                                </button>
                                 <button
                                     onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
                                     className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-700/20"
