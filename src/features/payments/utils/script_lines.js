@@ -103,4 +103,38 @@ export const scriptLines_Components = {
             }
         ]
     },
+
+    paymentSuccessPage: {
+        title: "Payment Successful!",
+        titleSubscriptionActivated: "Subscription Activated!",
+        thankYouMessage: "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated.",
+        thankYouGeneric: "Thank you! Your payment was successful and your subscription is now active.",
+        accessMessage: "You can now access all the premium features.",
+        transactionIdLabel: "Transaction ID:",
+        buttons: {
+            goToDashboard: "Go to Dashboard",
+            viewBilling: "View Billing Details",
+        },
+        links: {
+            contactSupport: "contact our support team",
+        },
+        loading: {
+            finalizingSubscription: "Finalizing your subscription...",
+            checkingDetails: "Checking payment details...",
+        },
+        errors: {
+            missingSessionId: "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support.",
+            subscriptionUpdateFailed: "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support.",
+        }
+    },
+
+    paymentCancelPage: {
+        title: "Payment Not Completed",
+        message: "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated.",
+        buttons: {
+            tryAgain: "Try Again",
+            contactSupport: "Contact Support",
+        },
+        footerNote: "If you believe this is an error or need assistance, please don't hesitate to reach out."
+    }
 };

@@ -282,7 +282,7 @@ const LayoutEditor = forwardRef(({ // Wrapped with forwardRef
     ]);
 
     return (
-        <div className="relative flex flex-col h-full w-full overflow-visible" role="application">
+        <div className="relative flex flex-col h-full w-full overflow-auto" role="application">
             <EditorToolbar
                 majorGridRows={layoutManager.gridRows}
                 majorGridCols={layoutManager.gridCols}
@@ -304,7 +304,7 @@ const LayoutEditor = forwardRef(({ // Wrapped with forwardRef
             />
 
             <div
-                className={`flex-1 flex overflow-hidden relative transition-colors duration-300 ease-in-out`}
+                className={`flex-1 flex overflow-visible relative transition-colors duration-300 ease-in-out`}
             >
                 <motion.main
                     layout

@@ -47,11 +47,11 @@ const VenueDesignerHeader = ({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "circOut" }}
-            className={`sticky top-0 z-30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-x-3 gap-y-2 
+            className={`relative flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-x-3 gap-y-2 
                        p-2.5 sm:p-3 
                        bg-neutral-100/85 dark:bg-neutral-800/85 backdrop-blur-lg
                        border border-neutral-200/70 dark:border-neutral-700/70 
-                       shadow-lg rounded-b-2xl sm:rounded-full mb-3 mx-0
+                       shadow-lg rounded-2xl sm:rounded-full mb-3 mx-0
                        w-full`}
         >
             <div className="flex items-center justify-between sm:justify-start min-w-0 w-full sm:w-auto">

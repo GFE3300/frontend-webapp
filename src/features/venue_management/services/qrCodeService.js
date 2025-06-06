@@ -18,11 +18,11 @@ export const generateQrCode = async (table) => { // qrColor and bgColor paramete
     try {
         // The apiService.fetchTableItemQrCode will call the backend endpoint.
         // It's expected to handle the actual GET request and return the blob directly.
-        console.log(`qrCodeService: Calling apiService.fetchTableItemQrCode for table ID: ${table.id}`);
+        // console.log(`qrCodeService: Calling apiService.fetchTableItemQrCode for table ID: ${table.id}`);
         const imageBlob = await apiService.fetchTableItemQrCode(table.id); // No color params passed
 
         if (imageBlob instanceof Blob) {
-            console.log(`qrCodeService: Received blob for table ID ${table.id}. Type: ${imageBlob.type}, Size: ${imageBlob.size}`);
+            // console.log(`qrCodeService: Received blob for table ID ${table.id}. Type: ${imageBlob.type}, Size: ${imageBlob.size}`);
             return imageBlob;
         } else {
             // This case should ideally not be hit if apiService.fetchTableItemQrCode correctly returns a blob or throws

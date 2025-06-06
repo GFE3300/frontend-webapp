@@ -1,4 +1,3 @@
-// 1. Imports
 import React, { useEffect, useRef, memo, useState, useCallback } from 'react';
 // eslint-disable-next-line
 import { AnimatePresence, motion } from 'framer-motion';
@@ -128,6 +127,9 @@ const RegistrationPage = () => {
             business_username: formState.formData.businessUsername,
             business_description: formState.formData.businessDescription,
             business_tags: Array.isArray(formState.formData.businessTags) ? formState.formData.businessTags.join(',') : formState.formData.businessTags,
+            
+            // MODIFICATION: Add referralCode to the registration data payload
+            referral_code: formState.formData.referralCode,
 
             business_address_street: businessAddressData.street,
             business_address_city: businessAddressData.city,
@@ -218,7 +220,6 @@ const RegistrationPage = () => {
         }
 
         // --- File Uploads ---
-        // (Rest of the file upload logic remains the same)
         let decodedToken;
         const newAccessToken = mainRegResponse.data.access || localStorage.getItem('accessToken');
         if (newAccessToken) {
@@ -261,9 +262,17 @@ const RegistrationPage = () => {
             }
         }
 
+        // MODIFICATION: Pass referral code to session storage before navigation
+        if (formState.formData.referralCode) {
+            sessionStorage.setItem('pendingReferralCode', formState.formData.referralCode);
+            console.log('Referral code stored in sessionStorage.');
+        }
+
         if (allUploadsSuccessful && Object.keys(fileUploadErrors).length === 0) {
-            formState.resetForm();
+            formState.resetForm(); // This clears the main form state from session storage
             setFormFlowStatus('final_success');
+            addToast("Registration successful! Please choose a plan to activate your account.", "success");
+            navigate('/plans'); // Redirect
         } else {
             let finalMessage = "Account created successfully. ";
             if (fileUploadErrors.logo) finalMessage += `However, the business logo could not be uploaded: ${fileUploadErrors.logo} `;
@@ -271,73 +280,16 @@ const RegistrationPage = () => {
             finalMessage += "You can manage these from your dashboard.";
             formState.setGeneralError(finalMessage);
             setFormFlowStatus('final_success_with_issues');
-        }
-
-        if (allUploadsSuccessful && Object.keys(fileUploadErrors).length === 0) {
-            // formState.resetForm(); // Optional: reset form if needed, though navigation will occur
-            addToast("Registration successful! Please choose a plan to activate your account.", "success"); // Optional toast
-            navigate('/plans'); // Redirect
-        } else {
-            // Handle success with issues, but still redirect to plans.
-            // The error message from formState.setGeneralError will still be relevant.
-            // The user can sort out file uploads later from their dashboard.
             addToast("Account created! Some file uploads had issues, you can manage them from your dashboard. Please choose a plan.", "warning", 5000);
-            navigate('/plans'); // Redirect
+            navigate('/plans'); // Redirect even with upload issues
         }
-
-    }, [formState, contextLogin]);
-
-
-    /**
-     * Called when a plan is selected. Adds plan to formData and submits everything.
-     */
-    const handlePlanSelectedAndSubmit = useCallback(async (selectedPlan) => {
-        setFormFlowStatus('submitting_final');
-
-        // Add selected plan to formData
-        // It's important that `useFormState`'s `formData` is updated
-        // before calling the final submit if that submit relies on the hook's `formData`.
-        // We'll update it directly for the API call payload.
-        const finalFormData = {
-            ...formState.formData,
-            selectedPlanId: selectedPlan.id,
-            // You might want to include more plan details if needed by backend
-            // selectedPlanName: selectedPlan.name,
-            // selectedPlanPrice: selectedPlan.price,
-        };
-
-        try {
-            // Simulate final API call with all data including the plan
-            console.log("Submitting final data:", finalFormData);
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
-
-            // const response = await fetch('/api/register-with-plan', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(finalFormData)
-            // });
-            // if (!response.ok) throw new Error('Final submission failed');
-
-            sessionStorage.removeItem('formState'); // Clear persisted form state
-            formState.resetForm(); // Reset the form state in the hook
-            setFormFlowStatus('final_success');
-
-        } catch (error) {
-            console.error('Final submission error:', error);
-            // You might want to set an error message to display on the PlanSelection screen
-            // or revert to 'selecting_plan' with an error.
-            setFormFlowStatus('selecting_plan'); // Revert to plan selection on error
-            // formStateHook.setGeneralError(error.message || "Failed to complete registration."); // If useFormState has setGeneralError
-            alert(`Error: ${error.message || "Failed to complete registration."}`); // Simple alert for now
-        }
-    }, [formState]);
+    }, [formState, contextLogin, navigate, addToast]);
 
     // ===========================================================================
     // Validation (Early exit if formState is not properly initialized)
     // ===========================================================================
     if (!formState || typeof formState.updateFormData !== 'function') {
         console.error('RegistrationPage: Critical error - useFormState did not initialize correctly.');
-        // Potentially render an error message or fallback UI
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
                 <p className="text-red-500 text-xl">
@@ -346,8 +298,6 @@ const RegistrationPage = () => {
             </div>
         );
     }
-
-    console.log("Form Data:", formState);
 
     // ===========================================================================
     // Rendering
@@ -425,9 +375,6 @@ const RegistrationPage = () => {
         if (formState.currentStep !== stepIndex) {
             return null;
         }
-
-        // Pass animation props to FormStep if it's a motion component
-        // or if it uses them internally to wrap its content
         return (
             <>
                 <FormStep
@@ -438,8 +385,6 @@ const RegistrationPage = () => {
                     onProceed={isFinal ? handleFormCompletion : formState.goNext}
                     onBack={formState.goBack}
                     isFinalStep={isFinal}
-                    // For Framer Motion step transitions, FormStep itself should be a motion component
-                    // or wrap its content. Assuming FormStep is designed to accept these:
                     initial={ANIMATION_CONFIG.stepTransition.initial}
                     animate={ANIMATION_CONFIG.stepTransition.animate}
                     exit={ANIMATION_CONFIG.stepTransition.exit}
@@ -448,17 +393,15 @@ const RegistrationPage = () => {
                     <Component
                         formData={formState.formData}
                         errors={formState.errors}
-                        updateField={formState.updateFormData} // Consistent naming with useFormState
-                        setFormData={formState.setFormData} // If useFormState exposes bulk update
-                        // Pass specific props for Step2Profile
+                        updateField={formState.updateFormData} 
+                        setFormData={formState.setFormData} 
                         {...(stepIndex === 3 && {
                             showPassword: showPassword,
                             setShowPassword: setShowPassword,
                             passwordStrength: formState.passwordStrength,
                         })}
-                        // Pass themeColor to image upload steps
                         {...((stepIndex === 2 || stepIndex === 5) && {
-                            themeColor: "rose" // Or a dynamic theme prop
+                            themeColor: "rose"
                         })}
                     />
                 </FormStep>
@@ -545,24 +488,6 @@ SuccessModal.propTypes = {
     submissionStatus: PropTypes.oneOf(['idle', 'submitting', 'success', 'error']),
     onClose: PropTypes.func.isRequired,
 };
-
-// Ensure FormStep also has its prop types defined, likely in its own file or subcomponents/index.js
-// For example:
-// FormStep.propTypes = {
-//     stepIndex: PropTypes.number.isRequired,
-//     title: PropTypes.string.isRequired,
-//     formState: PropTypes.object.isRequired,
-//     onProceed: PropTypes.func.isRequired,
-//     onBack: PropTypes.func.isRequired,
-//     isFinalStep: PropTypes.bool,
-//     onSubmit: PropTypes.func,
-//     children: PropTypes.node.isRequired,
-//     initial: PropTypes.object, // For framer-motion
-//     animate: PropTypes.object, // For framer-motion
-//     exit: PropTypes.object,    // For framer-motion
-//     transition: PropTypes.object, // For framer-motion
-// };
-
 
 // ===========================================================================
 // Performance Considerations (as comments - good practice)

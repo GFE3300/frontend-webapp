@@ -25,7 +25,7 @@ export const useValidatePromoCode = (options = {}) => {
             // Task 1.2: Payload Expectation
             // The payload is constructed by the calling component (OrderSummaryPanel.jsx).
             // Expected structure: { code_name: string, business_identifier: string, order_items_context?: array, current_order_subtotal?: string }
-            console.log('[useValidatePromoCode] Attempting to validate promo code. Payload:', payload);
+            // console.log('[useValidatePromoCode] Attempting to validate promo code. Payload:', payload);
 
             // Basic client-side check for essential fields.
             // More robust validation and payload construction happens in the calling component.
@@ -40,14 +40,14 @@ export const useValidatePromoCode = (options = {}) => {
             // Backend endpoint: POST /api/discounts/validate-promo-code/
             // apiService.post correctly prepends /api/ from its baseURL config.
             const response = await apiService.post('discounts/validate-promo-code/', payload);
-            console.log('[useValidatePromoCode] Promo code validation API response:', response.data);
+            // console.log('[useValidatePromoCode] Promo code validation API response:', response.data);
 
             // Task 1.3: Success/Error Handling - Return raw response.data on success.
             return response.data;
         },
         onSuccess: (data, variables, context) => {
             // Task 1.3: Existing logging is good.
-            console.log('[useValidatePromoCode] Promo code validation successful. Data:', data, 'Variables:', variables);
+            // console.log('[useValidatePromoCode] Promo code validation successful. Data:', data, 'Variables:', variables);
             if (options.onSuccess) {
                 options.onSuccess(data, variables, context);
             }
@@ -199,11 +199,11 @@ export const usePublicCategories = (businessIdentifier, options = {}) => {
     return useQuery({
         queryKey: queryKeys.publicCategories(businessIdentifier),
         queryFn: async () => {
-            console.log(`[usePublicCategories] Fetching public categories for business: ${businessIdentifier}`);
+            // console.log(`[usePublicCategories] Fetching public categories for business: ${businessIdentifier}`);
             try {
                 // Backend endpoint: /api/products/public/menu/{business_identifier}/categories/
                 const response = await apiService.get(`products/public/menu/${businessIdentifier}/categories/`);
-                console.log('[usePublicCategories] Successfully fetched public categories:', response.data);
+                // console.log('[usePublicCategories] Successfully fetched public categories:', response.data);
                 // Assuming backend returns an array of categories directly, or { results: [] }
                 return Array.isArray(response.data) ? response.data : response.data.results || [];
             } catch (error) {
@@ -237,11 +237,11 @@ export const usePublicProductTags = (businessIdentifier, options = {}) => {
     return useQuery({
         queryKey: queryKeys.publicProductTags(businessIdentifier),
         queryFn: async () => {
-            console.log(`[usePublicProductTags] Fetching public tags for business: ${businessIdentifier}`);
+            // console.log(`[usePublicProductTags] Fetching public tags for business: ${businessIdentifier}`);
             try {
                 // Backend endpoint: /api/products/public/menu/{business_identifier}/tags/
                 const response = await apiService.get(`products/public/menu/${businessIdentifier}/tags/`);
-                console.log('[usePublicProductTags] Successfully fetched public tags:', response.data);
+                // console.log('[usePublicProductTags] Successfully fetched public tags:', response.data);
                 // Assuming backend returns an array of tags directly, or { results: [] }
                 // Backend ensures these are is_publicly_visible=True
                 return Array.isArray(response.data) ? response.data : response.data.results || [];
@@ -326,7 +326,7 @@ export const useUpdateProduct = (options = {}) => {
         onSuccess: (response, variables, context) => { // Axios response is the first arg
             const updatedProduct = response.data; // The actual data from backend
             const { productId } = variables;
-            console.log(`[useUpdateProduct] onSuccess START: Product ID ${productId}, Updated Data from PATCH:`, updatedProduct);
+            // console.log(`[useUpdateProduct] onSuccess START: Product ID ${productId}, Updated Data from PATCH:`, updatedProduct);
 
             if (!updatedProduct || typeof updatedProduct.id === 'undefined') {
                 console.error("[useUpdateProduct] onSuccess: updatedProduct data from PATCH is missing or invalid.", updatedProduct);
@@ -338,19 +338,19 @@ export const useUpdateProduct = (options = {}) => {
 
             try {
                 // 1. Update single product details cache (good practice)
-                console.log(`[useUpdateProduct] onSuccess: Updating productDetails cache for ${productId}`);
+                // console.log(`[useUpdateProduct] onSuccess: Updating productDetails cache for ${productId}`);
                 queryClient.setQueryData(queryKeys.productDetails(productId), updatedProduct); // Use the direct updated product data
 
                 // 2. Invalidate all product list queries.
                 // This will cause useProducts to refetch with its current queryParams.
                 const invalidationKey = [PRODUCTS_BASE_KEY, 'list']; // CORRECTLY USE THE IMPORTED CONSTANT
-                console.log(`[useUpdateProduct] onSuccess: Invalidating all product list queries starting with key:`, invalidationKey);
+                // console.log(`[useUpdateProduct] onSuccess: Invalidating all product list queries starting with key:`, invalidationKey);
 
                 queryClient.invalidateQueries({
                     queryKey: invalidationKey,
                     exact: false, // Match all queries starting with this base
                 });
-                console.log(`[useUpdateProduct] onSuccess: Product list queries invalidated for product ${productId}. Refetch should occur.`);
+                // console.log(`[useUpdateProduct] onSuccess: Product list queries invalidated for product ${productId}. Refetch should occur.`);
 
                 if (options.onSuccess) {
                     options.onSuccess(response, variables, context);
@@ -358,7 +358,7 @@ export const useUpdateProduct = (options = {}) => {
             } catch (e) {
                 console.error(`[useUpdateProduct] onSuccess: CRITICAL ERROR during cache operations for ${productId}:`, e);
             }
-            console.log(`[useUpdateProduct] onSuccess END for ${productId}`);
+            // console.log(`[useUpdateProduct] onSuccess END for ${productId}`);
         },
 
         onError: (error, variables, context) => {
@@ -415,7 +415,7 @@ export const useProducts = (queryParams = {}, options = {}) => {
             // console.log('[useProducts] Fetching products with params:', apiParams); // You have this
             const response = await apiService.get('/products/', { params: apiParams }); // Make sure to pass params correctly
 
-            console.log('[useProducts] API Response:', response);
+            // console.log('[useProducts] API Response:', response);
 
             const responseData = typeof response.data === 'object' && response.data !== null ? response.data : {};
             const { results = [], count = 0, next = null, previous = null } = responseData;

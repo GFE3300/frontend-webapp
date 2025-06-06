@@ -254,6 +254,7 @@ export const scriptLines_Steps = {
             businessPhone: "Business Phone",
             businessWebsiteOptional: "Business Website (Optional)",
             businessTags: "Business Tags (Describe your business)",
+            referralCodeOptional: "Referral Code (Optional)",
         },
         placeholder: {
             businessName: "e.g. The Artisan Corner",
@@ -262,6 +263,7 @@ export const scriptLines_Steps = {
             businessPhone: "e.g. +1 (555) 123-4567",
             businessWebsite: "e.g. https://artisancorner.com",
             businessTags: "Type and press Enter (e.g., Cafe, Handmade)",
+            referralCode: "Enter code if you have one",
         },
         helptext: {
             businessTags: "Select up to 7 tags that best describe your business.",

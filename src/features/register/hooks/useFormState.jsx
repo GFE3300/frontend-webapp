@@ -1,5 +1,3 @@
-// src/components/register/hooks/useFormState.jsx
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import * as yup from 'yup';
 import { scriptLines_useFormState as scriptLines } from '../utils/script_lines';
@@ -66,6 +64,7 @@ export const useFormState = (initialFormStateData = {}) => {
         dailySummaryTime: '',
         language: '',
         referralSources: [],
+        referralCode: '', // MODIFICATION: Added referralCode field
         acceptTerms: false,
         profileImageFile: null,
         existingProfileImageUrl: '',
@@ -82,6 +81,7 @@ export const useFormState = (initialFormStateData = {}) => {
             businessPhone: yup.string().required(scriptLines.validation.businessPhoneRequired),
             businessTags: yup.array().min(1, scriptLines.validation.businessTagsMin).required(),
             businessWebsite: yup.string().url(scriptLines.validation.businessWebsiteInvalidUrl).nullable(),
+            referralCode: yup.string().max(50, 'Referral code is too long.').optional().nullable(), // MODIFICATION: Added validation
         }),
         1: yup.object().shape({ // Step 1: Business Location
             locationCoords: yup.object().shape({
@@ -170,7 +170,7 @@ export const useFormState = (initialFormStateData = {}) => {
     // ===========================================================================
     // Persistence Layer
     // ===========================================================================
-     useEffect(() => {
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             const stateToPersist = {
                 currentStep: state.currentStep,
@@ -205,7 +205,7 @@ export const useFormState = (initialFormStateData = {}) => {
             await schema.validate(state.formData, { abortEarly: false });
             setState(prev => ({
                 ...prev,
-                errors: { ...prev.errors, [stepToValidate]: {} },
+                errors: { ...prev.errors, ...fieldErrors },
                 stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? true : v)),
             }));
             return true;

@@ -12,10 +12,11 @@ const MainContentArea = () => {
     const location = useLocation();
 
     return (
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 bg-neutral-100 dark:bg-neutral-900">
+        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 bg-neutral-100 dark:bg-neutral-900">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={location.pathname} // Key change triggers animation
+                    className='w-full h-full'
                     variants={mainContentVariants}
                     initial="initial"
                     animate="animate"

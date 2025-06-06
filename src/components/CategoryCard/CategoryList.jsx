@@ -1,7 +1,7 @@
 // FILE: C:/Users/maxda/Desktop/dads/data_cards/src/Category editor/CategoryList.jsx
 // NAME: CategoryList.jsx
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CategoryItem from './Subcomponents/CategoryItem';
 import AddCategoryForm from './Subcomponents/AddCategoryForm';

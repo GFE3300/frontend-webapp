@@ -23,9 +23,13 @@ import OverviewPage from './features/dashboard/pages/OverviewPage.jsx';
 import OrdersPage from './features/dashboard/pages/OrdersPage.jsx';
 import ProductsPage from './features/dashboard/pages/ProductsPage.jsx';
 import InventoryPage from './features/dashboard/pages/InventoryPage.jsx';
-import VenuePage from './features/dashboard/pages/VenuePage.jsx'; // For dashboard context of venue management
+import VenuePage from './features/dashboard/pages/VenuePage.jsx';
 import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
+
+// MODIFIED: Import new settings pages
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
+import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSettingsPage.jsx';
+import SubscriptionBillingPage from './features/dashboard/pages/settings/SubscriptionBillingPage.jsx';
 
 // Venue Layout Management (Existing)
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
@@ -36,7 +40,7 @@ import PrivateRoute from './components/common/PrivateRoute.jsx';
 // Contexts & Providers
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
-import { SubscriptionProvider } from './contexts/SubscriptionContext'; // New Import
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { FlyingImageProvider } from './components/animations/flying_image/FlyingImageContext.jsx';
 import { ThemeProvider } from './utils/ThemeProvider.jsx';
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
@@ -86,8 +90,7 @@ const DNDBackendsConfig = {
 const router = createBrowserRouter([
     {
         path: "/",
-        // element: <VenueDesignerPage />, // Changed to default to dashboard for now
-        element: <Navigate to="/dashboard/business" replace />, // Redirect root to dashboard
+        element: <Navigate to="/dashboard/business" replace />,
         errorElement: <NotFoundPage />,
     },
     {
@@ -121,25 +124,35 @@ const router = createBrowserRouter([
     },
 
     {
-        path: "/dashboard/business", // Parent route for dashboard
+        path: "/dashboard/business",
         element: (
             <PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
                 <DashboardLayout />
             </PrivateRoute>
         ),
         errorElement: <NotFoundPage />,
-        children: [ // Nested routes for dashboard sections
-            { index: true, element: <Navigate to="overview" replace /> }, // Default to overview
+        children: [
+            { index: true, element: <Navigate to="overview" replace /> },
             { path: "overview", element: <OverviewPage /> },
             { path: "orders", element: <OrdersPage /> },
             { path: "products", element: <ProductsPage /> },
             { path: "inventory", element: <InventoryPage /> },
-            { path: "venue", element: <VenuePage /> }, // Main page for venue tools
+            { path: "venue", element: <VenuePage /> },
             { path: "analytics", element: <AnalyticsPage /> },
-            { path: "settings", element: <SettingsPage /> },
-            // Keep existing more specific dashboard routes if they are still needed or should be sub-routes
+            // MODIFIED: Settings route and its children
             {
-                path: "menu-preview", // e.g. /dashboard/business/menu-preview
+                path: "settings",
+                element: <SettingsPage />, // Renders the SettingsPage layout with sub-navigation
+                children: [
+                    // Default child for /settings, redirects to profile. SettingsPage handles its own redirect too.
+                    { index: true, element: <Navigate to="profile" replace /> },
+                    { path: "profile", element: <ProfileSettingsPage /> },
+                    { path: "billing", element: <SubscriptionBillingPage /> },
+                    // Add other settings sub-routes here
+                ]
+            },
+            {
+                path: "menu-preview",
                 element: (
                     <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
                         <AdminMenuPreviewPage />
@@ -147,7 +160,7 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: "venue-designer", // e.g. /dashboard/business/venue-designer
+                path: "venue-designer",
                 element: (
                     <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
                         <VenueDesignerPage />
@@ -160,28 +173,19 @@ const router = createBrowserRouter([
         path: "/dashboard/unauthorized",
         element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>,
     },
-    {
-        path: "/dashboard/business/menu-preview",
-        element: (
-            <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
-                <AdminMenuPreviewPage />
-            </PrivateRoute>
-        ),
-        errorElement: <NotFoundPage />,
-    },
-    {
-        path: "/venue-designer",
-        element: ( // Assuming VenueDesignerPage might also need to be private
-            <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
-                <VenueDesignerPage />
-            </PrivateRoute>
-        ),
-        errorElement: <NotFoundPage />,
-    },
+    // MODIFIED: Removed redundant /dashboard/business/menu-preview and /venue-designer as they are now nested
+    // {
+    //     path: "/dashboard/business/menu-preview",
+    //     // ...
+    // },
+    // {
+    //     path: "/venue-designer",
+    //     // ...
+    // },
     {
         path: "/plans",
         element: (
-            <PrivateRoute requiredRoles={['USER', 'ADMIN', 'MANAGER', 'STAFF']}>
+            <PrivateRoute requiredRoles={['USER', 'ADMIN', 'MANAGER', 'STAFF']}> {/* Ensure USER role if direct access from registration */}
                 {stripePromise ? (
                     <Elements stripe={stripePromise}>
                         <PlanAndPaymentPage />
@@ -202,6 +206,24 @@ const router = createBrowserRouter([
         path: "/payment-cancel",
         element: <PaymentCancelPage />,
         errorElement: <NotFoundPage />,
+    },
+
+    // ADMIN ROUTES
+    {
+        path: "affiliates",
+        element: (
+            <PrivateRoute requiredRoles={['ADMIN']}>
+                <AffiliatesPage />
+            </PrivateRoute>
+        ),
+    },
+    {
+        path: "affiliates/:affiliateId",
+        element: (
+            <PrivateRoute requiredRoles={['ADMIN']}>
+                <AffiliateDetailPage />
+            </PrivateRoute>
+        ),
     },
 ]);
 

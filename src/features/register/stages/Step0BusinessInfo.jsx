@@ -1,6 +1,3 @@
-// src/components/register/steps/Step0BusinessInfo.jsx
-
-// 1. Imports
 import React, { useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { InputField, TagInput } from '../subcomponents'; // Assuming relative path to subcomponents
@@ -127,8 +124,21 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                 />
             </div>
 
+            {/* MODIFICATION: Added Referral Code InputField */}
+            <div className="mb-12">
+                <InputField
+                    label={scriptLines.step0BusinessInfo.label.referralCodeOptional}
+                    name="referralCode"
+                    value={formData.referralCode || ''}
+                    onChange={handleInputChange('referralCode')}
+                    placeholder={scriptLines.step0BusinessInfo.placeholder.referralCode || "e.g., FRIEND25"}
+                    error={errors?.referralCode}
+                    autoComplete="off"
+                />
+            </div>
+
             {/* Business Tags Input */}
-            <div>
+            <div className="mb-12">
                 <TagInput
                     label={scriptLines.step0BusinessInfo.label.businessTags}
                     defaultTags={DEFAULT_BUSINESS_TAGS}

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useStripe } from '@stripe/react-stripe-js';
 import apiService from '../../services/api';
@@ -9,6 +9,9 @@ import PlanSelection from './subcomponents/PlanSelection.jsx';
 import Spinner from '../../components/common/Spinner';
 import BubbleAnimation from '../../features/register/subcomponents/BubbleAnimation'; // Import BubbleAnimation
 import { scriptLines_Components as scriptLines } from './utils/script_lines'; // Import scriptLines
+// eslint-disable-next-line
+import { AnimatePresence, motion } from 'framer-motion';
+import Icon from '../../components/common/Icon';
 
 const PlanAndPaymentPage = () => {
     const stripe = useStripe();
@@ -16,12 +19,27 @@ const PlanAndPaymentPage = () => {
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate(); // Initialize useNavigate
 
-    // Get subscription status from context
     const { subscription: currentSubscription, isLoading: isSubscriptionDataLoading } = useSubscription();
 
-    const [isProcessingCheckout, setIsProcessingCheckout] = useState(false); // Renamed from isProcessingSelection
+    const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
     const [error, setError] = useState(null);
-    const vortexRef = useRef(null); // Ref for BubbleAnimation
+    const vortexRef = useRef(null);
+
+    // MODIFICATION: State for referral code and alert visibility
+    const [referralCode, setReferralCode] = useState(null);
+    const [isReferralAlertVisible, setIsReferralAlertVisible] = useState(true);
+
+    // MODIFICATION: useEffect to read referral code from sessionStorage on mount
+    useEffect(() => {
+        const pendingCode = sessionStorage.getItem('pendingReferralCode');
+        if (pendingCode) {
+            setReferralCode(pendingCode);
+            setIsReferralAlertVisible(true);
+            // Important: Clear the code from storage after reading it
+            sessionStorage.removeItem('pendingReferralCode');
+            console.log(`[PlanAndPaymentPage] Referral code "${pendingCode}" loaded from session storage and cleared.`);
+        }
+    }, []); // Empty dependency array ensures this runs only once on mount
 
     const handlePlanSelected = useCallback(async (selectedPlanFromComponent) => {
         if (!isAuthenticated) {
@@ -34,10 +52,8 @@ const PlanAndPaymentPage = () => {
             return;
         }
 
-        // Prevent re-subscription to the exact same active plan
         if (currentSubscription && currentSubscription.is_active && currentSubscription.plan_name === selectedPlanFromComponent.id) {
             addToast(scriptLines.planSelection.messages.alreadySubscribedError, 'info');
-            console.log("[PlanAndPaymentPage] User is already subscribed to this plan:", selectedPlanFromComponent.id);
             return;
         }
 
@@ -45,21 +61,20 @@ const PlanAndPaymentPage = () => {
 
         setIsProcessingCheckout(true);
         setError(null);
-        if (vortexRef.current) vortexRef.current.addTurbulence(15000); // Add turbulence on processing
+        if (vortexRef.current) vortexRef.current.addTurbulence(15000);
 
         try {
-            const successUrl = `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
-            const cancelUrl = `${window.location.origin}/payment-cancel`;
-
             const payload = {
                 plan_name: planIdentifier,
-                // Backend settings.py should handle success_url and cancel_url
-                // success_url: successUrl, 
-                // cancel_url: cancelUrl,
             };
 
             if (user?.email) {
-                payload.customer_email = user.email; // Backend can use this if no Stripe customer exists yet
+                payload.customer_email = user.email;
+            }
+
+            // MODIFICATION: Add referral code to the API payload if it exists
+            if (referralCode) {
+                payload.referral_code = referralCode;
             }
 
             console.log('[PlanAndPaymentPage] Creating checkout session with payload:', payload);
@@ -72,7 +87,6 @@ const PlanAndPaymentPage = () => {
                 throw new Error("Failed to initialize payment session. Please try again or contact support.");
             }
 
-            console.log('[PlanAndPaymentPage] Redirecting to Stripe Checkout with session ID:', sessionId);
             const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
 
             if (stripeError) {
@@ -92,20 +106,11 @@ const PlanAndPaymentPage = () => {
             addToast(errorMessage, 'error', 5000);
             setIsProcessingCheckout(false);
         }
-    }, [stripe, addToast, isAuthenticated, user, currentSubscription, vortexRef]);
+    }, [stripe, addToast, isAuthenticated, user, currentSubscription, vortexRef, referralCode]);
 
     const handleManageSubscription = useCallback((plan) => {
-        // For now, navigate to the billing portal creation endpoint
-        // This endpoint would then redirect to Stripe's customer portal
         console.log("[PlanAndPaymentPage] 'Manage Subscription' clicked for plan:", plan.name);
         addToast("Redirecting to subscription management...", "info");
-
-        // Example: If you have a dedicated page for showing subscription details before portal
-        // navigate(`/account/subscription-details`);
-
-        // Direct to Stripe Customer Portal via backend
-        // The actual implementation of this will be in a subsequent task involving the backend.
-        // For now, we can simulate a redirect or point to a placeholder.
         apiService.post('payments/create-customer-portal-session/')
             .then(response => {
                 if (response.data.url) {
@@ -118,25 +123,23 @@ const PlanAndPaymentPage = () => {
                 console.error("Error creating customer portal session:", err);
                 addToast("Error accessing subscription management. Please try again.", "error");
             });
+    }, [addToast, navigate]);
 
-    }, [addToast, navigate]); // Add navigate if using it
-
-    // Combined loading state: parent's checkout processing OR subscription data loading
     const pageIsOverallLoading = isProcessingCheckout || isSubscriptionDataLoading;
 
     return (
         <BubbleAnimation
             ref={vortexRef}
-            particleCount={300} // Fewer particles for less distraction
+            particleCount={300}
             baseSpeed={0.15}
             rangeSpeed={0.1}
             baseRadius={0.8}
             rangeRadius={1.5}
-            backgroundColor="rgba(249, 250, 251, 0)" // Matches bg-gray-50 dark:bg-neutral-900
-            containerClassName="dark:bg-gradient-to-br dark:from-purple-950/50 dark:via-neutral-900 dark:to-rose-950/30" // Subtle dark mode gradient
+            backgroundColor="rgba(249, 250, 251, 0)"
+            containerClassName="dark:bg-gradient-to-br dark:from-purple-950/50 dark:via-neutral-900 dark:to-rose-950/30"
         >
-            <div className="flex flex-col items-center justify-start min-h-screen py-12 px-4 font-montserrat"> {/* Removed bg-gray-50 etc. for BubbleAnimation */}
-                <header className="text-center mb-10 mt-8 sm:mt-12 relative z-10">
+            <div className="flex flex-col items-center justify-start min-h-screen py-12 px-4 font-montserrat">
+                <header className="text-center mb-6 mt-8 sm:mt-12 relative z-10">
                     <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl">
                         {scriptLines.planSelection.title}
                     </h1>
@@ -144,6 +147,33 @@ const PlanAndPaymentPage = () => {
                         {scriptLines.planSelection.subtitle}
                     </p>
                 </header>
+
+                {/* MODIFICATION: Add referral code feedback UI */}
+                <AnimatePresence>
+                    {referralCode && isReferralAlertVisible && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.2 } }}
+                            className="relative z-10 my-4 p-4 max-w-2xl w-full mx-auto bg-green-50 dark:bg-green-900/40 border border-green-300 dark:border-green-600 rounded-lg shadow-md flex items-center justify-between gap-4"
+                            role="alert"
+                        >
+                            <div className="flex items-center gap-3">
+                                <Icon name="celebration" className="w-6 h-6 text-green-600 dark:text-green-300 flex-shrink-0" />
+                                <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                                    Referral code <span className="font-bold">"{referralCode}"</span> applied! Your discount will be reflected at checkout.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setIsReferralAlertVisible(false)}
+                                className="p-1 rounded-full text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-700/50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                aria-label="Dismiss message"
+                            >
+                                <Icon name="close" className="w-5 h-5" />
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {isProcessingCheckout && (
                     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-opacity duration-300">
@@ -153,7 +183,7 @@ const PlanAndPaymentPage = () => {
                     </div>
                 )}
 
-                {error && !isProcessingCheckout && ( // Only show general error if not processing checkout (Stripe error handled by Stripe)
+                {error && !isProcessingCheckout && (
                     <div
                         className="my-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 dark:bg-red-900/30 dark:border-red-700 dark:text-red-200 rounded-md shadow-md max-w-xl w-full mx-auto text-left relative z-10"
                         role="alert"
@@ -170,9 +200,9 @@ const PlanAndPaymentPage = () => {
                 <div className="w-full max-w-7xl mx-auto relative z-10">
                     <PlanSelection
                         onPlanSelect={handlePlanSelected}
-                        onManageSubscription={handleManageSubscription} // Pass the new handler
-                        isLoading={pageIsOverallLoading} // Pass combined loading state
-                        themeColor="rose" // Can be made dynamic if needed
+                        onManageSubscription={handleManageSubscription}
+                        isLoading={pageIsOverallLoading}
+                        themeColor="rose"
                     />
                 </div>
 

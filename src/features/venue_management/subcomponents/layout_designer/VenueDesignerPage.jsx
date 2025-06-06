@@ -235,7 +235,8 @@ const VenueDesignerPage = () => {
     }
 
     return (
-        <div className={`h-screen w-full flex flex-col overflow-hidden antialiased bg-neutral-100 dark:bg-neutral-900 transition-colors duration-300 ${isZenMode ? 'is-zen-mode' : ''}`}>
+        <div className={`relative h-full w-full overflow-visible antialiased bg-neutral-100 dark:bg-neutral-900 transition-colors duration-300 ${isZenMode ? 'is-zen-mode' : ''}`}>
+
             {!isZenMode && (
                 <VenueDesignerHeader
                     isEditorModeActive={isEditorModeActive}
@@ -250,7 +251,7 @@ const VenueDesignerPage = () => {
                 />
             )}
 
-            <main className="flex-1 overflow-hidden relative" role="main">
+            <main className="flex-1 h-[calc(100%-124px)] sm:h-[calc(100%-72px)] overflow-visible">
                 <AnimatePresence mode="wait">
                     {isEditorModeActive ? (
                         layoutDataForEditorInitialization ? (
@@ -330,7 +331,7 @@ const VenueDesignerPage = () => {
 
 VenueDesignerPage.Loading = () => (
     <div className="flex items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900">
-        <Icon name="progress_activity" aria-hidden="true" className="w-12 h-12 text-rose-500 dark:text-rose-400 animate-spin" />
+        <Icon name="progress_activity" aria-hidden="true" className="w-12 h-12 text-rose-500 dark:text-rose-400 animate-spin" style={{ fontSize: '3rem' }} />
         <p className="ml-3 text-lg font-montserrat font-semibold text-rose-700 dark:text-rose-400">
             {sl.loadingPageTitle || "Loading Venue Designer..."}
         </p>
@@ -348,7 +349,7 @@ VenueDesignerPage.Error = () => (
         </p>
         <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2.5 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition-colors"
+            className="px-6 py-2.5 bg-rose-500 text-white font-medium rounded-full font-montserrat hover:bg-rose-600 transition-colors"
         >
             {sl.refreshPageButton || "Refresh Page"}
         </button>

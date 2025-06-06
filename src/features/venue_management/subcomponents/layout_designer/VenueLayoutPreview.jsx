@@ -102,7 +102,7 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
         );
     }
 
-    const mainFlexContainerClasses = `flex h-full overflow-hidden ${isZenMode || isMobile ? 'flex-col' : 'flex-row'}`;
+    const mainFlexContainerClasses = `flex h-full overflow-visible ${isZenMode || isMobile ? 'flex-col' : 'flex-row'}`;
     const gridContainerClasses = `flex items-center justify-center overflow-auto ${isZenMode ? 'flex-1 p-4 md:p-6' : (isMobile ? 'h-auto p-4 pt-8' : 'flex-1 p-4 md:p-6')}`;
     const qrAsideClasses = `${isZenMode ? 'hidden' : ''} ${isMobile ? 'w-full h-auto max-h-[60vh] min-h-[200px]' : 'w-72 lg:w-80 xl:w-[22rem] h-full'} flex flex-col bg-white dark:bg-neutral-800 px-3 py-6 border border-neutral-200/80 dark:border-neutral-700/60 shadow-lg rounded-4xl font-montserrat ${isMobile ? 'border-t mt-4' : 'border-l'}`;
 
@@ -173,7 +173,7 @@ const VenueLayoutPreview = ({ layoutData, openAlert, isZenMode }) => {
                                         <Icon name="download" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 0, weight: 600, grade: 0, opsz: 24 }} />
                                     </button>
                                 </div>
-                                <div className="aspect-square w-full max-w-[120px] mx-auto bg-neutral-100 dark:bg-neutral-600/40 rounded-md flex items-center justify-center overflow-hidden my-1">
+                                <div className="aspect-square w-full max-w-[120px] mx-auto bg-neutral-100 dark:bg-neutral-600/40 rounded-md flex items-center justify-center overflow-visible my-1">
                                     {qrStatus.loading && <Icon name="progress_activity" className="w-6 h-6 text-neutral-400 dark:text-neutral-500 animate-spin" title={sl.qrStatusLoading || "Loading QR..."} />}
                                     {qrStatus.url && !qrStatus.loading && <img src={qrStatus.url} alt={interpolate(sl.qrTableNumberLabel || "QR Code for Table {number}", { number: table.number })} className="w-full h-full object-contain p-1" />}
                                     {qrStatus.status === 'error' && !qrStatus.loading && <Icon name="error_outline" className="w-6 h-6 text-red-500" title={sl.qrStatusError || "Error loading QR"} />}

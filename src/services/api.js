@@ -273,6 +273,7 @@ const apiService = {
         }
     },
 
+
     // --- Payment Related API Signatures ---
     /**
      * Creates a Stripe Checkout session.
@@ -281,7 +282,7 @@ const apiService = {
      * @returns {Promise<AxiosResponse<object>>} The Axios response object containing session data (e.g., session ID).
      */
     createCheckoutSession: (checkoutPayload) => {
-        console.log("[API SERVICE] Attempting to create Stripe Checkout session with payload:", checkoutPayload);
+        // console.log("[API SERVICE] Attempting to create Stripe Checkout session with payload:", checkoutPayload);
         return apiInstance.post('payments/create-checkout-session/', checkoutPayload);
     },
 
@@ -290,9 +291,19 @@ const apiService = {
      * @returns {Promise<AxiosResponse<object>>} The Axios response object containing subscription data.
      */
     getSubscriptionStatus: () => {
-        console.log("[API SERVICE] Fetching subscription status from /api/payments/subscription-status/");
+        // console.log("[API SERVICE] Fetching subscription status from /api/payments/subscription-status/");
         return apiInstance.get('payments/subscription-status/');
     },
+
+    /**
+     * Creates a Stripe Customer Portal session.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response object containing the portal session URL.
+     */
+    createCustomerPortalSession: () => { // NEW FUNCTION
+        // console.log("[API SERVICE] Attempting to create Stripe Customer Portal session.");
+        return apiInstance.post('payments/create-customer-portal-session/');
+    },
+
 };
 
 export default apiService;
