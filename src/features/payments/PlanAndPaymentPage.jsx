@@ -166,10 +166,10 @@ const PlanAndPaymentPage = () => {
                             </div>
                             <button
                                 onClick={() => setIsReferralAlertVisible(false)}
-                                className="p-1 rounded-full text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-700/50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="p-1 w-8 h-8 rounded-full text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-700/50 focus:outline-none focus:ring-2 focus:ring-green-500"
                                 aria-label="Dismiss message"
                             >
-                                <Icon name="close" className="w-5 h-5" />
+                                <Icon name="close" className="w-6 h-6" />
                             </button>
                         </motion.div>
                     )}

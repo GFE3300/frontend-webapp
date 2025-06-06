@@ -1,10 +1,9 @@
-// src/features/dashboard/Sidebar.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import SidebarNavItem from './subcomponents/SidebarNavItem';
-import Icon from '../../components/common/Icon'; // Adjusted path
+import Icon from '../../components/common/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../contexts/AuthContext'; // For business name
+import { useAuth } from '../../contexts/AuthContext'; // MODIFIED: Import useAuth
 
 // Optional SidebarHeader (simple version)
 const SidebarHeader = ({ isCollapsed, businessName }) => (
@@ -94,15 +93,25 @@ const Sidebar = () => {
         setIsCollapsed(!isCollapsed);
     };
 
-    const navItems = [
-        { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview' },
-        { name: 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders' },
-        { name: 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products' },
-        { name: 'Inventory', icon: 'inventory', path: '/dashboard/business/inventory' },
-        { name: 'Venue', icon: 'storefront', path: '/dashboard/business/venue' },
-        { name: 'Analytics', icon: 'analytics', path: '/dashboard/business/analytics' },
-        { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings' },
-    ];
+    // MODIFICATION: Use useMemo to create the navigation items based on user role
+    const navItems = useMemo(() => {
+        const baseItems = [
+            { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview' },
+            { name: 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders' },
+            { name: 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products' },
+            { name: 'Inventory', icon: 'inventory', path: '/dashboard/business/inventory' },
+            { name: 'Venue', icon: 'storefront', path: '/dashboard/business/venue' },
+            { name: 'Analytics', icon: 'analytics', path: '/dashboard/business/analytics' },
+            { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings' },
+        ];
+
+        if (user?.role === 'ADMIN') {
+            baseItems.push({ name: 'Affiliates', icon: 'group', path: '/dashboard/business/affiliates' });
+        }
+
+        return baseItems;
+    }, [user?.role]);
+
 
     const sidebarVariants = {
         expanded: { width: '16rem' }, // w-64
@@ -120,10 +129,10 @@ const Sidebar = () => {
             animate={isCollapsed ? "collapsed" : "expanded"}
             variants={sidebarVariants}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="bg-white dark:bg-neutral-800 shadow-lg flex-shrink-0 print:hidden flex flex-col h-screen fixed md:static z-30 md:z-auto left-0 top-0" // Fixed for mobile overlay idea
+            className="bg-white dark:bg-neutral-800 shadow-lg flex-shrink-0 print:hidden flex flex-col h-screen fixed md:static z-30 md:z-auto left-0 top-0"
         >
             <SidebarHeader isCollapsed={isCollapsed} businessName={user?.activeBusinessName} />
-            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto"> {/* Reduced padding and space */}
+            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
                 {navItems.map((item) => (
                     <SidebarNavItem
                         key={item.name}

@@ -26,10 +26,13 @@ import InventoryPage from './features/dashboard/pages/InventoryPage.jsx';
 import VenuePage from './features/dashboard/pages/VenuePage.jsx';
 import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
 
-// MODIFIED: Import new settings pages
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSettingsPage.jsx';
 import SubscriptionBillingPage from './features/dashboard/pages/settings/SubscriptionBillingPage.jsx';
+
+// MODIFIED: Import new affiliate pages
+import AffiliatesPage from './features/dashboard/pages/AffiliatesPage.jsx';
+import AffiliateDetailPage from './features/dashboard/pages/AffiliateDetailPage.jsx';
 
 // Venue Layout Management (Existing)
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
@@ -139,16 +142,13 @@ const router = createBrowserRouter([
             { path: "inventory", element: <InventoryPage /> },
             { path: "venue", element: <VenuePage /> },
             { path: "analytics", element: <AnalyticsPage /> },
-            // MODIFIED: Settings route and its children
             {
                 path: "settings",
                 element: <SettingsPage />, // Renders the SettingsPage layout with sub-navigation
                 children: [
-                    // Default child for /settings, redirects to profile. SettingsPage handles its own redirect too.
                     { index: true, element: <Navigate to="profile" replace /> },
                     { path: "profile", element: <ProfileSettingsPage /> },
                     { path: "billing", element: <SubscriptionBillingPage /> },
-                    // Add other settings sub-routes here
                 ]
             },
             {
@@ -167,31 +167,39 @@ const router = createBrowserRouter([
                     </PrivateRoute>
                 ),
             },
+            // MODIFICATION: Added new affiliate routes
+            {
+                path: "affiliates",
+                element: (
+                    <PrivateRoute requiredRoles={['ADMIN']}>
+                        <AffiliatesPage />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: "affiliates/:affiliateId",
+                element: (
+                    <PrivateRoute requiredRoles={['ADMIN']}>
+                        <AffiliateDetailPage />
+                    </PrivateRoute>
+                ),
+            }
         ]
     },
     {
         path: "/dashboard/unauthorized",
         element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>,
     },
-    // MODIFIED: Removed redundant /dashboard/business/menu-preview and /venue-designer as they are now nested
-    // {
-    //     path: "/dashboard/business/menu-preview",
-    //     // ...
-    // },
-    // {
-    //     path: "/venue-designer",
-    //     // ...
-    // },
     {
         path: "/plans",
         element: (
-            <PrivateRoute requiredRoles={['USER', 'ADMIN', 'MANAGER', 'STAFF']}> {/* Ensure USER role if direct access from registration */}
+            <PrivateRoute requiredRoles={['USER', 'ADMIN', 'MANAGER', 'STAFF']}>
                 {stripePromise ? (
                     <Elements stripe={stripePromise}>
                         <PlanAndPaymentPage />
                     </Elements>
                 ) : (
-                    <div>Loading Stripe... Ensure VITE_STRIPE_PUBLISHABLE_KEY is set.</div>
+                    <div>Loading Stripe... </div>
                 )}
             </PrivateRoute>
         ),
@@ -207,24 +215,6 @@ const router = createBrowserRouter([
         element: <PaymentCancelPage />,
         errorElement: <NotFoundPage />,
     },
-
-    // ADMIN ROUTES
-    {
-        path: "affiliates",
-        element: (
-            <PrivateRoute requiredRoles={['ADMIN']}>
-                <AffiliatesPage />
-            </PrivateRoute>
-        ),
-    },
-    {
-        path: "affiliates/:affiliateId",
-        element: (
-            <PrivateRoute requiredRoles={['ADMIN']}>
-                <AffiliateDetailPage />
-            </PrivateRoute>
-        ),
-    },
 ]);
 
 function App() {
@@ -232,8 +222,8 @@ function App() {
         <React.StrictMode>
             <QueryClientProvider client={queryClient}>
                 <DndProvider backend={MultiBackend} options={DNDBackendsConfig}>
-                    <AuthProvider> {/* AuthProvider is outer */}
-                        <SubscriptionProvider> {/* SubscriptionProvider is inner */}
+                    <AuthProvider>
+                        <SubscriptionProvider>
                             <ToastProvider>
                                 <FlyingImageProvider>
                                     <ThemeProvider>

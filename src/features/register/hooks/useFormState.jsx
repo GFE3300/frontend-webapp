@@ -202,10 +202,9 @@ export const useFormState = (initialFormStateData = {}) => {
                 return true;
             }
 
-            await schema.validate(state.formData, { abortEarly: false });
             setState(prev => ({
                 ...prev,
-                errors: { ...prev.errors, ...fieldErrors },
+                errors: { ...prev.errors, [stepToValidate]: {} },
                 stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? true : v)),
             }));
             return true;
