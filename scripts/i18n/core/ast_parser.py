@@ -1,7 +1,8 @@
 import logging
 from pathlib import Path
-from typing import Dict, Tuple, List, Any
+from typing import Dict, Tuple, List, Any, Set
 import json # Used for properly escaping strings in comments
+import re
 
 try:
     import esprima
@@ -28,10 +29,6 @@ class _Rewriter:
         return "".join(source_list)
 
 def _get_feature_name(file_path: Path) -> str:
-    """
-    Extracts a feature name from a file path.
-    Example: 'src/features/venue_management/utils/...' -> 'venue_management'
-    """
     parts = file_path.parts
     if 'features' in parts:
         try:
@@ -43,10 +40,6 @@ def _get_feature_name(file_path: Path) -> str:
     return file_path.parent.name
 
 def _get_object_root_key(var_name: str) -> str:
-    """
-    Transforms a JS variable name into a flatter key for the JSON structure.
-    Example: 'scriptLines_Steps' -> 'steps'
-    """
     prefix = 'scriptLines_'
     if var_name.startswith(prefix):
         key_part = var_name[len(prefix):]
@@ -54,6 +47,66 @@ def _get_object_root_key(var_name: str) -> str:
     if var_name == 'scriptLines':
         return ''
     return var_name
+
+def _process_string_literal(
+    node: Any,
+    i18n_key: str,
+    rewriter: _Rewriter,
+    value_to_key_map: Dict[str, str],
+    new_strings: Dict[str, str],
+    duplicate_report: Dict[str, Dict],
+    confirmation_prompt: callable, # New parameter
+    file_path: Path # New parameter for better error messages
+):
+    """Helper to process a found string, add it to new_strings, and queue a rewrite."""
+    string_value = node.value
+    if not string_value or not string_value.strip() or 'i18n.t(' in string_value:
+        return
+
+    # Use a regex to find single-brace patterns like {word}
+    single_brace_match = re.search(r"\{(\w+)\}", string_value)
+    if single_brace_match:
+        placeholder = single_brace_match.group(0)
+        message = (
+            f"WARNING: The string \"{string_value}\" in {file_path.name}\n"
+            f"contains a placeholder-like pattern \"{placeholder}\". Our convention for dynamic values\n"
+            f"is double-braces (e.g., '{{{{count}}}}') to work correctly with our translation service.\n"
+            f"Is this string correct as-is and not a dynamic placeholder?"
+        )
+        if not confirmation_prompt(message):
+            logging.warning(f"Skipping string. Please fix the placeholder format in '{file_path}' and re-run.")
+            return # Skip this string entirely
+
+    if string_value in value_to_key_map:
+        # De-duplication: this string value already has a key
+        final_key = value_to_key_map[string_value]
+        if string_value not in duplicate_report:
+            duplicate_report[string_value] = {'key': final_key, 'locations': [final_key]}
+        if i18n_key not in duplicate_report[string_value]['locations']:
+             duplicate_report[string_value]['locations'].append(i18n_key)
+    else:
+        # New string
+        final_key = i18n_key
+        value_to_key_map[string_value] = final_key
+        new_strings[final_key] = string_value
+
+    escaped_comment = json.dumps(string_value)
+    replacement_text = f"i18n.t('{final_key}'), // {escaped_comment}"
+    rewriter.add_replacement(node.range[0], node.range[1], replacement_text)
+
+def _is_pluralization_node(node: Any) -> bool:
+    """Checks if an AST node represents a `{ one: '...', other: '...' }` object."""
+    if not node or node.type != 'ObjectExpression' or len(node.properties) != 2:
+        return False
+    
+    keys = set()
+    for prop in node.properties:
+        if prop.value.type != 'Literal' or not isinstance(prop.value.value, str):
+            return False # Both values must be string literals
+        prop_key = getattr(prop.key, 'name', None) or getattr(prop.key, 'value', None)
+        keys.add(prop_key)
+        
+    return keys == {'one', 'other'}
 
 def _traverse_and_extract(
     node: Any,
@@ -63,14 +116,35 @@ def _traverse_and_extract(
     new_strings: Dict[str, str],
     duplicate_report: Dict[str, Dict]
 ):
-    """
-    Recursively traverses the AST, identifies string literals, and queues them
-    for replacement.
-    """
+    """Recursively traverses the AST, identifies string literals, and queues them for replacement."""
     if not node:
         return
 
     node_type = getattr(node, 'type', None)
+
+    # <<< NEW LOGIC for Pluralization >>>
+    if _is_pluralization_node(node):
+        base_key = ".".join(key_path_parts)
+        logging.info(f"  Found pluralization block for base key: {base_key}")
+        
+        for prop in node.properties:
+            prop_key_name = getattr(prop.key, 'name', None) or getattr(prop.key, 'value', None)
+            plural_key = f"{base_key}_{prop_key_name}" # e.g., key.path_one, key.path_other
+            
+            string_value = prop.value.value
+            
+            # Add to new strings using the same de-duplication logic
+            if string_value in value_to_key_map:
+                # This string already exists, but we don't rewrite this file, so we just log it.
+                pass
+            else:
+                # It's a new string, add it to our lists for processing.
+                value_to_key_map[string_value] = plural_key
+                new_strings[plural_key] = string_value
+        
+        # IMPORTANT: We do not traverse deeper or rewrite this node.
+        # It must remain as a plain object in the source file.
+        return
 
     if node_type == 'ObjectExpression':
         for prop in getattr(node, 'properties', []):
@@ -85,7 +159,6 @@ def _traverse_and_extract(
                         new_strings,
                         duplicate_report
                     )
-
     elif node_type == 'ArrayExpression':
         for i, element in enumerate(getattr(node, 'elements', [])):
             _traverse_and_extract(
@@ -96,33 +169,11 @@ def _traverse_and_extract(
                 new_strings,
                 duplicate_report
             )
-
     elif node_type == 'Literal' and isinstance(getattr(node, 'value', None), str):
-        string_value = node.value
-        # Ignore empty strings or strings that are already function calls
-        if not string_value or not string_value.strip() or 'i18n.t(' in string_value:
-            return
-
         i18n_key = ".".join(key_path_parts)
-        
-        if string_value in value_to_key_map:
-            final_key = value_to_key_map[string_value]
-            if string_value not in duplicate_report:
-                duplicate_report[string_value] = {'key': final_key, 'locations': [final_key]}
-            if i18n_key not in duplicate_report[string_value]['locations']:
-                 duplicate_report[string_value]['locations'].append(i18n_key)
-        else:
-            final_key = i18n_key
-            value_to_key_map[string_value] = final_key
-            new_strings[final_key] = string_value
-
-        # <<< FIX: Generate direct i18n.t() call with an inline comment.
-        escaped_comment = json.dumps(string_value)
-        replacement_text = f"i18n.t('{final_key}'), // {escaped_comment}"
-        
-        # Replace the original literal with the new function call and comment.
-        # This approach is simple; a code formatter like Prettier would clean up the final alignment.
-        rewriter.add_replacement(node.range[0], node.range[1], replacement_text)
+        _process_string_literal(
+            node, i18n_key, rewriter, value_to_key_map, new_strings, duplicate_report
+        )
 
 
 def extract_and_rewrite(
@@ -132,13 +183,9 @@ def extract_and_rewrite(
     value_to_key_map: Dict[str, str],
     duplicate_report: Dict[str, Dict]
 ) -> Tuple[str, Dict[str, str]]:
-    """
-    Parses JS source, extracts new strings, and returns the rewritten code
-    as a static object.
-    """
+    """Parses JS source, extracts new strings, and returns the rewritten code as a static object."""
     rewriter = _Rewriter(source_code)
     new_strings: Dict[str, str] = {}
-
     try:
         ast = esprima.parseModule(source_code, {'range': True, 'loc': True})
     except Exception as e:
@@ -152,17 +199,10 @@ def extract_and_rewrite(
                 for var_declarator in declaration.declarations:
                     var_name = var_declarator.id.name
                     init_node = var_declarator.init
-                    
-                    # <<< FIX: No longer wrapping in a function.
-                    # We just traverse the existing object.
-                    
                     relative_file_path = file_path.relative_to(project_root)
-                    
                     feature_name = _get_feature_name(relative_file_path)
                     object_root_key = _get_object_root_key(var_name)
-                    
                     base_key_path = [p for p in [feature_name, object_root_key] if p]
-
                     _traverse_and_extract(
                         init_node,
                         base_key_path,
@@ -174,3 +214,140 @@ def extract_and_rewrite(
 
     rewritten_code = rewriter.apply()
     return rewritten_code, new_strings
+
+
+def find_translation_keys(source_code: str) -> Set[str]:
+    """
+    Parses JS source and returns a set of all translation keys used.
+    This includes simple `i18n.t('key')` calls and base keys for pluralization blocks.
+    """
+    keys: Set[str] = set()
+    try:
+        # We need location info to build the key path for plurals
+        ast = esprima.parseModule(source_code, {'loc': True})
+
+        def _find_keys_recursive(node, key_path_parts=[]):
+            if not node or not isinstance(node, esprima.nodes.Node):
+                return
+
+            # Case 1: Standard i18n.t('key') call
+            if (node.type == 'CallExpression' and
+                getattr(node.callee, 'type', '') == 'MemberExpression' and
+                getattr(node.callee.object, 'name', '') == 'i18n' and
+                getattr(node.callee.property, 'name', '') == 't' and
+                node.arguments and node.arguments[0].type == 'Literal'):
+                keys.add(node.arguments[0].value)
+                # Don't recurse into arguments of t() call
+                return
+
+            # Case 2: Pluralization object { one: "...", other: "..." }
+            if _is_pluralization_node(node):
+                # The "key" is the path leading to this object.
+                # i18next uses this base key to find _one and _other variations.
+                base_key = ".".join(key_path_parts)
+                keys.add(base_key)
+                # We found a plural block, no need to go deeper.
+                return
+
+            # Generic traversal to build key paths for pluralization
+            if node.type == 'ObjectExpression':
+                for prop in getattr(node, 'properties', []):
+                    if getattr(prop, 'type') == 'Property':
+                        prop_key = getattr(prop.key, 'name', None) or getattr(prop.key, 'value', None)
+                        if prop_key is not None:
+                            _find_keys_recursive(prop.value, key_path_parts + [str(prop_key)])
+            
+            # Recurse into other node types that can contain objects
+            elif node.type == 'ExportNamedDeclaration':
+                 _find_keys_recursive(node.declaration, key_path_parts)
+            elif node.type == 'VariableDeclaration':
+                for var_declarator in node.declarations:
+                    # Start a new key path from the variable name
+                    var_name = var_declarator.id.name
+                    object_root_key = _get_object_root_key(var_name)
+                    # This logic assumes a single feature per file for simplicity in this context.
+                    # A more complex key gen would be needed if multiple features are in one file.
+                    # For now, this covers our use case.
+                    _find_keys_recursive(var_declarator.init, [object_root_key] if object_root_key else [])
+
+
+        # Start traversal from the top level of the module body
+        for node in ast.body:
+             _find_keys_recursive(node)
+
+    except Exception as e:
+        logging.warning(f"Could not parse AST to find keys, file might be malformed. Error: {e}")
+        
+    # Filter out any keys that might have been added incorrectly (e.g., empty strings)
+    return {k for k in keys if k}
+
+
+def format_comments(source_code: str, translations: Dict[str, str]) -> str:
+    """
+    Parses JS source and adds/updates inline comments for `i18n.t()` calls using an AST.
+    This is more robust than a regex-based approach.
+    """
+    rewriter = _Rewriter(source_code)
+    lines = source_code.splitlines()
+
+    try:
+        ast = esprima.parseModule(source_code, {'range': True, 'loc': True})
+    except Exception as e:
+        logging.warning(f"Could not parse AST for formatting, skipping file. Error: {e}")
+        return source_code
+
+    # This regex is now only used to clean up a single line at a time
+    comment_regex = re.compile(r"(\s*(?://.*|/\*.*?\*/))$")
+
+    def visit(node):
+        if not node or not isinstance(node, esprima.nodes.Node):
+            return
+
+        # Check if the node is a CallExpression for `i18n.t`
+        if (node.type == 'CallExpression' and
+            getattr(node.callee, 'type', '') == 'MemberExpression' and
+            getattr(node.callee.object, 'name', '') == 'i18n' and
+            getattr(node.callee.property, 'name', '') == 't' and
+            node.arguments):
+            
+            first_arg = node.arguments[0]
+            if first_arg.type == 'Literal' and isinstance(first_arg.value, str):
+                key = first_arg.value
+                translation = translations.get(key)
+                
+                if translation:
+                    # Location of the i18n.t() call
+                    line_index = node.loc.end.line - 1 # loc is 1-based, list is 0-based
+                    
+                    if line_index < len(lines):
+                        line_content = lines[line_index]
+                        
+                        # Find the character index for the start of the line in the full source
+                        line_start_char_index = sum(len(l) + 1 for l in lines[:line_index])
+                        
+                        # Clean any existing comment from this line
+                        line_without_comment, match = comment_regex.subn("", line_content)
+                        
+                        # Prepare the new comment
+                        escaped_comment = json.dumps(translation)
+                        new_comment = f" // {escaped_comment}"
+                        
+                        # Replace the entire line in the rewriter
+                        rewriter.add_replacement(
+                            line_start_char_index,
+                            line_start_char_index + len(line_content),
+                            line_without_comment.rstrip() + new_comment
+                        )
+
+        # Recursively visit children
+        for key in dir(node):
+            if not key.startswith('_'):
+                child = getattr(node, key)
+                if isinstance(child, esprima.nodes.Node):
+                    visit(child)
+                elif isinstance(child, list):
+                    for item in child:
+                        visit(item)
+
+    visit(ast)
+    return rewriter.apply()

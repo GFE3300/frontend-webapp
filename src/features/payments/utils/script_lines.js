@@ -19,11 +19,9 @@ export const scriptLines_Components = {
             mostPopular: t('payments.components.planSelection.badges.mostPopular'),
             recommended: t('payments.components.planSelection.badges.recommended'),
             specialOffer: t('payments.components.planSelection.badges.specialOffer'),
-            // NEW BADGE TEXT
             currentPlan: t('payments.components.planSelection.badges.currentPlan'),
         },
         messages: {
-            // NEW MESSAGES
             loadingSubscription: t('payments.components.planSelection.messages.loadingSubscription'),
             subscriptionLoadError: t('payments.components.planSelection.messages.subscriptionLoadError'),
             alreadySubscribedError: t('payments.components.planSelection.messages.alreadySubscribedError'),

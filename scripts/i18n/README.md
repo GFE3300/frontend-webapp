@@ -1,6 +1,6 @@
-# I18N Workflow Manager v2.2
+# I18N Workflow Manager v2.3
 
-Welcome to the command center for our app's internationalization (I18N). This directory contains a powerful, semi-automated CLI tool designed to make translating our app less of a chore and more of a breeze.
+Welcome to the command center for our app's internationalization (I18N). This directory contains a powerful CLI tool designed to make translating our app less of a chore and more of a breeze. It acts as a linter, formatter, and synchronization engine for our entire translation system.
 
 It handles everything from finding new text in the code to getting it translated, so you can focus on building features, not wrestling with JSON files.
 
@@ -13,8 +13,14 @@ python scripts/i18n/manager.py init fr
 # Added new text to a script_lines.js file? Run this.
 python scripts/i18n/manager.py sync
 
-# Want to see what would change without touching any files?
-python scripts/i18n/manager.py sync --dry-run
+# Want to tidy up comments and sort JSON files?
+python scripts/i18n/manager.py format
+
+# Want to check if anything is out of sync or missing?
+python scripts/i18n/manager.py check --details
+
+# Want to remove old, unused translations?
+python scripts/i18n/manager.py clean
 ```
 
 ---
@@ -34,15 +40,15 @@ This system was built with three principles in mind:
 Before you begin, ensure you have the following set up:
 
 1.  **Python 3.7+**
-2.  **Required Libraries:** Install the necessary Python packages.
+2.  **Required Libraries:**
     ```bash
-    pip install -r scripts/i18n/requirements.txt
+    pip install esprima-python python-dotenv deepl
     ```
-    *(A `requirements.txt` file should be created in `scripts/i18n/` containing `esprima-python`, `python-dotenv`, and `deepl`)*
+    *(Or install from a `requirements.txt` file if one is provided in this directory).*
 
 3.  **DeepL API Key:** This is essential for the automatic translation step.
-    *   Create a `.env` file in the project's root directory (the same level as `package.json`).
-    *   Add your API key to this file. This file is git-ignored, so your key stays safe.
+    -   Create a `.env` file in the project's root directory (the same level as `package.json`).
+    -   Add your API key to it. This file is git-ignored, so your key stays safe.
     ```
     # /.env
     DEEPL_API_KEY="your-deepl-api-key-goes-here"
@@ -52,25 +58,22 @@ Before you begin, ensure you have the following set up:
 
 ## The Developer Workflow
 
-Here’s the standard, simplified workflow for adding or changing UI text.
+Here’s the standard, simplified workflow for adding, managing, and cleaning up UI text.
 
 ### Step 1: Add or Edit Text in `script_lines.js`
 
 This is your **single source of truth** for all English text. Go to the relevant `script_lines.js` file and add or modify strings as needed.
 
 **Example: Adding a new error message.**
-
 ```javascript
 // BEFORE running sync
 // in: src/features/register/utils/script_lines.js
-
 export const scriptLines_Steps = {
     step0BusinessInfo: {
         errors: {
             formDataMissing: "Error: Form data is missing for this step.",
             businessUrlInvalid: "Please provide a valid business URL.", // <-- Our new string
         },
-        //...
     },
 };
 ```
@@ -78,28 +81,16 @@ export const scriptLines_Steps = {
 ### Step 2: Run the Sync Command
 
 From the project root (`frontend/`), run the sync command.
-
 ```bash
 python scripts/i18n/manager.py sync
 ```
-
-**What the Magic Does:**
-
-1.  The manager detects the change in `script_lines.js`.
-2.  It parses the file, finds the new string `"Please provide a valid business URL."`.
-3.  It generates a unique key (e.g., `register.steps.step0BusinessInfo.errors.businessUrlInvalid`).
-4.  It adds this new key and the English string to `src/locales/en/translation.json`.
-5.  It sends *only the new string* to the DeepL API, which intelligently translates it while ignoring placeholders like `{variable}`.
-6.  It adds the new key and its translation to all target language files (e.g., `src/locales/es/translation.json`).
-7.  Finally, it rewrites `script_lines.js`, replacing the static string with a call to the `i18n.t()` function and adding a helpful inline comment.
+This detects changes, extracts the new string, adds it to `en/translation.json`, sends it to DeepL for translation, updates target language files (e.g., `es/translation.json`), and rewrites the `script_lines.js` file into a self-translating module with helpful inline comments.
 
 **Your `script_lines.js` file is now a self-translating module:**
-
 ```javascript
 /**
  * @auto-managed
  * ...
- * @last-synced 2025-06-07 11:45:00 UTC
  */
 import i18n from '../../../i18n';
 
@@ -110,34 +101,46 @@ export const scriptLines_Steps = {
       businessUrlInvalid: i18n.t('register.steps.step0BusinessInfo.errors.businessUrlInvalid'), // "Please provide a valid business URL."
     }
   },
-  // ... more keys
 };
 ```
 
-### Step 3: Commit Your Changes
+### Step 3: Keep Your I18N System Healthy
 
-Commit all modified files to Git. No component refactoring is needed.
-*   The updated `script_lines.js` file(s).
-*   The updated `locales/en/translation.json`.
-*   The updated `locales/es/translation.json` (and any other languages).
+Over time, you'll want to run maintenance commands.
 
-That's it. Your new text is now fully integrated and translated across the app.
+**To re-apply comments and sort all JSON files:**
+```bash
+python scripts/i18n/manager.py format
+```
+
+**To check for issues like unused keys or missing translations:**
+```bash
+python scripts/i18n/manager.py check --details
+```
+
+**To remove unused (orphaned) keys from all translation files:**
+```bash
+python scripts/i18n/manager.py clean
+```
+
+### Step 4: Commit Your Changes
+
+Commit all modified files to Git. No component refactoring is ever needed.
+-   The updated `script_lines.js` file(s).
+-   The updated `locales/` translation files.
 
 ---
 
 ## Full CLI Command Reference
 
-### `init`
+### `init <lang_code>`
 Initializes a new language directory and configuration. Run this once for each new language you want to support.
-
 ```bash
-# Usage: init <lang_code>
 python scripts/i18n/manager.py init ja
 ```
 
 ### `sync`
 The main command to find new strings, update JSON files, and translate.
-
 ```bash
 # Standard sync (only processes changed files)
 python scripts/i18n/manager.py sync
@@ -149,16 +152,33 @@ python scripts/i18n/manager.py sync --force
 python scripts/i18n/manager.py sync --lang es de
 ```
 
-### `check`
-A read-only command to see if any `script_lines.js` files have been modified since the last sync. Perfect for a pre-commit hook or CI check.
-
+### `format`
+**(NEW)** A code polisher that updates all inline comments in `script_lines.js` files based on the current English `translation.json`. It also sorts all keys in every language's JSON file for consistency.
 ```bash
-python scripts/i18n/manager.py check
+python scripts/i18n/manager.py format
 ```
 
-### `clean` (Future)
-This command is a placeholder to eventually find and remove unused (orphaned) keys from translation files.
+### `check`
+**(ENHANCED)** A full I18N linter that runs multiple checks:
+1.  **File Sync:** Reports if any `script_lines.js` files have been modified since the last sync.
+2.  **Orphaned Keys:** Finds keys in `translation.json` that are no longer used in the code.
+3.  **Missing Keys:** Finds keys used in the code that are missing from `translation.json`.
+4.  **Missing Translations:** Reports which keys are missing from each target language file.
 
 ```bash
+# Run a summary check
+python scripts/i18n/manager.py check
+
+# Run with a detailed list of all issues
+python scripts/i18n/manager.py check --details
+```
+
+### `clean`
+**(ENHANCED)** Finds and removes orphaned (unused) keys from all translation files after prompting for confirmation.
+```bash
+# Interactively clean orphaned keys
 python scripts/i18n/manager.py clean
+
+# Automatically clean without a prompt (for scripts)
+python scripts/i18n/manager.py clean --yes
 ```
