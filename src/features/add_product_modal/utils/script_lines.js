@@ -1,97 +1,99 @@
-const scriptLines = {
-    addProductModal_error_activeBusinessMissing: "Cannot proceed: Active business context is missing. Please ensure you're logged in with an active business selected.",
-    categoryDropdown_categoryCreatedSuccess: "Category created successfully!",
-    customTagModal_tagCreatedSuccess: "Tag created successfully!",
+import i18n from 'i18next';
+
+export const scriptLines = {
+    addProductModal_error_activeBusinessMissing: i18n.t('add_product_modal.addProductModal_error_activeBusinessMissing'),
+    categoryDropdown_categoryCreatedSuccess: i18n.t('add_product_modal.categoryDropdown_categoryCreatedSuccess'),
+    customTagModal_tagCreatedSuccess: i18n.t('add_product_modal.customTagModal_tagCreatedSuccess'),
 
     // General
-    error_unknownValidation: "An unknown validation error occurred.",
+    error_unknownValidation: i18n.t('add_product_modal.error_unknownValidation'),
 
     // Step 1: Basic Data
-    error_productName_required: "Product name is required.",
-    error_productName_maxLength: "Name too long (max 100 chars).",
-    error_subtitle_maxLength: "Subtitle too long (max 150 chars).",
-    error_description_maxLength: "Description too long (max 1000 chars).",
-    error_category_required: "Category is required.",
-    error_productAttributes_maxLength: "Maximum 10 tags allowed.",
+    error_productName_required: i18n.t('add_product_modal.error_productName_required'),
+    error_productName_maxLength: i18n.t('add_product_modal.error_productName_maxLength'),
+    error_subtitle_maxLength: i18n.t('add_product_modal.error_subtitle_maxLength'),
+    error_description_maxLength: i18n.t('add_product_modal.error_description_maxLength'),
+    error_category_required: i18n.t('add_product_modal.error_category_required'),
+    error_productAttributes_maxLength: i18n.t('add_product_modal.error_productAttributes_maxLength'),
 
     // Step 2: Editable Attributes
     // Option Schema
-    error_optionName_required: "Option name is required.",
-    error_optionName_maxLength: "Option name too long (max 50 chars).",
-    error_priceAdjustment_type: "Price adjustment must be a number.",
+    error_optionName_required: i18n.t('add_product_modal.error_optionName_required'),
+    error_optionName_maxLength: i18n.t('add_product_modal.error_optionName_maxLength'),
+    error_priceAdjustment_type: i18n.t('add_product_modal.error_priceAdjustment_type'),
     // Editable Attribute Schema
-    error_attributeGroupName_required: "Attribute group name is required.",
-    error_attributeGroupName_maxLength: "Group name too long (max 50 chars).",
-    error_attributeType_required: "Selection type is required.",
-    error_attributeOptions_minLength: "At least one option is required for an attribute group.",
-    error_attributeOptions_maxLength: "Max 20 options per group.",
+    error_attributeGroupName_required: i18n.t('add_product_modal.error_attributeGroupName_required'),
+    error_attributeGroupName_maxLength: i18n.t('add_product_modal.error_attributeGroupName_maxLength'),
+    error_attributeType_required: i18n.t('add_product_modal.error_attributeType_required'),
+    error_attributeOptions_minLength: i18n.t('add_product_modal.error_attributeOptions_minLength'),
+    error_attributeOptions_maxLength: i18n.t('add_product_modal.error_attributeOptions_maxLength'),
     // Step 2 Schema
-    error_editableAttributes_maxLength: "Maximum 5 attribute groups allowed.",
+    error_editableAttributes_maxLength: i18n.t('add_product_modal.error_editableAttributes_maxLength'),
 
     // Step 3: Ingredients
     // Recipe Component Schema
-    error_recipeComponent_inventoryItem_required: "Ingredient item is required.",
-    error_recipeComponent_quantity_type: "Quantity must be a number.",
-    error_recipeComponent_quantity_required: "Quantity is required.",
-    error_recipeComponent_quantity_min: "Quantity must be positive.",
-    error_recipeComponent_unit_required: "Unit is required.",
-    error_recipeComponent_unit_maxLength: "Unit too long (max 20 chars).",
+    error_recipeComponent_inventoryItem_required: i18n.t('add_product_modal.error_recipeComponent_inventoryItem_required'),
+    error_recipeComponent_quantity_type: i18n.t('add_product_modal.error_recipeComponent_quantity_type'),
+    error_recipeComponent_quantity_required: i18n.t('add_product_modal.error_recipeComponent_quantity_required'),
+    error_recipeComponent_quantity_min: i18n.t('add_product_modal.error_recipeComponent_quantity_min'),
+    error_recipeComponent_unit_required: i18n.t('add_product_modal.error_recipeComponent_unit_required'),
+    error_recipeComponent_unit_maxLength: i18n.t('add_product_modal.error_recipeComponent_unit_maxLength'),
     // Step 3 Schema
-    error_productType_required: "Product type is required.",
-    error_recipeComponents_minLength_madeInHouse: "At least one ingredient is required for made-in-house products.",
-    error_recipeComponents_maxLength_resold: "Resold items cannot have ingredients.",
-    error_recipeYields_type_madeInHouse: "Yield must be a number.",
-    error_recipeYields_required_madeInHouse: "Recipe yield is required.",
-    error_recipeYields_integer_madeInHouse: "Yield must be a whole number.",
-    error_recipeYields_min_madeInHouse: "Yield must be at least 1.",
+    error_productType_required: i18n.t('add_product_modal.error_productType_required'),
+    error_recipeComponents_minLength_madeInHouse: i18n.t('add_product_modal.error_recipeComponents_minLength_madeInHouse'),
+    error_recipeComponents_maxLength_resold: i18n.t('add_product_modal.error_recipeComponents_maxLength_resold'),
+    error_recipeYields_type_madeInHouse: i18n.t('add_product_modal.error_recipeYields_type_madeInHouse'),
+    error_recipeYields_required_madeInHouse: i18n.t('add_product_modal.error_recipeYields_required_madeInHouse'),
+    error_recipeYields_integer_madeInHouse: i18n.t('add_product_modal.error_recipeYields_integer_madeInHouse'),
+    error_recipeYields_min_madeInHouse: i18n.t('add_product_modal.error_recipeYields_min_madeInHouse'),
 
     // Step 4: Pricing
-    error_laborCost_type: "Cost must be a number.",
-    error_laborCost_min: "Cost cannot be negative.",
-    error_sellingPrice_type: "Price must be a number.",
-    error_sellingPrice_required: "Selling price is required.",
-    error_sellingPrice_min: "Price cannot be negative.",
+    error_laborCost_type: i18n.t('add_product_modal.error_laborCost_type'),
+    error_laborCost_min: i18n.t('add_product_modal.error_laborCost_min'),
+    error_sellingPrice_type: i18n.t('add_product_modal.error_sellingPrice_type'),
+    error_sellingPrice_required: i18n.t('add_product_modal.error_sellingPrice_required'),
+    error_sellingPrice_min: i18n.t('add_product_modal.error_sellingPrice_min'),
 
     // Step 5: Discounts & Extras
     // Applied Discount Schema
-    error_appliedDiscount_masterId_required: "Master discount ID is required.",
-    error_appliedDiscount_overridePercentage_type: "Override percentage must be a number.",
-    error_appliedDiscount_overridePercentage_min: "Min 0%",
-    error_appliedDiscount_overridePercentage_max: "Max 100%",
+    error_appliedDiscount_masterId_required: i18n.t('add_product_modal.error_appliedDiscount_masterId_required'),
+    error_appliedDiscount_overridePercentage_type: i18n.t('add_product_modal.error_appliedDiscount_overridePercentage_type'),
+    error_appliedDiscount_overridePercentage_min: i18n.t('add_product_modal.error_appliedDiscount_overridePercentage_min'),
+    error_appliedDiscount_overridePercentage_max: i18n.t('add_product_modal.error_appliedDiscount_overridePercentage_max'),
     // Step 5 Schema
-    error_additionalNotes_maxLength: "Notes too long (max 500 chars).",
+    error_additionalNotes_maxLength: i18n.t('add_product_modal.error_additionalNotes_maxLength'),
 
-    productName: "Product Name", // Example from prompt, if it exists
+    productName: i18n.t('add_product_modal.productName'), // Example from prompt, if it exists
 
     // --- CategoryDropdown ---
-    categoryDropdownPlaceholder: "Select or create category",
-    categoryDropdownErrorNameEmpty: "Category name cannot be empty.",
-    categoryDropdownErrorNameExists: "A category with this name already exists.",
-    categoryDropdownCreateNewActionLabel: "Create New Category...",
-    categoryDropdownNewNamePlaceholder: "New category name",
-    categoryDropdownColorLabel: "Category Color",
-    categoryDropdownButtonCancel: "Cancel",
-    categoryDropdownButtonCreate: "Create Category",
+    categoryDropdownPlaceholder: i18n.t('add_product_modal.categoryDropdownPlaceholder'),
+    categoryDropdownErrorNameEmpty: i18n.t('add_product_modal.categoryDropdownErrorNameEmpty'),
+    categoryDropdownErrorNameExists: i18n.t('add_product_modal.categoryDropdownErrorNameExists'),
+    categoryDropdownCreateNewActionLabel: i18n.t('add_product_modal.categoryDropdownCreateNewActionLabel'),
+    categoryDropdownNewNamePlaceholder: i18n.t('add_product_modal.categoryDropdownNewNamePlaceholder'),
+    categoryDropdownColorLabel: i18n.t('add_product_modal.categoryDropdownColorLabel'),
+    categoryDropdownButtonCancel: i18n.t('venue_management.cancel'),
+    categoryDropdownButtonCreate: i18n.t('add_product_modal.categoryDropdownButtonCreate'),
 
     // --- color names in defaultCategoryPaletteColors ---
-    colorRose: "Rose",
-    colorPink: "Pink",
-    colorFuchsia: "Fuchsia",
-    colorPurple: "Purple",
-    colorViolet: "Violet",
-    colorIndigo: "Indigo",
-    colorBlue: "Blue",
-    colorSky: "Sky",
-    colorCyan: "Cyan",
-    colorTeal: "Teal",
-    colorEmerald: "Emerald",
-    colorGreen: "Green",
-    colorLime: "Lime",
-    colorYellow: "Yellow",
-    colorAmber: "Amber",
-    colorOrange: "Orange",
-    colorRed: "Red",
-    colorNeutral: "Neutral",
+    colorRose: i18n.t('add_product_modal.colorRose'),
+    colorPink: i18n.t('add_product_modal.colorPink'),
+    colorFuchsia: i18n.t('add_product_modal.colorFuchsia'),
+    colorPurple: i18n.t('add_product_modal.colorPurple'),
+    colorViolet: i18n.t('add_product_modal.colorViolet'),
+    colorIndigo: i18n.t('add_product_modal.colorIndigo'),
+    colorBlue: i18n.t('add_product_modal.colorBlue'),
+    colorSky: i18n.t('add_product_modal.colorSky'),
+    colorCyan: i18n.t('add_product_modal.colorCyan'),
+    colorTeal: i18n.t('add_product_modal.colorTeal'),
+    colorEmerald: i18n.t('add_product_modal.colorEmerald'),
+    colorGreen: i18n.t('add_product_modal.colorGreen'),
+    colorLime: i18n.t('add_product_modal.colorLime'),
+    colorYellow: i18n.t('add_product_modal.colorYellow'),
+    colorAmber: i18n.t('add_product_modal.colorAmber'),
+    colorOrange: i18n.t('add_product_modal.colorOrange'),
+    colorRed: i18n.t('add_product_modal.colorRed'),
+    colorNeutral: i18n.t('add_product_modal.colorNeutral'),
 
     colorPalette: {
         /**
@@ -99,459 +101,459 @@ const scriptLines = {
          * The full aria-label will be constructed as: "[selectColorPrefix] [colorName]".
          * Example: "Select color: Red"
          */
-        selectColorPrefix: "Select color:",
+        selectColorPrefix: i18n.t('add_product_modal.colorPalette.selectColorPrefix'),
     },
 
     // Common UI elements
-    common_cancel: "Cancel",
-    common_closeModal_ariaLabel: "Close modal",
+    common_cancel: i18n.t('venue_management.cancel'),
+    common_closeModal_ariaLabel: i18n.t('add_product_modal.common_closeModal_ariaLabel'),
 
     // CustomTagModal specific texts
-    customTagModal_title: "Create Custom Tag",
-    customTagModal_tagNameLabel: "Tag Name",
-    customTagModal_tagNamePlaceholder: "e.g., Sugar Free, Staff Pick",
-    customTagModal_error_nameEmpty: "Tag name cannot be empty.",
-    customTagModal_error_nameExists: "A tag named \"{tagName}\" already exists.", // Note: {tagName} is a placeholder
-    customTagModal_chooseIconLabel: "Choose an Icon (Optional)",
-    customTagModal_createTagButton: "Create Tag",
+    customTagModal_title: i18n.t('add_product_modal.customTagModal_title'),
+    customTagModal_tagNameLabel: i18n.t('add_product_modal.customTagModal_tagNameLabel'),
+    customTagModal_tagNamePlaceholder: i18n.t('add_product_modal.customTagModal_tagNamePlaceholder'),
+    customTagModal_error_nameEmpty: i18n.t('add_product_modal.customTagModal_error_nameEmpty'),
+    customTagModal_error_nameExists: i18n.t('add_product_modal.customTagModal_error_nameExists'), // Note: {tagName} is a placeholder
+    customTagModal_chooseIconLabel: i18n.t('add_product_modal.customTagModal_chooseIconLabel'),
+    customTagModal_createTagButton: i18n.t('add_product_modal.customTagModal_createTagButton'),
 
-    productIdentifiers_defaultLabel: "Product Attributes",
-    productIdentifiers_addTagButton: "Add Tag",
-    productIdentifiers_addTag_ariaLabel: "Add custom product attribute or tag",
-    productIdentifiers_error_missingData: "Identifier data is missing or invalid.",
-    productIdentifiers_error_invalidStructure: "Invalid identifier data structure.",
-    productIdentifiers_error_missingSelectedData: "Selected identifiers data is missing or invalid.",
-    productIdentifiers_error_missingToggleHandler: "Identifier toggle handler is missing.",
-    productIdentifiers_error_missingCreateHandler: "Custom tag creation handler is missing.",
-    productIdentifiers_emptyState: "No attributes defined yet. Click \"Add Tag\" to create one.",
+    productIdentifiers_defaultLabel: i18n.t('add_product_modal.productIdentifiers_defaultLabel'),
+    productIdentifiers_addTagButton: i18n.t('add_product_modal.productIdentifiers_addTagButton'),
+    productIdentifiers_addTag_ariaLabel: i18n.t('add_product_modal.productIdentifiers_addTag_ariaLabel'),
+    productIdentifiers_error_missingData: i18n.t('add_product_modal.productIdentifiers_error_missingData'),
+    productIdentifiers_error_invalidStructure: i18n.t('add_product_modal.productIdentifiers_error_invalidStructure'),
+    productIdentifiers_error_missingSelectedData: i18n.t('add_product_modal.productIdentifiers_error_missingSelectedData'),
+    productIdentifiers_error_missingToggleHandler: i18n.t('add_product_modal.productIdentifiers_error_missingToggleHandler'),
+    productIdentifiers_error_missingCreateHandler: i18n.t('add_product_modal.productIdentifiers_error_missingCreateHandler'),
+    productIdentifiers_emptyState: i18n.t('add_product_modal.productIdentifiers_emptyState'),
 
-    iconPickerErrorDataMissing: "Icon data is missing or invalid.",
-    iconPickerErrorhandlerMissing: "Icon selection handler is missing.",
-    iconPickerErrorInvalidStructure: "Invalid icon data structure.",
-    iconPickerAriaLabel: "Select an icon",
+    iconPickerErrorDataMissing: i18n.t('add_product_modal.iconPickerErrorDataMissing'),
+    iconPickerErrorhandlerMissing: i18n.t('add_product_modal.iconPickerErrorhandlerMissing'),
+    iconPickerErrorInvalidStructure: i18n.t('add_product_modal.iconPickerErrorInvalidStructure'),
+    iconPickerAriaLabel: i18n.t('add_product_modal.iconPickerAriaLabel'),
 
-    productImageUploaderDropzoneMessageDefault: "Tap or Drag Your Food Photo",
-    productImageUploaderDropzoneSubMessagePattern: "PNG, JPG, WEBP up to {maxFileSizeMB}MB", // Pattern for variable
+    productImageUploaderDropzoneMessageDefault: i18n.t('add_product_modal.productImageUploaderDropzoneMessageDefault'),
+    productImageUploaderDropzoneSubMessagePattern: i18n.t('add_product_modal.productImageUploaderDropzoneSubMessagePattern'), // Pattern for variable
 
     // Error Messages
-    productImageUploaderErrorFileTooLarge: "Photo is too large. Max {maxFileSizeMB}MB.", // Pattern
-    productImageUploaderErrorInvalidFileType: "Invalid file type. Please use JPG, PNG, or WEBP.",
-    productImageUploaderErrorFileNotAccepted: "Couldn't accept this file. Please try another.",
-    productImageUploaderErrorReadingFile: "Error reading file. Please try again.",
-    productImageUploaderErrorInvalidImageData: "Image data is invalid or image could not be loaded. Try a different one.",
-    productImageUploaderErrorCouldNotSaveCrop: "Could not save crop. Please select a valid crop area or wait for image to load.",
-    productImageUploaderErrorFailedToProcess: "Failed to process image. Please try again.",
-    productImageUploaderErrorSavingGeneric: "An error occurred while saving: {errorMessage}", // Pattern
-    productImageUploaderErrorSavingDefault: "Please try again.", // Fallback for the generic saving error's dynamic part
-    productImageUploaderErrorCouldNotLoadProductImage: "Could not load product image.",
-    productImageUploaderErrorCanvasToBlobFailed: "Image processing failed (Canvas to Blob).", // User-friendlier version if needed
+    productImageUploaderErrorFileTooLarge: i18n.t('add_product_modal.productImageUploaderErrorFileTooLarge'), // Pattern
+    productImageUploaderErrorInvalidFileType: i18n.t('add_product_modal.productImageUploaderErrorInvalidFileType'),
+    productImageUploaderErrorFileNotAccepted: i18n.t('add_product_modal.productImageUploaderErrorFileNotAccepted'),
+    productImageUploaderErrorReadingFile: i18n.t('add_product_modal.productImageUploaderErrorReadingFile'),
+    productImageUploaderErrorInvalidImageData: i18n.t('add_product_modal.productImageUploaderErrorInvalidImageData'),
+    productImageUploaderErrorCouldNotSaveCrop: i18n.t('add_product_modal.productImageUploaderErrorCouldNotSaveCrop'),
+    productImageUploaderErrorFailedToProcess: i18n.t('add_product_modal.productImageUploaderErrorFailedToProcess'),
+    productImageUploaderErrorSavingGeneric: i18n.t('add_product_modal.productImageUploaderErrorSavingGeneric'), // Pattern
+    productImageUploaderErrorSavingDefault: i18n.t('add_product_modal.productImageUploaderErrorSavingDefault'), // Fallback for the generic saving error's dynamic part
+    productImageUploaderErrorCouldNotLoadProductImage: i18n.t('add_product_modal.productImageUploaderErrorCouldNotLoadProductImage'),
+    productImageUploaderErrorCanvasToBlobFailed: i18n.t('add_product_modal.productImageUploaderErrorCanvasToBlobFailed'), // User-friendlier version if needed
 
     // UI Text (buttons, labels, alt text, status)
-    productImageUploaderStatusPreparing: "Preparing photo...",
-    productImageUploaderCropAreaAriaLabel: "Image crop area",
-    productImageUploaderCropImageAlt: "Image to crop",
-    productImageUploaderButtonConfirm: "Confirm",
-    productImageUploaderButtonSaving: "Saving...",
-    productImageUploaderButtonCancel: "Cancel",
-    productImageUploaderFinalImageAlt: "Product",
-    productImageUploaderButtonChange: "Change",
-    productImageUploaderButtonRemove: "Remove",
-    productImageUploaderDropzoneAriaLabel: "Image dropzone: Click or drag and drop an image",
+    productImageUploaderStatusPreparing: i18n.t('add_product_modal.productImageUploaderStatusPreparing'),
+    productImageUploaderCropAreaAriaLabel: i18n.t('add_product_modal.productImageUploaderCropAreaAriaLabel'),
+    productImageUploaderCropImageAlt: i18n.t('add_product_modal.productImageUploaderCropImageAlt'),
+    productImageUploaderButtonConfirm: i18n.t('venue_management.confirm'),
+    productImageUploaderButtonSaving: i18n.t('add_product_modal.productImageUploaderButtonSaving'),
+    productImageUploaderButtonCancel: i18n.t('venue_management.cancel'),
+    productImageUploaderFinalImageAlt: i18n.t('add_product_modal.productImageUploaderFinalImageAlt'),
+    productImageUploaderButtonChange: i18n.t('add_product_modal.productImageUploaderButtonChange'),
+    productImageUploaderButtonRemove: i18n.t('add_product_modal.productImageUploaderButtonRemove'),
+    productImageUploaderDropzoneAriaLabel: i18n.t('add_product_modal.productImageUploaderDropzoneAriaLabel'),
 
     // Default placeholder text for the textarea
-    placeholder: "Tell your customers about this product...",
+    placeholder: i18n.t('add_product_modal.placeholder'),
     // Default label for accessibility (e.g., aria-label for the textarea)
-    label: "Description",
+    label: i18n.t('add_product_modal.label'),
     // Error message shown if the 'onSave' prop is missing
-    errorMissingOnSave: "Error: Component misconfiguration. Cannot save input.",
+    errorMissingOnSave: i18n.t('add_product_modal.errorMissingOnSave'),
     // Title attribute for the error state when 'onSave' is missing
-    errorMissingOnSaveTitle: "Component Misconfigured: onSave handler missing",
+    errorMissingOnSaveTitle: i18n.t('add_product_modal.errorMissingOnSaveTitle'),
     // Suffix for character count when limit is exceeded (e.g., "10 over")
-    charCountOverLimitSuffix: "over",
+    charCountOverLimitSuffix: i18n.t('add_product_modal.charCountOverLimitSuffix'),
     // Prefix for the aria-label of the display mode button (e.g., "Edit Description...")
-    ariaEditLabelPrefix: "Edit",
+    ariaEditLabelPrefix: i18n.t('venue_management.edit'),
     // Infix for the aria-label of the display mode button (e.g., "... Current value: ...")
-    ariaEditLabelInfix: ". Current value:",
+    ariaEditLabelInfix: i18n.t('add_product_modal.ariaEditLabelInfix'),
     // Text to use in aria-label when the current value is empty
-    ariaEditLabelValueEmpty: "empty",
+    ariaEditLabelValueEmpty: i18n.t('add_product_modal.ariaEditLabelValueEmpty'),
 
     // Default placeholder text for the input field
-    placeholder2: "Enter Product Name",
+    placeholder2: i18n.t('add_product_modal.placeholder2'),
     // Default accessible label for the input field
-    label2: "Product Name",
+    label2: i18n.t('add_product_modal.productName'),
     // Suffix for character count indicating remaining characters (singular form)
-    charCountRemainingSingular: "character remaining",
+    charCountRemainingSingular: i18n.t('add_product_modal.charCountRemainingSingular'),
     // Suffix for character count indicating remaining characters (plural form)
-    charCountRemainingPlural: "characters remaining",
+    charCountRemainingPlural: i18n.t('add_product_modal.charCountRemainingPlural'),
     // Prefix for the aria-label of the display mode button (e.g., "Edit Product Name...")
-    ariaEditLabelPrefix2: "Edit",
+    ariaEditLabelPrefix2: i18n.t('venue_management.edit'),
     // Infix for the aria-label of the display mode button (e.g., "... Current value: ...")
-    ariaEditLabelInfix2: ". Current value:",
+    ariaEditLabelInfix2: i18n.t('add_product_modal.ariaEditLabelInfix'),
     // Warning message logged to console if selection range cannot be set
-    warnCannotSetSelection: "Could not set selection range on input: ",
+    warnCannotSetSelection: i18n.t('add_product_modal.warnCannotSetSelection'),
 
     // AttributeGroupBuilder specific texts
-    attributeGroup_error_invalidGroupData: "Error: Invalid attribute group data.",
-    attributeGroup_error_missingGroupIndex: "Error: Missing group index.",
-    attributeGroup_error_missingHandler: "Error: Missing critical handler: {handlerName}.", // Placeholder for handlerName
+    attributeGroup_error_invalidGroupData: i18n.t('add_product_modal.attributeGroup_error_invalidGroupData'),
+    attributeGroup_error_missingGroupIndex: i18n.t('add_product_modal.attributeGroup_error_missingGroupIndex'),
+    attributeGroup_error_missingHandler: i18n.t('add_product_modal.attributeGroup_error_missingHandler'), // Placeholder for handlerName
 
-    attributeGroup_groupNameLabel: "Attribute Group Name",
-    attributeGroup_groupNamePlaceholder: "e.g., Size, Milk Options",
-    attributeGroup_groupName_ariaLabel: "Name for attribute group {groupNumber}", // Placeholder
-    attributeGroup_groupName_srLabel: "Attribute Group: {groupNameOrNumber}", // Placeholder
+    attributeGroup_groupNameLabel: i18n.t('add_product_modal.attributeGroup_groupNameLabel'),
+    attributeGroup_groupNamePlaceholder: i18n.t('add_product_modal.attributeGroup_groupNamePlaceholder'),
+    attributeGroup_groupName_ariaLabel: i18n.t('add_product_modal.attributeGroup_groupName_ariaLabel'), // Placeholder
+    attributeGroup_groupName_srLabel: i18n.t('add_product_modal.attributeGroup_groupName_srLabel'), // Placeholder
 
-    attributeGroup_typeLabel: "Attribute Type",
-    attributeGroup_type_singleSelectLabel: "Single Select (e.g., Radio buttons)",
-    attributeGroup_type_multiSelectLabel: "Multi-Select (e.g., Checkboxes)",
-    attributeGroup_type_ariaLabel: "Type for attribute group {groupNumber}", // Placeholder
+    attributeGroup_typeLabel: i18n.t('add_product_modal.attributeGroup_typeLabel'),
+    attributeGroup_type_singleSelectLabel: i18n.t('add_product_modal.attributeGroup_type_singleSelectLabel'),
+    attributeGroup_type_multiSelectLabel: i18n.t('add_product_modal.attributeGroup_type_multiSelectLabel'),
+    attributeGroup_type_ariaLabel: i18n.t('add_product_modal.attributeGroup_type_ariaLabel'), // Placeholder
 
-    attributeGroup_requiredLabel: "Required",
-    attributeGroup_required_ariaLabel: "Is attribute group {groupNumber} required", // Placeholder
+    attributeGroup_requiredLabel: i18n.t('add_product_modal.attributeGroup_requiredLabel'),
+    attributeGroup_required_ariaLabel: i18n.t('add_product_modal.attributeGroup_required_ariaLabel'), // Placeholder
 
-    attributeGroup_removeGroupButton_ariaLabel: "Remove attribute group {groupNameOrNumber}", // Placeholder
-    attributeGroup_removeGroupButton_mobileText: "Remove Group",
+    attributeGroup_removeGroupButton_ariaLabel: i18n.t('add_product_modal.attributeGroup_removeGroupButton_ariaLabel'), // Placeholder
+    attributeGroup_removeGroupButton_mobileText: i18n.t('add_product_modal.attributeGroup_removeGroupButton_mobileText'),
 
-    attributeGroup_optionsForGroupTitle: "Options for \"{groupName}\"", // Placeholder
-    attributeGroup_optionsForThisGroupTitle: "Options for this group", // Fallback
+    attributeGroup_optionsForGroupTitle: i18n.t('add_product_modal.attributeGroup_optionsForGroupTitle'), // Placeholder
+    attributeGroup_optionsForThisGroupTitle: i18n.t('add_product_modal.attributeGroup_optionsForThisGroupTitle'), // Fallback
 
-    attributeGroup_addOptionButton: "Add Option",
+    attributeGroup_addOptionButton: i18n.t('add_product_modal.attributeGroup_addOptionButton'),
 
     // Currency symbols (example, can be expanded)
-    currencySymbol_USD: "$",
-    currencySymbol_EUR: "€",
+    currencySymbol_USD: i18n.t('venue_management.currencySymbol'),
+    currencySymbol_EUR: i18n.t('add_product_modal.currencySymbol_EUR'),
 
     // CreateNewIngredientModal specific texts
-    createNewIngredientModal_title: "Create New Inventory Item",
-    createNewIngredientModal_close_ariaLabel: "Close modal", // Re-using common_closeModal_ariaLabel is also an option if it's identical
+    createNewIngredientModal_title: i18n.t('add_product_modal.createNewIngredientModal_title'),
+    createNewIngredientModal_close_ariaLabel: i18n.t('add_product_modal.common_closeModal_ariaLabel'), // Re-using common_closeModal_ariaLabel is also an option if it's identical
 
-    createNewIngredientModal_itemNameLabel: "Inventory Item Name",
-    createNewIngredientModal_itemNamePlaceholder: "e.g., Organic Almond Flour, Whole Milk",
+    createNewIngredientModal_itemNameLabel: i18n.t('add_product_modal.createNewIngredientModal_itemNameLabel'),
+    createNewIngredientModal_itemNamePlaceholder: i18n.t('add_product_modal.createNewIngredientModal_itemNamePlaceholder'),
 
-    createNewIngredientModal_measurementTypeLabel: "Primary Measurement Type",
-    createNewIngredientModal_measurementTypePlaceholder: "Select type...",
-    createNewIngredientModal_measurementType_mass: "Mass (e.g., g, kg, oz, lb)",
-    createNewIngredientModal_measurementType_volume: "Volume (e.g., ml, L, tsp, cup)",
-    createNewIngredientModal_measurementType_pieces: "Pieces (e.g., pcs, unit, slice)",
+    createNewIngredientModal_measurementTypeLabel: i18n.t('add_product_modal.createNewIngredientModal_measurementTypeLabel'),
+    createNewIngredientModal_measurementTypePlaceholder: i18n.t('add_product_modal.createNewIngredientModal_measurementTypePlaceholder'),
+    createNewIngredientModal_measurementType_mass: i18n.t('add_product_modal.createNewIngredientModal_measurementType_mass'),
+    createNewIngredientModal_measurementType_volume: i18n.t('add_product_modal.createNewIngredientModal_measurementType_volume'),
+    createNewIngredientModal_measurementType_pieces: i18n.t('add_product_modal.createNewIngredientModal_measurementType_pieces'),
 
-    createNewIngredientModal_defaultUnitLabel: "Default Unit (for this item)",
-    createNewIngredientModal_defaultUnitPlaceholder: "Select unit...",
+    createNewIngredientModal_defaultUnitLabel: i18n.t('add_product_modal.createNewIngredientModal_defaultUnitLabel'),
+    createNewIngredientModal_defaultUnitPlaceholder: i18n.t('add_product_modal.createNewIngredientModal_defaultUnitPlaceholder'),
 
-    createNewIngredientModal_costPerBaseUnitLabel: "Cost per {baseUnit}", // Placeholder for baseUnit
-    createNewIngredientModal_costPerBaseUnitPlaceholder_USD: "e.g., 0.02 (for USD)", // Example, could be generic or currency specific
-    createNewIngredientModal_costPerBaseUnitPlaceholder_EUR: "e.g., 0.02 (for EUR)",
-    createNewIngredientModal_costPerBaseUnitHelpText: "Enter the cost for one base unit ({baseUnit}) of this item.", // Placeholder for baseUnit
+    createNewIngredientModal_costPerBaseUnitLabel: i18n.t('add_product_modal.createNewIngredientModal_costPerBaseUnitLabel'), // Placeholder for baseUnit
+    createNewIngredientModal_costPerBaseUnitPlaceholder_USD: i18n.t('add_product_modal.createNewIngredientModal_costPerBaseUnitPlaceholder_USD'), // Example, could be generic or currency specific
+    createNewIngredientModal_costPerBaseUnitPlaceholder_EUR: i18n.t('add_product_modal.createNewIngredientModal_costPerBaseUnitPlaceholder_EUR'),
+    createNewIngredientModal_costPerBaseUnitHelpText: i18n.t('add_product_modal.createNewIngredientModal_costPerBaseUnitHelpText'), // Placeholder for baseUnit
 
-    createNewIngredientModal_error_nameRequired: "Ingredient name is required.",
-    createNewIngredientModal_error_nameExists: "An ingredient with this name already exists.",
-    createNewIngredientModal_error_measurementTypeRequired: "Primary measurement type is required.",
-    createNewIngredientModal_error_defaultUnitRequired: "Default unit for this item is required.",
-    createNewIngredientModal_error_costRequired: "Valid cost (e.g., 0.05 or 0) is required.",
-    createNewIngredientModal_error_creationFailed: "Failed to create ingredient. Please try again.",
+    createNewIngredientModal_error_nameRequired: i18n.t('add_product_modal.createNewIngredientModal_error_nameRequired'),
+    createNewIngredientModal_error_nameExists: i18n.t('add_product_modal.createNewIngredientModal_error_nameExists'),
+    createNewIngredientModal_error_measurementTypeRequired: i18n.t('add_product_modal.createNewIngredientModal_error_measurementTypeRequired'),
+    createNewIngredientModal_error_defaultUnitRequired: i18n.t('add_product_modal.createNewIngredientModal_error_defaultUnitRequired'),
+    createNewIngredientModal_error_costRequired: i18n.t('add_product_modal.createNewIngredientModal_error_costRequired'),
+    createNewIngredientModal_error_creationFailed: i18n.t('add_product_modal.createNewIngredientModal_error_creationFailed'),
 
-    createNewIngredientModal_button_cancel: "Cancel", // Re-using common_cancel is an option
-    createNewIngredientModal_button_createItem: "Create Item",
-    createNewIngredientModal_button_creating: "Creating...",
+    createNewIngredientModal_button_cancel: i18n.t('venue_management.cancel'), // Re-using common_cancel is an option
+    createNewIngredientModal_button_createItem: i18n.t('add_product_modal.createNewIngredientModal_button_createItem'),
+    createNewIngredientModal_button_creating: i18n.t('add_product_modal.createNewIngredientModal_button_creating'),
 
     // General Modal Errors (if not already present)
-    modalError_criticalHandlersMissing: "Modal Error: Critical handlers missing.",
-    modalError_inventoryDataMissing: "Modal Error: Inventory data missing.",
+    modalError_criticalHandlersMissing: i18n.t('add_product_modal.modalError_criticalHandlersMissing'),
+    modalError_inventoryDataMissing: i18n.t('add_product_modal.modalError_inventoryDataMissing'),
 
     // --- New keys for RecipeBuilder ---
-    recipeBuilderTitle: "Recipe Ingredients",
-    recipeBuilderSubtitle: "Define ingredients for one batch. Drag to reorder.",
-    recipeBuilderEstCostPrefix: "Est. Recipe Cost:",
-    recipeBuilderEmptyTitle: "Recipe is Empty",
-    recipeBuilderEmptySubtitle: "Add ingredients to build your product's recipe.",
-    recipeBuilderAddFirstButton: "Add First Ingredient",
-    recipeBuilderAddAnotherButton: "Add Another Ingredient",
-    recipeBuilderErrorMisconfigured: "Error: Recipe Builder is misconfigured. Please check console for details.",
+    recipeBuilderTitle: i18n.t('add_product_modal.recipeBuilderTitle'),
+    recipeBuilderSubtitle: i18n.t('add_product_modal.recipeBuilderSubtitle'),
+    recipeBuilderEstCostPrefix: i18n.t('add_product_modal.recipeBuilderEstCostPrefix'),
+    recipeBuilderEmptyTitle: i18n.t('add_product_modal.recipeBuilderEmptyTitle'),
+    recipeBuilderEmptySubtitle: i18n.t('add_product_modal.recipeBuilderEmptySubtitle'),
+    recipeBuilderAddFirstButton: i18n.t('add_product_modal.recipeBuilderAddFirstButton'),
+    recipeBuilderAddAnotherButton: i18n.t('add_product_modal.recipeBuilderAddAnotherButton'),
+    recipeBuilderErrorMisconfigured: i18n.t('add_product_modal.recipeBuilderErrorMisconfigured'),
 
     recipeComponentRow: {
         // Unit options
-        unitSelectIngredientFirst: "Select ingredient first",
+        unitSelectIngredientFirst: i18n.t('add_product_modal.recipeComponentRow.unitSelectIngredientFirst'),
 
         // Console messages (placeholders like {itemName} will be replaced in code)
-        warnCostCalculation: "RecipeComponentRow Cost calc issue for {itemName}: QIB {quantityInBaseUnit}, Cost unit {costUnit}, Expected base unit {expectedBaseUnit}",
-        errorInvalidNewItem: "RecipeComponentRow: newItemFromBackend received from creation modal is invalid.",
-        devErrorInvalidComponentProp: "RecipeComponentRow Dev Error: Invalid `component` prop.",
-        devErrorInvalidIndexProp: "RecipeComponentRow Dev Error: `index` prop is required and must be a number.",
+        warnCostCalculation: i18n.t('add_product_modal.recipeComponentRow.warnCostCalculation'),
+        errorInvalidNewItem: i18n.t('add_product_modal.recipeComponentRow.errorInvalidNewItem'),
+        devErrorInvalidComponentProp: i18n.t('add_product_modal.recipeComponentRow.devErrorInvalidComponentProp'),
+        devErrorInvalidIndexProp: i18n.t('add_product_modal.recipeComponentRow.devErrorInvalidIndexProp'),
 
         // Ingredient Search InputField
-        ingredientLabel: "Ingredient",
-        ingredientPlaceholder: "Search or create ingredient...",
-        ingredientSrLabelPrefix: "Recipe Ingredient:", // for sr-only label
-        ingredientSrLabelItemInfix: "Item",        // for sr-only label, e.g., "Item 1"
+        ingredientLabel: i18n.t('add_product_modal.recipeComponentRow.ingredientLabel'),
+        ingredientPlaceholder: i18n.t('add_product_modal.recipeComponentRow.ingredientPlaceholder'),
+        ingredientSrLabelPrefix: i18n.t('add_product_modal.recipeComponentRow.ingredientSrLabelPrefix'), // for sr-only label
+        ingredientSrLabelItemInfix: i18n.t('add_product_modal.recipeComponentRow.ingredientSrLabelItemInfix'),        // for sr-only label, e.g., "Item 1"
 
         // Suggestions List
-        suggestionCreateNewPrefix: "Create new:",
-        suggestionNoMatch: "No matching ingredients found.",
-        suggestionNoIngredients: "No ingredients available. Start typing to create one.",
-        suggestionExactMatch: "Exact match selected.",
+        suggestionCreateNewPrefix: i18n.t('add_product_modal.recipeComponentRow.suggestionCreateNewPrefix'),
+        suggestionNoMatch: i18n.t('add_product_modal.recipeComponentRow.suggestionNoMatch'),
+        suggestionNoIngredients: i18n.t('add_product_modal.recipeComponentRow.suggestionNoIngredients'),
+        suggestionExactMatch: i18n.t('add_product_modal.recipeComponentRow.suggestionExactMatch'),
 
         // Quantity InputField
-        quantityLabel: "Quantity",
-        quantityPlaceholder: "e.g., 100",
-        quantityAriaLabelPrefix: "Quantity for",
+        quantityLabel: i18n.t('add_product_modal.recipeComponentRow.quantityLabel'),
+        quantityPlaceholder: i18n.t('add_product_modal.recipeComponentRow.quantityPlaceholder'),
+        quantityAriaLabelPrefix: i18n.t('add_product_modal.recipeComponentRow.quantityAriaLabelPrefix'),
 
         // Unit Dropdown
-        unitLabel: "Unit",
-        unitSelectPlaceholder: "Select...",
-        unitAriaLabelPrefix: "Unit for",
+        unitLabel: i18n.t('add_product_modal.recipeComponentRow.unitLabel'),
+        unitSelectPlaceholder: i18n.t('add_product_modal.recipeComponentRow.unitSelectPlaceholder'),
+        unitAriaLabelPrefix: i18n.t('add_product_modal.recipeComponentRow.unitAriaLabelPrefix'),
 
         // Estimated Cost
-        estimatedCostLabel: "Est. Cost",
-        estimatedCostNA: "N/A",
+        estimatedCostLabel: i18n.t('add_product_modal.recipeComponentRow.estimatedCostLabel'),
+        estimatedCostNA: i18n.t('add_product_modal.recipeComponentRow.estimatedCostNA'),
 
         // Remove Button
-        removeButtonAriaLabelPrefix: "Remove ingredient",
-        removeButtonTextSmallScreen: "Remove Ingredient"
+        removeButtonAriaLabelPrefix: i18n.t('add_product_modal.recipeComponentRow.removeButtonAriaLabelPrefix'),
+        removeButtonTextSmallScreen: i18n.t('add_product_modal.recipeComponentRow.removeButtonTextSmallScreen')
     },
 
     // AppliedDiscountRow specific texts
-    appliedDiscountRow_defaultDescription: "General discount code",
-    appliedDiscountRow_percentageLabel: "Discount Percentage",
-    appliedDiscountRow_percentagePlaceholder: "e.g., 10",
-    appliedDiscountRow_remove_ariaLabel: "Remove discount {discountName}", // Placeholder for discountName
-    appliedDiscountRow_remove_title: "Remove {discountName}", // Placeholder for discountName
+    appliedDiscountRow_defaultDescription: i18n.t('add_product_modal.appliedDiscountRow_defaultDescription'),
+    appliedDiscountRow_percentageLabel: i18n.t('add_product_modal.appliedDiscountRow_percentageLabel'),
+    appliedDiscountRow_percentagePlaceholder: i18n.t('add_product_modal.appliedDiscountRow_percentagePlaceholder'),
+    appliedDiscountRow_remove_ariaLabel: i18n.t('add_product_modal.appliedDiscountRow_remove_ariaLabel'), // Placeholder for discountName
+    appliedDiscountRow_remove_title: i18n.t('add_product_modal.appliedDiscountRow_remove_title'), // Placeholder for discountName
 
-    appliedDiscountsManagerNoDiscountsPrimary: "No discounts applied to this product yet.",
-    appliedDiscountsManagerNoDiscountsSecondary: "Select a code above or create a new one.",
-    appliedDiscountsManagerListHeaderPattern: "Applied Discounts ({count}):", // Pattern for count}
+    appliedDiscountsManagerNoDiscountsPrimary: i18n.t('add_product_modal.appliedDiscountsManagerNoDiscountsPrimary'),
+    appliedDiscountsManagerNoDiscountsSecondary: i18n.t('add_product_modal.appliedDiscountsManagerNoDiscountsSecondary'),
+    appliedDiscountsManagerListHeaderPattern: i18n.t('add_product_modal.appliedDiscountsManagerListHeaderPattern'), // Pattern for count}
 
 
     createDiscountCodeModal: {
         // Modal Title
-        title: "Create New Master Discount",
+        title: i18n.t('add_product_modal.createDiscountCodeModal.title'),
         // Close Button
-        closeButtonLabel: "Close create discount modal",
-        closeButtonTitle: "Close",
+        closeButtonLabel: i18n.t('add_product_modal.createDiscountCodeModal.closeButtonLabel'),
+        closeButtonTitle: i18n.t('venue_management.close'),
 
         // InputField Labels
-        codeNameLabel: "Discount Code Name",
-        descriptionLabel: "Internal Description",
-        discountTypeLabel: "Discount Type (for this master code)",
-        discountValueLabelPercentage: "Default Discount Percentage",
-        discountValueLabelAmount: "Default Discount Amount", // For fixed amount type
+        codeNameLabel: i18n.t('add_product_modal.createDiscountCodeModal.codeNameLabel'),
+        descriptionLabel: i18n.t('add_product_modal.createDiscountCodeModal.descriptionLabel'),
+        discountTypeLabel: i18n.t('add_product_modal.createDiscountCodeModal.discountTypeLabel'),
+        discountValueLabelPercentage: i18n.t('add_product_modal.createDiscountCodeModal.discountValueLabelPercentage'),
+        discountValueLabelAmount: i18n.t('add_product_modal.createDiscountCodeModal.discountValueLabelAmount'), // For fixed amount type
 
         // InputField Placeholders
-        codeNamePlaceholder: "e.g., SUMMER2024",
-        descriptionPlaceholder: "e.g., Summer campaign 2024, all products",
+        codeNamePlaceholder: i18n.t('add_product_modal.createDiscountCodeModal.codeNamePlaceholder'),
+        descriptionPlaceholder: i18n.t('add_product_modal.createDiscountCodeModal.descriptionPlaceholder'),
 
         // InputField Help Texts
-        codeNameHelpText: "Unique code, {minLength}-{maxLength} chars. Customers will use this.", // Placeholders {minLength} and {maxLength}
-        descriptionHelpText: "For your reference, not shown to customers.",
-        discountTypeHelpText: "Determines how the discount value is interpreted.",
-        discountValueHelpTextPercentage: "General percentage for this code. Can be fine-tuned per product.",
-        discountValueHelpTextAmount: "General fixed amount for this code.", // For fixed amount type
+        codeNameHelpText: i18n.t('add_product_modal.createDiscountCodeModal.codeNameHelpText'), // Placeholders {minLength} and {maxLength}
+        descriptionHelpText: i18n.t('add_product_modal.createDiscountCodeModal.descriptionHelpText'),
+        discountTypeHelpText: i18n.t('add_product_modal.createDiscountCodeModal.discountTypeHelpText'),
+        discountValueHelpTextPercentage: i18n.t('add_product_modal.createDiscountCodeModal.discountValueHelpTextPercentage'),
+        discountValueHelpTextAmount: i18n.t('add_product_modal.createDiscountCodeModal.discountValueHelpTextAmount'), // For fixed amount type
 
         // Dropdown Options (Labels for default types)
-        discountTypePercentageLabel: "Percentage Off (%)",
+        discountTypePercentageLabel: i18n.t('add_product_modal.createDiscountCodeModal.discountTypePercentageLabel'),
         // Add other types if needed, e.g.:
         // discountTypeFixedAmountProductLabel: "Fixed Amount Off Product ({currencySymbol})", // Placeholder {currencySymbol}
 
         // Validation Error Messages
-        errorRequired: "{fieldName} is required.", // Generic required, {fieldName} can be replaced
-        errorCodeNameMinLength: "Code must be at least {minLength} characters.",
-        errorCodeNameMaxLength: "Code must be at most {maxLength} characters.",
-        errorCodeNameExists: "This discount code name already exists.",
-        errorDescriptionMaxLength: "Description must be at most {maxLength} characters.",
-        errorDiscountValueRequired: "A valid discount value is required.",
-        errorDiscountValuePositive: "Discount value must be positive.",
-        errorDiscountPercentageMax: "Percentage cannot exceed 100.",
-        errorFormGeneric: "An unexpected error occurred. Please try again.", // Generic error on submission failure
+        errorRequired: i18n.t('add_product_modal.createDiscountCodeModal.errorRequired'), // Generic required, {fieldName} can be replaced
+        errorCodeNameMinLength: i18n.t('add_product_modal.createDiscountCodeModal.errorCodeNameMinLength'),
+        errorCodeNameMaxLength: i18n.t('add_product_modal.createDiscountCodeModal.errorCodeNameMaxLength'),
+        errorCodeNameExists: i18n.t('add_product_modal.createDiscountCodeModal.errorCodeNameExists'),
+        errorDescriptionMaxLength: i18n.t('add_product_modal.createDiscountCodeModal.errorDescriptionMaxLength'),
+        errorDiscountValueRequired: i18n.t('add_product_modal.createDiscountCodeModal.errorDiscountValueRequired'),
+        errorDiscountValuePositive: i18n.t('add_product_modal.createDiscountCodeModal.errorDiscountValuePositive'),
+        errorDiscountPercentageMax: i18n.t('add_product_modal.createDiscountCodeModal.errorDiscountPercentageMax'),
+        errorFormGeneric: i18n.t('register.components.formStep.errors.unexpectedError'), // Generic error on submission failure
 
         // Button Texts
-        cancelButtonText: "Cancel",
-        createButtonText: "Create Discount",
-        creatingButtonText: "Creating...", // With loading spinner
+        cancelButtonText: i18n.t('venue_management.cancel'),
+        createButtonText: i18n.t('add_product_modal.createDiscountCodeModal.createButtonText'),
+        creatingButtonText: i18n.t('add_product_modal.createNewIngredientModal_button_creating'), // With loading spinner
 
         // Console Messages
-        errorConsoleFailedCreate: "Failed to create discount:"
+        errorConsoleFailedCreate: i18n.t('add_product_modal.createDiscountCodeModal.errorConsoleFailedCreate')
     },
 
     // DiscountCodeSelector specific texts
-    discountCodeSelector_label: "Add Discount Code to this Product",
-    discountCodeSelector_placeholder: "Search existing codes or create new...",
-    discountCodeSelector_noMatch: "No matching codes found.",
-    discountCodeSelector_createNew: "Create New Discount Code",
+    discountCodeSelector_label: i18n.t('add_product_modal.discountCodeSelector_label'),
+    discountCodeSelector_placeholder: i18n.t('add_product_modal.discountCodeSelector_placeholder'),
+    discountCodeSelector_noMatch: i18n.t('add_product_modal.discountCodeSelector_noMatch'),
+    discountCodeSelector_createNew: i18n.t('add_product_modal.discountCodeSelector_createNew'),
 
 
     // --- New keys for Step1_BasicData ---
-    step1SubtitlePlaceholder: "e.g., Freshly baked daily with organic ingredients",
-    step1SubtitleLabel: "Product Subtitle", // Used as aria-label for ProductDescriptionInput
-    step1CategoryPlaceholder: "Select or create category", // Placeholder for CategoryDropdown (can override CategoryDropdown's default if desired here)
-    step1TagsLabel: "Product Tags/Attributes", // Label for ProductIdentifiers
-    step1ImageErrorDefault: "Invalid image", // Default error message for image if not a string
+    step1SubtitlePlaceholder: i18n.t('add_product_modal.step1SubtitlePlaceholder'),
+    step1SubtitleLabel: i18n.t('add_product_modal.step1SubtitleLabel'), // Used as aria-label for ProductDescriptionInput
+    step1CategoryPlaceholder: i18n.t('add_product_modal.categoryDropdownPlaceholder'), // Placeholder for CategoryDropdown (can override CategoryDropdown's default if desired here)
+    step1TagsLabel: i18n.t('add_product_modal.step1TagsLabel'), // Label for ProductIdentifiers
+    step1ImageErrorDefault: i18n.t('add_product_modal.step1ImageErrorDefault'), // Default error message for image if not a string
 
     step2EditableAttributes: {
         // Section Title
-        sectionTitle: "Product Customizations",
+        sectionTitle: i18n.t('add_product_modal.step2EditableAttributes.sectionTitle'),
 
         // Add Group Button
-        addButtonText: "Add Attribute Group",
+        addButtonText: i18n.t('add_product_modal.step2EditableAttributes.addButtonText'),
 
         // Informational Text
-        infoText: "Define options your customers can choose, like size, flavor, or add-ons. These can optionally adjust the price.",
+        infoText: i18n.t('add_product_modal.step2EditableAttributes.infoText'),
 
         // Empty State
-        emptyStateTitle: "No Customizations Yet",
-        emptyStateDescription: "Click \"Add Attribute Group\" to let customers personalize this product."
+        emptyStateTitle: i18n.t('add_product_modal.step2EditableAttributes.emptyStateTitle'),
+        emptyStateDescription: i18n.t('add_product_modal.step2EditableAttributes.emptyStateDescription')
     },
 
     // Step3_Ingredients specific texts
-    step3_loadingInventory: "Loading inventory items...",
-    step3_errorLoadingInventory: "Error loading inventory: {errorMessage}", // Placeholder
-    step3_title: "Product Sourcing & Recipe",
-    step3_subtitle: "Specify if this product is made in-house or resold. This affects cost calculation.",
-    step3_productTypeLabel: "Product Type*",
-    step3_productType_madeInHouse: "Made In-House (Uses Recipe)",
-    step3_productType_resoldItem: "Resold Item (Direct Stock)",
-    step3_recipeYieldsLabel: "Recipe Yields (Units of this product)",
-    step3_recipeYieldsPlaceholder: "e.g., 1",
-    step3_recipeYieldsHelpText: "How many units of this product does this recipe make?",
-    step3_resoldItemInfo: "For resold items, stock is managed directly. The \"Cost to Make\" in the next step will be your purchase price.",
-    step3_error_failedToCreateIngredient: "Failed to create ingredient. Please try again.", // General fallback
+    step3_loadingInventory: i18n.t('add_product_modal.step3_loadingInventory'),
+    step3_errorLoadingInventory: i18n.t('add_product_modal.step3_errorLoadingInventory'), // Placeholder
+    step3_title: i18n.t('add_product_modal.step3_title'),
+    step3_subtitle: i18n.t('add_product_modal.step3_subtitle'),
+    step3_productTypeLabel: i18n.t('add_product_modal.step3_productTypeLabel'),
+    step3_productType_madeInHouse: i18n.t('add_product_modal.step3_productType_madeInHouse'),
+    step3_productType_resoldItem: i18n.t('add_product_modal.step3_productType_resoldItem'),
+    step3_recipeYieldsLabel: i18n.t('add_product_modal.step3_recipeYieldsLabel'),
+    step3_recipeYieldsPlaceholder: i18n.t('add_product_modal.step3_recipeYieldsPlaceholder'),
+    step3_recipeYieldsHelpText: i18n.t('add_product_modal.step3_recipeYieldsHelpText'),
+    step3_resoldItemInfo: i18n.t('add_product_modal.step3_resoldItemInfo'),
+    step3_error_failedToCreateIngredient: i18n.t('add_product_modal.createNewIngredientModal_error_creationFailed'), // General fallback
 
 
     // --- New keys for Step4_Pricing ---
-    step4LoadingTaxRates: "Loading tax rates...",
-    step4ErrorLoadingTaxRatesPattern: "Error loading tax rates: {errorMessage}",
-    step4MainTitle: "Pricing Configuration",
-    step4MainSubtitle: "Set your product's price, considering costs and desired profit margin.",
+    step4LoadingTaxRates: i18n.t('add_product_modal.step4LoadingTaxRates'),
+    step4ErrorLoadingTaxRatesPattern: i18n.t('add_product_modal.step4ErrorLoadingTaxRatesPattern'),
+    step4MainTitle: i18n.t('add_product_modal.step4MainTitle'),
+    step4MainSubtitle: i18n.t('add_product_modal.step4MainSubtitle'),
 
-    step4CostBreakdownTitle: "Cost Breakdown",
-    step4EstCostIngredientsLabel: "Estimated Cost from Ingredients:",
-    step4LaborOverheadLabelPattern: "Labor, Packaging & Overheads ({currencySymbol})",
-    step4PurchaseCostLabelPattern: "Purchase Cost ({currencySymbol})",
-    step4LaborOverheadHelpText: "Additional costs beyond raw ingredients.",
-    step4PurchaseCostHelpText: "Your cost to acquire this resold item.",
-    step4TotalCalculatedCostLabel: "Total Calculated Cost:",
+    step4CostBreakdownTitle: i18n.t('add_product_modal.step4CostBreakdownTitle'),
+    step4EstCostIngredientsLabel: i18n.t('add_product_modal.step4EstCostIngredientsLabel'),
+    step4LaborOverheadLabelPattern: i18n.t('add_product_modal.step4LaborOverheadLabelPattern'),
+    step4PurchaseCostLabelPattern: i18n.t('add_product_modal.step4PurchaseCostLabelPattern'),
+    step4LaborOverheadHelpText: i18n.t('add_product_modal.step4LaborOverheadHelpText'),
+    step4PurchaseCostHelpText: i18n.t('add_product_modal.step4PurchaseCostHelpText'),
+    step4TotalCalculatedCostLabel: i18n.t('add_product_modal.step4TotalCalculatedCostLabel'),
 
-    step4SellingPriceProfitTitle: "Selling Price & Profit",
-    step4SellingPriceLabelPattern: "Your Selling Price ({currencySymbol}) (Excluding Tax)",
-    step4WarningPriceBelowCost: "Selling price is below the total calculated cost. This will result in a loss.",
-    step4CalcProfitMarginLabel: "Calculated Profit Margin:",
-    step4NotApplicable: "N/A",
-    step4ProfitPerUnitLabelPattern: "Profit per unit (before tax): {currencySymbol}{profitAmount}",
+    step4SellingPriceProfitTitle: i18n.t('add_product_modal.step4SellingPriceProfitTitle'),
+    step4SellingPriceLabelPattern: i18n.t('add_product_modal.step4SellingPriceLabelPattern'),
+    step4WarningPriceBelowCost: i18n.t('add_product_modal.step4WarningPriceBelowCost'),
+    step4CalcProfitMarginLabel: i18n.t('add_product_modal.step4CalcProfitMarginLabel'),
+    step4NotApplicable: i18n.t('add_product_modal.recipeComponentRow.estimatedCostNA'),
+    step4ProfitPerUnitLabelPattern: i18n.t('add_product_modal.step4ProfitPerUnitLabelPattern'),
 
-    step4TaxationTitle: "Taxation",
-    step4TaxRateLabel: "Tax Rate (Applied to Selling Price)",
-    step4TaxRateNoTaxOption: "No Tax / Tax Included",
-    step4TaxAmountLabelPattern: "Tax Amount ({taxRate}%):",
-    step4FinalPriceLabel: "Final Selling Price (Incl. Tax):",
+    step4TaxationTitle: i18n.t('add_product_modal.step4TaxationTitle'),
+    step4TaxRateLabel: i18n.t('add_product_modal.step4TaxRateLabel'),
+    step4TaxRateNoTaxOption: i18n.t('add_product_modal.step4TaxRateNoTaxOption'),
+    step4TaxAmountLabelPattern: i18n.t('add_product_modal.step4TaxAmountLabelPattern'),
+    step4FinalPriceLabel: i18n.t('add_product_modal.step4FinalPriceLabel'),
 
-    step4SaveAsTemplateLabel: "Use this product as a template for future creations",
-    step4SaveAsTemplateHelpText: "If checked, this product's details will pre-fill the form next time you add a new product. Only one product can be the active template per business.",
+    step4SaveAsTemplateLabel: i18n.t('add_product_modal.step4SaveAsTemplateLabel'),
+    step4SaveAsTemplateHelpText: i18n.t('add_product_modal.step4SaveAsTemplateHelpText'),
 
     step5DiscountsExtras: {
         // Loading/Error states for master codes
-        loadingMasterCodes: "Loading discount codes...",
-        errorLoadingMasterCodesPrefix: "Error loading discount codes:", // Suffix will be error.message
+        loadingMasterCodes: i18n.t('add_product_modal.step5DiscountsExtras.loadingMasterCodes'),
+        errorLoadingMasterCodesPrefix: i18n.t('add_product_modal.step5DiscountsExtras.errorLoadingMasterCodesPrefix'), // Suffix will be error.message
 
         // Section Titles and Descriptions
-        mainTitle: "Discounts & Extras",
-        mainDescription: "Apply discounts or add internal notes for this product.",
-        productSpecificDiscountsTitle: "Product-Specific Discounts",
-        additionalNotesTitle: "Additional Notes (Optional)",
+        mainTitle: i18n.t('add_product_modal.step5DiscountsExtras.mainTitle'),
+        mainDescription: i18n.t('add_product_modal.step5DiscountsExtras.mainDescription'),
+        productSpecificDiscountsTitle: i18n.t('add_product_modal.step5DiscountsExtras.productSpecificDiscountsTitle'),
+        additionalNotesTitle: i18n.t('add_product_modal.step5DiscountsExtras.additionalNotesTitle'),
 
         // InputField for Additional Notes
-        additionalNotesLabel: "Internal Notes or Extra Info",
-        additionalNotesPlaceholder: "e.g., Special handling, allergen info not covered by tags, display notes...",
+        additionalNotesLabel: i18n.t('add_product_modal.step5DiscountsExtras.additionalNotesLabel'),
+        additionalNotesPlaceholder: i18n.t('add_product_modal.step5DiscountsExtras.additionalNotesPlaceholder'),
 
         // Console Warnings/Errors
-        warnDiscountAlreadyApplied: "Discount code already applied to this product.",
-        errorMissingBusinessId: "Step5: Active business ID is missing. Cannot create discount code.",
-        errorBusinessContextMissing: "Your business context is missing. Please try again or contact support.", // For UI if thrown
-        errorFailedCreateMasterCode: "Step5: Failed to create master discount code:",
+        warnDiscountAlreadyApplied: i18n.t('add_product_modal.step5DiscountsExtras.warnDiscountAlreadyApplied'),
+        errorMissingBusinessId: i18n.t('add_product_modal.step5DiscountsExtras.errorMissingBusinessId'),
+        errorBusinessContextMissing: i18n.t('add_product_modal.step5DiscountsExtras.errorBusinessContextMissing'), // For UI if thrown
+        errorFailedCreateMasterCode: i18n.t('add_product_modal.step5DiscountsExtras.errorFailedCreateMasterCode'),
 
-        errorLoadingMasterCodesTitle: "Error Loading Discounts"
+        errorLoadingMasterCodesTitle: i18n.t('add_product_modal.step5DiscountsExtras.errorLoadingMasterCodesTitle')
     },
 
 
     // AddProductModal specific texts
-    addProductModal_noTemplateFound: "No product template found (404). Resetting form.",
-    addProductModal_errorFetchingTemplate: "Error fetching product template:",
-    addProductModal_error_activeBusinessMissing: "Active business context missing.",
-    addProductModal_error_failedToCreateCategory: "Failed to create category.",
-    addProductModal_error_categoryCreationFailed: "Category creation failed: {errorMessage}", // Placeholder
-    addProductModal_error_failedToCreateTag: "Failed to create tag.",
-    addProductModal_error_tagCreationFailed: "Tag creation failed: {errorMessage}", // Placeholder
+    addProductModal_noTemplateFound: i18n.t('add_product_modal.addProductModal_noTemplateFound'),
+    addProductModal_errorFetchingTemplate: i18n.t('add_product_modal.addProductModal_errorFetchingTemplate'),
+    addProductModal_error_activeBusinessMissing: i18n.t('add_product_modal.addProductModal_error_activeBusinessMissing'),
+    addProductModal_error_failedToCreateCategory: i18n.t('add_product_modal.addProductModal_error_failedToCreateCategory'),
+    addProductModal_error_categoryCreationFailed: i18n.t('add_product_modal.addProductModal_error_categoryCreationFailed'), // Placeholder
+    addProductModal_error_failedToCreateTag: i18n.t('add_product_modal.addProductModal_error_failedToCreateTag'),
+    addProductModal_error_tagCreationFailed: i18n.t('add_product_modal.addProductModal_error_tagCreationFailed'), // Placeholder
 
-    addProductModal_toast_imageUploaded: "Image uploaded successfully.",
-    addProductModal_toast_imageUploadFailed: "Product data saved, but image upload failed: {errorMessage}", // Placeholder
-    addProductModal_toast_imageRemoved: "Image removed.",
-    addProductModal_toast_imageRemoveFailed: "Product data saved, but image removal failed: {errorMessage}", // Placeholder
-    addProductModal_toast_productUpdated: "Product updated successfully!",
-    addProductModal_toast_productAdded: "Product added successfully!",
-    addProductModal_error_failedToUpdateProduct: "Failed to update product.",
-    addProductModal_error_failedToAddProduct: "Failed to add product.",
+    addProductModal_toast_imageUploaded: i18n.t('add_product_modal.addProductModal_toast_imageUploaded'),
+    addProductModal_toast_imageUploadFailed: i18n.t('add_product_modal.addProductModal_toast_imageUploadFailed'), // Placeholder
+    addProductModal_toast_imageRemoved: i18n.t('add_product_modal.addProductModal_toast_imageRemoved'),
+    addProductModal_toast_imageRemoveFailed: i18n.t('add_product_modal.addProductModal_toast_imageRemoveFailed'), // Placeholder
+    addProductModal_toast_productUpdated: i18n.t('add_product_modal.addProductModal_toast_productUpdated'),
+    addProductModal_toast_productAdded: i18n.t('add_product_modal.addProductModal_toast_productAdded'),
+    addProductModal_error_failedToUpdateProduct: i18n.t('add_product_modal.addProductModal_error_failedToUpdateProduct'),
+    addProductModal_error_failedToAddProduct: i18n.t('add_product_modal.addProductModal_error_failedToAddProduct'),
 
-    addProductModal_loading_productSetup: "Loading product setup...",
-    addProductModal_loading_initialDataError: "Error loading initial data: {errorMessage}", // Placeholder
-    addProductModal_loading_initialDataError_fallback: "Please try again.",
+    addProductModal_loading_productSetup: i18n.t('add_product_modal.addProductModal_loading_productSetup'),
+    addProductModal_loading_initialDataError: i18n.t('add_product_modal.addProductModal_loading_initialDataError'), // Placeholder
+    addProductModal_loading_initialDataError_fallback: i18n.t('add_product_modal.productImageUploaderErrorSavingDefault'),
 
-    addProductModal_header_placeholderEdit: "Edit Product Name...",
-    addProductModal_header_placeholderNew: "Enter Product Name...",
+    addProductModal_header_placeholderEdit: i18n.t('add_product_modal.addProductModal_header_placeholderEdit'),
+    addProductModal_header_placeholderNew: i18n.t('add_product_modal.addProductModal_header_placeholderNew'),
 
-    addProductModal_loading_preparingForm: "Preparing product form...",
-    addProductModal_loading_fetchingSettings: "Fetching latest settings and templates.",
-    addProductModal_error_couldNotLoadData: "Could not load essential data.",
-    addProductModal_error_tryClosingModal: "Please try closing and reopening the modal.",
-    addProductModal_button_close: "Close", // Re-use common_cancel if applicable and same text
+    addProductModal_loading_preparingForm: i18n.t('add_product_modal.addProductModal_loading_preparingForm'),
+    addProductModal_loading_fetchingSettings: i18n.t('add_product_modal.addProductModal_loading_fetchingSettings'),
+    addProductModal_error_couldNotLoadData: i18n.t('add_product_modal.addProductModal_error_couldNotLoadData'),
+    addProductModal_error_tryClosingModal: i18n.t('add_product_modal.addProductModal_error_tryClosingModal'),
+    addProductModal_button_close: i18n.t('venue_management.close'), // Re-use common_cancel if applicable and same text
 
-    addProductModal_error_invalidStep: "Error: Invalid step.",
+    addProductModal_error_invalidStep: i18n.t('add_product_modal.addProductModal_error_invalidStep'),
 
     // Might need a generic API error parsing fallback if not already covered
-    addProductModal_error_apiErrorDefault: "An API error occurred.", // Example
+    addProductModal_error_apiErrorDefault: i18n.t('add_product_modal.addProductModal_error_apiErrorDefault'), // Example
 
 
     // --- New keys for ModalFooter ---
-    modalFooterBackButton: "Back",
-    modalFooterContinueButton: "Continue",
-    modalFooterValidatingButton: "Validating...",
-    modalFooterCreatingButton: "Creating...",
-    modalFooterCreateProductButton: "Create Product",
+    modalFooterBackButton: i18n.t('register.components.formStep.buttons.back'),
+    modalFooterContinueButton: i18n.t('register.components.formStep.buttons.continue'),
+    modalFooterValidatingButton: i18n.t('add_product_modal.modalFooterValidatingButton'),
+    modalFooterCreatingButton: i18n.t('add_product_modal.createNewIngredientModal_button_creating'),
+    modalFooterCreateProductButton: i18n.t('add_product_modal.modalFooterCreateProductButton'),
 
     modalHeader: {
         // ProductTitleInput placeholders
-        titlePlaceholderDefault: "Product Name",
-        titlePlaceholderEditMode: "Edit Product Name...",
+        titlePlaceholderDefault: i18n.t('add_product_modal.productName'),
+        titlePlaceholderEditMode: i18n.t('add_product_modal.addProductModal_header_placeholderEdit'),
 
         // ProductTitleInput labels
-        labelDefault: "Product Name",
-        labelEditModePrefix: "Editing:",
-        labelEditModeFallbackProduct: "Product", // Used if productName is empty in edit mode, e.g., "Editing: Product"
+        labelDefault: i18n.t('add_product_modal.productName'),
+        labelEditModePrefix: i18n.t('add_product_modal.modalHeader.labelEditModePrefix'),
+        labelEditModeFallbackProduct: i18n.t('add_product_modal.productImageUploaderFinalImageAlt'), // Used if productName is empty in edit mode, e.g., "Editing: Product"
 
         // Close button aria-label
-        closeButtonAriaLabel: "Close modal"
+        closeButtonAriaLabel: i18n.t('add_product_modal.common_closeModal_ariaLabel')
     },
 
 
     // ModalStepIndicator specific texts
-    modalStepIndicator_nav_ariaLabel: "Product creation steps",
+    modalStepIndicator_nav_ariaLabel: i18n.t('add_product_modal.modalStepIndicator_nav_ariaLabel'),
     // Step Names (used in STEPS_CONFIG and aria-labels)
-    modalStepIndicator_step_basics: "Basics",
-    modalStepIndicator_step_attributes: "Attributes",
-    modalStepIndicator_step_ingredients: "Ingredients",
-    modalStepIndicator_step_pricing: "Pricing",
-    modalStepIndicator_step_discounts: "Discounts",
+    modalStepIndicator_step_basics: i18n.t('add_product_modal.modalStepIndicator_step_basics'),
+    modalStepIndicator_step_attributes: i18n.t('add_product_modal.modalStepIndicator_step_attributes'),
+    modalStepIndicator_step_ingredients: i18n.t('add_product_modal.modalStepIndicator_step_ingredients'),
+    modalStepIndicator_step_pricing: i18n.t('add_product_modal.modalStepIndicator_step_pricing'),
+    modalStepIndicator_step_discounts: i18n.t('add_product_modal.modalStepIndicator_step_discounts'),
     // Aria-labels for buttons
-    modalStepIndicator_aria_currentStep: "{stepName}, current step", // Placeholder for stepName
-    modalStepIndicator_aria_goToStep: "Go to {stepName}", // Placeholder for stepName
+    modalStepIndicator_aria_currentStep: i18n.t('add_product_modal.modalStepIndicator_aria_currentStep'), // Placeholder for stepName
+    modalStepIndicator_aria_goToStep: i18n.t('add_product_modal.modalStepIndicator_aria_goToStep'), // Placeholder for stepName
     // Note: The plain step name is used as a fallback aria-label for pending steps.
 
     // --- Updated/New keys for ProductFormStep (flattened from previous internal structure) ---
-    productFormStepButtonBack: "Back",
-    productFormStepButtonContinue: "Continue",
-    productFormStepButtonSubmitProduct: "Create Product",
-    productFormStepButtonSubmitting: "Creating...", // Used when creating a new product
-    productFormStepButtonValidating: "Validating...",
-    productFormStepButtonSaving: "Saving...", // Used when isEditMode is true and submitting
-    productFormStepButtonSaveChanges: "Save Changes", // Used when isEditMode is true, not submitting
+    productFormStepButtonBack: i18n.t('register.components.formStep.buttons.back'),
+    productFormStepButtonContinue: i18n.t('register.components.formStep.buttons.continue'),
+    productFormStepButtonSubmitProduct: i18n.t('add_product_modal.modalFooterCreateProductButton'),
+    productFormStepButtonSubmitting: i18n.t('add_product_modal.createNewIngredientModal_button_creating'), // Used when creating a new product
+    productFormStepButtonValidating: i18n.t('add_product_modal.modalFooterValidatingButton'),
+    productFormStepButtonSaving: i18n.t('add_product_modal.productImageUploaderButtonSaving'), // Used when isEditMode is true and submitting
+    productFormStepButtonSaveChanges: i18n.t('add_product_modal.productFormStepButtonSaveChanges'), // Used when isEditMode is true, not submitting
 
 
-    productFormStepErrorSummaryTitle: "Please correct the following to continue:",
-    productFormStepErrorSummaryMore: "and {count} more...",
+    productFormStepErrorSummaryTitle: i18n.t('add_product_modal.productFormStepErrorSummaryTitle'),
+    productFormStepErrorSummaryMore: i18n.t('add_product_modal.productFormStepErrorSummaryMore'),
 };
 
 export default scriptLines;

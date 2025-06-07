@@ -1,4 +1,6 @@
-export const scriptLines_Components = (t) => ({
+import { t } from '../../../i18n';
+
+export const scriptLines_Components = {
 
     planSelection: {
         title: t('payments.components.planSelection.title'),
@@ -136,4 +138,4 @@ export const scriptLines_Components = (t) => ({
         },
         footerNote: t('payments.components.paymentCancelPage.footerNote')
     }
-});
+};

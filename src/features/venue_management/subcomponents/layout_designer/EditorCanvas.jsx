@@ -9,7 +9,7 @@ import { getEffectiveDimensions as getEffectiveDimensionsUtil } from '../../util
 import { CELL_SIZE_REM as MAJOR_CELL_SIZE_REM } from '../../constants/layoutConstants';
 
 // Localization
-import slRaw from '../../utils/script_lines.js';
+import { scriptLines as slRaw } from '../../utils/script_lines.js';
 const sl = slRaw.venueManagement.editorCanvas;
 // const slCanvasCell = slRaw.venueManagement.canvasCell; // For CanvasCell specific strings if needed there
 

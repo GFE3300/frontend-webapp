@@ -41,3 +41,5 @@ i18n
     });
 
 export default i18n;
+
+export const t = (key, options) => i18n.t(key, options);

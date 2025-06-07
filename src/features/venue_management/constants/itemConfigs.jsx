@@ -2,7 +2,7 @@ import React from 'react'; // Keep React if you plan to use custom JSX/SVG for s
 import { getDefaultSeatsForSize, getNextAvailableTableNumber } from '../utils/layoutUtils';
 
 // Localization
-import slRaw from '../utils/script_lines.js'; // Adjust path as necessary
+import { scriptLines as slRaw } from '../utils/script_lines.js';
 const sl = slRaw?.venueManagement?.itemConfigs;
 
 /**

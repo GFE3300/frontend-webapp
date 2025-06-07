@@ -3,7 +3,8 @@ import { useDrag } from 'react-dnd';
 import Icon from '../../../../components/common/Icon';
 
 // Localization
-import slRaw, { interpolate } from '../../utils/script_lines.js'; // Adjust path
+import { scriptLines as slRaw, interpolate } from '../../utils/script_lines.js';
+console.log(slRaw); 
 const sl = slRaw.venueManagement.draggableTool;
 
 // Design Guideline Variables (Copied from original, no changes here)

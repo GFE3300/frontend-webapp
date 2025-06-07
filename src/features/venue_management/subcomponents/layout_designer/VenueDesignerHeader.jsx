@@ -6,7 +6,7 @@ import SegmentedControl from '../../../../components/common/SegmentedControl';
 import { useDeviceDetection } from '../../../../hooks/useDeviceDetection';
 
 // Localization
-import slRaw from '../../utils/script_lines.js'; // Adjusted path
+import { scriptLines as slRaw } from '../../utils/script_lines.js';
 const sl = slRaw?.venueManagement?.venueDesignerHeader;
 
 const VenueDesignerHeader = ({

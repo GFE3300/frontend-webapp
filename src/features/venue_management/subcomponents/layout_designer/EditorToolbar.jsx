@@ -14,7 +14,7 @@ import {
 } from '../../constants/layoutConstants';
 
 // Localization
-import slRaw, { interpolate } from '../../utils/script_lines.js';
+import { scriptLines as slRaw, interpolate } from '../../utils/script_lines.js';
 const sl = slRaw.venueManagement.editorToolbar;
 // const slCommon = slRaw; // For general strings if needed
 

@@ -18,7 +18,7 @@ import {
 } from '../utils/layoutUtils';
 
 // Localization
-import slRaw, { interpolate } from '../utils/script_lines.js';
+import { scriptLines as slRaw } from '../utils/script_lines.js';
 const sl = slRaw.venueManagement?.useLayoutDesignerStateManagement || {};
 // const slCommon = slRaw; // For general strings if needed
 

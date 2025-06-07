@@ -1,5 +1,6 @@
-export const scriptLines_useFormState = (t) => ({
+import { t } from '../../../i18n';
 
+export const scriptLines_useFormState = {
     // Console Log Messages
     log: {
         failedToParseSessionStorage: t('register.useFormState.log.failedToParseSessionStorage'),
@@ -70,9 +71,9 @@ export const scriptLines_useFormState = (t) => ({
         fair: t('register.useFormState.passwordStrength.fair'),
         strong: t('register.useFormState.passwordStrength.strong'),
     },
-});
+};
 
-export const scriptLines_AddressForm = (t) => ({
+export const scriptLines_AddressForm = {
 
     // NEW: AddressForm Component Strings
     addressForm: {
@@ -106,9 +107,9 @@ export const scriptLines_AddressForm = (t) => ({
             ZA: t('register.addressForm.addressForm.staticCountries.ZA'),
         }
     },
-});
+};
 
-export const scriptLines_Header = (t) => ({
+export const scriptLines_Header = {
     // Console Log Messages (from previous task)
     log: {
         failedToParseSessionStorage: t('register.useFormState.log.failedToParseSessionStorage'),
@@ -232,9 +233,9 @@ export const scriptLines_Header = (t) => ({
             unableToDetermine: t('register.header.geolocationButton.error.unableToDetermine'),
         }
     },
-});
+};
 
-export const scriptLines_Steps = (t) => ({
+export const scriptLines_Steps = {
 
     step0BusinessInfo: {
         errors: {
@@ -447,9 +448,9 @@ export const scriptLines_Steps = (t) => ({
         },
         themeColorDefault: t('payments.components.planSelection.themeColorDefault') // Default theme color, can be localized if needed for specific themes per language
     },
-});
+};
 
-export const scriptLines_Components = (t) => ({
+export const scriptLines_Components = {
 
     planSelection: {
         title: t('payments.components.planSelection.title'),
@@ -632,5 +633,5 @@ export const scriptLines_Components = (t) => ({
         // Example: themeColorDefault: "rose"
         // Default URLs are usually app config, not i18n, but could be if regional sites differ.
     },
-});
+};
 
