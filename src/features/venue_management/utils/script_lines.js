@@ -1,7 +1,4 @@
-import { t } from '../../../i18n';
-
-// src/features/venue_management/utils/script_lines.js
-export const scriptLines = {
+export const scriptLines = (t) => ({
     // --- Global Settings ---
     currencySymbol: t('venue_management.currencySymbol'),
     currencyFormat: t('venue_management.currencyFormat'), // e.g., $10.99
@@ -448,7 +445,7 @@ export const scriptLines = {
             defaultPreviewRendererItemNameFallback: t('venue_management.venueManagement.layoutItemRendererUtils.defaultPreviewRendererItemNameFallback'),
         },
     }
-};
+});
 
 // Helper for interpolation
 export const interpolate = (str, params) => {

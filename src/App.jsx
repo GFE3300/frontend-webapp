@@ -6,7 +6,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
-// MODIFICATION: Import AdminOnlyRoute (which we will define below)
 import AdminOnlyRoute from './components/common/AdminOnlyRoute.jsx';
 
 // Pages & Features
@@ -21,7 +20,7 @@ import PlanAndPaymentPage from './features/payments/PlanAndPaymentPage.jsx';
 import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx';
 import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';
 
-// MODIFICATION: Import new Staff Portal pages
+// Import Staff Portal pages
 import StaffLoginPage from './features/staff_portal/pages/admin/StaffLoginPage.jsx';
 import StaffDashboardLayout from './features/staff_portal/StaffDashboardLayout.jsx';
 import AffiliatesPage from './features/staff_portal/pages/admin/AffiliatesPage.jsx';
@@ -62,6 +61,10 @@ import { MultiBackend } from 'dnd-multi-backend';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 
+
+// DEVELOPMENT
+import LanguageSwitcher from './components/common/LanguageSwitcher.jsx';
+
 // Initialize Stripe (outside of the component to avoid re-creating on re-renders)
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 if (!stripePublishableKey) {
@@ -95,14 +98,13 @@ const DNDBackendsConfig = {
     ],
 };
 
-// MODIFICATION: Placeholder for the staff dashboard index page
+// Placeholder for the staff dashboard index page
 const StaffDashboardPage = () => (
     <div className="p-6">
         <h1 className="text-2xl font-bold">Staff Dashboard</h1>
         <p className="mt-2">Welcome to the staff portal. Select an option from the sidebar to begin.</p>
     </div>
 );
-// END MODIFICATION
 
 // Router Configuration
 const router = createBrowserRouter([
@@ -140,7 +142,6 @@ const router = createBrowserRouter([
         element: <CompleteProfilePage />,
         errorElement: <NotFoundPage />,
     },
-    // --- MODIFICATION: New Staff Portal Routes ---
     {
         path: "/staff/login",
         element: <StaffLoginPage />,
@@ -156,7 +157,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="dashboard" replace /> },
             { path: "dashboard", element: <StaffDashboardPage /> },
-            
+
             {
                 path: "manage-affiliates",
                 element: <AdminOnlyRoute><AffiliatesPage /></AdminOnlyRoute>,
@@ -171,7 +172,6 @@ const router = createBrowserRouter([
             },
         ]
     },
-    // --- END MODIFICATION ---
     {
         path: "/dashboard/business",
         element: (
@@ -257,6 +257,7 @@ function App() {
                                 <FlyingImageProvider>
                                     <ThemeProvider>
                                         <ThemeToggleButton />
+                                        <LanguageSwitcher />
                                         <RouterProvider router={router} />
                                     </ThemeProvider>
                                 </FlyingImageProvider>

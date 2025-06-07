@@ -164,7 +164,7 @@ Step5ProfileImage.propTypes = {
 
 Step5ProfileImage.defaultProps = {
     errors: null,
-    themeColor: scriptLines.step5ProfileImage.themeColorDefault || 'rose',
+    themeColor: 'rose',
 };
 
 export default memo(Step5ProfileImage);

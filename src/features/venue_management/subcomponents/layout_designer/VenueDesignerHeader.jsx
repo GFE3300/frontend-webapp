@@ -7,7 +7,7 @@ import { useDeviceDetection } from '../../../../hooks/useDeviceDetection';
 
 // Localization
 import slRaw from '../../utils/script_lines.js'; // Adjusted path
-const sl = slRaw.venueManagement.venueDesignerHeader;
+const sl = slRaw?.venueManagement?.venueDesignerHeader;
 
 const VenueDesignerHeader = ({
     isEditorModeActive,

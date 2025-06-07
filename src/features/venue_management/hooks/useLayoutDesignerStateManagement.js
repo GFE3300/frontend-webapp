@@ -19,7 +19,7 @@ import {
 
 // Localization
 import slRaw, { interpolate } from '../utils/script_lines.js';
-const sl = slRaw.venueManagement.useLayoutDesignerStateManagement;
+const sl = slRaw.venueManagement?.useLayoutDesignerStateManagement || {};
 // const slCommon = slRaw; // For general strings if needed
 
 const STABLE_EMPTY_ARRAY_DESIGN_ITEMS = Object.freeze([]);

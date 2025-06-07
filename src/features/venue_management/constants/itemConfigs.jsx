@@ -3,7 +3,7 @@ import { getDefaultSeatsForSize, getNextAvailableTableNumber } from '../utils/la
 
 // Localization
 import slRaw from '../utils/script_lines.js'; // Adjust path as necessary
-const sl = slRaw.venueManagement.itemConfigs;
+const sl = slRaw?.venueManagement?.itemConfigs;
 
 /**
  * Defines the types for draggable tools from the toolbar and
@@ -30,7 +30,7 @@ export const ItemTypes = {
 export const ITEM_CONFIGS = {
     [ItemTypes.PLACED_TABLE]: {
         toolItemType: ItemTypes.TABLE_TOOL,
-        displayName: sl.placedTableDisplayName || 'Table',
+        displayName: sl?.placedTableDisplayName || 'Table',
         isRotatable: true,
         isResizable: true,
         canHaveQr: true,
@@ -48,7 +48,7 @@ export const ITEM_CONFIGS = {
     },
     [ItemTypes.PLACED_WALL]: {
         toolItemType: ItemTypes.WALL_TOOL,
-        displayName: sl.placedWallDisplayName || 'Wall',
+        displayName: sl?.placedWallDisplayName || 'Wall',
         isRotatable: true,
         isResizable: true,
         canHaveQr: false,
@@ -61,7 +61,7 @@ export const ITEM_CONFIGS = {
     },
     [ItemTypes.PLACED_DOOR]: {
         toolItemType: ItemTypes.DOOR_TOOL,
-        displayName: sl.placedDoorDisplayName || 'Door',
+        displayName: sl?.placedDoorDisplayName || 'Door',
         isRotatable: true,
         isResizable: false,
         canHaveQr: false,
@@ -75,7 +75,7 @@ export const ITEM_CONFIGS = {
     },
     [ItemTypes.PLACED_DECOR]: {
         toolItemType: ItemTypes.DECOR_TOOL,
-        displayName: sl.placedDecorDisplayName || 'Decor',
+        displayName: sl?.placedDecorDisplayName || 'Decor',
         isRotatable: true,
         isResizable: (item) => (item.decorType === 'rug'), // Example: only rugs are resizable generic decor
         canHaveQr: false,
@@ -88,7 +88,7 @@ export const ITEM_CONFIGS = {
     },
     [ItemTypes.PLACED_COUNTER]: {
         toolItemType: ItemTypes.COUNTER_TOOL,
-        displayName: sl.placedCounterDisplayName || 'Counter',
+        displayName: sl?.placedCounterDisplayName || 'Counter',
         isRotatable: true,
         isResizable: true,
         canHaveQr: false,
@@ -108,7 +108,7 @@ export const ITEM_CONFIGS = {
 export const toolDefinitions = [
     // --- Furniture ---
     {
-        name: sl.squareTableToolName || 'Square Table',
+        name: sl?.squareTableToolName || 'Square Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
         w_major: 1, h_major: 1, size_identifier: 'square-1x1',
@@ -116,7 +116,7 @@ export const toolDefinitions = [
         visual: 'square_foot',
     },
     {
-        name: sl.rectTableToolName || 'Rect. Table',
+        name: sl?.rectTableToolName || 'Rect. Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
         w_major: 2, h_major: 1, size_identifier: 'rectangle-2x1',
@@ -124,7 +124,7 @@ export const toolDefinitions = [
         visual: 'table_restaurant',
     },
     {
-        name: sl.roundTableToolName || 'Round Table',
+        name: sl?.roundTableToolName || 'Round Table',
         toolItemType: ItemTypes.TABLE_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_TABLE,
         w_major: 1, h_major: 1, size_identifier: 'round-1x1',
@@ -132,7 +132,7 @@ export const toolDefinitions = [
         visual: 'table_bar',
     },
     {
-        name: sl.counterToolName || 'Counter',
+        name: sl?.counterToolName || 'Counter',
         toolItemType: ItemTypes.COUNTER_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_COUNTER,
         w_major: 2, h_major: 1, size_identifier: 'counter-straight-2x1',
@@ -143,7 +143,7 @@ export const toolDefinitions = [
 
     // --- Structure ---
     {
-        name: sl.wallToolName || 'Wall',
+        name: sl?.wallToolName || 'Wall',
         toolItemType: ItemTypes.WALL_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_WALL,
         w_major: 1, h_major: 1,
@@ -153,7 +153,7 @@ export const toolDefinitions = [
         visual: 'horizontal_rule',
     },
     {
-        name: sl.doorToolName || 'Door',
+        name: sl?.doorToolName || 'Door',
         toolItemType: ItemTypes.DOOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DOOR,
         w_major: 1, h_major: 1, size_identifier: 'standard-door',
@@ -163,7 +163,7 @@ export const toolDefinitions = [
 
     // --- Decor ---
     {
-        name: sl.plantToolName || 'Plant',
+        name: sl?.plantToolName || 'Plant',
         toolItemType: ItemTypes.DECOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DECOR,
         w_major: 1, h_major: 1, size_identifier: 'plant-pot-small',
@@ -172,7 +172,7 @@ export const toolDefinitions = [
         visual: 'potted_plant',
     },
     {
-        name: sl.rugToolName || 'Rug',
+        name: sl?.rugToolName || 'Rug',
         toolItemType: ItemTypes.DECOR_TOOL,
         createsPlacedItemType: ItemTypes.PLACED_DECOR,
         w_major: 2, h_major: 3, size_identifier: 'rug-medium-rect',

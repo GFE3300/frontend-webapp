@@ -1,11 +1,11 @@
-// frontend/src/services/api.js
 import axios from 'axios';
+import i18n from '../i18n';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
 
 export const apiInstance = axios.create({
     baseURL,
-    timeout: 10000, // Increased timeout slightly for potentially larger layout data
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -26,23 +26,24 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 };
 
-apiInstance.interceptors.request.use(
-    config => {
-        if (config.headers && config.headers['X-Bypass-Auth-Interceptor']) {
-            delete config.headers['X-Bypass-Auth-Interceptor'];
-            return config;
-        }
 
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            config.headers['Authorization'] = 'Bearer ' + token;
-        }
-        return config;
-    },
-    error => {
-        return Promise.reject(error);
+apiInstance.interceptors.request.use(async (config) => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
     }
-);
+
+    // Add Accept-Language header to every request
+    const currentLanguage = i18n.language;
+    if (currentLanguage) {
+        // Send the primary language subtag (e.g., 'en' from 'en-US')
+        config.headers['Accept-Language'] = currentLanguage.split('-')[0];
+    }
+
+    return config;
+});
+
 
 apiInstance.interceptors.response.use(
     response => response,
@@ -120,6 +121,10 @@ const apiService = {
     put: (url, data, config) => apiInstance.put(url, data, config),
     patch: (url, data, config) => apiInstance.patch(url, data, config),
     delete: (url, config) => apiInstance.delete(url, config),
+
+    updateCurrentUser: (data) => {
+        return apiInstance.patch('/auth/user/', data);
+    },
 
     registerUserAndBusiness: (data) => {
         return apiInstance.post('auth/register/', data, {
@@ -269,7 +274,7 @@ const apiService = {
             return response; // Return full Axios response for useQuery
         } catch (error) {
             console.error("[API SERVICE] Error fetching admin menu preview products:", error.response?.data || error.message || error);
-            throw error; // TanStack Query will handle this error
+            throw error;
         }
     },
 
@@ -299,7 +304,7 @@ const apiService = {
      * Creates a Stripe Customer Portal session.
      * @returns {Promise<AxiosResponse<object>>} The Axios response object containing the portal session URL.
      */
-    createCustomerPortalSession: () => { // NEW FUNCTION
+    createCustomerPortalSession: () => {
         // console.log("[API SERVICE] Attempting to create Stripe Customer Portal session.");
         return apiInstance.post('payments/create-customer-portal-session/');
     },

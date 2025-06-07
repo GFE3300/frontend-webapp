@@ -322,7 +322,7 @@ const RegistrationPage = () => {
                             key="form-layout"
                             variants={ANIMATION_CONFIG.pageTransition}
                             initial="initial" animate="animate" exit="exit"
-                            className="flex-grow flex flex-col" // Ensure it takes space
+                            className="flex-grow flex flex-col h-screen" // Ensure it takes space
                         >
                             <ResponsiveLayout
                                 width={width}
@@ -360,10 +360,6 @@ const RegistrationPage = () => {
 
                 </AnimatePresence>
 
-                <SuccessModal
-                    submissionStatus={formState.submissionStatus}
-                    onClose={formState.resetForm} // Assuming resetForm should also close the modal
-                />
             </div>
         </BubbleAnimation>
     );
@@ -427,7 +423,7 @@ const ResponsiveLayout = memo(({ children, formState }) => (
                     visitedSteps={formState.visitedSteps}
                 />
             </aside>
-            <main className="form-section flex flex-col justify-center py-6"> {/* Allow main to take space */}
+            <main className="form-section flex flex-col justify-center items-center py-6 h-screen"> {/* Allow main to take space */}
                 {children}
             </main>
         </div>

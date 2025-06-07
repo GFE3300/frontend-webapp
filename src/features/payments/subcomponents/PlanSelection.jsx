@@ -385,7 +385,7 @@ PlanSelection.propTypes = {
 };
 
 PlanSelection.defaultProps = {
-    themeColor: scriptLines.planSelection.themeColorDefault,
+    themeColor: 'rose',
     isLoading: false,
 };
 

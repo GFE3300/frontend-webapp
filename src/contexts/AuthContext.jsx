@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import apiService, { apiInstance } from '../services/api';
+import i18n from '../i18n';
 
 const AuthContext = createContext(null);
 
@@ -20,7 +21,7 @@ const createUserObjectFromToken = (decodedToken) => {
         activeBusinessId: decodedToken.active_business_id,
         activeBusinessName: decodedToken.active_business_name,
         role: decodedToken.role,
-        // MODIFICATION: Explicitly check for and default the staff/superuser flags
+        language: decodedToken.language || 'en', // Add language with fallback
         is_staff: decodedToken.is_staff || false,
         is_superuser: decodedToken.is_superuser || false,
     };
@@ -54,6 +55,10 @@ export const AuthProvider = ({ children }) => {
         console.log("Client-side logout completed.");
     }, []);
 
+    const updateUser = useCallback((updatedFields) => {
+        setUser(prevUser => (prevUser ? { ...prevUser, ...updatedFields } : null));
+    }, []);
+
     useEffect(() => {
         const initializeAuth = async () => {
             const storedAccessToken = localStorage.getItem('accessToken');
@@ -65,7 +70,14 @@ export const AuthProvider = ({ children }) => {
                     const isExpired = decodedToken.exp * 1000 < Date.now();
 
                     if (!isExpired) {
-                        setUser(createUserObjectFromToken(decodedToken));
+                        const userObject = createUserObjectFromToken(decodedToken);
+                        setUser(userObject);
+
+                        // Sync language
+                        if (userObject.language && i18n.language !== userObject.language) {
+                            await i18n.changeLanguage(userObject.language);
+                        }
+
                         if (apiInstance?.defaults?.headers?.common) {
                             apiInstance.defaults.headers.common['Authorization'] = `Bearer ${storedAccessToken}`;
                         }
@@ -85,9 +97,16 @@ export const AuthProvider = ({ children }) => {
                                 if (response.data.refresh) {
                                     localStorage.setItem('refreshToken', newRefreshTokenIfRotated);
                                 }
-                                
+
                                 const newDecodedToken = jwtDecode(newAccessToken);
-                                setUser(createUserObjectFromToken(newDecodedToken));
+                                const userObject = createUserObjectFromToken(newDecodedToken);
+                                setUser(userObject);
+
+                                // Sync language
+                                if (userObject.language && i18n.language !== userObject.language) {
+                                    await i18n.changeLanguage(userObject.language);
+                                }
+
                                 if (apiInstance?.defaults?.headers?.common) {
                                     apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
                                 }
@@ -113,19 +132,25 @@ export const AuthProvider = ({ children }) => {
         initializeAuth();
     }, [performLogoutOperations]);
 
-    const login = (newAccessToken, newRefreshToken) => {
+    const login = async (newAccessToken, newRefreshToken) => {
         localStorage.setItem('accessToken', newAccessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
 
         const decodedToken = jwtDecode(newAccessToken);
-        
+
         if (apiInstance?.defaults?.headers?.common) {
             apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         }
 
+        const userObject = createUserObjectFromToken(decodedToken);
         setAccessToken(newAccessToken);
         setRefreshToken(newRefreshToken);
-        setUser(createUserObjectFromToken(decodedToken));
+        setUser(userObject);
+
+        // Sync language
+        if (userObject.language && i18n.language !== userObject.language) {
+            await i18n.changeLanguage(userObject.language);
+        }
     };
 
     const logout = async () => {
@@ -139,6 +164,7 @@ export const AuthProvider = ({ children }) => {
         isLoading,
         login,
         logout,
+        updateUser,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

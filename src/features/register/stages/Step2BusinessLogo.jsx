@@ -24,7 +24,7 @@ const Step2BusinessLogo = ({
     formData,
     updateField,
     errors,
-    themeColor = scriptLines.step2BusinessLogo.themeColorDefault || 'rose', // Fallback theme
+    themeColor = scriptLines?.step2BusinessLogo?.themeColorDefault || 'rose', // Fallback theme
 }) => {
     // A key to force re-mount ImageUploader for a full reset if needed (e.g., on clear)
     const [uploaderKey, setUploaderKey] = useState(Date.now());
@@ -179,7 +179,7 @@ Step2BusinessLogo.propTypes = {
 
 Step2BusinessLogo.defaultProps = {
     errors: null,
-    themeColor: scriptLines.step2BusinessLogo.themeColorDefault,
+    themeColor: 'rose',
 };
 
 export default memo(Step2BusinessLogo);
