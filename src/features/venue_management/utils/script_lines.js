@@ -10,8 +10,6 @@
 
 import i18n from '../../../i18n';
 
-import { t } from '../../../i18n';
-
 // src/features/venue_management/utils/script_lines.js
 export const scriptLines = {
     // --- Global Settings ---
