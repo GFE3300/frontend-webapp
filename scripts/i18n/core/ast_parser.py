@@ -99,7 +99,8 @@ def _traverse_and_extract(
 
     elif node_type == 'Literal' and isinstance(getattr(node, 'value', None), str):
         string_value = node.value
-        if not string_value or not string_value.strip() or string_value.startswith('t('):
+        # Ignore empty strings or strings that are already function calls
+        if not string_value or not string_value.strip() or 'i18n.t(' in string_value:
             return
 
         i18n_key = ".".join(key_path_parts)
@@ -115,21 +116,13 @@ def _traverse_and_extract(
             value_to_key_map[string_value] = final_key
             new_strings[final_key] = string_value
 
-        # <<< FIX: Use `t` instead of `i18n.t` and add inline comment with original text.
-        # Use json.dumps to safely escape the string for the comment
+        # <<< FIX: Generate direct i18n.t() call with an inline comment.
         escaped_comment = json.dumps(string_value)
-        replacement_text = f"t('{final_key}'), // {escaped_comment}"
+        replacement_text = f"i18n.t('{final_key}'), // {escaped_comment}"
         
-        # We replace from the start of the literal to the end of the line (or next comma)
-        # to correctly place the comment. For simplicity, we'll just replace the literal itself.
-        # A more advanced formatter (like Prettier) would handle the final layout.
-        # Let's refine the replacement to be more careful.
-        start_pos, end_pos = node.range
-        
-        # Find the end of the line to place the comment correctly.
-        # This is a simplification; a real code formatter is more robust.
-        # We will append the comment after the literal replacement.
-        rewriter.add_replacement(start_pos, end_pos, f"t('{final_key}') /* {escaped_comment} */")
+        # Replace the original literal with the new function call and comment.
+        # This approach is simple; a code formatter like Prettier would clean up the final alignment.
+        rewriter.add_replacement(node.range[0], node.range[1], replacement_text)
 
 
 def extract_and_rewrite(
@@ -141,7 +134,7 @@ def extract_and_rewrite(
 ) -> Tuple[str, Dict[str, str]]:
     """
     Parses JS source, extracts new strings, and returns the rewritten code
-    wrapped in a function.
+    as a static object.
     """
     rewriter = _Rewriter(source_code)
     new_strings: Dict[str, str] = {}
@@ -160,14 +153,8 @@ def extract_and_rewrite(
                     var_name = var_declarator.id.name
                     init_node = var_declarator.init
                     
-                    # <<< FIX: Wrap the exported object in `(t = i18n_t) => ({...})`
-                    # The `i18n_t` default will be handled by the import alias in manager.py
-                    start_range = init_node.range[0]
-                    end_range = init_node.range[1]
-
-                    # Add the function wrapper around the object
-                    rewriter.add_replacement(start_range, start_range, "(t = i18n_t) => (")
-                    rewriter.add_replacement(end_range, end_range, ")")
+                    # <<< FIX: No longer wrapping in a function.
+                    # We just traverse the existing object.
                     
                     relative_file_path = file_path.relative_to(project_root)
                     

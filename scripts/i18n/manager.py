@@ -36,7 +36,6 @@ CONFIG_FILE = SCRIPTS_DIR / "config.json"
 DEFAULT_SOURCE_LANG = "en"
 
 # --- Helper Functions ---
-# (load_app_config, save_app_config, get_translation_file_path, get_i18n_header remain unchanged)
 def load_app_config():
     return load_json(CONFIG_FILE)
 
@@ -60,9 +59,7 @@ def get_i18n_header():
 """
 
 # --- Command Handlers ---
-# (handle_init, handle_check, handle_clean remain unchanged)
 def handle_init(args):
-    """Handler for the 'init' command."""
     lang_code = args.lang_code.lower()
     config = load_app_config()
     
@@ -86,8 +83,8 @@ def handle_init(args):
         
     logging.info(f"Successfully initialized language '{lang_code}'.")
 
+
 def handle_sync(args):
-    """Handler for the 'sync' command."""
     logging.info("Starting synchronization process...")
     config = load_app_config()
     if not config:
@@ -136,15 +133,15 @@ def handle_sync(args):
             source_code, file_path, SRC_DIR, value_to_key_map, duplicate_report
         )
         
-        if new_strings or args.force: # Rewrite file if new strings found or forced
+        if new_strings or args.force:
             all_new_strings.update(new_strings)
             
             header = get_i18n_header()
             i18n_path = (SRC_DIR / 'i18n.js').resolve()
             relative_import_path = os.path.relpath(i18n_path, file_path.parent.resolve()).replace('\\', '/').replace('.js', '')
             
-            # <<< FIX: Use aliased import and correct `(t = i18n_t)` pattern
-            import_statement = f"import {{ t as i18n_t }} from '{relative_import_path}';"
+            # <<< FIX: Use a direct, non-aliased import for i18n
+            import_statement = f"import i18n from '{relative_import_path}';"
             final_code = f"{header}\n{import_statement}\n\n{rewritten_code}\n"
             
             if not args.dry_run:
@@ -172,7 +169,6 @@ def handle_sync(args):
     else:
         logging.info("No new strings found in changed files.")
 
-    # (Translation logic remains the same)
     target_languages = [lang for lang in config['languages'] if lang != source_lang]
     if args.lang:
         target_languages = [lang for lang in args.lang if lang in target_languages]
@@ -211,102 +207,7 @@ def handle_sync(args):
     else:
         logging.warning("DRY RUN finished. No files were written.")
 
-
-def handle_refactor_components(args):
-    """Handler for the 'refactor-components' command."""
-    logging.info("Starting component refactoring process...")
-    
-    # 1. Find all relevant component files
-    component_files = [
-        p for p in SRC_DIR.rglob("*") 
-        if p.suffix in ['.jsx', '.tsx'] and 'node_modules' not in p.parts
-    ]
-    logging.info(f"Found {len(component_files)} component files to analyze.")
-
-    # 2. Define Regex patterns
-    # Finds imports like: import { scriptLines, scriptLines_Steps } from '...'
-    import_regex = re.compile(r"import\s+\{([^}]+)\}\s+from\s+['\"].*?/script_lines['\"]")
-    
-    # Finds React functional component definitions
-    component_def_regex = re.compile(r"(?:export\s+)?(?:const|function)\s+([A-Z]\w*)\s*=\s*\(([^)]*)\)\s*=>\s*\{")
-    
-    # Check for existing useTranslation hook
-    hook_import_regex = re.compile(r"useTranslation")
-    hook_call_regex = re.compile(r"const\s+\{\s*t\s*\}\s*=\s*useTranslation\(\);")
-
-    # 3. Process each file
-    total_changes = 0
-    for file_path in component_files:
-        content = read_file(file_path)
-        if not content:
-            continue
-
-        import_match = import_regex.search(content)
-        if not import_match:
-            continue
-
-        # Found a file that imports from script_lines.js
-        logging.info(f"Found relevant import in: {file_path.relative_to(ACTUAL_PROJECT_ROOT)}")
-        
-        original_content = str(content)
-        modified_content = str(content)
-
-        # a. Extract imported variable names
-        imported_vars_str = import_match.group(1)
-        imported_vars = [v.strip() for v in imported_vars_str.split(',')]
-
-        # b. Add useTranslation import if missing
-        if not hook_import_regex.search(modified_content):
-            modified_content = re.sub(
-                r"(import\s+React[^;]+;)",
-                r"\1\nimport { useTranslation } from 'react-i18next';",
-                modified_content,
-                count=1
-            )
-
-        # c. Add useTranslation hook call if missing
-        if not hook_call_regex.search(modified_content):
-            # Find component definition to inject the hook
-            component_match = component_def_regex.search(modified_content)
-            if component_match:
-                injection_point = component_match.end(0)
-                indentation = "  " # Simple assumption
-                hook_call = f"\n{indentation}const {{ t }} = useTranslation();"
-                modified_content = modified_content[:injection_point] + hook_call + modified_content[injection_point:]
-        
-        # d. Rewrite all usages of the imported scriptLines objects
-        for var in imported_vars:
-            # This regex finds `varName.prop1.prop2` but not `varName(t)...`
-            usage_regex = re.compile(rf"({re.escape(var)})(?!\s*\()")
-            modified_content = usage_regex.sub(rf"\1(t)", modified_content)
-            
-        if original_content != modified_content:
-            total_changes += 1
-            if args.dry_run:
-                print("-" * 80)
-                print(f"DRY RUN: Proposed changes for {file_path.relative_to(ACTUAL_PROJECT_ROOT)}")
-                print("-" * 80)
-                # A simple diff-like view
-                print("--- BEFORE ---")
-                print(original_content)
-                print("\n--- AFTER ---")
-                print(modified_content)
-                print("-" * 80 + "\n")
-            else:
-                logging.info(f"Refactoring component: {file_path.relative_to(ACTUAL_PROJECT_ROOT)}")
-                backup_file(file_path, BACKUP_DIR)
-                write_file(file_path, modified_content)
-
-    if total_changes == 0:
-        logging.info("No components needed refactoring.")
-    else:
-        if args.dry_run:
-            logging.warning(f"DRY RUN: Found {total_changes} components that need refactoring.")
-        else:
-            logging.info(f"Successfully refactored {total_changes} components.")
-
 def handle_check(args):
-    """Handler for the 'check' command."""
     logging.info("Running I18N status check...")
     config = load_app_config()
     if not config:
@@ -325,38 +226,29 @@ def handle_check(args):
         logging.info("All tracked files are in sync.")
 
 def handle_clean(args):
-    """Handler for the 'clean' command."""
     logging.warning("The 'clean' command is not yet implemented.")
     pass
 
 def main():
-    """Main CLI entry point."""
     parser = argparse.ArgumentParser(description="I18N Workflow Manager for React projects.")
     subparsers = parser.add_subparsers(dest="command", required=True, help="Available commands")
 
-    # --- Init Command ---
     parser_init = subparsers.add_parser("init", help="Initialize a new language.")
     parser_init.add_argument("lang_code", help="The language code to initialize (e.g., 'fr', 'de-DE').")
     parser_init.set_defaults(func=handle_init)
 
-    # --- Sync Command ---
     parser_sync = subparsers.add_parser("sync", help="Synchronize strings from source code to translation files.")
     parser_sync.add_argument("--force", action="store_true", help="Force reprocessing of all source files.")
     parser_sync.add_argument("--lang", nargs='+', help="Specify target languages to translate (e.g., es fr).")
     parser_sync.add_argument("--dry-run", action="store_true", help="Simulate the process without writing any files.")
     parser_sync.set_defaults(func=handle_sync)
 
-    # --- Refactor Components Command ---
-    parser_refactor = subparsers.add_parser("refactor-components", help="Refactor React components to use the new functional script_lines pattern.")
-    parser_refactor.add_argument("--dry-run", action="store_true", help="Show proposed changes without writing to files.")
-    parser_refactor.set_defaults(func=handle_refactor_components)
-
-    # --- Check Command ---
+    # <<< FIX: Removed the refactor-components command parser
+    
     parser_check = subparsers.add_parser("check", help="Check the status of I18N files.")
     parser_check.add_argument("--details", action="store_true", help="Show detailed status information.")
     parser_check.set_defaults(func=handle_check)
 
-    # --- Clean Command ---
     parser_clean = subparsers.add_parser("clean", help="Remove orphaned (unused) keys from translation files.")
     parser_clean.add_argument("--yes", action="store_true", help="Skip confirmation prompt.")
     parser_clean.set_defaults(func=handle_clean)

@@ -3,7 +3,7 @@ import { t } from '../../../i18n';
 export const scriptLines_useFormState = {
     // Console Log Messages
     log: {
-        failedToParseSessionStorage: t('register.useFormState.log.failedToParseSessionStorage'),
+        failedToParseSessionStorage: t('register.useFormState.log.failedToParseSessionStorage'), 
         failedToSaveSessionStorage: t('register.useFormState.log.failedToSaveSessionStorage'),
     },
 
