@@ -15,9 +15,9 @@ const StaffDashboardLayout = () => {
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* 
                     We can reuse the existing DashboardHeader. It's designed to be generic enough,
-                    displaying the user's active business and profile info, which is relevant for both
-                    customer-facing and internal staff dashboards. If a different header is ever needed,
-                    this can be swapped out.
+                    displaying the user's active business and profile info. This is relevant for
+                    staff (especially superusers who might act in a business context) and affiliates.
+                    If a different header is ever needed, this can be swapped out.
                 */}
                 <DashboardHeader />
 

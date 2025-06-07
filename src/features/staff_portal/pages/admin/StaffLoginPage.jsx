@@ -11,7 +11,7 @@ import Button from '../../../../components/common/Button';
 import Icon from '../../../../components/common/Icon';
 
 const StaffLoginPage = () => {
-    const { login, isAuthenticated } = useAuth();
+    const { login, isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const { addToast } = useToast();
@@ -38,13 +38,13 @@ const StaffLoginPage = () => {
 
             // Security check: Ensure the user logging in is actually a staff member.
             if (!decodedToken.is_staff) {
-                addToast("Access Denied: This portal is for staff members only.", "error");
+                setGeneralError("Access Denied: This portal is for staff members only.");
+                addToast("This login is for staff members only.", "error");
                 setIsSubmitting(false);
                 return;
             }
 
             // Call the login function from AuthContext to update the global state.
-            // DO NOT navigate here. The useEffect hook will handle it.
             login(response.data.access, response.data.refresh);
             addToast("Login successful! Welcome.", "success");
 
@@ -63,14 +63,13 @@ const StaffLoginPage = () => {
         }
     }, [email, password, login, addToast, setGeneralError, setErrors, setIsSubmitting]);
 
-    // This useEffect is the correct way to handle navigation after a state change from a context.
-    // It will run after the component re-renders with the new `isAuthenticated` value.
+    // This useEffect handles navigation after the user state has been updated.
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && user?.is_staff) {
             const from = location.state?.from?.pathname || '/staff/dashboard';
             navigate(from, { replace: true });
         }
-    }, [isAuthenticated, navigate, location.state]);
+    }, [isAuthenticated, user, navigate, location.state]);
 
     return (
         <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center p-4">

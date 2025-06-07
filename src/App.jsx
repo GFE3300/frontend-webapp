@@ -1,5 +1,3 @@
-// FILE: src/App.jsx
-
 import React from 'react';
 // Router
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -7,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 // Stripe
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+
+// MODIFICATION: Import AdminOnlyRoute (which we will define below)
 import AdminOnlyRoute from './components/common/AdminOnlyRoute.jsx';
 
 // Pages & Features
@@ -21,6 +21,7 @@ import PlanAndPaymentPage from './features/payments/PlanAndPaymentPage.jsx';
 import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx';
 import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';
 
+// MODIFICATION: Import new Staff Portal pages
 import StaffLoginPage from './features/staff_portal/pages/admin/StaffLoginPage.jsx';
 import StaffDashboardLayout from './features/staff_portal/StaffDashboardLayout.jsx';
 import AffiliatesPage from './features/staff_portal/pages/admin/AffiliatesPage.jsx';
@@ -94,14 +95,14 @@ const DNDBackendsConfig = {
     ],
 };
 
-// --- MODIFICATION: Placeholder for the staff dashboard index page ---
+// MODIFICATION: Placeholder for the staff dashboard index page
 const StaffDashboardPage = () => (
     <div className="p-6">
         <h1 className="text-2xl font-bold">Staff Dashboard</h1>
         <p className="mt-2">Welcome to the staff portal. Select an option from the sidebar to begin.</p>
     </div>
 );
-// --- END MODIFICATION ---
+// END MODIFICATION
 
 // Router Configuration
 const router = createBrowserRouter([
@@ -139,6 +140,7 @@ const router = createBrowserRouter([
         element: <CompleteProfilePage />,
         errorElement: <NotFoundPage />,
     },
+    // --- MODIFICATION: New Staff Portal Routes ---
     {
         path: "/staff/login",
         element: <StaffLoginPage />,
@@ -169,6 +171,7 @@ const router = createBrowserRouter([
             },
         ]
     },
+    // --- END MODIFICATION ---
     {
         path: "/dashboard/business",
         element: (

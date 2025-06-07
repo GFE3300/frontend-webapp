@@ -6,7 +6,7 @@ import apiService from '../../../services/api';
 import { useToast } from '../../../contexts/ToastContext';
 import InputField from '../../../components/common/InputField';
 import Button from '../../../components/common/Button';
-import Icon from '../../../components/common/Icon'; // Import Icon for use in new UI
+import Icon from '../../../components/common/Icon';
 
 // A simple toggle switch component (unchanged)
 const ToggleSwitch = ({ label, enabled, setEnabled }) => (
@@ -34,7 +34,6 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
     });
     const [errors, setErrors] = useState({});
 
-    // MODIFICATION: State to hold the temporary password for the new affiliate
     const [generatedPassword, setGeneratedPassword] = useState(null);
     const [isCopied, setIsCopied] = useState(false);
 
@@ -58,7 +57,6 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
         }
     }, [isOpen, affiliateToEdit]);
 
-    // MODIFICATION: Wrapper for onClose to ensure state is reset
     const handleClose = () => {
         setGeneratedPassword(null);
         setIsCopied(false);
@@ -68,18 +66,18 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
     const mutation = useMutation({
         mutationFn: (data) => {
             const apiPayload = { ...data, commission_rate: parseFloat(data.commission_rate) / 100 };
+            // MODIFICATION: API endpoints are updated to point to the new staff-namespaced URL.
             if (affiliateToEdit) {
                 return apiService.put(`/staff/affiliates/${affiliateToEdit.id}/`, apiPayload);
             }
-            return apiService.post('/staff/affiliates/', apiPayload); // POST to staff endpoint
+            return apiService.post('/staff/affiliates/', apiPayload);
         },
-        // MODIFICATION: Updated onSuccess to handle password display
         onSuccess: (response) => {
-            queryClient.invalidateQueries({ queryKey: ['staff_affiliates'] }); // Use new query key
+            queryClient.invalidateQueries({ queryKey: ['staff_affiliates'] });
             if (!affiliateToEdit && response.data?.password) {
                 addToast('Affiliate created successfully!', 'success');
                 setGeneratedPassword(response.data.password);
-                // DO NOT close the modal
+                // DO NOT close the modal, so admin can copy the password
             } else {
                 addToast(`Affiliate ${affiliateToEdit ? 'updated' : 'created'} successfully!`, 'success');
                 handleClose();
@@ -119,7 +117,6 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
         });
     };
 
-    // MODIFICATION: New UI to display after successful creation
     const SuccessDisplay = () => (
         <>
             <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 text-center">

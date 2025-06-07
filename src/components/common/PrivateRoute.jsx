@@ -11,7 +11,7 @@ import Spinner from './Spinner';
  * @param {object} props
  * @param {React.ReactNode} props.children - The component to render if authorized.
  * @param {string[]} [props.requiredRoles] - An array of roles required to access the route (e.g., ['ADMIN', 'MANAGER']).
- * @param {boolean} [props.staffOnly] - If true, the route requires the user to be a staff member.
+ * @param {boolean} [props.staffOnly=false] - If true, the route requires the user to be a staff member.
  */
 const PrivateRoute = ({ children, requiredRoles, staffOnly = false }) => {
     const { user, isAuthenticated, isLoading } = useAuth();
@@ -26,27 +26,25 @@ const PrivateRoute = ({ children, requiredRoles, staffOnly = false }) => {
     }
 
     if (!isAuthenticated) {
-        // Redirect them to the login page, but save the current location they were
-        // trying to go to so we can send them there after they log in.
+        // MODIFICATION: Redirect them to the correct login page, saving the current location.
         const loginPath = staffOnly ? '/staff/login' : '/login/business';
         return <Navigate to={loginPath} state={{ from: location }} replace />;
     }
 
+    // MODIFICATION: If the route is marked as staffOnly, verify the user's staff status.
     if (staffOnly && !user.is_staff) {
-        // If the route requires a staff member, but the logged-in user isn't one.
+        // Authenticated user is not staff, redirect them to the staff login page.
+        // This handles cases where a non-staff user might have a valid token but tries to access /staff.
         console.warn("Access Denied: User is not staff. Redirecting to staff login.");
-        // Redirect to a specific "unauthorized" page or back to the staff login.
         return <Navigate to="/staff/login" state={{ from: location }} replace />;
     }
 
     if (requiredRoles && requiredRoles.length > 0) {
         // Check if the user's role is included in the required roles.
-        // Assumes user.role is a string like 'ADMIN', 'MANAGER', etc.
         const hasRequiredRole = user && requiredRoles.includes(user.role);
 
         if (!hasRequiredRole) {
             // User is authenticated but does not have the necessary role.
-            // Redirect to a dedicated "unauthorized" page.
             console.warn(`Access Denied: User role '${user.role}' not in required roles [${requiredRoles.join(', ')}].`);
             return <Navigate to="/dashboard/unauthorized" replace />;
         }
@@ -58,7 +56,7 @@ const PrivateRoute = ({ children, requiredRoles, staffOnly = false }) => {
 PrivateRoute.propTypes = {
     children: PropTypes.node.isRequired,
     requiredRoles: PropTypes.arrayOf(PropTypes.string),
-    staffOnly: PropTypes.bool, // New prop type
+    staffOnly: PropTypes.bool,
 };
 
 export default PrivateRoute;

@@ -329,7 +329,7 @@ const FormStep = ({
                         <span className="font-semibold font-montserrat flex-grow">{localError}</span>
                         <button
                             onClick={() => setLocalError(null)}
-                            className="ml-auto p-1 -mr-1 h-7 w-7 rounded-full hover:bg-white/20 transition-colors flex-shrink-0"
+                            className="ml-auto p-1 -mr-1 h-8 w-8 rounded-full hover:bg-white/20 transition-colors flex-shrink-0"
                             aria-label="Dismiss error" // Accessibility for close button
                         >
                             <Icon name="close" className="w-6 h-6" />

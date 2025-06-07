@@ -15,7 +15,7 @@ const AffiliateDetailPage = () => {
     // MODIFICATION: Updated queryKey and queryFn for admin context
     const { data: analyticsData, isLoading, isError, error } = useQuery({
         queryKey: ['staff_affiliate_analytics', affiliateId],
-        queryFn: () => apiService.get(`/staff/affiliates/${affiliateId}/analytics/`),
+        queryFn: () => apiService.get(`/affiliates/${affiliateId}/analytics/`),
         enabled: !!affiliateId,
     });
 

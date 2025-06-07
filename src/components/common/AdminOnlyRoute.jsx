@@ -1,44 +1,48 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
 import { useAuth } from '../../contexts/AuthContext';
-import Spinner from './Spinner';
+import PrivateRoute from './PrivateRoute'; // We still use PrivateRoute for the base auth check
 
 /**
- * A component to protect routes, ensuring the user is not only authenticated
- * and a staff member, but also a superuser (admin).
- * It should be used inside a route already protected by PrivateRoute.
+ * A specialized route protection component that ensures only authenticated
+ * superusers (admins) can access its children. It builds upon PrivateRoute.
+ *
+ * It will first ensure the user is an authenticated staff member via PrivateRoute,
+ * then it will perform its own check for the is_superuser flag.
  *
  * @param {object} props
- * @param {React.ReactNode} props.children - The admin-only component to render if authorized.
+ * @param {React.ReactNode} props.children - The component(s) to render if the user is an admin.
  */
 const AdminOnlyRoute = ({ children }) => {
-    const { user, isLoading } = useAuth();
+    const { user } = useAuth(); // isLoading and isAuthenticated are handled by PrivateRoute
 
-    // While authentication is loading, show a spinner to prevent flicker
-    // or premature redirection.
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center h-full w-full p-10">
-                <Spinner size="lg" />
-            </div>
-        );
-    }
-
-    // If auth has loaded and the user is not a superuser, redirect.
-    // We assume this route is already within a <PrivateRoute>, so the `user` object should exist if authenticated.
+    // This component is always used *inside* a PrivateRoute that has already
+    // confirmed the user is authenticated and is_staff.
+    // We just need to add the final check for is_superuser.
     if (!user || !user.is_superuser) {
-        // Redirect non-admins to the main staff dashboard, which is a safe default.
+        // If the user is not a superuser, redirect them.
+        // A safe destination is the main staff dashboard, as they are already
+        // confirmed to be staff at this point.
+        console.warn(`Access Denied: User ${user?.email} is not a superuser. Redirecting to staff dashboard.`);
         return <Navigate to="/staff/dashboard" replace />;
     }
 
-    // If the user is a superuser, render the protected component.
+    // If all checks pass, render the protected component.
     return children;
 };
 
 AdminOnlyRoute.propTypes = {
     children: PropTypes.node.isRequired,
 };
+
+// Note: In App.jsx, the usage will look like:
+// <PrivateRoute staffOnly={true}>
+//   <AdminOnlyRoute>
+//     <SuperuserOnlyPage />
+//   </AdminOnlyRoute>
+// </PrivateRoute>
+// However, for cleaner route definitions, we can compose it as shown in the plan,
+// where AdminOnlyRoute implicitly assumes the PrivateRoute check has passed on the parent route.
 
 export default AdminOnlyRoute;

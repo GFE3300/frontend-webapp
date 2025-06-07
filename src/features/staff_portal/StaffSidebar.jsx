@@ -11,8 +11,8 @@ import { useAuth } from '../../contexts/AuthContext';
 const StaffSidebarHeader = ({ isCollapsed }) => (
     <div className={`h-16 flex items-center border-b border-neutral-200 dark:border-neutral-700 transition-all duration-300 ease-in-out ${isCollapsed ? 'px-2 justify-center' : 'px-6'}`}>
         <Link to="/staff/dashboard" className="flex items-center gap-2 overflow-hidden">
-            <div className={`flex-shrink-0 p-1.5 rounded-md ${isCollapsed ? 'bg-indigo-500 dark:bg-indigo-600' : 'bg-indigo-100 dark:bg-indigo-800'}`}>
-                <Icon name="shield_person" className={`w-6 h-6 transition-colors ${isCollapsed ? 'text-white' : 'text-indigo-500 dark:text-indigo-400'}`} />
+            <div className={`flex-shrink-0 p-1.5 rounded-md ${isCollapsed ? 'bg-primary-600 dark:bg-primary-700' : 'bg-primary-100 dark:bg-primary-800'}`}>
+                <Icon name="shield_person" className={`w-6 h-6 transition-colors ${isCollapsed ? 'text-white' : 'text-primary-500 dark:text-primary-400'}`} />
             </div>
             <AnimatePresence>
                 {!isCollapsed && (
@@ -38,7 +38,7 @@ const StaffSidebarFooter = ({ isCollapsed, toggleCollapse }) => (
             className={`w-full flex items-center h-10 px-3 rounded-lg text-sm font-medium 
                         text-neutral-600 dark:text-neutral-300 
                         hover:bg-neutral-100 dark:hover:bg-neutral-700 
-                        focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500
+                        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500
                         transition-all duration-300 ease-in-out
                         ${isCollapsed ? 'justify-center' : ''}
                       `}
@@ -73,7 +73,7 @@ const StaffSidebar = () => {
 
     const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
-    // MODIFICATION: This is the core logic for the staff sidebar. It dynamically generates
+    // This is the core logic for the staff sidebar. It dynamically generates
     // navigation links based on the user's staff-related flags.
     const navItems = useMemo(() => {
         if (!user) return [];
@@ -81,7 +81,7 @@ const StaffSidebar = () => {
         // Links for Superusers (Admins)
         if (user.is_superuser) {
             return [
-                { name: 'Admin Dashboard', icon: 'admin_panel_settings', path: '/staff/dashboard' }, // Link to the generic staff dashboard
+                { name: 'Admin Dashboard', icon: 'admin_panel_settings', path: '/staff/dashboard' },
                 { name: 'Manage Affiliates', icon: 'group', path: '/staff/manage-affiliates' },
                 { name: 'Payouts', icon: 'payments', path: '/staff/payouts' },
                 // { name: 'System Settings', icon: 'settings', path: '/staff/system-settings' }, // Placeholder for future
@@ -92,10 +92,10 @@ const StaffSidebar = () => {
         if (user.is_staff) {
             return [
                 { name: 'My Dashboard', icon: 'dashboard', path: '/staff/dashboard' },
-                // { name: 'My Referrals', icon: 'share', path: '/staff/my-referrals' }, // Placeholder for future
-                // { name: 'My Commissions', icon: 'paid', path: '/staff/my-commissions' }, // Placeholder for future
-                // { name: 'My Payouts', icon: 'receipt_long', path: '/staff/my-payouts' }, // Placeholder for future
-                // { name: 'My Settings', icon: 'person', path: '/staff/my-settings' }, // Placeholder for future
+                // The following are placeholders for future implementation as per the plan
+                // { name: 'My Referrals', icon: 'share', path: '/staff/my-referrals' },
+                // { name: 'My Commissions', icon: 'paid', path: '/staff/my-commissions' },
+                // { name: 'My Payouts', icon: 'receipt_long', path: '/staff/my-payouts' },
             ];
         }
 

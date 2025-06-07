@@ -190,36 +190,61 @@ export const useFormState = (initialFormStateData = {}) => {
     // Validation Logic
     // ===========================================================================
     const validateStep = useCallback(async (stepToValidate) => {
-        setState(prev => ({ ...prev, generalError: null }));
-        try {
-            const schema = STEP_VALIDATIONS[stepToValidate];
-            if (!schema) {
-                setState(prev => ({
-                    ...prev,
-                    errors: { ...prev.errors, [stepToValidate]: {} },
-                    stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? true : v)),
-                }));
-                return true;
-            }
-
+        const schema = STEP_VALIDATIONS[stepToValidate];
+        // If a step has no validation schema, it's considered valid (e.g., optional image uploads).
+        if (!schema) {
             setState(prev => ({
                 ...prev,
-                errors: { ...prev.errors, [stepToValidate]: {} },
                 stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? true : v)),
             }));
             return true;
-        } catch (err) {
-            const fieldErrors = err.inner ? err.inner.reduce((acc, curr) => {
-                acc[curr.path] = curr.message;
-                return acc;
-            }, {}) : { [err.path || 'general']: err.message };
+        }
 
+        try {
+            // Perform the validation. `abortEarly: false` collects all errors.
+            await schema.validate(state.formData, { abortEarly: false });
+            
+            // If validation succeeds, clear errors for this step and mark as valid.
             setState(prev => ({
                 ...prev,
-                errors: { ...prev.errors, ...fieldErrors },
-                generalError: scriptLines.error.form.correctErrorsInStep.replace('{stepNumber}', (stepToValidate + 1).toString()),
-                stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? false : v)),
+                errors: {}, // Clear all previous errors for the current step scope
+                generalError: null,
+                stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? true : v)),
             }));
+            return true;
+
+        } catch (err) {
+            // If validation fails, Yup throws a ValidationError.
+            if (err instanceof yup.ValidationError) {
+                // Transform the flat error list from Yup into a nested object
+                // that our components can understand (e.g., for address fields).
+                const fieldErrors = err.inner.reduce((acc, currentError) => {
+                    const pathParts = currentError.path.split('.');
+                    if (pathParts.length > 1) {
+                        if (!acc[pathParts[0]]) {
+                            acc[pathParts[0]] = {};
+                        }
+                        acc[pathParts[0]][pathParts[1]] = currentError.message;
+                    } else {
+                        acc[currentError.path] = currentError.message;
+                    }
+                    return acc;
+                }, {});
+
+                setState(prev => ({
+                    ...prev,
+                    errors: fieldErrors, // Set the errors for the current step
+                    generalError: scriptLines.error.form.correctErrorsInStep.replace('{stepNumber}', (stepToValidate + 1).toString()),
+                    stepValidity: prev.stepValidity.map((v, i) => (i === stepToValidate ? false : v)),
+                }));
+            } else {
+                // Handle non-validation errors (e.g., programming errors in schema)
+                console.error("An unexpected error occurred during validation:", err);
+                setState(prev => ({
+                    ...prev,
+                    generalError: "An unexpected validation error occurred. Please check the console.",
+                }));
+            }
             return false;
         }
     }, [state.formData, STEP_VALIDATIONS, scriptLines.error.form.correctErrorsInStep]);

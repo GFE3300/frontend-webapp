@@ -5,40 +5,54 @@ import apiService, { apiInstance } from '../services/api';
 
 const AuthContext = createContext(null);
 
+/**
+ * Creates a normalized user object from a decoded JWT payload.
+ * @param {object} decodedToken - The payload from jwt-decode.
+ * @returns {object} A structured user object for the AuthContext state.
+ */
+const createUserObjectFromToken = (decodedToken) => {
+    if (!decodedToken) return null;
+    return {
+        id: decodedToken.user_id,
+        email: decodedToken.email,
+        firstName: decodedToken.first_name,
+        lastName: decodedToken.last_name,
+        activeBusinessId: decodedToken.active_business_id,
+        activeBusinessName: decodedToken.active_business_name,
+        role: decodedToken.role,
+        // MODIFICATION: Explicitly check for and default the staff/superuser flags
+        is_staff: decodedToken.is_staff || false,
+        is_superuser: decodedToken.is_superuser || false,
+    };
+};
+
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken'));
     const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken'));
     const [isLoading, setIsLoading] = useState(true);
 
-    // Centralized function to perform client-side and optional API logout
     const performLogoutOperations = useCallback(async (attemptApiLogout = true) => {
-        const currentRefreshToken = localStorage.getItem('refreshToken'); // Get fresh token for logout
-
+        const currentRefreshToken = localStorage.getItem('refreshToken');
         if (attemptApiLogout && currentRefreshToken) {
             try {
-                // No need to pass the token in the body if your interceptor handles auth.
-                // The LogoutView expects the refresh token in the request body.
                 await apiService.post('auth/logout/', { refresh: currentRefreshToken });
                 console.log("Successfully logged out on server.");
             } catch (error) {
-                console.error("API Logout failed (token might be already invalid/blacklisted or network issue):", error);
-                // Continue with client-side cleanup regardless of API logout success
+                console.error("API Logout failed:", error);
             }
         }
-
         setUser(null);
-        setAccessToken(null); // Update state
-        setRefreshToken(null); // Update state
+        setAccessToken(null);
+        setRefreshToken(null);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-
-        // Clear the default authorization header from the apiInstance
-        if (apiInstance && apiInstance.defaults && apiInstance.defaults.headers && apiInstance.defaults.headers.common) {
+        if (apiInstance?.defaults?.headers?.common) {
             delete apiInstance.defaults.headers.common['Authorization'];
         }
         console.log("Client-side logout completed.");
-    }, []); // No dependencies that change often
+    }, []);
 
     useEffect(() => {
         const initializeAuth = async () => {
@@ -51,30 +65,16 @@ export const AuthProvider = ({ children }) => {
                     const isExpired = decodedToken.exp * 1000 < Date.now();
 
                     if (!isExpired) {
-                        // Extract staff flags and add them to the user object
-                        setUser({
-                            id: decodedToken.user_id,
-                            email: decodedToken.email,
-                            firstName: decodedToken.first_name,
-                            lastName: decodedToken.last_name,
-                            activeBusinessId: decodedToken.active_business_id,
-                            activeBusinessName: decodedToken.active_business_name,
-                            role: decodedToken.role,
-                            is_staff: decodedToken.is_staff || false, // Add staff flag
-                            is_superuser: decodedToken.is_superuser || false, // Add superuser flag
-                        });
+                        setUser(createUserObjectFromToken(decodedToken));
                         if (apiInstance?.defaults?.headers?.common) {
                             apiInstance.defaults.headers.common['Authorization'] = `Bearer ${storedAccessToken}`;
                         }
-                        // Ensure state is synced with localStorage on init
                         setAccessToken(storedAccessToken);
                         setRefreshToken(storedRefreshToken);
                     } else {
-                        // Access token is expired
                         if (storedRefreshToken) {
                             console.log("Access token expired, attempting refresh on init...");
                             try {
-                                // Use a clean axios instance for refresh to avoid interceptor loops if not careful
                                 const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/'}auth/refresh/`, {
                                     refresh: storedRefreshToken,
                                 });
@@ -85,20 +85,9 @@ export const AuthProvider = ({ children }) => {
                                 if (response.data.refresh) {
                                     localStorage.setItem('refreshToken', newRefreshTokenIfRotated);
                                 }
-
+                                
                                 const newDecodedToken = jwtDecode(newAccessToken);
-                                // MODIFICATION: Extract staff flags from refreshed token
-                                setUser({
-                                    id: newDecodedToken.user_id,
-                                    email: newDecodedToken.email,
-                                    firstName: newDecodedToken.first_name,
-                                    lastName: newDecodedToken.last_name,
-                                    activeBusinessId: newDecodedToken.active_business_id,
-                                    activeBusinessName: newDecodedToken.active_business_name,
-                                    role: newDecodedToken.role,
-                                    is_staff: newDecodedToken.is_staff || false, // Add staff flag
-                                    is_superuser: newDecodedToken.is_superuser || false, // Add superuser flag
-                                });
+                                setUser(createUserObjectFromToken(newDecodedToken));
                                 if (apiInstance?.defaults?.headers?.common) {
                                     apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
                                 }
@@ -107,10 +96,10 @@ export const AuthProvider = ({ children }) => {
 
                             } catch (refreshError) {
                                 console.error("Token refresh failed on init:", refreshError);
-                                await performLogoutOperations(false); // Logout client-side only
+                                await performLogoutOperations(false);
                             }
                         } else {
-                            await performLogoutOperations(false); // No refresh token, client-side logout
+                            await performLogoutOperations(false);
                         }
                     }
                 } catch (e) {
@@ -122,43 +111,30 @@ export const AuthProvider = ({ children }) => {
         };
 
         initializeAuth();
-    }, [performLogoutOperations]); // performLogoutOperations is now stable due to useCallback
+    }, [performLogoutOperations]);
 
     const login = (newAccessToken, newRefreshToken) => {
         localStorage.setItem('accessToken', newAccessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
 
         const decodedToken = jwtDecode(newAccessToken);
-
+        
         if (apiInstance?.defaults?.headers?.common) {
             apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         }
 
         setAccessToken(newAccessToken);
         setRefreshToken(newRefreshToken);
-        // MODIFICATION: Extract staff flags on login
-        setUser({
-            id: decodedToken.user_id,
-            email: decodedToken.email,
-            firstName: decodedToken.first_name,
-            lastName: decodedToken.last_name,
-            activeBusinessId: decodedToken.active_business_id,
-            activeBusinessName: decodedToken.active_business_name,
-            role: decodedToken.role,
-            is_staff: decodedToken.is_staff || false, // Add staff flag
-            is_superuser: decodedToken.is_superuser || false, // Add superuser flag
-        });
+        setUser(createUserObjectFromToken(decodedToken));
     };
 
     const logout = async () => {
-        await performLogoutOperations(true); // Attempt API logout
-        // Navigation should be handled by the component calling logout
+        await performLogoutOperations(true);
     };
 
     const value = {
         user,
         accessToken,
-        // refreshToken, // Usually not needed by components directly
         isAuthenticated: !!user,
         isLoading,
         login,

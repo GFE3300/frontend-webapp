@@ -4,7 +4,6 @@ import apiService from '../../../../services/api';
 import Spinner from '../../../../components/common/Spinner';
 import Icon from '../../../../components/common/Icon';
 import Button from '../../../../components/common/Button';
-// MODIFICATION: Updated import path for subcomponents
 import AffiliatesTable from '../../subcomponents/AffiliatesTable';
 import AffiliateModal from '../../subcomponents/AffiliateModal';
 
@@ -13,10 +12,9 @@ const AffiliatesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingAffiliate, setEditingAffiliate] = useState(null);
 
-    // MODIFICATION: Updated queryKey and queryFn for the admin staff portal
     const { data: affiliatesData, isLoading, isError, error } = useQuery({
-        queryKey: ['staff_affiliates'], // More specific key for this context
-        queryFn: () => apiService.get('staff/affiliates/'), // Corrected to use the new staff endpoint
+        queryKey: ['staff_affiliates'], // This key correctly scopes the data.
+        queryFn: () => apiService.get('/staff/affiliates/'),
     });
 
     const handleCreateClick = () => {
