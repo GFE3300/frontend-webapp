@@ -9,27 +9,26 @@ import ConfirmationModal from '../../../../components/common/ConfirmationModal';
 
 // Helper to format currency
 const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
+    if (typeof amount !== 'number' && typeof amount !== 'string') {
+        amount = 0;
+    }
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(parseFloat(amount));
 };
 
 const PayoutsPage = () => {
     const { addToast } = useToast();
     const queryClient = useQueryClient();
 
-    // State management for selection
     const [selectedCommissionIds, setSelectedCommissionIds] = useState(new Set());
-    const [selectedAffiliate, setSelectedAffiliate] = useState(null); // { id: '...', email: '...' }
+    const [selectedAffiliate, setSelectedAffiliate] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Data fetching for all commission records
     const { data: commissions, isLoading, isError, error } = useQuery({
         queryKey: ['staffCommissions'],
         queryFn: () => apiService.get('/staff/commissions/'),
-        // Assuming the response is { data: [...] }
         select: (response) => response.data,
     });
 
-    // Derived state for the total amount of selected commissions
     const totalSelectedAmount = useMemo(() => {
         if (!commissions || selectedCommissionIds.size === 0) return 0;
         return Array.from(selectedCommissionIds).reduce((total, id) => {
@@ -38,7 +37,6 @@ const PayoutsPage = () => {
         }, 0);
     }, [selectedCommissionIds, commissions]);
 
-    // --- Handlers ---
     const handleSelectCommission = (commission) => {
         const isSelected = selectedCommissionIds.has(commission.id);
         const newSelectedIds = new Set(selectedCommissionIds);
@@ -46,35 +44,22 @@ const PayoutsPage = () => {
         if (isSelected) {
             newSelectedIds.delete(commission.id);
         } else {
-            // Logic to ensure only one affiliate's commissions are selected at a time
             if (selectedAffiliate && selectedAffiliate.id !== commission.affiliate) {
                 addToast("You can only select commissions for one affiliate at a time.", "error");
-                return; // Prevent selection
+                return;
             }
             newSelectedIds.add(commission.id);
         }
 
         setSelectedCommissionIds(newSelectedIds);
 
-        // Update the selected affiliate based on the new selection set
         if (newSelectedIds.size === 0) {
             setSelectedAffiliate(null);
-        } else if (!isSelected) { // Only set on first add
-            if (!selectedAffiliate) {
-                setSelectedAffiliate({ id: commission.affiliate, email: commission.affiliate_email });
-            }
+        } else if (!isSelected && !selectedAffiliate) {
+            setSelectedAffiliate({ id: commission.affiliate, email: commission.affiliate_email });
         }
     };
 
-    const handleCreatePayout = () => {
-        // This will be the handler for the modal confirmation
-        payoutMutation.mutate({
-            affiliate_id: selectedAffiliate.id,
-            commission_record_ids: Array.from(selectedCommissionIds),
-        });
-    };
-
-    // Mutation for creating the payout batch
     const payoutMutation = useMutation({
         mutationFn: (payoutData) => apiService.post('/staff/payouts/', payoutData),
         onSuccess: () => {
@@ -91,11 +76,17 @@ const PayoutsPage = () => {
         },
     });
 
+    const handleCreatePayout = () => {
+        if (!selectedAffiliate) return;
+        payoutMutation.mutate({
+            affiliate_id: selectedAffiliate.id,
+            commission_record_ids: Array.from(selectedCommissionIds),
+        });
+    };
 
-    // --- Render Logic ---
     const renderContent = () => {
         if (isLoading) return <div className="text-center py-10"><Spinner size="lg" /></div>;
-        if (isError) return <div className="text-center py-10 text-red-500">Error: {error.message}</div>;
+        if (isError) return <div className="p-6 text-center bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg"><Icon name="error_outline" className="mx-auto text-red-500 h-12 w-12 mb-3" /><p className="text-red-700 dark:text-red-300 font-semibold">{error.message}</p></div>;
         if (!commissions || commissions.length === 0) {
             return <div className="text-center py-10 text-neutral-500">No commission records found.</div>;
         }
@@ -123,6 +114,7 @@ const PayoutsPage = () => {
                                         disabled={commission.status !== 'ready_for_payout'}
                                         checked={selectedCommissionIds.has(commission.id)}
                                         onChange={() => handleSelectCommission(commission)}
+                                        aria-label={`Select commission ${commission.id}`}
                                     />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-800 dark:text-neutral-200">{commission.affiliate_email}</td>
@@ -165,7 +157,7 @@ const PayoutsPage = () => {
                 {renderContent()}
             </section>
 
-            {isModalOpen && (
+            {isModalOpen && selectedAffiliate && (
                 <ConfirmationModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
@@ -175,7 +167,7 @@ const PayoutsPage = () => {
                     isConfirming={payoutMutation.isPending}
                 >
                     <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                        You are about to create a payout for affiliate <strong className="font-semibold text-neutral-800 dark:text-neutral-100">{selectedAffiliate?.email}</strong>.
+                        You are about to create a payout for affiliate <strong className="font-semibold text-neutral-800 dark:text-neutral-100">{selectedAffiliate.email}</strong>.
                     </p>
                     <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
                         This batch will contain <strong className="font-semibold">{selectedCommissionIds.size}</strong> commission record(s), totaling <strong className="font-semibold">{formatCurrency(totalSelectedAmount)}</strong>.
