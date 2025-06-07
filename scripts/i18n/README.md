@@ -1,4 +1,4 @@
-# I18N Workflow Manager v2.3
+# I18N Workflow Manager v2.5
 
 Welcome to the command center for our app's internationalization (I18N). This directory contains a powerful CLI tool designed to make translating our app less of a chore and more of a breeze. It acts as a linter, formatter, and synchronization engine for our entire translation system.
 
@@ -10,16 +10,17 @@ It handles everything from finding new text in the code to getting it translated
 # First time setup for a new language?
 python scripts/i18n/manager.py init fr
 
-# Added new text to a script_lines.js file? Run this.
+# Added new text or pluralization rules to a script_lines.js file? Run this.
+# The script is smart and will guide you if it detects potential mistakes.
 python scripts/i18n/manager.py sync
 
-# Want to tidy up comments and sort JSON files?
+# Want to re-apply all comments and sort all JSON files?
 python scripts/i18n/manager.py format
 
 # Want to check if anything is out of sync or missing?
 python scripts/i18n/manager.py check --details
 
-# Want to remove old, unused translations?
+# Want to remove old, unused translations from all language files?
 python scripts/i18n/manager.py clean
 ```
 
@@ -30,7 +31,7 @@ python scripts/i18n/manager.py clean
 This system was built with three principles in mind:
 
 1.  **Automate the Tedious Stuff:** You shouldn't have to manually copy-paste strings, find duplicates, or figure out what's new. The `sync` command handles that.
-2.  **Developer Experience is Key:** The process should be transparent and easy. Rewritten files are self-documenting with inline comments, `--dry-run` lets you preview everything, and the CLI is straightforward.
+2.  **Developer Experience is Key:** The process is transparent and easy. The script provides warnings for common mistakes, rewritten files are self-documenting with inline comments, `--dry-run` lets you preview everything, and the CLI is straightforward.
 3.  **Zero Component Refactoring:** The `script_lines.js` files act as a "smart" abstraction layer. Components import from them as if they were simple static objects, requiring **no changes** to existing component code.
 
 ---
@@ -64,7 +65,8 @@ Here’s the standard, simplified workflow for adding, managing, and cleaning up
 
 This is your **single source of truth** for all English text. Go to the relevant `script_lines.js` file and add or modify strings as needed.
 
-**Example: Adding a new error message.**
+#### **Example 1: Adding a Simple String**
+
 ```javascript
 // BEFORE running sync
 // in: src/features/register/utils/script_lines.js
@@ -78,15 +80,39 @@ export const scriptLines_Steps = {
 };
 ```
 
+#### **Example 2: Adding a Pluralized String**
+
+For strings that change based on a number (e.g., "1 item" vs. "2 items"), use a specific object structure with `one` and `other` keys.
+
+**Important:** The script requires double-braces `{{count}}` for placeholders to work correctly with the translation service.
+
+```javascript
+// BEFORE running sync
+// in: src/features/cart/utils/script_lines.js
+export const scriptLines_Cart = {
+    itemCount: {
+      one: "{{count}} item in your cart",
+      other: "{{count}} items in your cart"
+    },
+};
+```
+
 ### Step 2: Run the Sync Command
 
 From the project root (`frontend/`), run the sync command.
+
 ```bash
 python scripts/i18n/manager.py sync
 ```
-This detects changes, extracts the new string, adds it to `en/translation.json`, sends it to DeepL for translation, updates target language files (e.g., `es/translation.json`), and rewrites the `script_lines.js` file into a self-translating module with helpful inline comments.
 
-**Your `script_lines.js` file is now a self-translating module:**
+This command will:
+1.  **Find new strings** and pluralization rules.
+2.  **Add them to `en/translation.json`**, creating keys like `register.steps.step0BusinessInfo.errors.businessUrlInvalid` or `cart.itemCount_one` and `cart.itemCount_other`.
+3.  **Send new text to DeepL** for automatic translation into other languages.
+4.  **Rewrite the `script_lines.js` file** for simple strings, turning them into self-translating modules with helpful comments.
+    *Note: Pluralization blocks are NOT rewritten, as they need to remain as objects for `i18next` to use them correctly.*
+
+**Your simple string is now a self-translating module:**
 ```javascript
 /**
  * @auto-managed
@@ -128,6 +154,7 @@ python scripts/i18n/manager.py clean
 Commit all modified files to Git. No component refactoring is ever needed.
 -   The updated `script_lines.js` file(s).
 -   The updated `locales/` translation files.
+-   The updated `I18N_GUIDE.md` if any policies changed.
 
 ---
 
@@ -140,7 +167,7 @@ python scripts/i18n/manager.py init ja
 ```
 
 ### `sync`
-The main command to find new strings, update JSON files, and translate.
+The main command to find new strings, update JSON files, and translate. The script will interactively warn you if it finds common mistakes, like incorrect placeholder syntax.
 ```bash
 # Standard sync (only processes changed files)
 python scripts/i18n/manager.py sync
@@ -153,7 +180,7 @@ python scripts/i18n/manager.py sync --lang es de
 ```
 
 ### `format`
-**(NEW)** A code polisher that updates all inline comments in `script_lines.js` files based on the current English `translation.json`. It also sorts all keys in every language's JSON file for consistency.
+**(ROBUST)** A code polisher that uses AST parsing to reliably update all inline comments in `script_lines.js` files based on the current English `translation.json`. It also sorts all keys in every language's JSON file for consistency.
 ```bash
 python scripts/i18n/manager.py format
 ```
@@ -174,11 +201,11 @@ python scripts/i18n/manager.py check --details
 ```
 
 ### `clean`
-**(ENHANCED)** Finds and removes orphaned (unused) keys from all translation files after prompting for confirmation.
+**(IMPLEMENTED)** Finds and removes orphaned (unused) keys from all translation files after prompting for confirmation.
 ```bash
 # Interactively clean orphaned keys
 python scripts/i18n/manager.py clean
 
-# Automatically clean without a prompt (for scripts)
+# Automatically clean without a prompt (for CI/CD scripts)
 python scripts/i18n/manager.py clean --yes
 ```

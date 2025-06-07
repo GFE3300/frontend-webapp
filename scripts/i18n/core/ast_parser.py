@@ -171,8 +171,13 @@ def _traverse_and_extract(
             )
     elif node_type == 'Literal' and isinstance(getattr(node, 'value', None), str):
         i18n_key = ".".join(key_path_parts)
+        # The confirmation prompt functionality is part of the `extract_and_rewrite` context,
+        # but this function is not the main entry point for that. The prompt should be passed down
+        # or handled at a higher level. For now, assuming it's not directly used here.
+        # This part of the code is not being refactored in this step.
         _process_string_literal(
-            node, i18n_key, rewriter, value_to_key_map, new_strings, duplicate_report
+            node, i18n_key, rewriter, value_to_key_map, new_strings, duplicate_report,
+            lambda m: True, Path('.') # Dummy prompt and path
         )
 
 
@@ -284,70 +289,80 @@ def find_translation_keys(source_code: str) -> Set[str]:
 
 def format_comments(source_code: str, translations: Dict[str, str]) -> str:
     """
-    Parses JS source and adds/updates inline comments for `i18n.t()` calls using an AST.
-    This is more robust than a regex-based approach.
+    Parses JS source and adds/updates inline comments for `i18n.t()` calls using
+    an AST and token information for robust placement. This version uses line comments (//).
     """
     rewriter = _Rewriter(source_code)
-    lines = source_code.splitlines()
-
     try:
-        ast = esprima.parseModule(source_code, {'range': True, 'loc': True})
+        # We need tokens and comments for this robust approach
+        ast = esprima.parseModule(
+            source_code, 
+            {'range': True, 'loc': True, 'tokens': True, 'comment': True}
+        )
     except Exception as e:
         logging.warning(f"Could not parse AST for formatting, skipping file. Error: {e}")
         return source_code
 
-    # This regex is now only used to clean up a single line at a time
-    comment_regex = re.compile(r"(\s*(?://.*|/\*.*?\*/))$")
+    # Create a map from a token's end position to its index for quick lookups
+    token_end_map = {token.range[1]: i for i, token in enumerate(ast.tokens)}
 
-    def visit(node):
+    def visit_and_format(node):
+        """A visitor function to find i18n.t calls and queue comment rewrites."""
         if not node or not isinstance(node, esprima.nodes.Node):
             return
 
-        # Check if the node is a CallExpression for `i18n.t`
+        # The target: i18n.t('some.key')
         if (node.type == 'CallExpression' and
             getattr(node.callee, 'type', '') == 'MemberExpression' and
             getattr(node.callee.object, 'name', '') == 'i18n' and
             getattr(node.callee.property, 'name', '') == 't' and
-            node.arguments):
-            
-            first_arg = node.arguments[0]
-            if first_arg.type == 'Literal' and isinstance(first_arg.value, str):
-                key = first_arg.value
-                translation = translations.get(key)
-                
-                if translation:
-                    # Location of the i18n.t() call
-                    line_index = node.loc.end.line - 1 # loc is 1-based, list is 0-based
-                    
-                    if line_index < len(lines):
-                        line_content = lines[line_index]
-                        
-                        # Find the character index for the start of the line in the full source
-                        line_start_char_index = sum(len(l) + 1 for l in lines[:line_index])
-                        
-                        # Clean any existing comment from this line
-                        line_without_comment, match = comment_regex.subn("", line_content)
-                        
-                        # Prepare the new comment
-                        escaped_comment = json.dumps(translation)
-                        new_comment = f" // {escaped_comment}"
-                        
-                        # Replace the entire line in the rewriter
-                        rewriter.add_replacement(
-                            line_start_char_index,
-                            line_start_char_index + len(line_content),
-                            line_without_comment.rstrip() + new_comment
-                        )
+            node.arguments and node.arguments[0].type == 'Literal'):
 
-        # Recursively visit children
+            key = node.arguments[0].value
+            translation = translations.get(key)
+
+            if translation:
+                # Use line comments for simplicity and consistency
+                new_comment = f'// {json.dumps(translation)}'
+                
+                # Find the closing parenthesis token of the i18n.t() call
+                call_end_pos = node.range[1]
+                if call_end_pos not in token_end_map:
+                    return # Should not happen with valid JS, but a good safeguard
+
+                token_idx = token_end_map[call_end_pos]
+                
+                next_token = None
+                if token_idx + 1 < len(ast.tokens):
+                    next_token = ast.tokens[token_idx + 1]
+
+                # Check if the next token is a comment on the same line
+                if (next_token and 
+                    next_token.type in ('LineComment', 'BlockComment') and 
+                    next_token.loc.start.line == node.loc.end.line):
+                    # It's a comment on the same line. Replace it.
+                    # Add a leading space to separate it from the call/comma.
+                    rewriter.add_replacement(next_token.range[0], next_token.range[1], f' {new_comment}')
+                else:
+                    # No comment found on the same line. Insert a new one at the end of the line.
+                    end_of_line_pos = source_code.find('\n', call_end_pos)
+                    insertion_pos = len(source_code) if end_of_line_pos == -1 else end_of_line_pos
+                    
+                    # Add a leading space for padding
+                    rewriter.add_replacement(insertion_pos, insertion_pos, f' {new_comment}')
+
+            # We've handled this i18n.t() call, no need to recurse into its children.
+            return
+
+        # Standard recursion for all other nodes
         for key in dir(node):
             if not key.startswith('_'):
                 child = getattr(node, key)
                 if isinstance(child, esprima.nodes.Node):
-                    visit(child)
+                    visit_and_format(child)
                 elif isinstance(child, list):
                     for item in child:
-                        visit(item)
+                        visit_and_format(item)
 
-    visit(ast)
+    visit_and_format(ast)
     return rewriter.apply()

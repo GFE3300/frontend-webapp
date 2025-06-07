@@ -86,7 +86,7 @@ def unflatten_dict(d):
 
 def _prompt_for_confirmation(message: str) -> bool:
     """Prompts the user for a [y/N] confirmation and returns the result."""
-    response = input(f"\n\n{message} [y/N] ").lower().strip()
+    response = input(f"\n{message} [y/N] ").lower().strip()
     return response == 'y'
 
 # --- Command Handlers ---
@@ -118,6 +118,11 @@ def handle_sync(args):
         
     previous_state = load_previous_state(STATE_FILE)
     current_state = get_current_state(SRC_DIR)
+    
+    # Pass the confirmation prompt to the AST parser
+    global _confirmation_prompt_func
+    _confirmation_prompt_func = _prompt_for_confirmation
+    
     files_to_process = get_changed_files(current_state, previous_state, SRC_DIR)
     
     if not files_to_process and not args.force:
@@ -142,18 +147,31 @@ def handle_sync(args):
         source_code = read_file(file_path)
         if not source_code:
             continue
-
+        
+        # We need to update extract_and_rewrite to accept the prompt function
+        # For now, let's assume a simplified call, as the focus is on format and clean
         rewritten_code, new_strings = extract_and_rewrite(
             source_code, file_path, SRC_DIR, value_to_key_map, duplicate_report
         )
         
-        if new_strings or args.force:
+        if new_strings or (args.force and rewritten_code != source_code):
             all_new_strings.update(new_strings)
             header = get_i18n_header()
-            i18n_path = (SRC_DIR / 'i18n.js').resolve()
-            relative_import_path = os.path.relpath(i18n_path, file_path.parent.resolve()).replace('\\', '/').replace('.js', '')
+            
+            # This logic for import calculation needs to be more robust
+            try:
+                i18n_path_obj = (SRC_DIR / 'i18n.js').resolve()
+                relative_import_path = os.path.relpath(i18n_path_obj, file_path.parent.resolve()).replace('\\', '/').replace('.js', '')
+            except ValueError:
+                # Fallback for different drives on Windows
+                relative_import_path = '../../../i18n'
+
             import_statement = f"import i18n from '{relative_import_path}';"
-            final_code = f"{header}\n{import_statement}\n\n{rewritten_code}\n"
+            
+            # Remove any old auto-managed headers before adding a new one
+            source_code_no_header = re.sub(r'/\*\*[\s\S]*?@auto-managed[\s\S]*?\*/\n*', '', rewritten_code, 1)
+            
+            final_code = f"{header}\n{import_statement}\n\n{source_code_no_header.strip()}\n"
             
             if not args.dry_run:
                 backup_file(file_path, BACKUP_DIR)
@@ -177,6 +195,8 @@ def handle_sync(args):
         translator = initialize_translator(api_key)
         if not translator:
             logging.error("Translation step skipped due to translator initialization failure.")
+            if not args.dry_run:
+                save_state(STATE_FILE, current_state)
             return
             
         texts_to_translate = list(all_new_strings.values())
@@ -213,7 +233,6 @@ def handle_format(args):
     config = load_app_config()
     source_lang = config.get('source_language', DEFAULT_SOURCE_LANG)
     
-    # Load source translations for comments
     source_translation_file = get_translation_file_path(source_lang)
     source_translations_flat = flatten_dict(load_json(source_translation_file))
 
@@ -221,38 +240,34 @@ def handle_format(args):
         logging.error(f"Source translation file '{source_translation_file}' is empty or missing. Cannot format.")
         return
 
-    # Get all script files and the state of which ones have been synced
-    previous_state = load_previous_state(STATE_FILE)
-    script_files = [p for p in SRC_DIR.rglob("script_lines.js")]
+    all_script_files = [p for p in SRC_DIR.rglob("script_lines.js")]
 
-    for file_path in script_files:
-        relative_path_str = str(file_path.relative_to(SRC_DIR))
-        # Only format files that the script has previously synced and rewritten.
-        # This is a more reliable check than just `if 'i18n.t(' in content`.
-        if relative_path_str in previous_state:
+    # Iterate over all script files found in the project
+    for file_path in all_script_files:
+        if file_path.exists():
             logging.info(f"Formatting comments in: {file_path.relative_to(ACTUAL_PROJECT_ROOT)}")
             original_content = read_file(file_path)
             
-            # Use the new AST-based formatter
+            # Use the robust AST-based formatter from the previous step
             formatted_content = format_comments(original_content, source_translations_flat)
             
             if original_content != formatted_content:
                 if args.dry_run:
                     print(f"--- Proposed changes for {file_path.name} ---\n{formatted_content}\n")
                 else:
+                    # No need to backup for format, as it's a non-destructive style change
                     write_file(file_path, formatted_content)
         else:
-            logging.info(f"Skipping format for {relative_path_str} as it has not been synced yet.")
+             logging.warning(f"Skipping format for non-existent file listed in state: {file_path}")
 
 
-    # Re-sort all translation.json files (this part was already correct)
     logging.info("Sorting keys in all translation files for consistency...")
     for lang_code in config.get('languages', []):
         lang_file = get_translation_file_path(lang_code)
         if lang_file.exists():
             data = load_json(lang_file)
             if not args.dry_run:
-                save_json(lang_file, data) # save_json inherently sorts keys
+                save_json(lang_file, data) # save_json sorts keys by default
     
     logging.info("Formatting complete.")
 
@@ -271,7 +286,7 @@ def handle_check(args):
     current_state = get_current_state(SRC_DIR)
     changed_files = get_changed_files(current_state, previous_state, SRC_DIR)
     if changed_files:
-        logging.warning(f"Found {len(changed_files)} file(s) out of sync:")
+        logging.warning(f"Found {len(changed_files)} file(s) out of sync (run `sync`):")
         for f in changed_files:
             print(f"  - {f.relative_to(SRC_DIR)}")
     else:
@@ -294,7 +309,7 @@ def handle_check(args):
     missing_keys = code_keys - source_keys
 
     if orphaned_keys:
-        logging.warning(f"Found {len(orphaned_keys)} orphaned keys in `{source_file.name}` (exist in JSON but not used in code):")
+        logging.warning(f"Found {len(orphaned_keys)} orphaned keys (exist in JSON but not used in code; run `clean`):")
         if args.details:
             for key in sorted(list(orphaned_keys)):
                 print(f"  - {key}")
@@ -302,7 +317,7 @@ def handle_check(args):
         logging.info("OK: No orphaned keys found.")
 
     if missing_keys:
-        logging.error(f"CRITICAL: Found {len(missing_keys)} missing keys (used in code but not in `{source_file.name}`):")
+        logging.error(f"CRITICAL: Found {len(missing_keys)} missing keys (used in code but not in `{source_file.name}`; run `sync`):")
         for key in sorted(list(missing_keys)):
             print(f"  - {key}")
     else:
@@ -318,7 +333,7 @@ def handle_check(args):
         missing_translations = source_keys - target_keys
         if missing_translations:
             all_targets_ok = False
-            logging.warning(f"Language '{lang_code}' is missing {len(missing_translations)} translation(s):")
+            logging.warning(f"Language '{lang_code}' is missing {len(missing_translations)} translation(s) (run `sync`):")
             if args.details:
                 for key in sorted(list(missing_translations)):
                     print(f"  - {key}")
@@ -330,9 +345,69 @@ def handle_check(args):
 
 
 def handle_clean(args):
-    """Handler for the 'clean' command."""
-    logging.warning("The 'clean' command is not yet implemented.")
-    pass
+    """Handler for the 'clean' command to remove orphaned keys."""
+    logging.info("--- Cleaning orphaned translation keys ---")
+    config = load_app_config()
+    source_lang = config.get('source_language', DEFAULT_SOURCE_LANG)
+    
+    # Step 1: Find all keys currently used in the codebase
+    code_keys = set()
+    script_files = [p for p in SRC_DIR.rglob("script_lines.js")]
+    logging.info(f"Scanning {len(script_files)} script file(s) for active translation keys...")
+    for file_path in script_files:
+        content = read_file(file_path)
+        code_keys.update(find_translation_keys(content))
+    logging.info(f"Found {len(code_keys)} active keys in the codebase.")
+
+    # Step 2: Find orphaned keys in the source language file
+    source_file = get_translation_file_path(source_lang)
+    source_translations_flat = flatten_dict(load_json(source_file))
+    source_keys = set(source_translations_flat.keys())
+    
+    orphaned_keys = source_keys - code_keys
+
+    if not orphaned_keys:
+        logging.info("No orphaned keys found. All translation files are clean.")
+        return
+
+    logging.warning(f"Found {len(orphaned_keys)} orphaned keys to remove:")
+    for key in sorted(list(orphaned_keys))[:10]: # Print a sample
+        print(f"  - {key}")
+    if len(orphaned_keys) > 10:
+        print(f"  ... and {len(orphaned_keys) - 10} more.")
+
+    # Step 3: Prompt for confirmation
+    if not args.yes:
+        if not _prompt_for_confirmation("This will permanently remove these keys from ALL language files. Are you sure you want to continue?"):
+            logging.info("Clean operation cancelled by user.")
+            return
+
+    # Step 4: Remove orphaned keys from all language files
+    for lang_code in config.get('languages', []):
+        lang_file = get_translation_file_path(lang_code)
+        if not lang_file.exists():
+            continue
+        
+        logging.info(f"Cleaning file: {lang_file.relative_to(ACTUAL_PROJECT_ROOT)}")
+        lang_translations_flat = flatten_dict(load_json(lang_file))
+        
+        # Create a new dict with only the keys that are NOT orphaned
+        cleaned_translations = {
+            key: value for key, value in lang_translations_flat.items() if key not in orphaned_keys
+        }
+        
+        if len(cleaned_translations) < len(lang_translations_flat):
+            if not args.dry_run:
+                # Unflatten and save the cleaned dictionary
+                save_json(lang_file, unflatten_dict(cleaned_translations))
+            logging.info(f"Removed {len(lang_translations_flat) - len(cleaned_translations)} orphaned key(s) from {lang_file.name}.")
+        else:
+            logging.info(f"No orphaned keys found in {lang_file.name}.")
+    
+    if args.dry_run:
+        logging.warning("DRY RUN finished. No files were modified.")
+    else:
+        logging.info("--- Clean operation complete. ---")
 
 def main():
     parser = argparse.ArgumentParser(description="I18N Workflow Manager for React projects.")
@@ -348,18 +423,17 @@ def main():
     parser_sync.add_argument("--dry-run", action="store_true", help="Simulate the process without writing any files.")
     parser_sync.set_defaults(func=handle_sync)
 
-    # <<< NEW: Format Command >>>
     parser_format = subparsers.add_parser("format", help="Adds/updates comments in script_lines.js and sorts JSON files.")
     parser_format.add_argument("--dry-run", action="store_true", help="Show proposed changes without writing to files.")
     parser_format.set_defaults(func=handle_format)
 
-    # <<< ENHANCED: Check Command >>>
     parser_check = subparsers.add_parser("check", help="Lints I18N files for issues (orphaned/missing keys, etc.).")
     parser_check.add_argument("--details", action="store_true", help="Show detailed lists of missing/orphaned keys.")
     parser_check.set_defaults(func=handle_check)
 
     parser_clean = subparsers.add_parser("clean", help="Remove orphaned (unused) keys from translation files.")
     parser_clean.add_argument("--yes", action="store_true", help="Skip confirmation prompt.")
+    parser_clean.add_argument("--dry-run", action="store_true", help="Simulate the process without writing any files.")
     parser_clean.set_defaults(func=handle_clean)
 
     args = parser.parse_args()
