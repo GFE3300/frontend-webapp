@@ -114,7 +114,7 @@ def process_string_literal(node, key_path_parts, rewriter):
     # Queue the replacement in the source file.
     # The range of a Literal node includes the quotes.
     start, end = node.range
-    replacement_text = f"t('{final_key}')"
+    replacement_text = f"i18n.t('{final_key}')"
     rewriter.add_replacement(start, end, replacement_text)
 
 def traverse_and_extract(node, key_path_parts, rewriter):
@@ -167,9 +167,9 @@ def process_file(file_path: Path, args):
         logging.error(f"Could not read file {file_path}: {e}")
         return
 
-    # Skip files that seem to already be migrated
-    if "import { t }" in source_code:
-        logging.warning(f"Skipping {file_path} as it appears to be already migrated (contains 'import {{ t }}').")
+    # Skip files that seem to already be migrated to the final format
+    if "i18n.t(" in source_code:
+        logging.warning(f"Skipping {file_path} as it appears to be already migrated (contains 'i18n.t(').")
         return
 
     rewriter = Rewriter(source_code)
@@ -210,7 +210,7 @@ def process_file(file_path: Path, args):
     relative_path = os.path.relpath(i18n_file.parent, file_path.parent)
     # Use posix path for JS imports
     import_path = (Path(relative_path) / i18n_file.stem).as_posix()
-    import_statement = f"import {{ t }} from '{import_path}';\n\n"
+    import_statement = f"import i18n from '{import_path}';\n\n"
 
     final_code = import_statement + modified_source
 
@@ -278,7 +278,7 @@ def main():
     parser.add_argument(
         "--i18n-source-file",
         default="src/i18n.js",
-        help="Path to the JS/TS file that exports the 't' function, used for relative import calculation."
+        help="Path to the JS/TS file that exports the i18n instance, used for relative import calculation."
     )
     parser.add_argument(
         "--dry-run",

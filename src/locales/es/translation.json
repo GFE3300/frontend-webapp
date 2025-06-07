@@ -1,0 +1,1101 @@
+{
+  "payments": {
+    "components": {
+      "paymentCancelPage": {
+        "buttons": {
+          "contactSupport": "Contacto",
+          "tryAgain": "Inténtalo de nuevo"
+        },
+        "footerNote": "Si cree que se trata de un error o necesita ayuda, no dude en ponerse en contacto con nosotros.",
+        "message": "Parece que el proceso de pago no se ha completado o que has optado por cancelar. Tu suscripción no se ha activado.",
+        "title": "Pago no efectuado"
+      },
+      "paymentSuccessPage": {
+        "accessMessage": "Ya puedes acceder a todas las funciones premium.",
+        "buttons": {
+          "goToDashboard": "Ir al panel de control",
+          "viewBilling": "Ver detalles de facturación"
+        },
+        "errors": {
+          "missingSessionId": "Faltan los datos de confirmación del pago. Si acabas de suscribirte, comprueba tu panel de control o ponte en contacto con el servicio de asistencia.",
+          "subscriptionUpdateFailed": "Tu pago se ha realizado correctamente, pero no hemos podido actualizar tus datos de suscripción inmediatamente. Comprueba tu panel de control o ponte en contacto con el servicio de asistencia."
+        },
+        "links": {
+          "contactSupport": "póngase en contacto con nuestro equipo de asistencia"
+        },
+        "loading": {
+          "checkingDetails": "Comprobación de los datos de pago...",
+          "finalizingSubscription": "Finalizar su suscripción..."
+        },
+        "thankYouGeneric": "Gracias. Su pago se ha realizado correctamente y su suscripción ya está activa.",
+        "thankYouMessage": "¡Gracias, {userName}! Su suscripción al plan **{planName}** se ha activado correctamente.",
+        "title": "Pago efectuado.",
+        "titleSubscriptionActivated": "Suscripción activada",
+        "transactionIdLabel": "ID de transacción:"
+      },
+      "planSelection": {
+        "badges": {
+          "currentPlan": "Plan actual",
+          "mostPopular": "Más populares",
+          "recommended": "Recomendado",
+          "specialOffer": "OFERTA ESPECIAL"
+        },
+        "buttons": {
+          "chooseThisPlan": "Elija este plan",
+          "downgradePlan": "Plan de descenso",
+          "manageSubscription": "Gestionar suscripción",
+          "planSelected": "¡Plan Seleccionado!",
+          "processing": "Procesando...",
+          "switchPlan": "Plan de cambio",
+          "upgradePlan": "Plan de actualización"
+        },
+        "console": {
+          "invalidOnPlanSelectProp": "PlanSelection: Prop `onPlanSelect` inválida. Se esperaba una función."
+        },
+        "errors": {
+          "functionalityUnavailable": "Error: La función de selección de plan no está disponible."
+        },
+        "footerNote": "Todos los planes se facturan mensual o anualmente. Puedes ampliar, reducir o cancelar tu plan en cualquier momento desde la configuración de tu cuenta.",
+        "messages": {
+          "alreadySubscribedError": "Ya está suscrito a este plan. Para realizar cambios, utilice \"Gestionar suscripción\".",
+          "loadingSubscription": "Cargando tus datos de suscripción...",
+          "subscriptionLoadError": "No se ha podido cargar el estado actual de su suscripción. Vuelva a intentarlo o póngase en contacto con el servicio de asistencia."
+        },
+        "plans": {
+          "0": {
+            "description": {
+              "0": "Perfecto para tiendas en solitario y microtiendas.",
+              "1": "Póngase en marcha rápidamente con las herramientas esenciales de pedidos e inventario."
+            },
+            "features": {
+              "0": {
+                "text": "Pedidos ilimitados"
+              },
+              "1": {
+                "text": "Entrada de pedidos tipo menú"
+              },
+              "2": {
+                "text": "Alertas en directo de falta de existencias"
+              },
+              "3": {
+                "text": "Gráficos de consumo básico"
+              },
+              "4": {
+                "text": "Asistencia por correo electrónico (respuesta en 48 horas)"
+              },
+              "5": {
+                "text": "Previsión avanzada"
+              },
+              "6": {
+                "text": "Peticiones de funciones personalizadas"
+              },
+              "7": {
+                "text": "Gestor de cuentas dedicado"
+              }
+            },
+            "frequency": "/mes",
+            "iconName": "perno",
+            "id": "artículos_de_arranque",
+            "name": "CrumbData - Conceptos básicos",
+            "price": "29.99",
+            "whyThisPlan": "Ligero, potente y rentable: Starter Essentials ofrece a los panaderos independientes las herramientas básicas para gestionar pedidos, realizar un seguimiento de los ingredientes clave y ver las tendencias de uso básicas. Ideal si acaba de empezar o tiene un negocio muy pequeño."
+          },
+          "1": {
+            "description": {
+              "0": "Para empresas en crecimiento listas para escalar.",
+              "1": "Gestión de pedidos todo en uno + información detallada para optimizar y crecer."
+            },
+            "discount": {
+              "details": "Después, 39,99 euros al mes. Se renueva automáticamente, puedes cancelarlo cuando quieras.",
+              "displayPrice": "16.00",
+              "offerTitle": "Primer mes: ¡60% de descuento!",
+              "originalPriceText": "39,99 euros al mes",
+              "priceSuffix": "/primer mes"
+            },
+            "features": {
+              "0": {
+                "text": "Todo en Starter Essentials"
+              },
+              "1": {
+                "text": "Previsiones avanzadas de costes y consumo"
+              },
+              "2": {
+                "text": "Informes mensuales de resultados"
+              },
+              "3": {
+                "text": "Soporte multiemplazamiento (2 tiendas)"
+              },
+              "4": {
+                "text": "Asistencia prioritaria por correo electrónico y chat"
+              },
+              "5": {
+                "text": "Acceso a funciones beta"
+              },
+              "7": {
+                "text": "Integraciones personalizadas"
+              }
+            },
+            "iconName": "modo_calor",
+            "id": "acelerador_de_crecimiento",
+            "name": "CrumbData - Acelerador de crecimiento",
+            "price": "39.99",
+            "whyThisPlan": "Ya ha superado lo básico: ahora necesita datos reales para planificar compras, optimizar recetas, pedidos y detectar tendencias de ventas. Growth Accelerator le ofrece previsiones, informes detallados y una asistencia más rápida para que pueda obtener mayores beneficios y expandirse con eficacia."
+          },
+          "2": {
+            "description": {
+              "0": "Para panaderías establecidas que exigen excelencia.",
+              "1": "Todas las funciones, servicio personalizado y escalabilidad ilimitada."
+            },
+            "features": {
+              "0": {
+                "text": "Todo en Acelerador de Crecimiento, más:"
+              },
+              "1": {
+                "text": "Ubicaciones y usuarios de equipo ilimitados"
+              },
+              "2": {
+                "text": "Incorporación y formación personalizadas"
+              },
+              "3": {
+                "text": "Hoja de ruta de funciones personalizadas"
+              },
+              "4": {
+                "text": "Asistencia telefónica prioritaria y de emergencia 24 horas al día, 7 días a la semana"
+              },
+              "5": {
+                "text": "API a medida e integraciones de sistemas"
+              },
+              "6": {
+                "text": "Tiempo de actividad y rendimiento respaldados por acuerdos de nivel de servicio"
+              }
+            },
+            "iconName": "verificado",
+            "id": "premium_pro_suite",
+            "name": "CrumbData - Suite Premium Pro",
+            "price": "89.99",
+            "whyThisPlan": "Si tiene varios sitios, gestiona un gran volumen de pedidos o necesita flujos de trabajo personalizados, Premium Pro Suite es su paquete completo, con acuerdos de nivel de servicio en tiempo real, formación práctica y un equipo especializado que desarrolla la aplicación en función de sus necesidades concretas."
+          }
+        },
+        "subtitle": "¡Estás a un paso! Elige el plan que se ajuste a tu ambición y empecemos a hornear juntos el éxito.",
+        "themeColorDefault": "rosa",
+        "title": "Libera tu potencial"
+      }
+    }
+  },
+  "register": {
+    "addressForm": {
+      "addressForm": {
+        "error": {
+          "countryAutocompleteError": "Error de autocompletar por país",
+          "placesImportFailed": "Error en la importación de lugares"
+        },
+        "label": {
+          "city": "Ciudad",
+          "country": "País",
+          "postalCode": "Código postal",
+          "streetAddress": "Dirección"
+        },
+        "staticCountries": {
+          "AU": "Australia",
+          "BR": "Brasil",
+          "CA": "Canadá",
+          "CN": "China",
+          "DE": "Alemania",
+          "ES": "España",
+          "FR": "Francia",
+          "GB": "Reino Unido",
+          "IN": "India",
+          "IT": "Italia",
+          "JP": "Japón",
+          "MX": "México",
+          "PT": "Portugal",
+          "RU": "Rusia",
+          "US": "Estados Unidos",
+          "ZA": "Sudáfrica"
+        }
+      }
+    },
+    "components": {
+      "Dropdown": {
+        "line1": "No hay opciones disponibles."
+      },
+      "formStep": {
+        "buttons": {
+          "back": "Volver",
+          "completeRegistration": "Registro completo",
+          "continue": "Continúe en",
+          "submitting": "Presentar..."
+        },
+        "console": {
+          "invalidFormStateProp": "FormStep: Invalid or missing `formState` prop or `formState.validateStep` function.",
+          "invalidOnSubmitProp": "FormStep: `onSubmit` prop proporcionado para el paso final, pero no es una función. Se utilizará `onProceed`.",
+          "invalidStepIndexProp": "PasoForm: Invalid `stepIndex` prop. Se esperaba un número no negativo.",
+          "invalidTitleProp": "PasoForm: Invalid or missing `title` prop. Se esperaba una cadena.",
+          "missingChildrenProp": "PasoForm: Missing `children` prop.",
+          "missingNavigationHandlers": "PasoForm: Missing `onProceed` or `onBack` prop. Funciones esperadas.",
+          "validationOrProceedError": "FormStep: Error durante la validación o procedimiento del paso:"
+        },
+        "errors": {
+          "formContextUnavailable": "Error: El contexto del formulario no está disponible.",
+          "navigationHandlersMissing": "Error: Faltan manejadores de navegación.",
+          "stepConfigurationInvalid": "Error: La configuración del paso no es válida.",
+          "stepContentMissing": "Error: Falta el contenido del paso.",
+          "unexpectedError": "Se ha producido un error inesperado. Por favor, inténtalo de nuevo."
+        },
+        "progress": {
+          "of": "de",
+          "step": "Paso"
+        }
+      },
+      "imageUploader": {
+        "console": {
+          "initialSrcWarning": "ImageUploader: initialSrc prop no parece ser una URL de imagen o URL de datos válida.",
+          "invalidOnImageUploadProp": "ImageUploader: Invalid `onImageUpload` prop. Se esperaba una función."
+        },
+        "cropper": {
+          "buttons": {
+            "applyCrop": "Aplicar cultivo",
+            "changeImage": "Cambiar imagen",
+            "resetCrop": "Restablecer cultivo"
+          },
+          "title": "Ajuste su imagen"
+        },
+        "dropzone": {
+          "clickToUploadText": "Haga clic para cargar",
+          "ctaActive": "Suelte la imagen aquí",
+          "ctaDefault": "<span class='font-bold'>{clickToUpload}</span> o arrastrar y soltar",
+          "fileTypes": "PNG, JPG, GIF, WEBP hasta {maxFileSizeMB}MB"
+        },
+        "errors": {
+          "blobCreationError": "Error al crear imagen blob. Inténtelo de nuevo.",
+          "canvasContextError": "Error al procesar la imagen. El contexto del lienzo no está disponible.",
+          "cropSaveError": "No se ha podido guardar el recorte. Por favor, seleccione un área válida.",
+          "errorReadingFile": "Error al leer el archivo.",
+          "fileNotAccepted": "No se ha podido aceptar el archivo. Por favor, inténtelo de nuevo.",
+          "fileTooLarge": "El archivo es demasiado grande. Tamaño máximo: {maxFileSizeMB}MB.",
+          "handlerMissing": "Error: Falta el gestor de subida de imágenes.",
+          "invalidFileType": "Tipo de archivo no válido. Por favor, cargue una imagen (JPEG, PNG, GIF, WebP)."
+        },
+        "preview": {
+          "title": "Imagen de perfil actual:",
+          "uploadNew": "¿Subir una nueva imagen?"
+        }
+      },
+      "planSelection": {
+        "plans": {
+          "0": {
+            "id": "básico",
+            "name": "El primer lote",
+            "whyThisPlan": "Ligero, potente y rentable: First Batch ofrece a los panaderos independientes las herramientas básicas para gestionar pedidos, realizar un seguimiento de los ingredientes clave y ver las tendencias básicas de uso. Ideal si acaba de empezar o tiene un negocio muy pequeño."
+          },
+          "1": {
+            "discount": {
+              "details": "Después 49,99 $/mes. Se renueva automáticamente, puedes cancelarlo cuando quieras.",
+              "displayPrice": "0.00",
+              "offerTitle": "Primer mes GRATIS",
+              "originalPriceText": "49,99 $/mes"
+            },
+            "features": {
+              "0": {
+                "text": "Todo en el primer lote"
+              }
+            },
+            "id": "estándar",
+            "name": "El horno artesano",
+            "price": "49.99",
+            "whyThisPlan": "Ya ha superado lo básico: ahora necesita datos reales para planificar compras, optimizar recetas, pedidos y detectar tendencias de ventas. Artisan Oven le ofrece previsiones, informes detallados y una asistencia más rápida para que pueda obtener mayores beneficios y expandirse de forma eficiente."
+          },
+          "2": {
+            "features": {
+              "0": {
+                "text": "Todo en el Horno Artesano, además:"
+              }
+            },
+            "id": "premium",
+            "name": "Suite Master Baker",
+            "price": "99.99",
+            "whyThisPlan": "Si tiene varios centros, gestiona un gran volumen de pedidos o necesita flujos de trabajo personalizados, Master Baker es su suite integral, con SLA en tiempo real, formación práctica y un equipo especializado que desarrolla la aplicación en función de sus necesidades específicas."
+          }
+        }
+      },
+      "trustFooter": {
+        "copyright": "© {año} {nombreDeLaEmpresa}. Todos los derechos reservados.",
+        "links": {
+          "termsOfUse": "Condiciones de uso"
+        },
+        "securityMessage": "Su información está segura. Damos prioridad a su privacidad y a la protección de sus datos."
+      }
+    },
+    "header": {
+      "autocompleteInput": {
+        "error": {
+          "autocompleteError": "Autocomplete error",
+          "noMatchingAddresses": "No se han encontrado direcciones coincidentes",
+          "placesLibraryLoadFailed": "Error en la carga de la biblioteca"
+        },
+        "label": {
+          "autoComplete": "Auto Complete"
+        },
+        "placeholder": {
+          "quickerSearch": "Aquí es más rápido..."
+        },
+        "status": {
+          "findingLocations": "Encontrar nuevos lugares...",
+          "noResults": "No se han encontrado pasteles frescos..."
+        }
+      },
+      "geolocationButton": {
+        "aria": {
+          "locating": "Localizar..."
+        },
+        "error": {
+          "notSupported": "Su navegador no admite geolocalización",
+          "permissionDenied": "Habilitar el acceso de localización en su navegador",
+          "unableToDetermine": "No se puede determinar su ubicación"
+        },
+        "label": {
+          "useMyLocation": "Utilizar mi ubicación"
+        }
+      }
+    },
+    "steps": {
+      "locationStage": {
+        "label": {
+          "mapLocation": "Ubicación"
+        }
+      },
+      "step0BusinessInfo": {
+        "console": {
+          "invalidErrorsProp": "Step0BusinessInfo: Prop `errors` inválido. Se esperaba un objeto o undefined.",
+          "invalidFormDataProp": "Step0BusinessInfo: Prop `formData` inválida. Se esperaba un objeto.",
+          "invalidUpdateFieldProp": "Step0BusinessInfo: Prop `updateField` inválida. Se esperaba una función."
+        },
+        "defaultBusinessTags": {
+          "0": "Restaurante",
+          "1": "Café",
+          "10": "Ecológico",
+          "11": "Aprovisionamiento local",
+          "12": "Cafetería",
+          "13": "Bar de zumos",
+          "14": "Camión de comida",
+          "15": "Pizzería",
+          "16": "Empresa familiar",
+          "17": "Sólo en línea",
+          "18": "Sólo con cita previa",
+          "19": "Sostenible",
+          "2": "Venta al por menor",
+          "20": "Lujo",
+          "21": "Presupuesto asequible",
+          "22": "Admite mascotas",
+          "3": "Servicio",
+          "4": "Panadería",
+          "5": "Bar",
+          "6": "Grocery",
+          "7": "Catering",
+          "8": "Vegano",
+          "9": "Sin gluten"
+        },
+        "errors": {
+          "formDataMissing": "Error: Faltan datos del formulario para este paso.",
+          "updateFieldMissing": "Error: Falta el mecanismo de actualización del formulario."
+        },
+        "helptext": {
+          "businessTags": "Seleccione hasta 7 etiquetas que describan mejor su negocio."
+        },
+        "label": {
+          "businessEmail": "Correo electrónico profesional",
+          "businessName": "Nombre comercial",
+          "businessPhone": "Teléfono de empresa",
+          "businessTags": "Etiquetas del negocio (Describa su negocio)",
+          "businessUsername": "Nombre de usuario",
+          "businessWebsiteOptional": "Sitio web de la empresa (opcional)",
+          "referralCodeOptional": "Código de referencia (opcional)"
+        },
+        "placeholder": {
+          "businessEmail": "Por ejemplo: contact@artisancorner.com",
+          "businessName": "p. ej. El Rincón del Artesano",
+          "businessPhone": "p. ej. +1 (555) 123-4567",
+          "businessTags": "Escriba y pulse Intro (por ejemplo, Cafe, Handmade)",
+          "businessUsername": "por ejemplo @artisancorner",
+          "businessWebsite": "Por ejemplo: https://artisancorner.com",
+          "referralCode": "Introduzca el código si lo tiene"
+        }
+      },
+      "step2BusinessLogo": {
+        "console": {
+          "invalidErrorsProp": "Step2BusinessLogo: Invalid `errors` prop. Se esperaba un objeto o undefined. La visualización de errores puede verse afectada.",
+          "invalidFormDataProp": "Step2BusinessLogo: Prop `formData` inválida. Se esperaba un objeto.",
+          "invalidUpdateFieldProp": "Step2BusinessLogo: Prop `updateField` inválida. Se esperaba una función."
+        },
+        "description": "Su logotipo es clave para la identidad de su marca. Cargue una imagen clara. Recomendamos un logotipo cuadrado o uno que se recorte bien en un cuadrado.",
+        "errors": {
+          "formDataUnavailable": "Error: Los datos del formulario no están disponibles para el paso del logotipo empresarial.",
+          "updateMechanismImproperlyConfigured": "Error: El mecanismo de actualización del formulario está mal configurado."
+        },
+        "title": "Cargue el logotipo de su empresa"
+      },
+      "step3Profile": {
+        "aria": {
+          "hidePassword": "Ocultar contraseña",
+          "showPassword": "Mostrar contraseña"
+        },
+        "console": {
+          "invalidFormDataProp": "Paso3Perfil: Prop `formData` inválida. Se esperaba un objeto.",
+          "invalidPasswordStrengthProp": "Paso3Perfil: Invalid or missing `passwordStrength` prop. Se esperaba una cadena.",
+          "invalidPasswordVisibilityProps": "Paso3Perfil: Invalid or missing password visibility props (`showPassword`, `setShowPassword`).",
+          "invalidUpdateFieldProp": "Paso3Perfil: Prop `updateField` inválida. Se esperaba una función."
+        },
+        "errors": {
+          "passwordStrengthMissing": "Error: Falta información sobre la seguridad de la contraseña.",
+          "passwordVisibilityControlMissing": "Error: Falta el control de visibilidad de contraseña."
+        },
+        "label": {
+          "confirmPassword": "Confirmar contraseña",
+          "contactEmail": "Correo electrónico de contacto",
+          "contactPhone": "Teléfono de contacto",
+          "createPassword": "Crear contraseña",
+          "fullName": "Nombre y apellidos",
+          "lastName": "Apellido completo",
+          "roleAtBusiness": "Su función/cargo en la empresa"
+        },
+        "placeholder": {
+          "confirmPassword": "Vuelva a introducir su contraseña",
+          "contactEmail": "Por ejemplo: alex.johnson@example.com",
+          "contactPhone": "(555) 123-4567",
+          "firstName": "Por ejemplo, Alex",
+          "lastName": "Por ejemplo, Johnson",
+          "passwordMinChars": "Mínimo 8 caracteres",
+          "role": "p. ej. Propietario, Director, Jefe de cocina"
+        }
+      },
+      "step4Preferences": {
+        "console": {
+          "invalidErrorsProp": "Step4Preferences: Invalid `errors` prop. Se esperaba un objeto o undefined.",
+          "invalidFormDataProp": "Step4Preferences: Prop `formData` inválida. Se esperaba un objeto.",
+          "invalidUpdateFieldProp": "Step4Preferences: Prop `updateField` inválida. Se esperaba una función."
+        },
+        "errors": {
+          "formDataMissing": "Error: Faltan datos del formulario para las preferencias."
+        },
+        "helptext": {
+          "dailySummaryTime": "Fije una hora para recibir los resúmenes diarios, si procede.",
+          "referralSources": "Díganos cómo nos encontró."
+        },
+        "label": {
+          "acceptTerms": "Reconozco y acepto los {termsLink} y la {privacyLink}.",
+          "preferredDailySummaryTimeOptional": "Hora de resumen diario preferida (opcional)",
+          "preferredLanguage": "Lengua preferida",
+          "preferredNotificationMethod": "Método de notificación preferido",
+          "primaryCurrency": "Moneda principal",
+          "referralSourcesOptional": "¿Cómo nos conoció? (Opcional)",
+          "timezone": "Zona horaria"
+        },
+        "linkText": {
+          "privacyPolicy": "Política de privacidad",
+          "termsOfService": "Condiciones de uso"
+        },
+        "options": {
+          "currencies": {
+            "0": {
+              "label": "USD - Dólar estadounidense",
+              "value": "USD"
+            },
+            "1": {
+              "label": "EUR - Euro",
+              "value": "EUR"
+            },
+            "2": {
+              "label": "GBP - Libra esterlina británica",
+              "value": "GBP"
+            },
+            "3": {
+              "label": "JPY - Yen japonés",
+              "value": "JPY"
+            },
+            "4": {
+              "label": "CAD - Dólar canadiense",
+              "value": "CAD"
+            },
+            "5": {
+              "label": "AUD - Dólar australiano",
+              "value": "AUD"
+            },
+            "6": {
+              "label": "CHF - Franco suizo",
+              "value": "CHF"
+            }
+          },
+          "languages": {
+            "0": {
+              "label": "Inglés",
+              "value": "en"
+            },
+            "1": {
+              "label": "Español (Spanish)",
+              "value": "es"
+            },
+            "10": {
+              "label": "Árabe",
+              "value": "ar"
+            },
+            "11": {
+              "label": "हिन्दी (hindi)",
+              "value": "hola"
+            },
+            "2": {
+              "label": "Français (francés)",
+              "value": "fr"
+            },
+            "3": {
+              "label": "Alemán (alemán)",
+              "value": "de"
+            },
+            "4": {
+              "label": "Italiano (italiano)",
+              "value": "it"
+            },
+            "5": {
+              "label": "Portugués",
+              "value": "pt"
+            },
+            "6": {
+              "label": "简体中文 (chino simplificado)",
+              "value": "zh-CN"
+            },
+            "7": {
+              "label": "Japonés (japonés)",
+              "value": "ja"
+            },
+            "8": {
+              "label": "Português (Português)",
+              "value": "ko"
+            },
+            "9": {
+              "label": "Ruso",
+              "value": "ru"
+            }
+          },
+          "notificationMethods": {
+            "0": {
+              "label": "Correo electrónico",
+              "value": "correo electrónico"
+            },
+            "1": {
+              "label": "SMS (mensaje de texto)",
+              "value": "sms"
+            },
+            "2": {
+              "label": "Notificación Push",
+              "value": "pulse"
+            },
+            "3": {
+              "label": "Ninguno",
+              "value": "ninguno"
+            }
+          },
+          "timezones": {
+            "0": {
+              "label": "América/Nueva York (EST/EDT)",
+              "value": "América/Nueva_York"
+            },
+            "1": {
+              "label": "América/Chicago (CST/CDT)",
+              "value": "América/Chicago"
+            },
+            "10": {
+              "label": "Asia/Dubai (GST)",
+              "value": "Asia/Dubai"
+            },
+            "11": {
+              "label": "Asia/Kolkata (IST)",
+              "value": "Asia/Kolkata"
+            },
+            "12": {
+              "label": "Asia/Shanghai (CST)",
+              "value": "Asia/Shanghai"
+            },
+            "13": {
+              "label": "Australia/Sydney (AEST/AEDT)",
+              "value": "Australia/Sydney"
+            },
+            "14": {
+              "label": "Australia/Perth (AWST)",
+              "value": "Australia/Perth"
+            },
+            "15": {
+              "label": "África/El Cairo (EET)",
+              "value": "África/El Cairo"
+            },
+            "16": {
+              "label": "África/Johannesburgo (SAST)",
+              "value": "África/Johannesburgo"
+            },
+            "17": {
+              "label": "Tiempo universal coordinado (UTC)",
+              "value": "UTC"
+            },
+            "2": {
+              "label": "América/Denver (MST/MDT)",
+              "value": "América/Denver"
+            },
+            "3": {
+              "label": "América/Los Ángeles (PST/PDT)",
+              "value": "América/Los_Ángeles"
+            },
+            "4": {
+              "label": "América/Sao Paulo (BRT/BRST)",
+              "value": "América/Sao_Paulo"
+            },
+            "5": {
+              "label": "Europa/Londres (GMT/BST)",
+              "value": "Europa/Londres"
+            },
+            "6": {
+              "label": "Europa/París (CET/CEST)",
+              "value": "Europa/París"
+            },
+            "7": {
+              "label": "Europa/Berlín (CET/CEST)",
+              "value": "Europa/Berlín"
+            },
+            "8": {
+              "label": "Europa/Moscú (MSK)",
+              "value": "Europa/Moscú"
+            },
+            "9": {
+              "label": "Asia/Tokio (JST)",
+              "value": "Asia/Tokio"
+            }
+          }
+        },
+        "placeholder": {
+          "referralSources": "p. ej., amigo, redes sociales, publicidad",
+          "selectCurrency": "Seleccione su moneda",
+          "selectNotificationChannel": "Seleccionar canal de notificación",
+          "selectTimezone": "Seleccione su zona horaria"
+        }
+      },
+      "step5ProfileImage": {
+        "console": {
+          "invalidErrorsProp": "Step5ProfileImage: Invalid `errors` prop. Se esperaba un objeto o undefined. La visualización de errores puede verse afectada.",
+          "invalidFormDataProp": "Step5ProfileImage: Invalid `formData` prop. Se esperaba un objeto.",
+          "invalidUpdateFieldProp": "Step5ProfileImage: Invalid `updateField` prop. Se esperaba una función."
+        },
+        "description": "Una imagen de perfil clara y amigable ayuda a generar confianza y reconocimiento. Elige una imagen que represente tu personalidad y sea visualmente atractiva.",
+        "errors": {
+          "formDataUnavailable": "Error: Los datos del formulario no están disponibles para el paso de imagen de perfil."
+        },
+        "title": "Configura tu foto de perfil"
+      }
+    },
+    "useFormState": {
+      "error": {
+        "form": {
+          "correctErrorsInStep": "Por favor, corrija los errores en el paso {stepNumber}.",
+          "correctErrorsInStepTitleCase": "Por favor, corrija los errores en el Paso {númeroDePaso}."
+        }
+      },
+      "log": {
+        "failedToParseSessionStorage": "useFormState: Error al analizar el estado del almacenamiento de sesión:",
+        "failedToSaveSessionStorage": "useFormState: Error al guardar el estado en el almacenamiento de sesión:"
+      },
+      "passwordStrength": {
+        "fair": "feria",
+        "strong": "fuerte",
+        "weak": "débil"
+      },
+      "validation": {
+        "acceptTermsRequired": "Debe aceptar las Condiciones del servicio y la Política de privacidad.",
+        "addressCityRequired": "La ciudad es obligatoria.",
+        "addressCountryRequired": "El país es obligatorio.",
+        "addressDetailsRequired": "Se requieren los datos de la dirección.",
+        "addressPostalCodeRequired": "El código postal es obligatorio.",
+        "addressStreetRequired": "Se requiere la dirección postal.",
+        "businessEmailRequired": "Se requiere correo electrónico profesional.",
+        "businessNameRequired": "El nombre de la empresa es obligatorio.",
+        "businessPhoneRequired": "El número de teléfono de la empresa es obligatorio.",
+        "businessTagsMin": "Seleccione al menos una etiqueta de empresa.",
+        "businessUsernameInvalidFormat": "El nombre de usuario sólo puede contener letras, números y guiones bajos.",
+        "businessUsernameRequired": "El nombre de usuario es obligatorio.",
+        "businessWebsiteInvalidUrl": "Introduzca una URL válida (por ejemplo, https://example.com).nullable()",
+        "confirmPasswordMatch": "Las contraseñas deben coincidir.",
+        "confirmPasswordRequired": "Confirme su contraseña.",
+        "currencyRequired": "Es necesario seleccionar la moneda.",
+        "emailInvalid": "Formato de correo electrónico no válido.",
+        "languageRequired": "Es necesario seleccionar el idioma.",
+        "locationRequiredOnMap": "La ubicación es obligatoria. Seleccione en el mapa.",
+        "logoFileSizeTooLarge": "El archivo del logotipo es demasiado grande (máx. 5 MB).",
+        "logoFileTypeUnsupported": "Formato de logotipo no compatible (PNG, JPG, GIF, WEBP).",
+        "passwordMinLength": "La contraseña debe tener al menos 8 caracteres.",
+        "passwordRequired": "Se requiere contraseña.",
+        "passwordRequiresLowercase": "La contraseña debe contener una letra minúscula.",
+        "passwordRequiresNumber": "La contraseña debe contener un número.",
+        "passwordRequiresSpecialChar": "La contraseña debe contener un carácter especial.",
+        "passwordRequiresUppercase": "La contraseña debe contener una letra mayúscula.",
+        "profileEmailRequired": "Su correo electrónico de contacto es obligatorio.",
+        "profileImageFileSizeTooLarge": "La imagen del perfil es demasiado grande (máx. 5 MB).",
+        "profileImageFileTypeUnsupported": "Formato de imagen no compatible.",
+        "profileNameRequired": "Su nombre completo es obligatorio.",
+        "profilePhoneRequired": "Su número de teléfono de contacto es obligatorio.",
+        "timezoneRequired": "Es necesario seleccionar la zona horaria."
+      }
+    }
+  },
+  "venue_management": {
+    "actions": "Acciones",
+    "add": "Añadir",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "confirm": "Confirme",
+    "currencyFormat": "{símbolo}{importe}",
+    "currencySymbol": "$",
+    "decimalSeparator": ".",
+    "delete": "Borrar",
+    "edit": "Editar",
+    "error": "Error",
+    "finish": "Acabado",
+    "info": "Información",
+    "items": "Artículos",
+    "loading": "Cargando...",
+    "next": "Siguiente",
+    "no": "No",
+    "noDataAvailable": "No hay datos disponibles.",
+    "page": "Página",
+    "requiredField": "Este campo es obligatorio.",
+    "save": "Guardar",
+    "search": "Buscar en",
+    "submit": "Enviar",
+    "success": "Éxito",
+    "thousandSeparator": ",",
+    "total": "Total",
+    "venueManagement": {
+      "canvasCell": {
+        "gridCellRoleDescription": "Celda de la cuadrícula de diseño"
+      },
+      "counterEditor": {
+        "actualBaseHeightLabel": "Altura real de la base (menor):",
+        "actualBaseWidthLabel": "Anchura real de la base (menor):",
+        "decorTypeLabel": "Tipo de decoración (en su caso):",
+        "infoSectionTitle": "Información del mostrador",
+        "invalidItemError": "Error: Elemento no válido para el editor de contadores.",
+        "labelPlaceholder": "por ejemplo, Barra principal, Registro",
+        "labelTooltip": "Introduzca una etiqueta opcional para este contador.",
+        "lengthHelpText": "Define la longitud a lo largo de su eje principal. El grosor es de 1 unidad principal.",
+        "lengthLabel": "Longitud (unidades de cuadrícula principales)",
+        "lengthPlaceholder": "por ejemplo, 2",
+        "lengthTooltip": "Longitud del contador a lo largo de su eje principal, en celdas principales de la cuadrícula."
+      },
+      "counterRenderer": {
+        "defaultLabel": "Contador"
+      },
+      "decorEditor": {
+        "decorTypeGeneric": "Genérico",
+        "decorTypeLabel": "Tipo de decoración:",
+        "dimensionsHelpText": "Las dimensiones se aplican a la base del artículo antes de la rotación.",
+        "heightLabel": "Altura (celdas menores)",
+        "heightTooltip": "Altura de la base del elemento antes de la rotación.",
+        "infoSectionTitle": "Información sobre decoración",
+        "labelOptionalLabel": "Etiqueta (opcional)",
+        "labelPlaceholder": "p. ej., helecho en maceta, alfombra de jardín",
+        "labelTooltip": "Introduzca una etiqueta opcional para este artículo de decoración.",
+        "shapeConfigLabel": "Forma Config:",
+        "widthLabel": "Anchura (celdas menores)",
+        "widthTooltip": "Anchura de la base del elemento antes de la rotación."
+      },
+      "doorEditor": {
+        "infoSectionTitle": "Información",
+        "leftSwingOption": "Giro a la izquierda",
+        "rightSwingOption": "Giro a la derecha",
+        "selectSwingPlaceholder": "Seleccionar dirección de giro",
+        "standardDoorType": "Puerta estándar",
+        "swingDirectionLabel": "Dirección de giro",
+        "typeLabel": "Tipo:"
+      },
+      "draggableTool": {
+        "ariaLabelActivePlacement": "Herramienta {toolName}. Actualmente activa para la colocación.",
+        "ariaLabelDefault": "{toolName} herramienta. Haga clic para seleccionar o arrastre para añadir.",
+        "tooltipActivePlacement": "Herramienta '{toolName}' activa. Haga clic en una celda para colocarla.",
+        "tooltipDefaultFullMode": "Haga clic para seleccionar o arrastre para añadir {toolName}.",
+        "tooltipDefaultZenMode": "{nombreDeLaHerramienta}"
+      },
+      "editorCanvas": {
+        "gridRegionLabel": "Área de la cuadrícula de diseño",
+        "mainCanvasAreaLabel": "Lienzo de diseño del espacio",
+        "resizePreviewAriaHidden": "verdadero"
+      },
+      "editorToolbar": {
+        "colsLabel": "C:",
+        "elementsCategory": "Elementos",
+        "eraserActivateTooltip": "Activar Borrador (E)",
+        "eraserDeactivateTooltip": "Desactivar Borrador (E)",
+        "focusModeEnterTooltip": "Acceder al modo de enfoque",
+        "focusModeExitTooltip": "Salir del modo de enfoque (Esc)",
+        "gridColsAriaLabel": "Columnas de cuadrícula",
+        "gridRowsAriaLabel": "Filas de cuadrícula",
+        "gridSubdivisionAriaLabel": "Subdivisión en cuadrícula",
+        "redoTooltip": "Rehacer (Ctrl+Y)",
+        "resetZoomTooltip": "Restablecer zoom ({porcentaje}%)",
+        "rowsLabel": "R:",
+        "saveLayoutTooltip": "Guardar diseño (Ctrl+S)",
+        "subdivisionOptionSuffix": "x{valor}",
+        "toolbarLabel": "Barra de herramientas del editor de diseño",
+        "undoTooltip": "Deshacer (Ctrl+Z)",
+        "zoomInTooltip": "Acercar (+)",
+        "zoomOutTooltip": "Alejar (-)"
+      },
+      "itemConfigs": {
+        "placedDecorDisplayName": "Decoración",
+        "placedDoorDisplayName": "Por",
+        "placedTableDisplayName": "Cuadro",
+        "placedWallDisplayName": "Pared",
+        "plantToolName": "Planta",
+        "rectTableToolName": "Recto. Tabla",
+        "roundTableToolName": "Mesa redonda",
+        "rugToolName": "Alfombra",
+        "squareTableToolName": "Mesa cuadrada"
+      },
+      "layoutEditor": {
+        "canvasAreaLabel": "Lienzo de diseño",
+        "cellClickedExistingItem": "Celda pulsada para mover elemento EXISTENTE. Candidato: {itemId}, Objetivo: R{row}C{col}",
+        "cellClickedNewItem": "Celda pulsada para la colocación del NUEVO elemento. Herramienta: {nombredeherramienta}, Objetivo: R{row}C{col}",
+        "confirmClearConfirmText": "Sí, borrar todo y reiniciar",
+        "confirmClearMessage": "¿Está seguro de que desea borrar todos los elementos y restablecer la configuración predeterminada de la cuadrícula? Esta acción quedará registrada en el historial, pero borrar directamente es un paso importante.",
+        "confirmClearTitle": "Borrar todo el diseño",
+        "propertiesInspectorRegionLabel": "Inspector de propiedades de artículos",
+        "saveErrorNotConfigured": "Función guardar (onSaveTrigger) no configurada para LayoutEditor.",
+        "toolDeselectedForPlacement": "Herramienta deseleccionada para la colocación.",
+        "toolSelectedForPlacement": "Herramienta seleccionada para la colocación: {toolName}",
+        "validationErrorDuplicateTableNumbers": "Los números de tabla deben ser únicos.",
+        "validationErrorInvalidTables": "Asegúrese de que todas las tablas tienen números válidos y positivos.",
+        "validationErrorTitle": "Error de validación del diseño"
+      },
+      "layoutItemRendererUtils": {
+        "defaultPreviewRendererItemNameFallback": "Artículo desconocido",
+        "defaultPreviewRendererTitle": "{itemName} (ID: {itemId})"
+      },
+      "liveOrderDashboard": {
+        "activeStatus": "Activo",
+        "activeViewedLabel": "Activo Visto: {contar}",
+        "alertNoTablesForSimulateMessage": "Por favor, diseñe primero la disposición de la mesa antes de simular los pedidos.",
+        "alertNoTablesForSimulateTitle": "No hay tablas definidas",
+        "confirmChargeCancelText": "No, todavía no",
+        "confirmChargeConfirmText": "Sí, cargado y limpio",
+        "confirmChargeMessage": "¿Ha cobrado al cliente y está listo para liquidar la Tabla {número}?",
+        "confirmChargeTitle": "Confirmar carga y borrar tabla",
+        "delayedStatus": "Retraso",
+        "designLayoutButton": "Disposición de la mesa de diseño",
+        "footerText": "Sistema de gestión de mesas de panadería © {año}",
+        "hideSidebar": "Ocultar barra lateral",
+        "idLabel": "ID: {id}...",
+        "itemsLabel": "Artículos:",
+        "kitchenAreaLabel": "Cocina",
+        "liveStatusTitle": "Estado de la tabla en vivo (Actualiza {timeAgo})",
+        "newOrdersLabel": "Nuevos pedidos: {count}",
+        "noTablesDefinedMessage": "Haga clic en \"Diseñar diseño de tabla\" para empezar.",
+        "noTablesDefinedTitle": "Aún no hay tablas definidas.",
+        "orderDetailsTitle": "Detalles del pedido: Tabla {número}",
+        "peopleLabel": "Gente:",
+        "showSidebar": "Mostrar barra lateral",
+        "simulateOrderButton": "Simular Nueva Orden",
+        "tableLabel": "Tabla {número}",
+        "title": "Pedidos de panadería",
+        "totalPriceLabel": "Total: {precio}",
+        "viewedOrdersTitle": "Pedidos vistos ({contar})"
+      },
+      "placedItem": {
+        "defaultRendererIdLabel": "ID: {itemId}",
+        "defaultRendererMissingText": "Falta el renderizador",
+        "defaultRendererTypeLabel": "Tipo: {itemType}",
+        "itemBaseTitle": "{itemName}",
+        "itemDefaultAriaRole": "botón",
+        "itemEraserActionText": "Pulse para borrar {itemName}.",
+        "itemFixedSuffix": "(Fijo)",
+        "itemMoveCandidateSuffix": "Haga clic en una celda para mover {itemName}",
+        "itemProvisionalSuffix": "(Provisional - Haga clic en el Editor para fijar el número)",
+        "itemSelectActionText": "Toque para seleccionar {itemName}"
+      },
+      "propertiesInspector": {
+        "closeButtonTooltip": "Cerrar el panel de propiedades",
+        "defaultInspectorContent_noEditorConfigured": "No hay ningún editor específico configurado para este tipo de elemento, o la clave configurada no coincide.",
+        "defaultTitle": "Propiedades",
+        "minimizedTabTooltip": "Mostrar propiedades",
+        "noItemSelectedMessage": "Seleccione un elemento del lienzo para ver sus propiedades."
+      },
+      "resizeHandle": {
+        "directionE": "Este",
+        "directionN": "Norte",
+        "directionS": "Sur",
+        "directionW": "Oeste",
+        "tooltipPrefix": "Redimensionar {dirección}"
+      },
+      "rotationHandle": {
+        "ariaLabel": "Girar el elemento 90 grados",
+        "tooltip": "Girar elemento (90°)"
+      },
+      "tableEditor": {
+        "defaultShapeLabel": "Forma por defecto:",
+        "fixedLabel": "Arreglado:",
+        "infoSectionTitle": "Información sobre la mesa",
+        "itemIdLabel": "Número de artículo:",
+        "provisionalLabel": "Provisional:",
+        "rotationLabel": "Rotación:",
+        "seatsLabel": "Número de plazas",
+        "seatsPlaceholder": "por ejemplo, 4 o vacío por defecto",
+        "seatsTooltip": "Introduzca un número o déjelo vacío para las plazas por defecto.",
+        "tableNumberHelpText": "Editar número en la propia tabla. Haga clic para seleccionar y, a continuación, haga clic en el número para editarlo.",
+        "tableNumberLabel": "Número de mesa",
+        "tableNumberValueNotSet": "No fijado",
+        "tableNumberValueProvisional": "¿Nº? (Poner sobre la mesa)"
+      },
+      "tableRenderer": {
+        "provisionalDisplayValue": "¿NO?",
+        "provisionalTooltipText": "Tabla provisional (Haga clic en el editor para fijar el número)",
+        "tableNumberPrefix": "T"
+      },
+      "useLayoutData": {
+        "layoutSavedMessage": "La disposición del recinto se ha guardado correctamente.",
+        "layoutSavedTitle": "Diseño guardado",
+        "loadingErrorMessageDefault": "No se ha podido cargar el diseño de la sede desde el servidor.",
+        "loadingErrorTitle": "Error de carga",
+        "noActiveLayoutMessage": "No se ha encontrado ningún diseño activo en el backend. Usando estructura local por defecto.",
+        "resetLocallyMessage": "El diseño se ha restablecido a los valores predeterminados. Guarde para mantener los cambios.",
+        "resetLocallyTitle": "Layout Reset Local",
+        "saveErrorDefault": "No se ha podido guardar el diseño de la sede.",
+        "saveErrorDetailsPrefix": "Detalles: {detalles}",
+        "saveErrorNoData": "No se proporcionan datos de diseño para guardar.",
+        "saveErrorNotLoaded": "Los datos del diseño aún no se han cargado. Espere e inténtelo de nuevo.",
+        "saveErrorTitle": "Guardar error"
+      },
+      "useLayoutDesignerStateManagement": {
+        "configErrorMissingConfigMessage": "Falta configuración para el tipo de elemento: {itemType}. Póngase en contacto con el servicio de asistencia.",
+        "configErrorMissingConfigTitle": "Error de configuración",
+        "configErrorMissingFactoryMessage": "Falta la fábrica de propiedades para el tipo de ítem: {itemType}. Póngase en contacto con el servicio de asistencia.",
+        "counterLengthPositiveError": "La longitud del contador debe ser un número positivo.",
+        "counterSizingErrorConflict": "El contador no se puede redimensionar: el nuevo tamaño entra en conflicto o está fuera de los límites.",
+        "designerClearedMessage": "Se han eliminado todos los elementos de la disposición.",
+        "designerClearedTitle": "Diseñador autorizado",
+        "designerResetMessage": "Los ajustes de diseño y cuadrícula se han restablecido a los valores predeterminados.",
+        "designerResetTitle": "Diseñador Reset",
+        "dimensionErrorMinMessage": "Dimensiones base no válidas para el nuevo elemento. La dimensión mínima es {minCells} celda(s).",
+        "dimensionErrorTitle": "Error de dimensión",
+        "duplicateTableNumberMessage": "La tabla número {número} ya está en uso.",
+        "duplicateTableNumberTitle": "Número de mesa duplicado",
+        "factoryErrorMessage": "Error al crear propiedades para un nuevo elemento ({itemType}).",
+        "factoryErrorTitle": "Error de fábrica",
+        "gridDimensionErrorRange": "Dimensiones de cuadrícula fuera de rango. Filas mín./máx: {minFilas}-{maxFilas}, Cols: {minCols}-{maxCols}.",
+        "gridDimensionErrorTitle": "Dimensión no válida",
+        "gridResizeErrorOutOfBoundsMessage": "No se pueden reducir las dimensiones. Algunos artículos quedarían fuera de los límites.",
+        "gridResizeErrorOutOfBoundsTitle": "Error de cambio de tamaño",
+        "invalidInputTitle": "Entrada no válida",
+        "invalidRotationAngle": "Ángulo de rotación no válido.",
+        "invalidRotationType": "Tipo de rotación no válido.",
+        "invalidSeatCountMessage": "El recuento de asientos debe ser un número entero no negativo o estar vacío.",
+        "invalidSeatCountTitle": "Asientos no válidos",
+        "invalidSubdivisionMessage": "El nivel de subdivisión de la cuadrícula no es válido.",
+        "invalidSubdivisionTitle": "Subdivisión no válida",
+        "invalidTableNumberMessage": "El número de tabla debe ser un número entero positivo o estar vacío.",
+        "invalidTableNumberTitle": "Número de tabla no válido",
+        "placementErrorOccupiedOrOutOfBounds": "No se puede colocar el objeto: Espacio ocupado o fuera de límites.",
+        "placementErrorTitle": "Error de colocación",
+        "resizeErrorConflictOrOutOfBounds": "El elemento redimensionado/movido entra en conflicto o está fuera de los límites.",
+        "rotationErrorConflictOrOutOfBounds": "No se puede girar: la nueva orientación entra en conflicto o está fuera de los límites.",
+        "rotationErrorTitle": "Error de rotación",
+        "sizingErrorTitle": "Error de tamaño",
+        "subdivisionChangedMessage": "Se ha actualizado la subdivisión de la cuadrícula. Las dimensiones de los elementos existentes están en celdas menores y no se escalarán automáticamente. Puede ser necesario un ajuste manual si su tamaño previsto era relativo a unidades de cuadrícula mayores.",
+        "subdivisionChangedTitle": "Subdivisión modificada"
+      },
+      "useQrCodeManager": {
+        "downloadCompleteMessage": "Descargado con éxito {count} códigos QR.",
+        "downloadCompleteTitle": "Descarga completa",
+        "downloadErrorInvalidTable": "Datos de tabla no válidos para descarga QR.",
+        "downloadErrorTitle": "Descargar Error",
+        "downloadFailedAllMessage": "Todos los {count} Los códigos QR no se han podido descargar en este momento.",
+        "downloadFailedTitle": "Descarga Fallida",
+        "downloadIssueMixedMessage": "No se han descargado códigos QR. {failedCount} fallido, {skippedCount} omitido (servicio no disponible).",
+        "downloadIssueMixedTitle": "Descargar número",
+        "downloadPartialMessageFailed": " {failedCount} falló.",
+        "downloadPartialMessageSkipped": " {skippedCount} omitido (servicio no disponible).",
+        "downloadPartialMessageSuccess": "Descargado con éxito {downloadedCount} Códigos QR.",
+        "downloadPartialTitle": "Descarga parcial",
+        "downloadStartingMessage": "Preparando descarga de código(s) QR disponible(s) para {count} mesa(s). Esto puede tardar un momento.",
+        "downloadStartingSomeFailed": " Antes, algunos QR no se generaban.",
+        "downloadStartingSomeServiceDisabled": " Algunos QR no están disponibles (servicio desactivado).",
+        "downloadStartingSomeUnavailable": " Algunos QR no están disponibles o contienen errores.",
+        "downloadStartingTitle": "Descargar Inicio",
+        "downloadUnavailableAllServiceMessage": "Todos los códigos QR no están disponibles actualmente porque el servicio de generación está fuera de línea.",
+        "noQrCodesToDownloadMessage": "No existen tablas numeradas válidas para descargar códigos QR.",
+        "noQrCodesToDownloadTitle": "Sin códigos QR",
+        "qrFetchErrorMessage": "No se ha podido obtener el QR de la tabla {tableIdentifier}: {errorMessage}",
+        "qrFetchErrorTitleGeneric": "Error de red",
+        "qrFetchErrorTitleHttp": "Error QR (HTTP {status})",
+        "qrFetchServiceUnavailableMessage": "La generación de códigos QR para la tabla {tableIdentifier} no está disponible en este momento (endpoint no listo).",
+        "qrFetchServiceUnavailableTitle": "Información sobre el servicio QR",
+        "qrNotAvailableForDownloadTitle": "QR no disponible",
+        "qrNotAvailableGenericDownloadError": "No se ha podido descargar el QR de la tabla {tableIdentifier}. Asegúrese de que se puede generar.",
+        "qrNotAvailablePreviouslyFailedMessage": "El código QR para la tabla {tableIdentifier} no se ha podido generar previamente. Intente actualizar o compruebe los registros.",
+        "qrNotAvailableServiceMessage": "El código QR de la tabla {tableIdentifier} no se puede descargar porque el servicio de generación no está disponible."
+      },
+      "venueDesignerHeader": {
+        "designModeLabel": "Diseño",
+        "downloadQrTooltip": "Descargar todos los códigos QR",
+        "focusModeTooltip": "Modo de enfoque",
+        "previewModeLabel": "Vista previa",
+        "qrButtonText": "QRs"
+      },
+      "venueDesignerPage": {
+        "defaultLayoutName": "Diseño predeterminado del recinto",
+        "discardAndExitButton": "Descartar y salir",
+        "errorGettingEditorStateMessage": "No se pudo obtener el estado actual del editor para la vista previa. Por favor, guarde primero.",
+        "errorPageMessage": "No se han podido inicializar los datos de diseño. Intente actualizar. Si el problema persiste, póngase en contacto con el servicio de asistencia.",
+        "errorPageTitle": "Error al cargar datos de diseño",
+        "exitLayoutManagerConfirmationMessage": "Tienes cambios sin guardar. ¿Estás seguro de que quieres salir y descartarlos?",
+        "exitLayoutManagerTitle": "Gestor de diseño de salida",
+        "initializingEditor": "Inicializando Editor...",
+        "loadingPageTitle": "Cargando Diseñador de espacios...",
+        "loadingPreview": "Cargando vista previa...",
+        "previewLastSavedButton": "Vista previa Último guardado",
+        "previewUnsavedButton": "Vista previa sin guardar",
+        "previewingLastSavedAlertMessage": "Muestra la última versión guardada. Los cambios no guardados permanecen en el editor.",
+        "previewingLastSavedAlertTitle": "Vista previa de la última maqueta guardada",
+        "previewingUnsavedAlertMessage": "Está viendo sus cambios actuales sin guardar. Todavía no se han guardado en el servidor.",
+        "previewingUnsavedAlertTitle": "Vista previa de cambios no guardados",
+        "refreshPageButton": "Actualizar página",
+        "stayInDesignButton": "Permanecer en modo diseño",
+        "stayOnPageButton": "Manténgase en la página",
+        "switchToPreviewConfirmationMessage": "Tiene cambios sin guardar. ¿Cómo desea pasar al modo de vista previa?",
+        "unsavedChangesTitle": "Cambios no guardados"
+      },
+      "venueLayoutPreview": {
+        "downloadAllQrsButtonText": "Descargar todos los QR",
+        "gridItemTableTooltip": "Tabla {número} - Haga clic para ver el QR en la barra lateral",
+        "noTablesForQrMessage": "Cambie al \"Modo Diseño\" para añadir tablas a su diseño y asignarles números.",
+        "noTablesForQrTitle": "No hay tablas para códigos QR",
+        "previewUnavailableMessage": "Parece que no hay datos de diseño para mostrar, o las dimensiones de la cuadrícula no son válidas. <br />Por favor, diseñe primero su diseño en 'Modo Diseño'.",
+        "previewUnavailableTitle": "Vista previa del diseño no disponible",
+        "qrDownloadButtonTooltip": "Descargar Código QR",
+        "qrErrorMessage": "No se ha podido cargar.",
+        "qrSeatsLabel": "{asientos} Asientos",
+        "qrSeatsNotAvailable": "N/A Asientos",
+        "qrShapeLabel": "{forma}",
+        "qrSidebarTitle": "Tabla Códigos QR",
+        "qrSkippedMessage": "No disponible.",
+        "qrStatusError": "Error al cargar QR",
+        "qrStatusLoading": "Cargando QR...",
+        "qrStatusPending": "QR Pendiente",
+        "qrStatusSkipped": "Generación de QR sin conexión"
+      },
+      "wallEditor": {
+        "baseHeightLabel": "Altura de la base (menor):",
+        "baseWidthLabel": "Anchura de la base (menor):",
+        "infoSectionTitle": "Información mural",
+        "lengthLabel": "Longitud (unidades principales):",
+        "thicknessHelpText": "Grosor dentro de su propia celda de la cuadrícula. No afecta a la colisión. Max: {espesor máximo}.",
+        "thicknessLabel": "Grosor visual (células menores)",
+        "thicknessTooltip": "Espesor visual de la pared dentro de su propia célula."
+      }
+    },
+    "view": "Ver",
+    "warning": "Advertencia",
+    "yes": "Sí"
+  }
+}
