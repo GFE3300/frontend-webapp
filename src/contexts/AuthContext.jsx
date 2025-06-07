@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }) => {
                     const isExpired = decodedToken.exp * 1000 < Date.now();
 
                     if (!isExpired) {
+                        // Extract staff flags and add them to the user object
                         setUser({
                             id: decodedToken.user_id,
                             email: decodedToken.email,
@@ -59,6 +60,8 @@ export const AuthProvider = ({ children }) => {
                             activeBusinessId: decodedToken.active_business_id,
                             activeBusinessName: decodedToken.active_business_name,
                             role: decodedToken.role,
+                            is_staff: decodedToken.is_staff || false, // Add staff flag
+                            is_superuser: decodedToken.is_superuser || false, // Add superuser flag
                         });
                         if (apiInstance?.defaults?.headers?.common) {
                             apiInstance.defaults.headers.common['Authorization'] = `Bearer ${storedAccessToken}`;
@@ -84,6 +87,7 @@ export const AuthProvider = ({ children }) => {
                                 }
 
                                 const newDecodedToken = jwtDecode(newAccessToken);
+                                // MODIFICATION: Extract staff flags from refreshed token
                                 setUser({
                                     id: newDecodedToken.user_id,
                                     email: newDecodedToken.email,
@@ -92,6 +96,8 @@ export const AuthProvider = ({ children }) => {
                                     activeBusinessId: newDecodedToken.active_business_id,
                                     activeBusinessName: newDecodedToken.active_business_name,
                                     role: newDecodedToken.role,
+                                    is_staff: newDecodedToken.is_staff || false, // Add staff flag
+                                    is_superuser: newDecodedToken.is_superuser || false, // Add superuser flag
                                 });
                                 if (apiInstance?.defaults?.headers?.common) {
                                     apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
@@ -116,8 +122,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         initializeAuth();
-    }, []); // Run only once on mount
-
+    }, [performLogoutOperations]); // performLogoutOperations is now stable due to useCallback
 
     const login = (newAccessToken, newRefreshToken) => {
         localStorage.setItem('accessToken', newAccessToken);
@@ -131,6 +136,7 @@ export const AuthProvider = ({ children }) => {
 
         setAccessToken(newAccessToken);
         setRefreshToken(newRefreshToken);
+        // MODIFICATION: Extract staff flags on login
         setUser({
             id: decodedToken.user_id,
             email: decodedToken.email,
@@ -139,6 +145,8 @@ export const AuthProvider = ({ children }) => {
             activeBusinessId: decodedToken.active_business_id,
             activeBusinessName: decodedToken.active_business_name,
             role: decodedToken.role,
+            is_staff: decodedToken.is_staff || false, // Add staff flag
+            is_superuser: decodedToken.is_superuser || false, // Add superuser flag
         });
     };
 

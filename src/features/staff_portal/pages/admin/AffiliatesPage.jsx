@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import apiService from '../../../services/api';
-import Spinner from '../../../components/common/Spinner';
-import Icon from '../../../components/common/Icon';
-import Button from '../../../components/common/Button';
-import AffiliatesTable from '../subcomponents/AffiliatesTable';
-import AffiliateModal from '../subcomponents/AffiliateModal';
+import apiService from '../../../../services/api';
+import Spinner from '../../../../components/common/Spinner';
+import Icon from '../../../../components/common/Icon';
+import Button from '../../../../components/common/Button';
+// MODIFICATION: Updated import path for subcomponents
+import AffiliatesTable from '../../subcomponents/AffiliatesTable';
+import AffiliateModal from '../../subcomponents/AffiliateModal';
 
 const AffiliatesPage = () => {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingAffiliate, setEditingAffiliate] = useState(null);
 
-    // MODIFICATION: Changed queryFn from apiService.post to apiService.get
+    // MODIFICATION: Updated queryKey and queryFn for the admin staff portal
     const { data: affiliatesData, isLoading, isError, error } = useQuery({
-        queryKey: ['affiliates'],
-        queryFn: () => apiService.get('affiliates/'), // CORRECTED: Use .get() to fetch the list
+        queryKey: ['staff_affiliates'], // More specific key for this context
+        queryFn: () => apiService.get('staff/affiliates/'), // Corrected to use the new staff endpoint
     });
 
     const handleCreateClick = () => {

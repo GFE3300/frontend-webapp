@@ -1,3 +1,5 @@
+// FILE: src/App.jsx
+
 import React from 'react';
 // Router
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -5,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 // Stripe
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import AdminOnlyRoute from './components/common/AdminOnlyRoute.jsx';
 
 // Pages & Features
 import NotFoundPage from './pages/NotFoundPage.jsx';
@@ -18,6 +21,12 @@ import PlanAndPaymentPage from './features/payments/PlanAndPaymentPage.jsx';
 import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx';
 import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';
 
+import StaffLoginPage from './features/staff_portal/pages/admin/StaffLoginPage.jsx';
+import StaffDashboardLayout from './features/staff_portal/StaffDashboardLayout.jsx';
+import AffiliatesPage from './features/staff_portal/pages/admin/AffiliatesPage.jsx';
+import AffiliateDetailPage from './features/staff_portal/pages/admin/AffiliateDetailPage.jsx';
+import PayoutsPage from './features/staff_portal/pages/admin/PayoutsPage.jsx';
+
 import DashboardLayout from './features/dashboard/DashboardLayout.jsx';
 import OverviewPage from './features/dashboard/pages/OverviewPage.jsx';
 import OrdersPage from './features/dashboard/pages/OrdersPage.jsx';
@@ -29,10 +38,6 @@ import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSettingsPage.jsx';
 import SubscriptionBillingPage from './features/dashboard/pages/settings/SubscriptionBillingPage.jsx';
-
-// MODIFIED: Import new affiliate pages
-import AffiliatesPage from './features/dashboard/pages/AffiliatesPage.jsx';
-import AffiliateDetailPage from './features/dashboard/pages/AffiliateDetailPage.jsx';
 
 // Venue Layout Management (Existing)
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
@@ -89,6 +94,15 @@ const DNDBackendsConfig = {
     ],
 };
 
+// --- MODIFICATION: Placeholder for the staff dashboard index page ---
+const StaffDashboardPage = () => (
+    <div className="p-6">
+        <h1 className="text-2xl font-bold">Staff Dashboard</h1>
+        <p className="mt-2">Welcome to the staff portal. Select an option from the sidebar to begin.</p>
+    </div>
+);
+// --- END MODIFICATION ---
+
 // Router Configuration
 const router = createBrowserRouter([
     {
@@ -125,7 +139,36 @@ const router = createBrowserRouter([
         element: <CompleteProfilePage />,
         errorElement: <NotFoundPage />,
     },
-
+    {
+        path: "/staff/login",
+        element: <StaffLoginPage />,
+    },
+    {
+        path: "/staff",
+        element: (
+            <PrivateRoute staffOnly={true}>
+                <StaffDashboardLayout />
+            </PrivateRoute>
+        ),
+        errorElement: <NotFoundPage />,
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: "dashboard", element: <StaffDashboardPage /> },
+            
+            {
+                path: "manage-affiliates",
+                element: <AdminOnlyRoute><AffiliatesPage /></AdminOnlyRoute>,
+            },
+            {
+                path: "manage-affiliates/:affiliateId",
+                element: <AdminOnlyRoute><AffiliateDetailPage /></AdminOnlyRoute>,
+            },
+            {
+                path: "payouts",
+                element: <AdminOnlyRoute><PayoutsPage /></AdminOnlyRoute>,
+            },
+        ]
+    },
     {
         path: "/dashboard/business",
         element: (
@@ -144,7 +187,7 @@ const router = createBrowserRouter([
             { path: "analytics", element: <AnalyticsPage /> },
             {
                 path: "settings",
-                element: <SettingsPage />, // Renders the SettingsPage layout with sub-navigation
+                element: <SettingsPage />,
                 children: [
                     { index: true, element: <Navigate to="profile" replace /> },
                     { path: "profile", element: <ProfileSettingsPage /> },
@@ -167,23 +210,6 @@ const router = createBrowserRouter([
                     </PrivateRoute>
                 ),
             },
-            // MODIFICATION: Added new affiliate routes
-            {
-                path: "affiliates",
-                element: (
-                    <PrivateRoute requiredRoles={['ADMIN']}>
-                        <AffiliatesPage />
-                    </PrivateRoute>
-                ),
-            },
-            {
-                path: "affiliates/:affiliateId",
-                element: (
-                    <PrivateRoute requiredRoles={['ADMIN']}>
-                        <AffiliateDetailPage />
-                    </PrivateRoute>
-                ),
-            }
         ]
     },
     {

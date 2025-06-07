@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import SidebarNavItem from './subcomponents/SidebarNavItem';
 import Icon from '../../components/common/Icon';
+// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../contexts/AuthContext'; // MODIFIED: Import useAuth
+import { useAuth } from '../../contexts/AuthContext';
 
 // Optional SidebarHeader (simple version)
 const SidebarHeader = ({ isCollapsed, businessName }) => (
@@ -93,7 +94,8 @@ const Sidebar = () => {
         setIsCollapsed(!isCollapsed);
     };
 
-    // MODIFICATION: Use useMemo to create the navigation items based on user role
+    // MODIFICATION: Removed the conditional logic that adds the "Affiliates" nav item.
+    // This sidebar is now exclusively for the customer-facing business dashboard.
     const navItems = useMemo(() => {
         const baseItems = [
             { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview' },
@@ -105,12 +107,11 @@ const Sidebar = () => {
             { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings' },
         ];
 
-        if (user?.role === 'ADMIN') {
-            baseItems.push({ name: 'Affiliates', icon: 'group', path: '/dashboard/business/affiliates' });
-        }
+        // The logic for adding the "Affiliates" link based on user role has been removed from this component.
+        // It will be re-implemented in the new StaffSidebar.
 
         return baseItems;
-    }, [user?.role]);
+    }, []); // MODIFICATION: Removed user.role from dependency array as it's no longer used.
 
 
     const sidebarVariants = {
