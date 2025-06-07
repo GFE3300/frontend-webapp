@@ -1,140 +1,142 @@
+import { t } from '../../../i18n';
+
 // frontend/src/features/payments/utils/script_lines.js
 export const scriptLines_Components = {
 
     planSelection: {
-        title: "Unlock Your Potential",
-        subtitle: "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together.",
-        footerNote: "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings.",
+        title: t('payments.components.planSelection.title'),
+        subtitle: t('payments.components.planSelection.subtitle'),
+        footerNote: t('payments.components.planSelection.footerNote'),
         buttons: {
-            chooseThisPlan: "Choose This Plan",
-            processing: "Processing...",
-            planSelected: "Plan Selected!",
-            manageSubscription: "Manage Subscription",
-            upgradePlan: "Upgrade Plan",
-            downgradePlan: "Downgrade Plan",
-            switchPlan: "Switch Plan", // Fallback or for comparable tiers
+            chooseThisPlan: t('payments.components.planSelection.buttons.chooseThisPlan'),
+            processing: t('payments.components.planSelection.buttons.processing'),
+            planSelected: t('payments.components.planSelection.buttons.planSelected'),
+            manageSubscription: t('payments.components.planSelection.buttons.manageSubscription'),
+            upgradePlan: t('payments.components.planSelection.buttons.upgradePlan'),
+            downgradePlan: t('payments.components.planSelection.buttons.downgradePlan'),
+            switchPlan: t('payments.components.planSelection.buttons.switchPlan'), // Fallback or for comparable tiers
         },
         badges: {
-            mostPopular: "Most Popular",
-            recommended: "Recommended",
-            specialOffer: "SPECIAL OFFER",
+            mostPopular: t('payments.components.planSelection.badges.mostPopular'),
+            recommended: t('payments.components.planSelection.badges.recommended'),
+            specialOffer: t('payments.components.planSelection.badges.specialOffer'),
             // NEW BADGE TEXT
-            currentPlan: "Current Plan",
+            currentPlan: t('payments.components.planSelection.badges.currentPlan'),
         },
         messages: {
             // NEW MESSAGES
-            loadingSubscription: "Loading your subscription details...",
-            subscriptionLoadError: "Could not load your current subscription status. Please try again or contact support.",
-            alreadySubscribedError: "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'.",
+            loadingSubscription: t('payments.components.planSelection.messages.loadingSubscription'),
+            subscriptionLoadError: t('payments.components.planSelection.messages.subscriptionLoadError'),
+            alreadySubscribedError: t('payments.components.planSelection.messages.alreadySubscribedError'),
         },
         errors: {
-            functionalityUnavailable: "Error: Plan selection functionality is unavailable.",
+            functionalityUnavailable: t('payments.components.planSelection.errors.functionalityUnavailable'),
         },
         console: {
-            invalidOnPlanSelectProp: "PlanSelection: Invalid `onPlanSelect` prop. Expected a function.",
+            invalidOnPlanSelectProp: t('payments.components.planSelection.console.invalidOnPlanSelectProp'),
         },
-        themeColorDefault: "rose",
+        themeColorDefault: t('payments.components.planSelection.themeColorDefault'),
 
         plans: [
             {
-                id: 'starter_essentials',
-                name: 'CrumbData - Starter Essentials',
-                price: '29.99',
-                frequency: '/month',
-                description: ['Perfect for solo and micro-shops.', 'Get up and running fast with essential order & inventory tools.'],
+                id: t('payments.components.planSelection.plans.0.id'),
+                name: t('payments.components.planSelection.plans.0.name'),
+                price: t('payments.components.planSelection.plans.0.price'),
+                frequency: t('payments.components.planSelection.plans.0.frequency'),
+                description: [t('payments.components.planSelection.plans.0.description.0'), t('payments.components.planSelection.plans.0.description.1')],
                 features: [
-                    { text: 'Unlimited Orders' },
-                    { text: 'Menu-Style Order Entry' },
-                    { text: 'Live Low-Stock Alerts' },
-                    { text: 'Basic Consumption Charts' },
-                    { text: 'Email Support (48 hr response)' },
-                    { text: 'Advanced Forecasting' }, // (featureLogic: false)
-                    { text: 'Custom Feature Requests' }, // (featureLogic: false)
-                    { text: 'Dedicated Account Manager' } // (featureLogic: false)
+                    { text: t('payments.components.planSelection.plans.0.features.0.text') },
+                    { text: t('payments.components.planSelection.plans.0.features.1.text') },
+                    { text: t('payments.components.planSelection.plans.0.features.2.text') },
+                    { text: t('payments.components.planSelection.plans.0.features.3.text') },
+                    { text: t('payments.components.planSelection.plans.0.features.4.text') },
+                    { text: t('payments.components.planSelection.plans.0.features.5.text') }, // (featureLogic: false)
+                    { text: t('payments.components.planSelection.plans.0.features.6.text') }, // (featureLogic: false)
+                    { text: t('payments.components.planSelection.plans.0.features.7.text') } // (featureLogic: false)
                 ],
-                iconName: 'bolt',
-                whyThisPlan: 'Lightweight, powerful, and cost-effective—Starter Essentials gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation.',
+                iconName: t('payments.components.planSelection.plans.0.iconName'),
+                whyThisPlan: t('payments.components.planSelection.plans.0.whyThisPlan'),
             },
             {
-                id: 'growth_accelerator',
-                name: 'CrumbData - Growth Accelerator',
-                price: '39.99',
-                frequency: '/month',
-                description: ['For growing businesses ready to scale.', 'All-in-one order management + deep insights to optimize and grow.'],
+                id: t('payments.components.planSelection.plans.1.id'),
+                name: t('payments.components.planSelection.plans.1.name'),
+                price: t('payments.components.planSelection.plans.1.price'),
+                frequency: t('payments.components.planSelection.plans.0.frequency'),
+                description: [t('payments.components.planSelection.plans.1.description.0'), t('payments.components.planSelection.plans.1.description.1')],
                 features: [
-                    { text: 'Everything in Starter Essentials' },
-                    { text: 'Advanced Cost & Consumption Forecasts' },
-                    { text: 'Monthly Performance Reports' },
-                    { text: 'Multi-Location Support (2 shops)' },
-                    { text: 'Priority Email & Chat Support' },
-                    { text: 'Access to Beta Features' },
-                    { text: 'Dedicated Account Manager' }, // (featureLogic: true for Growth?) Assuming yes for all features
-                    { text: 'Custom Integrations' }       // (featureLogic: true for Growth?) Assuming yes
+                    { text: t('payments.components.planSelection.plans.1.features.0.text') },
+                    { text: t('payments.components.planSelection.plans.1.features.1.text') },
+                    { text: t('payments.components.planSelection.plans.1.features.2.text') },
+                    { text: t('payments.components.planSelection.plans.1.features.3.text') },
+                    { text: t('payments.components.planSelection.plans.1.features.4.text') },
+                    { text: t('payments.components.planSelection.plans.1.features.5.text') },
+                    { text: t('payments.components.planSelection.plans.0.features.7.text') }, // (featureLogic: true for Growth?) Assuming yes for all features
+                    { text: t('payments.components.planSelection.plans.1.features.7.text') }       // (featureLogic: true for Growth?) Assuming yes
                 ],
-                iconName: 'mode_heat',
-                whyThisPlan: 'You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Growth Accelerator brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently.',
-                badgeText: "Most Popular",
+                iconName: t('payments.components.planSelection.plans.1.iconName'),
+                whyThisPlan: t('payments.components.planSelection.plans.1.whyThisPlan'),
+                badgeText: t('payments.components.planSelection.badges.mostPopular'),
                 discount: {
-                    offerTitle: 'First Month 60% Off!',
-                    displayPrice: '16.00',
-                    priceSuffix: '/first month',
-                    originalPriceText: '€39.99/month',
-                    details: 'Then €39.99/month. Renews automatically, cancel anytime.',
-                    badgeText: 'SPECIAL OFFER',
+                    offerTitle: t('payments.components.planSelection.plans.1.discount.offerTitle'),
+                    displayPrice: t('payments.components.planSelection.plans.1.discount.displayPrice'),
+                    priceSuffix: t('payments.components.planSelection.plans.1.discount.priceSuffix'),
+                    originalPriceText: t('payments.components.planSelection.plans.1.discount.originalPriceText'),
+                    details: t('payments.components.planSelection.plans.1.discount.details'),
+                    badgeText: t('payments.components.planSelection.badges.specialOffer'),
                 }
             },
             {
-                id: 'premium_pro_suite',
-                name: 'CrumbData - Premium Pro Suite',
-                price: '89.99',
-                frequency: '/month',
-                description: ['For established bakeries that demand excellence.', 'Full-featured, white-glove service, and limitless scalability.'],
+                id: t('payments.components.planSelection.plans.2.id'),
+                name: t('payments.components.planSelection.plans.2.name'),
+                price: t('payments.components.planSelection.plans.2.price'),
+                frequency: t('payments.components.planSelection.plans.0.frequency'),
+                description: [t('payments.components.planSelection.plans.2.description.0'), t('payments.components.planSelection.plans.2.description.1')],
                 features: [
-                    { text: 'Everything in Growth Accelerator, plus:' },
-                    { text: 'Unlimited Locations & Team Users' },
-                    { text: 'Personalized Onboarding & Training' },
-                    { text: 'Custom Feature Roadmap Input' },
-                    { text: '24/7 Priority Phone & Emergency Support' },
-                    { text: 'Bespoke API & System Integrations' },
-                    { text: 'SLA-backed Uptime & Performance' }
+                    { text: t('payments.components.planSelection.plans.2.features.0.text') },
+                    { text: t('payments.components.planSelection.plans.2.features.1.text') },
+                    { text: t('payments.components.planSelection.plans.2.features.2.text') },
+                    { text: t('payments.components.planSelection.plans.2.features.3.text') },
+                    { text: t('payments.components.planSelection.plans.2.features.4.text') },
+                    { text: t('payments.components.planSelection.plans.2.features.5.text') },
+                    { text: t('payments.components.planSelection.plans.2.features.6.text') }
                 ],
-                iconName: 'verified',
-                whyThisPlan: 'If you’re running multiple sites, handling high order volume, or need bespoke workflows—Premium Pro Suite is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs.',
+                iconName: t('payments.components.planSelection.plans.2.iconName'),
+                whyThisPlan: t('payments.components.planSelection.plans.2.whyThisPlan'),
             }
         ]
     },
 
     paymentSuccessPage: {
-        title: "Payment Successful!",
-        titleSubscriptionActivated: "Subscription Activated!",
-        thankYouMessage: "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated.",
-        thankYouGeneric: "Thank you! Your payment was successful and your subscription is now active.",
-        accessMessage: "You can now access all the premium features.",
-        transactionIdLabel: "Transaction ID:",
+        title: t('payments.components.paymentSuccessPage.title'),
+        titleSubscriptionActivated: t('payments.components.paymentSuccessPage.titleSubscriptionActivated'),
+        thankYouMessage: t('payments.components.paymentSuccessPage.thankYouMessage'),
+        thankYouGeneric: t('payments.components.paymentSuccessPage.thankYouGeneric'),
+        accessMessage: t('payments.components.paymentSuccessPage.accessMessage'),
+        transactionIdLabel: t('payments.components.paymentSuccessPage.transactionIdLabel'),
         buttons: {
-            goToDashboard: "Go to Dashboard",
-            viewBilling: "View Billing Details",
+            goToDashboard: t('payments.components.paymentSuccessPage.buttons.goToDashboard'),
+            viewBilling: t('payments.components.paymentSuccessPage.buttons.viewBilling'),
         },
         links: {
-            contactSupport: "contact our support team",
+            contactSupport: t('payments.components.paymentSuccessPage.links.contactSupport'),
         },
         loading: {
-            finalizingSubscription: "Finalizing your subscription...",
-            checkingDetails: "Checking payment details...",
+            finalizingSubscription: t('payments.components.paymentSuccessPage.loading.finalizingSubscription'),
+            checkingDetails: t('payments.components.paymentSuccessPage.loading.checkingDetails'),
         },
         errors: {
-            missingSessionId: "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support.",
-            subscriptionUpdateFailed: "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support.",
+            missingSessionId: t('payments.components.paymentSuccessPage.errors.missingSessionId'),
+            subscriptionUpdateFailed: t('payments.components.paymentSuccessPage.errors.subscriptionUpdateFailed'),
         }
     },
 
     paymentCancelPage: {
-        title: "Payment Not Completed",
-        message: "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated.",
+        title: t('payments.components.paymentCancelPage.title'),
+        message: t('payments.components.paymentCancelPage.message'),
         buttons: {
-            tryAgain: "Try Again",
-            contactSupport: "Contact Support",
+            tryAgain: t('payments.components.paymentCancelPage.buttons.tryAgain'),
+            contactSupport: t('payments.components.paymentCancelPage.buttons.contactSupport'),
         },
-        footerNote: "If you believe this is an error or need assistance, please don't hesitate to reach out."
+        footerNote: t('payments.components.paymentCancelPage.footerNote')
     }
 };

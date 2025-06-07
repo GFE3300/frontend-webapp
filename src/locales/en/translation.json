@@ -1,1 +1,1101 @@
-{}
+{
+  "payments": {
+    "components": {
+      "paymentCancelPage": {
+        "buttons": {
+          "contactSupport": "Contact Support",
+          "tryAgain": "Try Again"
+        },
+        "footerNote": "If you believe this is an error or need assistance, please don't hesitate to reach out.",
+        "message": "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated.",
+        "title": "Payment Not Completed"
+      },
+      "paymentSuccessPage": {
+        "accessMessage": "You can now access all the premium features.",
+        "buttons": {
+          "goToDashboard": "Go to Dashboard",
+          "viewBilling": "View Billing Details"
+        },
+        "errors": {
+          "missingSessionId": "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support.",
+          "subscriptionUpdateFailed": "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support."
+        },
+        "links": {
+          "contactSupport": "contact our support team"
+        },
+        "loading": {
+          "checkingDetails": "Checking payment details...",
+          "finalizingSubscription": "Finalizing your subscription..."
+        },
+        "thankYouGeneric": "Thank you! Your payment was successful and your subscription is now active.",
+        "thankYouMessage": "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated.",
+        "title": "Payment Successful!",
+        "titleSubscriptionActivated": "Subscription Activated!",
+        "transactionIdLabel": "Transaction ID:"
+      },
+      "planSelection": {
+        "badges": {
+          "currentPlan": "Current Plan",
+          "mostPopular": "Most Popular",
+          "recommended": "Recommended",
+          "specialOffer": "SPECIAL OFFER"
+        },
+        "buttons": {
+          "chooseThisPlan": "Choose This Plan",
+          "downgradePlan": "Downgrade Plan",
+          "manageSubscription": "Manage Subscription",
+          "planSelected": "Plan Selected!",
+          "processing": "Processing...",
+          "switchPlan": "Switch Plan",
+          "upgradePlan": "Upgrade Plan"
+        },
+        "console": {
+          "invalidOnPlanSelectProp": "PlanSelection: Invalid `onPlanSelect` prop. Expected a function."
+        },
+        "errors": {
+          "functionalityUnavailable": "Error: Plan selection functionality is unavailable."
+        },
+        "footerNote": "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings.",
+        "messages": {
+          "alreadySubscribedError": "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'.",
+          "loadingSubscription": "Loading your subscription details...",
+          "subscriptionLoadError": "Could not load your current subscription status. Please try again or contact support."
+        },
+        "plans": {
+          "0": {
+            "description": {
+              "0": "Perfect for solo and micro-shops.",
+              "1": "Get up and running fast with essential order & inventory tools."
+            },
+            "features": {
+              "0": {
+                "text": "Unlimited Orders"
+              },
+              "1": {
+                "text": "Menu-Style Order Entry"
+              },
+              "2": {
+                "text": "Live Low-Stock Alerts"
+              },
+              "3": {
+                "text": "Basic Consumption Charts"
+              },
+              "4": {
+                "text": "Email Support (48 hr response)"
+              },
+              "5": {
+                "text": "Advanced Forecasting"
+              },
+              "6": {
+                "text": "Custom Feature Requests"
+              },
+              "7": {
+                "text": "Dedicated Account Manager"
+              }
+            },
+            "frequency": "/month",
+            "iconName": "bolt",
+            "id": "starter_essentials",
+            "name": "CrumbData - Starter Essentials",
+            "price": "29.99",
+            "whyThisPlan": "Lightweight, powerful, and cost-effective—Starter Essentials gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation."
+          },
+          "1": {
+            "description": {
+              "0": "For growing businesses ready to scale.",
+              "1": "All-in-one order management + deep insights to optimize and grow."
+            },
+            "discount": {
+              "details": "Then €39.99/month. Renews automatically, cancel anytime.",
+              "displayPrice": "16.00",
+              "offerTitle": "First Month 60% Off!",
+              "originalPriceText": "€39.99/month",
+              "priceSuffix": "/first month"
+            },
+            "features": {
+              "0": {
+                "text": "Everything in Starter Essentials"
+              },
+              "1": {
+                "text": "Advanced Cost & Consumption Forecasts"
+              },
+              "2": {
+                "text": "Monthly Performance Reports"
+              },
+              "3": {
+                "text": "Multi-Location Support (2 shops)"
+              },
+              "4": {
+                "text": "Priority Email & Chat Support"
+              },
+              "5": {
+                "text": "Access to Beta Features"
+              },
+              "7": {
+                "text": "Custom Integrations"
+              }
+            },
+            "iconName": "mode_heat",
+            "id": "growth_accelerator",
+            "name": "CrumbData - Growth Accelerator",
+            "price": "39.99",
+            "whyThisPlan": "You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Growth Accelerator brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently."
+          },
+          "2": {
+            "description": {
+              "0": "For established bakeries that demand excellence.",
+              "1": "Full-featured, white-glove service, and limitless scalability."
+            },
+            "features": {
+              "0": {
+                "text": "Everything in Growth Accelerator, plus:"
+              },
+              "1": {
+                "text": "Unlimited Locations & Team Users"
+              },
+              "2": {
+                "text": "Personalized Onboarding & Training"
+              },
+              "3": {
+                "text": "Custom Feature Roadmap Input"
+              },
+              "4": {
+                "text": "24/7 Priority Phone & Emergency Support"
+              },
+              "5": {
+                "text": "Bespoke API & System Integrations"
+              },
+              "6": {
+                "text": "SLA-backed Uptime & Performance"
+              }
+            },
+            "iconName": "verified",
+            "id": "premium_pro_suite",
+            "name": "CrumbData - Premium Pro Suite",
+            "price": "89.99",
+            "whyThisPlan": "If you’re running multiple sites, handling high order volume, or need bespoke workflows—Premium Pro Suite is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
+          }
+        },
+        "subtitle": "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together.",
+        "themeColorDefault": "rose",
+        "title": "Unlock Your Potential"
+      }
+    }
+  },
+  "register": {
+    "addressForm": {
+      "addressForm": {
+        "error": {
+          "countryAutocompleteError": "Country autocomplete error",
+          "placesImportFailed": "Places import failed"
+        },
+        "label": {
+          "city": "City",
+          "country": "Country",
+          "postalCode": "Postal Code",
+          "streetAddress": "Street Address"
+        },
+        "staticCountries": {
+          "AU": "Australia",
+          "BR": "Brazil",
+          "CA": "Canada",
+          "CN": "China",
+          "DE": "Germany",
+          "ES": "Spain",
+          "FR": "France",
+          "GB": "United Kingdom",
+          "IN": "India",
+          "IT": "Italy",
+          "JP": "Japan",
+          "MX": "Mexico",
+          "PT": "Portugal",
+          "RU": "Russia",
+          "US": "United States",
+          "ZA": "South Africa"
+        }
+      }
+    },
+    "components": {
+      "Dropdown": {
+        "line1": "No options available."
+      },
+      "formStep": {
+        "buttons": {
+          "back": "Back",
+          "completeRegistration": "Complete Registration",
+          "continue": "Continue",
+          "submitting": "Submitting..."
+        },
+        "console": {
+          "invalidFormStateProp": "FormStep: Invalid or missing `formState` prop or `formState.validateStep` function.",
+          "invalidOnSubmitProp": "FormStep: `onSubmit` prop provided for final step but is not a function. `onProceed` will be used.",
+          "invalidStepIndexProp": "FormStep: Invalid `stepIndex` prop. Expected a non-negative number.",
+          "invalidTitleProp": "FormStep: Invalid or missing `title` prop. Expected a string.",
+          "missingChildrenProp": "FormStep: Missing `children` prop.",
+          "missingNavigationHandlers": "FormStep: Missing `onProceed` or `onBack` prop. Expected functions.",
+          "validationOrProceedError": "FormStep: Error during step validation or proceeding:"
+        },
+        "errors": {
+          "formContextUnavailable": "Error: Form context is unavailable.",
+          "navigationHandlersMissing": "Error: Navigation handlers are missing.",
+          "stepConfigurationInvalid": "Error: Step configuration is invalid.",
+          "stepContentMissing": "Error: Step content is missing.",
+          "unexpectedError": "An unexpected error occurred. Please try again."
+        },
+        "progress": {
+          "of": "of",
+          "step": "Step"
+        }
+      },
+      "imageUploader": {
+        "console": {
+          "initialSrcWarning": "ImageUploader: initialSrc prop does not appear to be a valid image URL or data URL.",
+          "invalidOnImageUploadProp": "ImageUploader: Invalid `onImageUpload` prop. Expected a function."
+        },
+        "cropper": {
+          "buttons": {
+            "applyCrop": "Apply Crop",
+            "changeImage": "Change Image",
+            "resetCrop": "Reset Crop"
+          },
+          "title": "Adjust Your Image"
+        },
+        "dropzone": {
+          "clickToUploadText": "Click to upload",
+          "ctaActive": "Drop image here!",
+          "ctaDefault": "<span class='font-bold'>{clickToUpload}</span> or drag & drop",
+          "fileTypes": "PNG, JPG, GIF, WEBP up to {maxFileSizeMB}MB"
+        },
+        "errors": {
+          "blobCreationError": "Failed to create image blob. Please try again.",
+          "canvasContextError": "Failed to process image. Canvas context not available.",
+          "cropSaveError": "Could not save crop. Please select a valid area.",
+          "errorReadingFile": "Error reading file.",
+          "fileNotAccepted": "File could not be accepted. Please try again.",
+          "fileTooLarge": "File is too large. Max size: {maxFileSizeMB}MB.",
+          "handlerMissing": "Error: Image upload handler is missing.",
+          "invalidFileType": "Invalid file type. Please upload an image (JPEG, PNG, GIF, WebP)."
+        },
+        "preview": {
+          "title": "Current Profile Image:",
+          "uploadNew": "Upload new image?"
+        }
+      },
+      "planSelection": {
+        "plans": {
+          "0": {
+            "id": "basic",
+            "name": "The First Batch",
+            "whyThisPlan": "Lightweight, powerful, and cost-effective—First Batch gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation."
+          },
+          "1": {
+            "discount": {
+              "details": "Then $49.99/month. Renews automatically, cancel anytime.",
+              "displayPrice": "0.00",
+              "offerTitle": "First Month FREE!",
+              "originalPriceText": "$49.99/month"
+            },
+            "features": {
+              "0": {
+                "text": "Everything in First Batch"
+              }
+            },
+            "id": "standard",
+            "name": "The Artisan Oven",
+            "price": "49.99",
+            "whyThisPlan": "You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Artisan Oven brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently."
+          },
+          "2": {
+            "features": {
+              "0": {
+                "text": "Everything in Artisan Oven, plus:"
+              }
+            },
+            "id": "premium",
+            "name": "Master Baker Suite",
+            "price": "99.99",
+            "whyThisPlan": "If you’re running multiple sites, handling high order volume, or need bespoke workflows—Master Baker is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
+          }
+        }
+      },
+      "trustFooter": {
+        "copyright": "© {year} {companyName}. All rights reserved.",
+        "links": {
+          "termsOfUse": "Terms of Use"
+        },
+        "securityMessage": "Your information is secure. We prioritize your privacy and data protection."
+      }
+    },
+    "header": {
+      "autocompleteInput": {
+        "error": {
+          "autocompleteError": "Autocomplete error",
+          "noMatchingAddresses": "Could not find matching addresses",
+          "placesLibraryLoadFailed": "Places library load failed"
+        },
+        "label": {
+          "autoComplete": "Auto Complete"
+        },
+        "placeholder": {
+          "quickerSearch": "Here it is quicker..."
+        },
+        "status": {
+          "findingLocations": "Finding fresh locations...",
+          "noResults": "No fresh bakes found..."
+        }
+      },
+      "geolocationButton": {
+        "aria": {
+          "locating": "Locating..."
+        },
+        "error": {
+          "notSupported": "Geolocation is not supported by your browser",
+          "permissionDenied": "Enable location access in your browser",
+          "unableToDetermine": "Unable to determine your location"
+        },
+        "label": {
+          "useMyLocation": "Use my location"
+        }
+      }
+    },
+    "steps": {
+      "locationStage": {
+        "label": {
+          "mapLocation": "Location"
+        }
+      },
+      "step0BusinessInfo": {
+        "console": {
+          "invalidErrorsProp": "Step0BusinessInfo: Invalid `errors` prop. Expected an object or undefined.",
+          "invalidFormDataProp": "Step0BusinessInfo: Invalid `formData` prop. Expected an object.",
+          "invalidUpdateFieldProp": "Step0BusinessInfo: Invalid `updateField` prop. Expected a function."
+        },
+        "defaultBusinessTags": {
+          "0": "Restaurant",
+          "1": "Cafe",
+          "10": "Organic",
+          "11": "Local Sourcing",
+          "12": "Coffee Shop",
+          "13": "Juice Bar",
+          "14": "Food Truck",
+          "15": "Pizzeria",
+          "16": "Family-Owned",
+          "17": "Online Only",
+          "18": "Appointment Only",
+          "19": "Sustainable",
+          "2": "Retail",
+          "20": "Luxury",
+          "21": "Budget-Friendly",
+          "22": "Pet-Friendly",
+          "3": "Service",
+          "4": "Bakery",
+          "5": "Bar",
+          "6": "Grocery",
+          "7": "Catering",
+          "8": "Vegan",
+          "9": "Gluten-Free"
+        },
+        "errors": {
+          "formDataMissing": "Error: Form data is missing for this step.",
+          "updateFieldMissing": "Error: Form update mechanism is missing."
+        },
+        "helptext": {
+          "businessTags": "Select up to 7 tags that best describe your business."
+        },
+        "label": {
+          "businessEmail": "Business Email",
+          "businessName": "Business Name",
+          "businessPhone": "Business Phone",
+          "businessTags": "Business Tags (Describe your business)",
+          "businessUsername": "Business Username",
+          "businessWebsiteOptional": "Business Website (Optional)",
+          "referralCodeOptional": "Referral Code (Optional)"
+        },
+        "placeholder": {
+          "businessEmail": "e.g. contact@artisancorner.com",
+          "businessName": "e.g. The Artisan Corner",
+          "businessPhone": "e.g. +1 (555) 123-4567",
+          "businessTags": "Type and press Enter (e.g., Cafe, Handmade)",
+          "businessUsername": "e.g. @artisancorner",
+          "businessWebsite": "e.g. https://artisancorner.com",
+          "referralCode": "Enter code if you have one"
+        }
+      },
+      "step2BusinessLogo": {
+        "console": {
+          "invalidErrorsProp": "Step2BusinessLogo: Invalid `errors` prop. Expected an object or undefined. Error display might be affected.",
+          "invalidFormDataProp": "Step2BusinessLogo: Invalid `formData` prop. Expected an object.",
+          "invalidUpdateFieldProp": "Step2BusinessLogo: Invalid `updateField` prop. Expected a function."
+        },
+        "description": "Your logo is key to your brand identity. Please upload a clear image. We recommend a square logo or one that crops well into a square.",
+        "errors": {
+          "formDataUnavailable": "Error: Form data is unavailable for the business logo step.",
+          "updateMechanismImproperlyConfigured": "Error: Form update mechanism is improperly configured."
+        },
+        "title": "Upload Your Business Logo"
+      },
+      "step3Profile": {
+        "aria": {
+          "hidePassword": "Hide password",
+          "showPassword": "Show password"
+        },
+        "console": {
+          "invalidFormDataProp": "Step3Profile: Invalid `formData` prop. Expected an object.",
+          "invalidPasswordStrengthProp": "Step3Profile: Invalid or missing `passwordStrength` prop. Expected a string.",
+          "invalidPasswordVisibilityProps": "Step3Profile: Invalid or missing password visibility props (`showPassword`, `setShowPassword`).",
+          "invalidUpdateFieldProp": "Step3Profile: Invalid `updateField` prop. Expected a function."
+        },
+        "errors": {
+          "passwordStrengthMissing": "Error: Password strength information is missing.",
+          "passwordVisibilityControlMissing": "Error: Password visibility control is missing."
+        },
+        "label": {
+          "confirmPassword": "Confirm Password",
+          "contactEmail": "Contact Email",
+          "contactPhone": "Contact Phone Number",
+          "createPassword": "Create Password",
+          "fullName": "Your Full Name",
+          "lastName": "Your Full Last Name",
+          "roleAtBusiness": "Your Role/Title at Business"
+        },
+        "placeholder": {
+          "confirmPassword": "Re-enter your password",
+          "contactEmail": "e.g. alex.johnson@example.com",
+          "contactPhone": "(555) 123-4567",
+          "firstName": "e.g. Alex",
+          "lastName": "e.g. Johnson",
+          "passwordMinChars": "Minimum 8 characters",
+          "role": "e.g. Owner, Manager, Chef"
+        }
+      },
+      "step4Preferences": {
+        "console": {
+          "invalidErrorsProp": "Step4Preferences: Invalid `errors` prop. Expected an object or undefined.",
+          "invalidFormDataProp": "Step4Preferences: Invalid `formData` prop. Expected an object.",
+          "invalidUpdateFieldProp": "Step4Preferences: Invalid `updateField` prop. Expected a function."
+        },
+        "errors": {
+          "formDataMissing": "Error: Form data is missing for preferences."
+        },
+        "helptext": {
+          "dailySummaryTime": "Set a time to receive daily summaries, if applicable.",
+          "referralSources": "Let us know how you found us!"
+        },
+        "label": {
+          "acceptTerms": "I acknowledge and agree to the {termsLink} and the {privacyLink}.",
+          "preferredDailySummaryTimeOptional": "Preferred Daily Summary Time (Optional)",
+          "preferredLanguage": "Preferred Language",
+          "preferredNotificationMethod": "Preferred Notification Method",
+          "primaryCurrency": "Primary Currency",
+          "referralSourcesOptional": "How did you hear about us? (Optional)",
+          "timezone": "Timezone"
+        },
+        "linkText": {
+          "privacyPolicy": "Privacy Policy",
+          "termsOfService": "Terms of Service"
+        },
+        "options": {
+          "currencies": {
+            "0": {
+              "label": "USD - United States Dollar",
+              "value": "USD"
+            },
+            "1": {
+              "label": "EUR - Euro",
+              "value": "EUR"
+            },
+            "2": {
+              "label": "GBP - British Pound Sterling",
+              "value": "GBP"
+            },
+            "3": {
+              "label": "JPY - Japanese Yen",
+              "value": "JPY"
+            },
+            "4": {
+              "label": "CAD - Canadian Dollar",
+              "value": "CAD"
+            },
+            "5": {
+              "label": "AUD - Australian Dollar",
+              "value": "AUD"
+            },
+            "6": {
+              "label": "CHF - Swiss Franc",
+              "value": "CHF"
+            }
+          },
+          "languages": {
+            "0": {
+              "label": "English",
+              "value": "en"
+            },
+            "1": {
+              "label": "Español (Spanish)",
+              "value": "es"
+            },
+            "10": {
+              "label": "العربية (Arabic)",
+              "value": "ar"
+            },
+            "11": {
+              "label": "हिन्दी (Hindi)",
+              "value": "hi"
+            },
+            "2": {
+              "label": "Français (French)",
+              "value": "fr"
+            },
+            "3": {
+              "label": "Deutsch (German)",
+              "value": "de"
+            },
+            "4": {
+              "label": "Italiano (Italian)",
+              "value": "it"
+            },
+            "5": {
+              "label": "Português (Portuguese)",
+              "value": "pt"
+            },
+            "6": {
+              "label": "简体中文 (Simplified Chinese)",
+              "value": "zh-CN"
+            },
+            "7": {
+              "label": "日本語 (Japanese)",
+              "value": "ja"
+            },
+            "8": {
+              "label": "한국어 (Korean)",
+              "value": "ko"
+            },
+            "9": {
+              "label": "Русский (Russian)",
+              "value": "ru"
+            }
+          },
+          "notificationMethods": {
+            "0": {
+              "label": "Email",
+              "value": "email"
+            },
+            "1": {
+              "label": "SMS (Text Message)",
+              "value": "sms"
+            },
+            "2": {
+              "label": "Push Notification",
+              "value": "push"
+            },
+            "3": {
+              "label": "None",
+              "value": "none"
+            }
+          },
+          "timezones": {
+            "0": {
+              "label": "America/New York (EST/EDT)",
+              "value": "America/New_York"
+            },
+            "1": {
+              "label": "America/Chicago (CST/CDT)",
+              "value": "America/Chicago"
+            },
+            "10": {
+              "label": "Asia/Dubai (GST)",
+              "value": "Asia/Dubai"
+            },
+            "11": {
+              "label": "Asia/Kolkata (IST)",
+              "value": "Asia/Kolkata"
+            },
+            "12": {
+              "label": "Asia/Shanghai (CST)",
+              "value": "Asia/Shanghai"
+            },
+            "13": {
+              "label": "Australia/Sydney (AEST/AEDT)",
+              "value": "Australia/Sydney"
+            },
+            "14": {
+              "label": "Australia/Perth (AWST)",
+              "value": "Australia/Perth"
+            },
+            "15": {
+              "label": "Africa/Cairo (EET)",
+              "value": "Africa/Cairo"
+            },
+            "16": {
+              "label": "Africa/Johannesburg (SAST)",
+              "value": "Africa/Johannesburg"
+            },
+            "17": {
+              "label": "Coordinated Universal Time (UTC)",
+              "value": "UTC"
+            },
+            "2": {
+              "label": "America/Denver (MST/MDT)",
+              "value": "America/Denver"
+            },
+            "3": {
+              "label": "America/Los Angeles (PST/PDT)",
+              "value": "America/Los_Angeles"
+            },
+            "4": {
+              "label": "America/Sao Paulo (BRT/BRST)",
+              "value": "America/Sao_Paulo"
+            },
+            "5": {
+              "label": "Europe/London (GMT/BST)",
+              "value": "Europe/London"
+            },
+            "6": {
+              "label": "Europe/Paris (CET/CEST)",
+              "value": "Europe/Paris"
+            },
+            "7": {
+              "label": "Europe/Berlin (CET/CEST)",
+              "value": "Europe/Berlin"
+            },
+            "8": {
+              "label": "Europe/Moscow (MSK)",
+              "value": "Europe/Moscow"
+            },
+            "9": {
+              "label": "Asia/Tokyo (JST)",
+              "value": "Asia/Tokyo"
+            }
+          }
+        },
+        "placeholder": {
+          "referralSources": "e.g., Friend, Social Media, Advertisement",
+          "selectCurrency": "Select your currency",
+          "selectNotificationChannel": "Select notification channel",
+          "selectTimezone": "Select your timezone"
+        }
+      },
+      "step5ProfileImage": {
+        "console": {
+          "invalidErrorsProp": "Step5ProfileImage: Invalid `errors` prop. Expected an object or undefined. Error display might be affected.",
+          "invalidFormDataProp": "Step5ProfileImage: Invalid `formData` prop. Expected an object.",
+          "invalidUpdateFieldProp": "Step5ProfileImage: Invalid `updateField` prop. Expected a function."
+        },
+        "description": "A clear and friendly profile picture helps build trust and recognition. Choose an image that represents your personality and is visually appealing.",
+        "errors": {
+          "formDataUnavailable": "Error: Form data is unavailable for the profile image step."
+        },
+        "title": "Set Your Profile Picture"
+      }
+    },
+    "useFormState": {
+      "error": {
+        "form": {
+          "correctErrorsInStep": "Please correct the errors in step {stepNumber}.",
+          "correctErrorsInStepTitleCase": "Please correct errors in Step {stepNumber}."
+        }
+      },
+      "log": {
+        "failedToParseSessionStorage": "useFormState: Failed to parse state from session storage:",
+        "failedToSaveSessionStorage": "useFormState: Failed to save state to session storage:"
+      },
+      "passwordStrength": {
+        "fair": "fair",
+        "strong": "strong",
+        "weak": "weak"
+      },
+      "validation": {
+        "acceptTermsRequired": "You must accept the Terms of Service and Privacy Policy.",
+        "addressCityRequired": "City is required.",
+        "addressCountryRequired": "Country is required.",
+        "addressDetailsRequired": "Address details are required.",
+        "addressPostalCodeRequired": "Postal code is required.",
+        "addressStreetRequired": "Street address is required.",
+        "businessEmailRequired": "Business email is required.",
+        "businessNameRequired": "Business name is required.",
+        "businessPhoneRequired": "Business phone number is required.",
+        "businessTagsMin": "Please select at least one business tag.",
+        "businessUsernameInvalidFormat": "Username can only contain letters, numbers, and underscores.",
+        "businessUsernameRequired": "Username is required.",
+        "businessWebsiteInvalidUrl": "Please enter a valid URL (e.g., https://example.com).nullable()",
+        "confirmPasswordMatch": "Passwords must match.",
+        "confirmPasswordRequired": "Please confirm your password.",
+        "currencyRequired": "Currency selection is required.",
+        "emailInvalid": "Invalid email format.",
+        "languageRequired": "Language selection is required.",
+        "locationRequiredOnMap": "Location is required. Please select on map.",
+        "logoFileSizeTooLarge": "Logo file is too large (max 5MB).",
+        "logoFileTypeUnsupported": "Unsupported logo format (PNG, JPG, GIF, WEBP).",
+        "passwordMinLength": "Password must be at least 8 characters.",
+        "passwordRequired": "Password is required.",
+        "passwordRequiresLowercase": "Password must contain a lowercase letter.",
+        "passwordRequiresNumber": "Password must contain a number.",
+        "passwordRequiresSpecialChar": "Password must contain a special character.",
+        "passwordRequiresUppercase": "Password must contain an uppercase letter.",
+        "profileEmailRequired": "Your contact email is required.",
+        "profileImageFileSizeTooLarge": "Profile image is too large (max 5MB).",
+        "profileImageFileTypeUnsupported": "Unsupported image format.",
+        "profileNameRequired": "Your full name is required.",
+        "profilePhoneRequired": "Your contact phone number is required.",
+        "timezoneRequired": "Timezone selection is required."
+      }
+    }
+  },
+  "venue_management": {
+    "actions": "Actions",
+    "add": "Add",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "currencyFormat": "{symbol}{amount}",
+    "currencySymbol": "$",
+    "decimalSeparator": ".",
+    "delete": "Delete",
+    "edit": "Edit",
+    "error": "Error",
+    "finish": "Finish",
+    "info": "Info",
+    "items": "Items",
+    "loading": "Loading...",
+    "next": "Next",
+    "no": "No",
+    "noDataAvailable": "No data available.",
+    "page": "Page",
+    "requiredField": "This field is required.",
+    "save": "Save",
+    "search": "Search",
+    "submit": "Submit",
+    "success": "Success",
+    "thousandSeparator": ",",
+    "total": "Total",
+    "venueManagement": {
+      "canvasCell": {
+        "gridCellRoleDescription": "Layout grid cell"
+      },
+      "counterEditor": {
+        "actualBaseHeightLabel": "Actual Base Height (minor):",
+        "actualBaseWidthLabel": "Actual Base Width (minor):",
+        "decorTypeLabel": "Decor Type (if any):",
+        "infoSectionTitle": "Counter Information",
+        "invalidItemError": "Error: Invalid item for Counter Editor.",
+        "labelPlaceholder": "e.g., Main Bar, Register",
+        "labelTooltip": "Enter an optional label for this counter.",
+        "lengthHelpText": "Defines length along its main axis. Thickness is 1 major unit.",
+        "lengthLabel": "Length (major grid units)",
+        "lengthPlaceholder": "e.g., 2",
+        "lengthTooltip": "Length of the counter along its main axis, in major grid cells."
+      },
+      "counterRenderer": {
+        "defaultLabel": "Counter"
+      },
+      "decorEditor": {
+        "decorTypeGeneric": "Generic",
+        "decorTypeLabel": "Decor Type:",
+        "dimensionsHelpText": "Dimensions apply to the item's base before rotation.",
+        "heightLabel": "Height (minor cells)",
+        "heightTooltip": "Height of the item's base before rotation.",
+        "infoSectionTitle": "Decor Information",
+        "labelOptionalLabel": "Label (Optional)",
+        "labelPlaceholder": "e.g., Potted Fern, Area Rug",
+        "labelTooltip": "Enter an optional label for this decor item.",
+        "shapeConfigLabel": "Shape Config:",
+        "widthLabel": "Width (minor cells)",
+        "widthTooltip": "Width of the item's base before rotation."
+      },
+      "doorEditor": {
+        "infoSectionTitle": "Door Information",
+        "leftSwingOption": "Left Swing",
+        "rightSwingOption": "Right Swing",
+        "selectSwingPlaceholder": "Select Swing Direction",
+        "standardDoorType": "Standard Door",
+        "swingDirectionLabel": "Swing Direction",
+        "typeLabel": "Type:"
+      },
+      "draggableTool": {
+        "ariaLabelActivePlacement": "{toolName} tool. Currently active for placement.",
+        "ariaLabelDefault": "{toolName} tool. Click to select or drag to add.",
+        "tooltipActivePlacement": "Tool '{toolName}' active. Click a cell to place.",
+        "tooltipDefaultFullMode": "Click to select, or Drag to add {toolName}",
+        "tooltipDefaultZenMode": "{toolName}"
+      },
+      "editorCanvas": {
+        "gridRegionLabel": "Layout Grid Area",
+        "mainCanvasAreaLabel": "Venue Layout Design Canvas",
+        "resizePreviewAriaHidden": "true"
+      },
+      "editorToolbar": {
+        "colsLabel": "C:",
+        "elementsCategory": "Elements",
+        "eraserActivateTooltip": "Activate Eraser (E)",
+        "eraserDeactivateTooltip": "Deactivate Eraser (E)",
+        "focusModeEnterTooltip": "Enter Focus Mode",
+        "focusModeExitTooltip": "Exit Focus Mode (Esc)",
+        "gridColsAriaLabel": "Grid Columns",
+        "gridRowsAriaLabel": "Grid Rows",
+        "gridSubdivisionAriaLabel": "Grid Subdivision",
+        "redoTooltip": "Redo (Ctrl+Y)",
+        "resetZoomTooltip": "Reset Zoom ({percentage}%)",
+        "rowsLabel": "R:",
+        "saveLayoutTooltip": "Save Layout (Ctrl+S)",
+        "subdivisionOptionSuffix": "x{value}",
+        "toolbarLabel": "Layout Editor Toolbar",
+        "undoTooltip": "Undo (Ctrl+Z)",
+        "zoomInTooltip": "Zoom In (+)",
+        "zoomOutTooltip": "Zoom Out (-)"
+      },
+      "itemConfigs": {
+        "placedDecorDisplayName": "Decor",
+        "placedDoorDisplayName": "Door",
+        "placedTableDisplayName": "Table",
+        "placedWallDisplayName": "Wall",
+        "plantToolName": "Plant",
+        "rectTableToolName": "Rect. Table",
+        "roundTableToolName": "Round Table",
+        "rugToolName": "Rug",
+        "squareTableToolName": "Square Table"
+      },
+      "layoutEditor": {
+        "canvasAreaLabel": "Layout Design Canvas Area",
+        "cellClickedExistingItem": "Cell clicked for EXISTING item move. Candidate: {itemId}, Target: R{row}C{col}",
+        "cellClickedNewItem": "Cell clicked for NEW item placement. Tool: {toolName}, Target: R{row}C{col}",
+        "confirmClearConfirmText": "Yes, Clear All & Reset",
+        "confirmClearMessage": "Are you sure you want to clear all items and reset grid settings to default? This action will be recorded in history but directly clearing is a significant step.",
+        "confirmClearTitle": "Clear Entire Layout",
+        "propertiesInspectorRegionLabel": "Item Properties Inspector",
+        "saveErrorNotConfigured": "Save function (onSaveTrigger) not configured for LayoutEditor.",
+        "toolDeselectedForPlacement": "Tool deselected for placement.",
+        "toolSelectedForPlacement": "Tool selected for placement: {toolName}",
+        "validationErrorDuplicateTableNumbers": "Table numbers must be unique.",
+        "validationErrorInvalidTables": "Ensure all tables have valid, positive numbers.",
+        "validationErrorTitle": "Layout Validation Error"
+      },
+      "layoutItemRendererUtils": {
+        "defaultPreviewRendererItemNameFallback": "Unknown Item",
+        "defaultPreviewRendererTitle": "{itemName} (ID: {itemId})"
+      },
+      "liveOrderDashboard": {
+        "activeStatus": "Active",
+        "activeViewedLabel": "Active Viewed: {count}",
+        "alertNoTablesForSimulateMessage": "Please design the table layout first before simulating orders.",
+        "alertNoTablesForSimulateTitle": "No Tables Defined",
+        "confirmChargeCancelText": "No, Not Yet",
+        "confirmChargeConfirmText": "Yes, Charged & Clear",
+        "confirmChargeMessage": "Have you charged the client and are ready to clear Table {number}?",
+        "confirmChargeTitle": "Confirm Charge & Clear Table",
+        "delayedStatus": "Delayed",
+        "designLayoutButton": "Design Table Layout",
+        "footerText": "Bakery Table Management System © {year}",
+        "hideSidebar": "Hide Sidebar",
+        "idLabel": "ID: {id}...",
+        "itemsLabel": "Items:",
+        "kitchenAreaLabel": "Kitchen",
+        "liveStatusTitle": "Live Table Status (Refreshes {timeAgo})",
+        "newOrdersLabel": "New Orders: {count}",
+        "noTablesDefinedMessage": "Click \"Design Table Layout\" to get started.",
+        "noTablesDefinedTitle": "No tables defined yet.",
+        "orderDetailsTitle": "Order Details: Table {number}",
+        "peopleLabel": "People:",
+        "showSidebar": "Show Sidebar",
+        "simulateOrderButton": "Simulate New Order",
+        "tableLabel": "Table {number}",
+        "title": "Bakery Orders",
+        "totalPriceLabel": "Total: {price}",
+        "viewedOrdersTitle": "Viewed Orders ({count})"
+      },
+      "placedItem": {
+        "defaultRendererIdLabel": "ID: {itemId}",
+        "defaultRendererMissingText": "Renderer Missing",
+        "defaultRendererTypeLabel": "Type: {itemType}",
+        "itemBaseTitle": "{itemName}",
+        "itemDefaultAriaRole": "button",
+        "itemEraserActionText": "Tap to erase {itemName}",
+        "itemFixedSuffix": "(Fixed)",
+        "itemMoveCandidateSuffix": "Click a cell to move {itemName}",
+        "itemProvisionalSuffix": "(Provisional - Click in Editor to set number)",
+        "itemSelectActionText": "Tap to select {itemName}"
+      },
+      "propertiesInspector": {
+        "closeButtonTooltip": "Close Properties Panel",
+        "defaultInspectorContent_noEditorConfigured": "No specific editor configured for this item type, or the configured key is not matched.",
+        "defaultTitle": "Properties",
+        "minimizedTabTooltip": "Show Properties",
+        "noItemSelectedMessage": "Select an item on the canvas to view its properties."
+      },
+      "resizeHandle": {
+        "directionE": "East",
+        "directionN": "North",
+        "directionS": "South",
+        "directionW": "West",
+        "tooltipPrefix": "Resize {direction}"
+      },
+      "rotationHandle": {
+        "ariaLabel": "Rotate Item by 90 degrees",
+        "tooltip": "Rotate Item (90°)"
+      },
+      "tableEditor": {
+        "defaultShapeLabel": "Default shape:",
+        "fixedLabel": "Fixed:",
+        "infoSectionTitle": "Table Information",
+        "itemIdLabel": "Item ID:",
+        "provisionalLabel": "Provisional:",
+        "rotationLabel": "Rotation:",
+        "seatsLabel": "Number of Seats",
+        "seatsPlaceholder": "e.g., 4 or empty for default",
+        "seatsTooltip": "Enter a number or leave empty for default seats.",
+        "tableNumberHelpText": "Edit number on the table itself. Click to select, then click number to edit.",
+        "tableNumberLabel": "Table Number",
+        "tableNumberValueNotSet": "Not Set",
+        "tableNumberValueProvisional": "Nº? (Set on table)"
+      },
+      "tableRenderer": {
+        "provisionalDisplayValue": "Nº?",
+        "provisionalTooltipText": "Provisional Table (Click in Editor to set number)",
+        "tableNumberPrefix": "T"
+      },
+      "useLayoutData": {
+        "layoutSavedMessage": "Venue layout has been successfully saved.",
+        "layoutSavedTitle": "Layout Saved",
+        "loadingErrorMessageDefault": "Could not load venue layout from the server.",
+        "loadingErrorTitle": "Loading Error",
+        "noActiveLayoutMessage": "No active layout found on backend. Using default local structure.",
+        "resetLocallyMessage": "The layout has been reset to default. Save to persist these changes.",
+        "resetLocallyTitle": "Layout Reset Locally",
+        "saveErrorDefault": "Could not save venue layout.",
+        "saveErrorDetailsPrefix": "Details: {details}",
+        "saveErrorNoData": "No layout data provided to save.",
+        "saveErrorNotLoaded": "Layout data is not yet loaded. Please wait and try again.",
+        "saveErrorTitle": "Save Error"
+      },
+      "useLayoutDesignerStateManagement": {
+        "configErrorMissingConfigMessage": "Missing configuration for item type: {itemType}. Please contact support.",
+        "configErrorMissingConfigTitle": "Configuration Error",
+        "configErrorMissingFactoryMessage": "Missing properties factory for item type: {itemType}. Please contact support.",
+        "counterLengthPositiveError": "Counter length must be a positive number.",
+        "counterSizingErrorConflict": "Counter cannot be resized: new size conflicts or is out of bounds.",
+        "designerClearedMessage": "All items have been removed from the layout.",
+        "designerClearedTitle": "Designer Cleared",
+        "designerResetMessage": "Layout and grid settings have been reset to default.",
+        "designerResetTitle": "Designer Reset",
+        "dimensionErrorMinMessage": "Invalid base dimensions for new item. Minimum dimension is {minCells} cell(s).",
+        "dimensionErrorTitle": "Dimension Error",
+        "duplicateTableNumberMessage": "Table number {number} is already in use.",
+        "duplicateTableNumberTitle": "Duplicate Table Number",
+        "factoryErrorMessage": "Error creating properties for new item ({itemType}).",
+        "factoryErrorTitle": "Factory Error",
+        "gridDimensionErrorRange": "Grid dimensions out of range. Min/Max Rows: {minRows}-{maxRows}, Cols: {minCols}-{maxCols}.",
+        "gridDimensionErrorTitle": "Invalid Dimension",
+        "gridResizeErrorOutOfBoundsMessage": "Cannot reduce dimensions. Some items would be out of bounds.",
+        "gridResizeErrorOutOfBoundsTitle": "Resize Error",
+        "invalidInputTitle": "Invalid Input",
+        "invalidRotationAngle": "Invalid rotation angle.",
+        "invalidRotationType": "Invalid rotation type.",
+        "invalidSeatCountMessage": "Seat count must be a non-negative integer or empty.",
+        "invalidSeatCountTitle": "Invalid Seat Count",
+        "invalidSubdivisionMessage": "Grid subdivision level is invalid.",
+        "invalidSubdivisionTitle": "Invalid Subdivision",
+        "invalidTableNumberMessage": "Table number must be a positive integer or empty.",
+        "invalidTableNumberTitle": "Invalid Table Number",
+        "placementErrorOccupiedOrOutOfBounds": "Cannot place item: Space occupied or out of bounds.",
+        "placementErrorTitle": "Placement Error",
+        "resizeErrorConflictOrOutOfBounds": "Resized/moved item conflicts or is out of bounds.",
+        "rotationErrorConflictOrOutOfBounds": "Cannot rotate: new orientation conflicts or is out of bounds.",
+        "rotationErrorTitle": "Rotation Error",
+        "sizingErrorTitle": "Sizing Error",
+        "subdivisionChangedMessage": "Grid subdivision has been updated. Existing items' dimensions are in minor cells and will not automatically scale. Manual adjustment may be needed if their intended size was relative to major grid units.",
+        "subdivisionChangedTitle": "Subdivision Changed"
+      },
+      "useQrCodeManager": {
+        "downloadCompleteMessage": "Successfully downloaded {count} QR codes.",
+        "downloadCompleteTitle": "Download Complete",
+        "downloadErrorInvalidTable": "Invalid table data for QR download.",
+        "downloadErrorTitle": "Download Error",
+        "downloadFailedAllMessage": "All {count} QR codes could not be downloaded at this time.",
+        "downloadFailedTitle": "Download Failed",
+        "downloadIssueMixedMessage": "No QR codes downloaded. {failedCount} failed, {skippedCount} skipped (service unavailable).",
+        "downloadIssueMixedTitle": "Download Issue",
+        "downloadPartialMessageFailed": " {failedCount} failed.",
+        "downloadPartialMessageSkipped": " {skippedCount} skipped (service unavailable).",
+        "downloadPartialMessageSuccess": "Successfully downloaded {downloadedCount} QR codes.",
+        "downloadPartialTitle": "Download Partial",
+        "downloadStartingMessage": "Preparing to download available QR code(s) for {count} table(s). This may take a moment.",
+        "downloadStartingSomeFailed": " Some QRs previously failed to generate.",
+        "downloadStartingSomeServiceDisabled": " Some QRs are unavailable (service disabled).",
+        "downloadStartingSomeUnavailable": " Some QRs are unavailable or errored.",
+        "downloadStartingTitle": "Download Starting",
+        "downloadUnavailableAllServiceMessage": "All QR codes are currently unavailable because the generation service is offline.",
+        "noQrCodesToDownloadMessage": "There are no valid, numbered tables to download QR codes for.",
+        "noQrCodesToDownloadTitle": "No QR Codes",
+        "qrFetchErrorMessage": "Could not fetch QR for Table {tableIdentifier}: {errorMessage}",
+        "qrFetchErrorTitleGeneric": "Network Error",
+        "qrFetchErrorTitleHttp": "QR Error (HTTP {status})",
+        "qrFetchServiceUnavailableMessage": "QR code generation for Table {tableIdentifier} is currently unavailable (endpoint not ready).",
+        "qrFetchServiceUnavailableTitle": "QR Service Info",
+        "qrNotAvailableForDownloadTitle": "QR Not Available",
+        "qrNotAvailableGenericDownloadError": "Could not download QR for Table {tableIdentifier}. Ensure it can be generated.",
+        "qrNotAvailablePreviouslyFailedMessage": "QR code for Table {tableIdentifier} could not be generated previously. Try refreshing or check logs.",
+        "qrNotAvailableServiceMessage": "QR code for Table {tableIdentifier} cannot be downloaded as the generation service is unavailable."
+      },
+      "venueDesignerHeader": {
+        "designModeLabel": "Design",
+        "downloadQrTooltip": "Download All QR Codes",
+        "focusModeTooltip": "Focus Mode",
+        "previewModeLabel": "Preview",
+        "qrButtonText": "QRs"
+      },
+      "venueDesignerPage": {
+        "defaultLayoutName": "Default Venue Layout",
+        "discardAndExitButton": "Discard & Exit",
+        "errorGettingEditorStateMessage": "Could not get current editor state for preview. Please save first.",
+        "errorPageMessage": "Could not initialize layout data. Please try refreshing. If the problem persists, contact support.",
+        "errorPageTitle": "Failed to Load Layout Data",
+        "exitLayoutManagerConfirmationMessage": "You have unsaved changes. Are you sure you want to exit and discard them?",
+        "exitLayoutManagerTitle": "Exit Layout Manager",
+        "initializingEditor": "Initializing Editor...",
+        "loadingPageTitle": "Loading Venue Designer...",
+        "loadingPreview": "Loading Preview...",
+        "previewLastSavedButton": "Preview Last Saved",
+        "previewUnsavedButton": "Preview Unsaved",
+        "previewingLastSavedAlertMessage": "Showing the last saved version. Your unsaved changes remain in the editor.",
+        "previewingLastSavedAlertTitle": "Previewing Last Saved Layout",
+        "previewingUnsavedAlertMessage": "You are viewing your current unsaved changes. These are not yet saved to the server.",
+        "previewingUnsavedAlertTitle": "Previewing Unsaved Changes",
+        "refreshPageButton": "Refresh Page",
+        "stayInDesignButton": "Stay in Design Mode",
+        "stayOnPageButton": "Stay on Page",
+        "switchToPreviewConfirmationMessage": "You have unsaved changes. How would you like to proceed to Preview Mode?",
+        "unsavedChangesTitle": "Unsaved Changes"
+      },
+      "venueLayoutPreview": {
+        "downloadAllQrsButtonText": "Download All QRs",
+        "gridItemTableTooltip": "Table {number} - Click to see QR in sidebar",
+        "noTablesForQrMessage": "Switch to 'Design Mode' to add tables to your layout and assign them numbers.",
+        "noTablesForQrTitle": "No Tables for QR Codes",
+        "previewUnavailableMessage": "It seems there's no layout data to display, or grid dimensions are invalid. <br />Please design your layout in 'Design Mode' first.",
+        "previewUnavailableTitle": "Layout Preview Unavailable",
+        "qrDownloadButtonTooltip": "Download QR Code",
+        "qrErrorMessage": "Could not load.",
+        "qrSeatsLabel": "{seats} Seats",
+        "qrSeatsNotAvailable": "N/A Seats",
+        "qrShapeLabel": "{shape}",
+        "qrSidebarTitle": "Table QR Codes",
+        "qrSkippedMessage": "Unavailable.",
+        "qrStatusError": "Error loading QR",
+        "qrStatusLoading": "Loading QR...",
+        "qrStatusPending": "QR Pending",
+        "qrStatusSkipped": "QR Generation Offline"
+      },
+      "wallEditor": {
+        "baseHeightLabel": "Base Height (minor):",
+        "baseWidthLabel": "Base Width (minor):",
+        "infoSectionTitle": "Wall Information",
+        "lengthLabel": "Length (major units):",
+        "thicknessHelpText": "Thickness within its own grid cell. Does not affect collision. Max: {maxThickness}.",
+        "thicknessLabel": "Visual Thickness (minor cells)",
+        "thicknessTooltip": "Visual thickness of the wall within its own cell."
+      }
+    },
+    "view": "View",
+    "warning": "Warning",
+    "yes": "Yes"
+  }
+}

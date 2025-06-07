@@ -1,176 +1,178 @@
+import { t } from '../../../i18n';
+
 // src/features/venue_management/utils/script_lines.js
 export const scriptLines = {
     // --- Global Settings ---
-    currencySymbol: "$",
-    currencyFormat: "{symbol}{amount}", // e.g., $10.99
-    currencyCode: "USD", // Example
-    decimalSeparator: ".",
-    thousandSeparator: ",",
+    currencySymbol: t('venue_management.currencySymbol'),
+    currencyFormat: t('venue_management.currencyFormat'), // e.g., $10.99
+    currencyCode: t('register.steps.step4Preferences.options.currencies.0.value'), // Example
+    decimalSeparator: t('venue_management.decimalSeparator'),
+    thousandSeparator: t('venue_management.thousandSeparator'),
     decimals: 2,
 
     // --- Common / General ---
-    error: "Error",
-    info: "Info",
-    warning: "Warning",
-    success: "Success",
-    loading: "Loading...",
-    tryAgain: "Try Again",
-    save: "Save",
-    cancel: "Cancel",
-    confirm: "Confirm",
-    close: "Close",
-    yes: "Yes",
-    no: "No",
-    next: "Next",
-    back: "Back",
-    finish: "Finish",
-    submit: "Submit",
-    search: "Search",
-    actions: "Actions",
-    edit: "Edit",
-    delete: "Delete",
-    view: "View",
-    add: "Add",
-    requiredField: "This field is required.",
-    noDataAvailable: "No data available.",
-    page: "Page",
-    of: "of",
-    items: "Items",
-    total: "Total",
+    error: t('venue_management.error'),
+    info: t('venue_management.info'),
+    warning: t('venue_management.warning'),
+    success: t('venue_management.success'),
+    loading: t('venue_management.loading'),
+    tryAgain: t('payments.components.paymentCancelPage.buttons.tryAgain'),
+    save: t('venue_management.save'),
+    cancel: t('venue_management.cancel'),
+    confirm: t('venue_management.confirm'),
+    close: t('venue_management.close'),
+    yes: t('venue_management.yes'),
+    no: t('venue_management.no'),
+    next: t('venue_management.next'),
+    back: t('register.components.formStep.buttons.back'),
+    finish: t('venue_management.finish'),
+    submit: t('venue_management.submit'),
+    search: t('venue_management.search'),
+    actions: t('venue_management.actions'),
+    edit: t('venue_management.edit'),
+    delete: t('venue_management.delete'),
+    view: t('venue_management.view'),
+    add: t('venue_management.add'),
+    requiredField: t('venue_management.requiredField'),
+    noDataAvailable: t('venue_management.noDataAvailable'),
+    page: t('venue_management.page'),
+    of: t('register.components.formStep.progress.of'),
+    items: t('venue_management.items'),
+    total: t('venue_management.total'),
 
     // --- Venue Management Feature ---
     venueManagement: {
         liveOrderDashboard: {
-            title: "Bakery Orders",
-            hideSidebar: "Hide Sidebar",
-            showSidebar: "Show Sidebar",
-            liveStatusTitle: "Live Table Status (Refreshes {timeAgo})",
-            newOrdersLabel: "New Orders: {count}",
-            activeViewedLabel: "Active Viewed: {count}",
-            designLayoutButton: "Design Table Layout",
-            simulateOrderButton: "Simulate New Order",
-            kitchenAreaLabel: "Kitchen",
-            noTablesDefinedTitle: "No tables defined yet.",
-            noTablesDefinedMessage: "Click \"Design Table Layout\" to get started.",
-            footerText: "Bakery Table Management System © {year}",
-            viewedOrdersTitle: "Viewed Orders ({count})",
-            tableLabel: "Table {number}",
-            idLabel: "ID: {id}...",
-            delayedStatus: "Delayed",
-            activeStatus: "Active",
-            itemsLabel: "Items:",
-            peopleLabel: "People:",
-            totalPriceLabel: "Total: {price}", // Price will be formatted
-            orderDetailsTitle: "Order Details: Table {number}",
-            confirmChargeTitle: "Confirm Charge & Clear Table",
-            confirmChargeMessage: "Have you charged the client and are ready to clear Table {number}?",
-            confirmChargeConfirmText: "Yes, Charged & Clear",
-            confirmChargeCancelText: "No, Not Yet",
-            alertNoTablesForSimulateTitle: "No Tables Defined",
-            alertNoTablesForSimulateMessage: "Please design the table layout first before simulating orders.",
+            title: t('venue_management.venueManagement.liveOrderDashboard.title'),
+            hideSidebar: t('venue_management.venueManagement.liveOrderDashboard.hideSidebar'),
+            showSidebar: t('venue_management.venueManagement.liveOrderDashboard.showSidebar'),
+            liveStatusTitle: t('venue_management.venueManagement.liveOrderDashboard.liveStatusTitle'),
+            newOrdersLabel: t('venue_management.venueManagement.liveOrderDashboard.newOrdersLabel'),
+            activeViewedLabel: t('venue_management.venueManagement.liveOrderDashboard.activeViewedLabel'),
+            designLayoutButton: t('venue_management.venueManagement.liveOrderDashboard.designLayoutButton'),
+            simulateOrderButton: t('venue_management.venueManagement.liveOrderDashboard.simulateOrderButton'),
+            kitchenAreaLabel: t('venue_management.venueManagement.liveOrderDashboard.kitchenAreaLabel'),
+            noTablesDefinedTitle: t('venue_management.venueManagement.liveOrderDashboard.noTablesDefinedTitle'),
+            noTablesDefinedMessage: t('venue_management.venueManagement.liveOrderDashboard.noTablesDefinedMessage'),
+            footerText: t('venue_management.venueManagement.liveOrderDashboard.footerText'),
+            viewedOrdersTitle: t('venue_management.venueManagement.liveOrderDashboard.viewedOrdersTitle'),
+            tableLabel: t('venue_management.venueManagement.liveOrderDashboard.tableLabel'),
+            idLabel: t('venue_management.venueManagement.liveOrderDashboard.idLabel'),
+            delayedStatus: t('venue_management.venueManagement.liveOrderDashboard.delayedStatus'),
+            activeStatus: t('venue_management.venueManagement.liveOrderDashboard.activeStatus'),
+            itemsLabel: t('venue_management.venueManagement.liveOrderDashboard.itemsLabel'),
+            peopleLabel: t('venue_management.venueManagement.liveOrderDashboard.peopleLabel'),
+            totalPriceLabel: t('venue_management.venueManagement.liveOrderDashboard.totalPriceLabel'), // Price will be formatted
+            orderDetailsTitle: t('venue_management.venueManagement.liveOrderDashboard.orderDetailsTitle'),
+            confirmChargeTitle: t('venue_management.venueManagement.liveOrderDashboard.confirmChargeTitle'),
+            confirmChargeMessage: t('venue_management.venueManagement.liveOrderDashboard.confirmChargeMessage'),
+            confirmChargeConfirmText: t('venue_management.venueManagement.liveOrderDashboard.confirmChargeConfirmText'),
+            confirmChargeCancelText: t('venue_management.venueManagement.liveOrderDashboard.confirmChargeCancelText'),
+            alertNoTablesForSimulateTitle: t('venue_management.venueManagement.liveOrderDashboard.alertNoTablesForSimulateTitle'),
+            alertNoTablesForSimulateMessage: t('venue_management.venueManagement.liveOrderDashboard.alertNoTablesForSimulateMessage'),
             // Strings for alerts coming from useLayoutData will be added when refactoring that hook
         },
         useLayoutData: {
-            loadingErrorTitle: "Loading Error",
-            loadingErrorMessageDefault: "Could not load venue layout from the server.",
-            noActiveLayoutMessage: "No active layout found on backend. Using default local structure.",
-            saveErrorTitle: "Save Error",
-            saveErrorNotLoaded: "Layout data is not yet loaded. Please wait and try again.",
-            saveErrorNoData: "No layout data provided to save.",
-            saveErrorDefault: "Could not save venue layout.",
-            saveErrorDetailsPrefix: "Details: {details}",
-            layoutSavedTitle: "Layout Saved",
-            layoutSavedMessage: "Venue layout has been successfully saved.",
-            resetLocallyTitle: "Layout Reset Locally",
-            resetLocallyMessage: "The layout has been reset to default. Save to persist these changes.",
+            loadingErrorTitle: t('venue_management.venueManagement.useLayoutData.loadingErrorTitle'),
+            loadingErrorMessageDefault: t('venue_management.venueManagement.useLayoutData.loadingErrorMessageDefault'),
+            noActiveLayoutMessage: t('venue_management.venueManagement.useLayoutData.noActiveLayoutMessage'),
+            saveErrorTitle: t('venue_management.venueManagement.useLayoutData.saveErrorTitle'),
+            saveErrorNotLoaded: t('venue_management.venueManagement.useLayoutData.saveErrorNotLoaded'),
+            saveErrorNoData: t('venue_management.venueManagement.useLayoutData.saveErrorNoData'),
+            saveErrorDefault: t('venue_management.venueManagement.useLayoutData.saveErrorDefault'),
+            saveErrorDetailsPrefix: t('venue_management.venueManagement.useLayoutData.saveErrorDetailsPrefix'),
+            layoutSavedTitle: t('venue_management.venueManagement.useLayoutData.layoutSavedTitle'),
+            layoutSavedMessage: t('venue_management.venueManagement.useLayoutData.layoutSavedMessage'),
+            resetLocallyTitle: t('venue_management.venueManagement.useLayoutData.resetLocallyTitle'),
+            resetLocallyMessage: t('venue_management.venueManagement.useLayoutData.resetLocallyMessage'),
         },
         venueDesignerPage: {
-            defaultLayoutName: "Default Venue Layout",
-            initializingEditor: "Initializing Editor...",
-            loadingPreview: "Loading Preview...",
-            unsavedChangesTitle: "Unsaved Changes",
-            switchToPreviewConfirmationMessage: "You have unsaved changes. How would you like to proceed to Preview Mode?",
-            previewUnsavedButton: "Preview Unsaved",
-            previewLastSavedButton: "Preview Last Saved",
-            stayInDesignButton: "Stay in Design Mode",
-            previewingUnsavedAlertTitle: "Previewing Unsaved Changes",
-            previewingUnsavedAlertMessage: "You are viewing your current unsaved changes. These are not yet saved to the server.",
-            previewingLastSavedAlertTitle: "Previewing Last Saved Layout",
-            previewingLastSavedAlertMessage: "Showing the last saved version. Your unsaved changes remain in the editor.",
-            errorGettingEditorStateTitle: "Error",
-            errorGettingEditorStateMessage: "Could not get current editor state for preview. Please save first.",
-            exitLayoutManagerTitle: "Exit Layout Manager",
-            exitLayoutManagerConfirmationMessage: "You have unsaved changes. Are you sure you want to exit and discard them?",
-            discardAndExitButton: "Discard & Exit",
-            stayOnPageButton: "Stay on Page",
-            loadingPageTitle: "Loading Venue Designer...",
-            errorPageTitle: "Failed to Load Layout Data",
-            errorPageMessage: "Could not initialize layout data. Please try refreshing. If the problem persists, contact support.",
-            refreshPageButton: "Refresh Page",
+            defaultLayoutName: t('venue_management.venueManagement.venueDesignerPage.defaultLayoutName'),
+            initializingEditor: t('venue_management.venueManagement.venueDesignerPage.initializingEditor'),
+            loadingPreview: t('venue_management.venueManagement.venueDesignerPage.loadingPreview'),
+            unsavedChangesTitle: t('venue_management.venueManagement.venueDesignerPage.unsavedChangesTitle'),
+            switchToPreviewConfirmationMessage: t('venue_management.venueManagement.venueDesignerPage.switchToPreviewConfirmationMessage'),
+            previewUnsavedButton: t('venue_management.venueManagement.venueDesignerPage.previewUnsavedButton'),
+            previewLastSavedButton: t('venue_management.venueManagement.venueDesignerPage.previewLastSavedButton'),
+            stayInDesignButton: t('venue_management.venueManagement.venueDesignerPage.stayInDesignButton'),
+            previewingUnsavedAlertTitle: t('venue_management.venueManagement.venueDesignerPage.previewingUnsavedAlertTitle'),
+            previewingUnsavedAlertMessage: t('venue_management.venueManagement.venueDesignerPage.previewingUnsavedAlertMessage'),
+            previewingLastSavedAlertTitle: t('venue_management.venueManagement.venueDesignerPage.previewingLastSavedAlertTitle'),
+            previewingLastSavedAlertMessage: t('venue_management.venueManagement.venueDesignerPage.previewingLastSavedAlertMessage'),
+            errorGettingEditorStateTitle: t('venue_management.error'),
+            errorGettingEditorStateMessage: t('venue_management.venueManagement.venueDesignerPage.errorGettingEditorStateMessage'),
+            exitLayoutManagerTitle: t('venue_management.venueManagement.venueDesignerPage.exitLayoutManagerTitle'),
+            exitLayoutManagerConfirmationMessage: t('venue_management.venueManagement.venueDesignerPage.exitLayoutManagerConfirmationMessage'),
+            discardAndExitButton: t('venue_management.venueManagement.venueDesignerPage.discardAndExitButton'),
+            stayOnPageButton: t('venue_management.venueManagement.venueDesignerPage.stayOnPageButton'),
+            loadingPageTitle: t('venue_management.venueManagement.venueDesignerPage.loadingPageTitle'),
+            errorPageTitle: t('venue_management.venueManagement.venueDesignerPage.errorPageTitle'),
+            errorPageMessage: t('venue_management.venueManagement.venueDesignerPage.errorPageMessage'),
+            refreshPageButton: t('venue_management.venueManagement.venueDesignerPage.refreshPageButton'),
         },
         venueDesignerHeader: {
-            designModeLabel: "Design",
-            previewModeLabel: "Preview",
-            unsavedChangesTooltip: "Unsaved Changes",
-            focusModeTooltip: "Focus Mode",
-            downloadQrTooltip: "Download All QR Codes",
-            qrButtonText: "QRs", // Short text for the QR button when space is limited
+            designModeLabel: t('venue_management.venueManagement.venueDesignerHeader.designModeLabel'),
+            previewModeLabel: t('venue_management.venueManagement.venueDesignerHeader.previewModeLabel'),
+            unsavedChangesTooltip: t('venue_management.venueManagement.venueDesignerPage.unsavedChangesTitle'),
+            focusModeTooltip: t('venue_management.venueManagement.venueDesignerHeader.focusModeTooltip'),
+            downloadQrTooltip: t('venue_management.venueManagement.venueDesignerHeader.downloadQrTooltip'),
+            qrButtonText: t('venue_management.venueManagement.venueDesignerHeader.qrButtonText'), // Short text for the QR button when space is limited
             // Back to Dashboard tooltip could be added if that button becomes active
             // backToDashboardTooltip: "Back to Dashboard",
         },
         layoutEditor: {
-            canvasAreaLabel: "Layout Design Canvas Area",
-            mainRegionLabel: "Layout Design Canvas Area", // For the motion.main
-            propertiesInspectorRegionLabel: "Item Properties Inspector", // If PropertiesInspector is part of LayoutEditor's direct render
-            confirmClearTitle: "Clear Entire Layout",
-            confirmClearMessage: "Are you sure you want to clear all items and reset grid settings to default? This action will be recorded in history but directly clearing is a significant step.",
-            confirmClearConfirmText: "Yes, Clear All & Reset",
-            confirmClearCancelText: "Cancel",
-            saveErrorNotConfigured: "Save function (onSaveTrigger) not configured for LayoutEditor.",
-            validationErrorTitle: "Layout Validation Error", // Used by validateLayoutForSave
+            canvasAreaLabel: t('venue_management.venueManagement.layoutEditor.canvasAreaLabel'),
+            mainRegionLabel: t('venue_management.venueManagement.layoutEditor.canvasAreaLabel'), // For the motion.main
+            propertiesInspectorRegionLabel: t('venue_management.venueManagement.layoutEditor.propertiesInspectorRegionLabel'), // If PropertiesInspector is part of LayoutEditor's direct render
+            confirmClearTitle: t('venue_management.venueManagement.layoutEditor.confirmClearTitle'),
+            confirmClearMessage: t('venue_management.venueManagement.layoutEditor.confirmClearMessage'),
+            confirmClearConfirmText: t('venue_management.venueManagement.layoutEditor.confirmClearConfirmText'),
+            confirmClearCancelText: t('venue_management.cancel'),
+            saveErrorNotConfigured: t('venue_management.venueManagement.layoutEditor.saveErrorNotConfigured'),
+            validationErrorTitle: t('venue_management.venueManagement.layoutEditor.validationErrorTitle'), // Used by validateLayoutForSave
             // Messages for validateLayoutForSave (can be more granular if needed)
-            validationErrorInvalidTables: "Ensure all tables have valid, positive numbers.",
-            validationErrorDuplicateTableNumbers: "Table numbers must be unique.",
+            validationErrorInvalidTables: t('venue_management.venueManagement.layoutEditor.validationErrorInvalidTables'),
+            validationErrorDuplicateTableNumbers: t('venue_management.venueManagement.layoutEditor.validationErrorDuplicateTableNumbers'),
             // Tool interaction messages (might be logged or used in future subtle UI feedback)
-            toolSelectedForPlacement: "Tool selected for placement: {toolName}",
-            toolDeselectedForPlacement: "Tool deselected for placement.",
-            cellClickedNewItem: "Cell clicked for NEW item placement. Tool: {toolName}, Target: R{row}C{col}",
-            cellClickedExistingItem: "Cell clicked for EXISTING item move. Candidate: {itemId}, Target: R{row}C{col}",
+            toolSelectedForPlacement: t('venue_management.venueManagement.layoutEditor.toolSelectedForPlacement'),
+            toolDeselectedForPlacement: t('venue_management.venueManagement.layoutEditor.toolDeselectedForPlacement'),
+            cellClickedNewItem: t('venue_management.venueManagement.layoutEditor.cellClickedNewItem'),
+            cellClickedExistingItem: t('venue_management.venueManagement.layoutEditor.cellClickedExistingItem'),
         },
         editorToolbar: {
-            toolbarLabel: "Layout Editor Toolbar",
-            elementsCategory: "Elements", // Fallback category name
+            toolbarLabel: t('venue_management.venueManagement.editorToolbar.toolbarLabel'),
+            elementsCategory: t('venue_management.venueManagement.editorToolbar.elementsCategory'), // Fallback category name
             categoryLabelSuffix: "", // e.g., " Tools" if you want "Furniture Tools"
-            rowsLabel: "R:",
-            colsLabel: "C:",
-            gridRowsAriaLabel: "Grid Rows",
-            gridColsAriaLabel: "Grid Columns",
-            gridSubdivisionAriaLabel: "Grid Subdivision",
-            subdivisionOptionSuffix: "x{value}", // For 2x2, 4x4 options
-            zoomOutTooltip: "Zoom Out (-)",
-            resetZoomTooltip: "Reset Zoom ({percentage}%)",
-            zoomInTooltip: "Zoom In (+)",
-            undoTooltip: "Undo (Ctrl+Z)",
-            redoTooltip: "Redo (Ctrl+Y)",
-            saveLayoutTooltip: "Save Layout (Ctrl+S)",
-            saveButtonText: "Save", // Text for save button if not in zen/mobile
-            clearLayoutTooltip: "Clear Entire Layout",
-            focusModeEnterTooltip: "Enter Focus Mode",
-            focusModeExitTooltip: "Exit Focus Mode (Esc)",
-            eraserActivateTooltip: "Activate Eraser (E)",
-            eraserDeactivateTooltip: "Deactivate Eraser (E)",
+            rowsLabel: t('venue_management.venueManagement.editorToolbar.rowsLabel'),
+            colsLabel: t('venue_management.venueManagement.editorToolbar.colsLabel'),
+            gridRowsAriaLabel: t('venue_management.venueManagement.editorToolbar.gridRowsAriaLabel'),
+            gridColsAriaLabel: t('venue_management.venueManagement.editorToolbar.gridColsAriaLabel'),
+            gridSubdivisionAriaLabel: t('venue_management.venueManagement.editorToolbar.gridSubdivisionAriaLabel'),
+            subdivisionOptionSuffix: t('venue_management.venueManagement.editorToolbar.subdivisionOptionSuffix'), // For 2x2, 4x4 options
+            zoomOutTooltip: t('venue_management.venueManagement.editorToolbar.zoomOutTooltip'),
+            resetZoomTooltip: t('venue_management.venueManagement.editorToolbar.resetZoomTooltip'),
+            zoomInTooltip: t('venue_management.venueManagement.editorToolbar.zoomInTooltip'),
+            undoTooltip: t('venue_management.venueManagement.editorToolbar.undoTooltip'),
+            redoTooltip: t('venue_management.venueManagement.editorToolbar.redoTooltip'),
+            saveLayoutTooltip: t('venue_management.venueManagement.editorToolbar.saveLayoutTooltip'),
+            saveButtonText: t('venue_management.save'), // Text for save button if not in zen/mobile
+            clearLayoutTooltip: t('venue_management.venueManagement.layoutEditor.confirmClearTitle'),
+            focusModeEnterTooltip: t('venue_management.venueManagement.editorToolbar.focusModeEnterTooltip'),
+            focusModeExitTooltip: t('venue_management.venueManagement.editorToolbar.focusModeExitTooltip'),
+            eraserActivateTooltip: t('venue_management.venueManagement.editorToolbar.eraserActivateTooltip'),
+            eraserDeactivateTooltip: t('venue_management.venueManagement.editorToolbar.eraserDeactivateTooltip'),
             // Tool specific tooltips/aria-labels can be constructed dynamically if needed,
             // or added here if they are very specific and static.
             // For DraggableTool itself, its title/aria-label construction will be handled in DraggableTool.jsx
         },
         editorCanvas: {
-            mainCanvasAreaLabel: "Venue Layout Design Canvas", // For the main div wrapper
-            gridRegionLabel: "Layout Grid Area", // For the grid itself (canvasGridRef)
-            resizePreviewAriaHidden: "true", // Standard for decorative/status elements
+            mainCanvasAreaLabel: t('venue_management.venueManagement.editorCanvas.mainCanvasAreaLabel'), // For the main div wrapper
+            gridRegionLabel: t('venue_management.venueManagement.editorCanvas.gridRegionLabel'), // For the grid itself (canvasGridRef)
+            resizePreviewAriaHidden: t('venue_management.venueManagement.editorCanvas.resizePreviewAriaHidden'), // Standard for decorative/status elements
             // If resize preview itself had text (it doesn't currently), that would go here.
         },
         canvasCell: {
-            gridCellRoleDescription: "Layout grid cell", // Could be used for a more descriptive aria-label if needed
+            gridCellRoleDescription: t('venue_management.venueManagement.canvasCell.gridCellRoleDescription'), // Could be used for a more descriptive aria-label if needed
             // Dynamic aria-labels based on current interaction (e.g., "Place {toolName}", "Move to R{row}C{col}")
             // will be constructed in the component.
             // No explicit static strings seem to be directly rendered by CanvasCell.
@@ -178,234 +180,234 @@ export const scriptLines = {
             // or by PlacedItem for items themselves.
         },
         placedItem: {
-            defaultRendererMissingText: "Renderer Missing",
-            defaultRendererTypeLabel: "Type: {itemType}",
-            defaultRendererIdLabel: "ID: {itemId}",
-            itemBaseTitle: "{itemName}", // Base for constructing titles
-            itemFixedSuffix: "(Fixed)",
-            itemProvisionalSuffix: "(Provisional - Click in Editor to set number)", // For tables
-            itemMoveCandidateSuffix: "Click a cell to move {itemName}", // When it's the moveCandidate
-            itemEraserActionText: "Tap to erase {itemName}",
-            itemSelectActionText: "Tap to select {itemName}",
-            itemDefaultAriaRole: "button", // Default role if not otherwise specified by interactions
+            defaultRendererMissingText: t('venue_management.venueManagement.placedItem.defaultRendererMissingText'),
+            defaultRendererTypeLabel: t('venue_management.venueManagement.placedItem.defaultRendererTypeLabel'),
+            defaultRendererIdLabel: t('venue_management.venueManagement.placedItem.defaultRendererIdLabel'),
+            itemBaseTitle: t('venue_management.venueManagement.placedItem.itemBaseTitle'), // Base for constructing titles
+            itemFixedSuffix: t('venue_management.venueManagement.placedItem.itemFixedSuffix'),
+            itemProvisionalSuffix: t('venue_management.venueManagement.placedItem.itemProvisionalSuffix'), // For tables
+            itemMoveCandidateSuffix: t('venue_management.venueManagement.placedItem.itemMoveCandidateSuffix'), // When it's the moveCandidate
+            itemEraserActionText: t('venue_management.venueManagement.placedItem.itemEraserActionText'),
+            itemSelectActionText: t('venue_management.venueManagement.placedItem.itemSelectActionText'),
+            itemDefaultAriaRole: t('venue_management.venueManagement.placedItem.itemDefaultAriaRole'), // Default role if not otherwise specified by interactions
         },
         resizeHandle: {
-            tooltipPrefix: "Resize {direction}", // e.g., "Resize North"
-            directionN: "North",
-            directionS: "South",
-            directionE: "East",
-            directionW: "West",
+            tooltipPrefix: t('venue_management.venueManagement.resizeHandle.tooltipPrefix'), // e.g., "Resize North"
+            directionN: t('venue_management.venueManagement.resizeHandle.directionN'),
+            directionS: t('venue_management.venueManagement.resizeHandle.directionS'),
+            directionE: t('venue_management.venueManagement.resizeHandle.directionE'),
+            directionW: t('venue_management.venueManagement.resizeHandle.directionW'),
         },
         rotationHandle: {
-            tooltip: "Rotate Item (90°)",
-            ariaLabel: "Rotate Item by 90 degrees",
+            tooltip: t('venue_management.venueManagement.rotationHandle.tooltip'),
+            ariaLabel: t('venue_management.venueManagement.rotationHandle.ariaLabel'),
         },
         propertiesInspector: {
-            defaultTitle: "Properties",
-            itemPropertiesTitleSuffix: "Properties", // e.g., "Table Properties", "{itemName} Properties"
-            closeButtonTooltip: "Close Properties Panel",
-            closeButtonAriaLabel: "Close Properties Panel",
-            minimizedTabTooltip: "Show Properties", // For the desktop minimized button
-            mobilePeekTitleSuffix: "Properties", // For the mobile peek state, e.g., "Table Properties"
-            noItemSelectedMessage: "Select an item on the canvas to view its properties.",
+            defaultTitle: t('venue_management.venueManagement.propertiesInspector.defaultTitle'),
+            itemPropertiesTitleSuffix: t('venue_management.venueManagement.propertiesInspector.defaultTitle'), // e.g., "Table Properties", "{itemName} Properties"
+            closeButtonTooltip: t('venue_management.venueManagement.propertiesInspector.closeButtonTooltip'),
+            closeButtonAriaLabel: t('venue_management.venueManagement.propertiesInspector.closeButtonTooltip'),
+            minimizedTabTooltip: t('venue_management.venueManagement.propertiesInspector.minimizedTabTooltip'), // For the desktop minimized button
+            mobilePeekTitleSuffix: t('venue_management.venueManagement.propertiesInspector.defaultTitle'), // For the mobile peek state, e.g., "Table Properties"
+            noItemSelectedMessage: t('venue_management.venueManagement.propertiesInspector.noItemSelectedMessage'),
             // DefaultInspectorContent strings (already in placedItem, but can be aliased or duplicated if preferred for clarity)
-            defaultInspectorContent_rendererMissingText: "Renderer Missing", // Re-using or can be specific
-            defaultInspectorContent_typeLabel: "Type: {itemType}",
-            defaultInspectorContent_idLabel: "ID: {itemId}",
-            defaultInspectorContent_noEditorConfigured: "No specific editor configured for this item type, or the configured key is not matched.",
+            defaultInspectorContent_rendererMissingText: t('venue_management.venueManagement.placedItem.defaultRendererMissingText'), // Re-using or can be specific
+            defaultInspectorContent_typeLabel: t('venue_management.venueManagement.placedItem.defaultRendererTypeLabel'),
+            defaultInspectorContent_idLabel: t('venue_management.venueManagement.placedItem.defaultRendererIdLabel'),
+            defaultInspectorContent_noEditorConfigured: t('venue_management.venueManagement.propertiesInspector.defaultInspectorContent_noEditorConfigured'),
         },
         tableEditor: {
-            tableNumberLabel: "Table Number",
-            tableNumberValueNotSet: "Not Set",
-            tableNumberValueProvisional: "Nº? (Set on table)",
-            tableNumberHelpText: "Edit number on the table itself. Click to select, then click number to edit.",
-            seatsLabel: "Number of Seats",
-            seatsPlaceholder: "e.g., 4 or empty for default",
-            seatsTooltip: "Enter a number or leave empty for default seats.", // Tooltip for the input field
-            seatsHelpText: "Enter a number or leave empty for default seats.", // Helper text below input
-            infoSectionTitle: "Table Information", // Optional title for the info section
-            itemIdLabel: "Item ID:",
-            defaultShapeLabel: "Default shape:",
-            rotationLabel: "Rotation:",
-            provisionalLabel: "Provisional:",
-            fixedLabel: "Fixed:",
-            yesValue: "Yes",
-            noValue: "No",
+            tableNumberLabel: t('venue_management.venueManagement.tableEditor.tableNumberLabel'),
+            tableNumberValueNotSet: t('venue_management.venueManagement.tableEditor.tableNumberValueNotSet'),
+            tableNumberValueProvisional: t('venue_management.venueManagement.tableEditor.tableNumberValueProvisional'),
+            tableNumberHelpText: t('venue_management.venueManagement.tableEditor.tableNumberHelpText'),
+            seatsLabel: t('venue_management.venueManagement.tableEditor.seatsLabel'),
+            seatsPlaceholder: t('venue_management.venueManagement.tableEditor.seatsPlaceholder'),
+            seatsTooltip: t('venue_management.venueManagement.tableEditor.seatsTooltip'), // Tooltip for the input field
+            seatsHelpText: t('venue_management.venueManagement.tableEditor.seatsTooltip'), // Helper text below input
+            infoSectionTitle: t('venue_management.venueManagement.tableEditor.infoSectionTitle'), // Optional title for the info section
+            itemIdLabel: t('venue_management.venueManagement.tableEditor.itemIdLabel'),
+            defaultShapeLabel: t('venue_management.venueManagement.tableEditor.defaultShapeLabel'),
+            rotationLabel: t('venue_management.venueManagement.tableEditor.rotationLabel'),
+            provisionalLabel: t('venue_management.venueManagement.tableEditor.provisionalLabel'),
+            fixedLabel: t('venue_management.venueManagement.tableEditor.fixedLabel'),
+            yesValue: t('venue_management.yes'),
+            noValue: t('venue_management.no'),
         },
         wallEditor: {
-            thicknessLabel: "Visual Thickness (minor cells)",
-            thicknessTooltip: "Visual thickness of the wall within its own cell.",
-            thicknessHelpText: "Thickness within its own grid cell. Does not affect collision. Max: {maxThickness}.",
-            infoSectionTitle: "Wall Information", // Optional
-            itemIdLabel: "Item ID:",
-            lengthLabel: "Length (major units):",
-            baseWidthLabel: "Base Width (minor):",
-            baseHeightLabel: "Base Height (minor):",
-            rotationLabel: "Rotation:",
-            fixedLabel: "Fixed:",
-            yesValue: "Yes",
-            noValue: "No",
+            thicknessLabel: t('venue_management.venueManagement.wallEditor.thicknessLabel'),
+            thicknessTooltip: t('venue_management.venueManagement.wallEditor.thicknessTooltip'),
+            thicknessHelpText: t('venue_management.venueManagement.wallEditor.thicknessHelpText'),
+            infoSectionTitle: t('venue_management.venueManagement.wallEditor.infoSectionTitle'), // Optional
+            itemIdLabel: t('venue_management.venueManagement.tableEditor.itemIdLabel'),
+            lengthLabel: t('venue_management.venueManagement.wallEditor.lengthLabel'),
+            baseWidthLabel: t('venue_management.venueManagement.wallEditor.baseWidthLabel'),
+            baseHeightLabel: t('venue_management.venueManagement.wallEditor.baseHeightLabel'),
+            rotationLabel: t('venue_management.venueManagement.tableEditor.rotationLabel'),
+            fixedLabel: t('venue_management.venueManagement.tableEditor.fixedLabel'),
+            yesValue: t('venue_management.yes'),
+            noValue: t('venue_management.no'),
         },
         doorEditor: {
-            swingDirectionLabel: "Swing Direction",
-            leftSwingOption: "Left Swing",
-            rightSwingOption: "Right Swing",
-            selectSwingPlaceholder: "Select Swing Direction", // For Dropdown component
-            infoSectionTitle: "Door Information", // Optional
-            itemIdLabel: "Item ID:",
-            typeLabel: "Type:",
-            standardDoorType: "Standard Door", // Default type if item.shape is missing
-            rotationLabel: "Rotation:",
-            fixedLabel: "Fixed:",
-            yesValue: "Yes",
-            noValue: "No",
+            swingDirectionLabel: t('venue_management.venueManagement.doorEditor.swingDirectionLabel'),
+            leftSwingOption: t('venue_management.venueManagement.doorEditor.leftSwingOption'),
+            rightSwingOption: t('venue_management.venueManagement.doorEditor.rightSwingOption'),
+            selectSwingPlaceholder: t('venue_management.venueManagement.doorEditor.selectSwingPlaceholder'), // For Dropdown component
+            infoSectionTitle: t('venue_management.venueManagement.doorEditor.infoSectionTitle'), // Optional
+            itemIdLabel: t('venue_management.venueManagement.tableEditor.itemIdLabel'),
+            typeLabel: t('venue_management.venueManagement.doorEditor.typeLabel'),
+            standardDoorType: t('venue_management.venueManagement.doorEditor.standardDoorType'), // Default type if item.shape is missing
+            rotationLabel: t('venue_management.venueManagement.tableEditor.rotationLabel'),
+            fixedLabel: t('venue_management.venueManagement.tableEditor.fixedLabel'),
+            yesValue: t('venue_management.yes'),
+            noValue: t('venue_management.no'),
         },
         decorEditor: {
-            labelOptionalLabel: "Label (Optional)",
-            labelPlaceholder: "e.g., Potted Fern, Area Rug",
-            labelTooltip: "Enter an optional label for this decor item.",
-            widthLabel: "Width (minor cells)",
-            widthTooltip: "Width of the item's base before rotation.",
-            heightLabel: "Height (minor cells)",
-            heightTooltip: "Height of the item's base before rotation.",
-            dimensionsHelpText: "Dimensions apply to the item's base before rotation.",
-            infoSectionTitle: "Decor Information", // Optional
-            itemIdLabel: "Item ID:",
-            decorTypeLabel: "Decor Type:",
-            decorTypeGeneric: "Generic", // Fallback if item.decorType is missing
-            shapeConfigLabel: "Shape Config:",
-            rotationLabel: "Rotation:",
-            fixedLabel: "Fixed:",
-            yesValue: "Yes",
-            noValue: "No",
+            labelOptionalLabel: t('venue_management.venueManagement.decorEditor.labelOptionalLabel'),
+            labelPlaceholder: t('venue_management.venueManagement.decorEditor.labelPlaceholder'),
+            labelTooltip: t('venue_management.venueManagement.decorEditor.labelTooltip'),
+            widthLabel: t('venue_management.venueManagement.decorEditor.widthLabel'),
+            widthTooltip: t('venue_management.venueManagement.decorEditor.widthTooltip'),
+            heightLabel: t('venue_management.venueManagement.decorEditor.heightLabel'),
+            heightTooltip: t('venue_management.venueManagement.decorEditor.heightTooltip'),
+            dimensionsHelpText: t('venue_management.venueManagement.decorEditor.dimensionsHelpText'),
+            infoSectionTitle: t('venue_management.venueManagement.decorEditor.infoSectionTitle'), // Optional
+            itemIdLabel: t('venue_management.venueManagement.tableEditor.itemIdLabel'),
+            decorTypeLabel: t('venue_management.venueManagement.decorEditor.decorTypeLabel'),
+            decorTypeGeneric: t('venue_management.venueManagement.decorEditor.decorTypeGeneric'), // Fallback if item.decorType is missing
+            shapeConfigLabel: t('venue_management.venueManagement.decorEditor.shapeConfigLabel'),
+            rotationLabel: t('venue_management.venueManagement.tableEditor.rotationLabel'),
+            fixedLabel: t('venue_management.venueManagement.tableEditor.fixedLabel'),
+            yesValue: t('venue_management.yes'),
+            noValue: t('venue_management.no'),
         },
         counterEditor: {
-            labelOptionalLabel: "Label (Optional)",
-            labelPlaceholder: "e.g., Main Bar, Register",
-            labelTooltip: "Enter an optional label for this counter.",
-            lengthLabel: "Length (major grid units)",
-            lengthPlaceholder: "e.g., 2",
-            lengthTooltip: "Length of the counter along its main axis, in major grid cells.",
-            lengthHelpText: "Defines length along its main axis. Thickness is 1 major unit.",
-            invalidItemError: "Error: Invalid item for Counter Editor.", // Error message if wrong item type
-            infoSectionTitle: "Counter Information", // Optional
-            itemIdLabel: "Item ID:",
-            decorTypeLabel: "Decor Type (if any):",
-            shapeConfigLabel: "Shape Config:",
-            rotationLabel: "Rotation:",
-            actualBaseWidthLabel: "Actual Base Width (minor):",
-            actualBaseHeightLabel: "Actual Base Height (minor):",
-            fixedLabel: "Fixed:",
-            yesValue: "Yes",
-            noValue: "No",
+            labelOptionalLabel: t('venue_management.venueManagement.decorEditor.labelOptionalLabel'),
+            labelPlaceholder: t('venue_management.venueManagement.counterEditor.labelPlaceholder'),
+            labelTooltip: t('venue_management.venueManagement.counterEditor.labelTooltip'),
+            lengthLabel: t('venue_management.venueManagement.counterEditor.lengthLabel'),
+            lengthPlaceholder: t('venue_management.venueManagement.counterEditor.lengthPlaceholder'),
+            lengthTooltip: t('venue_management.venueManagement.counterEditor.lengthTooltip'),
+            lengthHelpText: t('venue_management.venueManagement.counterEditor.lengthHelpText'),
+            invalidItemError: t('venue_management.venueManagement.counterEditor.invalidItemError'), // Error message if wrong item type
+            infoSectionTitle: t('venue_management.venueManagement.counterEditor.infoSectionTitle'), // Optional
+            itemIdLabel: t('venue_management.venueManagement.tableEditor.itemIdLabel'),
+            decorTypeLabel: t('venue_management.venueManagement.counterEditor.decorTypeLabel'),
+            shapeConfigLabel: t('venue_management.venueManagement.decorEditor.shapeConfigLabel'),
+            rotationLabel: t('venue_management.venueManagement.tableEditor.rotationLabel'),
+            actualBaseWidthLabel: t('venue_management.venueManagement.counterEditor.actualBaseWidthLabel'),
+            actualBaseHeightLabel: t('venue_management.venueManagement.counterEditor.actualBaseHeightLabel'),
+            fixedLabel: t('venue_management.venueManagement.tableEditor.fixedLabel'),
+            yesValue: t('venue_management.yes'),
+            noValue: t('venue_management.no'),
         },
         tableRenderer: {
-            fixedTooltipSuffix: "(Fixed)",
-            provisionalTooltipText: "Provisional Table (Click in Editor to set number)",
-            tableTooltipPrefix: "Table {number}",
-            provisionalDisplayValue: "Nº?", // Text displayed on provisional tables
-            tableNumberPrefix: "T", // Prefix for displayed table number, e.g., "T5"
+            fixedTooltipSuffix: t('venue_management.venueManagement.placedItem.itemFixedSuffix'),
+            provisionalTooltipText: t('venue_management.venueManagement.tableRenderer.provisionalTooltipText'),
+            tableTooltipPrefix: t('venue_management.venueManagement.liveOrderDashboard.tableLabel'),
+            provisionalDisplayValue: t('venue_management.venueManagement.tableRenderer.provisionalDisplayValue'), // Text displayed on provisional tables
+            tableNumberPrefix: t('venue_management.venueManagement.tableRenderer.tableNumberPrefix'), // Prefix for displayed table number, e.g., "T5"
             tableNumberNotSet: "", // Value if number is null/undefined and not provisional (e.g., display only "T")
         },
         counterRenderer: {
-            defaultLabel: "Counter", // Fallback text if item.label is empty
+            defaultLabel: t('venue_management.venueManagement.counterRenderer.defaultLabel'), // Fallback text if item.label is empty
         },
         useLayoutDesignerStateManagement: {
             // Config errors (critical, point to setup issues)
-            configErrorMissingConfigTitle: "Configuration Error",
-            configErrorMissingConfigMessage: "Missing configuration for item type: {itemType}. Please contact support.",
-            configErrorMissingFactoryTitle: "Configuration Error",
-            configErrorMissingFactoryMessage: "Missing properties factory for item type: {itemType}. Please contact support.",
-            factoryErrorTitle: "Factory Error",
-            factoryErrorMessage: "Error creating properties for new item ({itemType}).",
+            configErrorMissingConfigTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.configErrorMissingConfigTitle'),
+            configErrorMissingConfigMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.configErrorMissingConfigMessage'),
+            configErrorMissingFactoryTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.configErrorMissingConfigTitle'),
+            configErrorMissingFactoryMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.configErrorMissingFactoryMessage'),
+            factoryErrorTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.factoryErrorTitle'),
+            factoryErrorMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.factoryErrorMessage'),
             // Dimension/Placement errors
-            dimensionErrorTitle: "Dimension Error",
-            dimensionErrorMinMessage: "Invalid base dimensions for new item. Minimum dimension is {minCells} cell(s).",
-            placementErrorTitle: "Placement Error",
-            placementErrorOccupiedOrOutOfBounds: "Cannot place item: Space occupied or out of bounds.",
-            resizeErrorConflictOrOutOfBounds: "Resized/moved item conflicts or is out of bounds.",
+            dimensionErrorTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.dimensionErrorTitle'),
+            dimensionErrorMinMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.dimensionErrorMinMessage'),
+            placementErrorTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.placementErrorTitle'),
+            placementErrorOccupiedOrOutOfBounds: t('venue_management.venueManagement.useLayoutDesignerStateManagement.placementErrorOccupiedOrOutOfBounds'),
+            resizeErrorConflictOrOutOfBounds: t('venue_management.venueManagement.useLayoutDesignerStateManagement.resizeErrorConflictOrOutOfBounds'),
             // Rotation errors
-            rotationErrorTitle: "Rotation Error",
-            rotationErrorConflictOrOutOfBounds: "Cannot rotate: new orientation conflicts or is out of bounds.",
+            rotationErrorTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.rotationErrorTitle'),
+            rotationErrorConflictOrOutOfBounds: t('venue_management.venueManagement.useLayoutDesignerStateManagement.rotationErrorConflictOrOutOfBounds'),
             // Sizing errors (e.g., for counters)
-            sizingErrorTitle: "Sizing Error", // Generic title
-            counterSizingErrorConflict: "Counter cannot be resized: new size conflicts or is out of bounds.",
+            sizingErrorTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.sizingErrorTitle'), // Generic title
+            counterSizingErrorConflict: t('venue_management.venueManagement.useLayoutDesignerStateManagement.counterSizingErrorConflict'),
             // Input validation errors
-            invalidInputTitle: "Invalid Input",
-            invalidRotationAngle: "Invalid rotation angle.",
-            invalidRotationType: "Invalid rotation type.",
-            counterLengthPositiveError: "Counter length must be a positive number.",
-            invalidTableNumberTitle: "Invalid Table Number",
-            invalidTableNumberMessage: "Table number must be a positive integer or empty.",
-            duplicateTableNumberTitle: "Duplicate Table Number",
-            duplicateTableNumberMessage: "Table number {number} is already in use.",
-            invalidSeatCountTitle: "Invalid Seat Count",
-            invalidSeatCountMessage: "Seat count must be a non-negative integer or empty.",
+            invalidInputTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidInputTitle'),
+            invalidRotationAngle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidRotationAngle'),
+            invalidRotationType: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidRotationType'),
+            counterLengthPositiveError: t('venue_management.venueManagement.useLayoutDesignerStateManagement.counterLengthPositiveError'),
+            invalidTableNumberTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidTableNumberTitle'),
+            invalidTableNumberMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidTableNumberMessage'),
+            duplicateTableNumberTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.duplicateTableNumberTitle'),
+            duplicateTableNumberMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.duplicateTableNumberMessage'),
+            invalidSeatCountTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidSeatCountTitle'),
+            invalidSeatCountMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidSeatCountMessage'),
             // Grid manipulation
-            gridDimensionErrorTitle: "Invalid Dimension",
-            gridDimensionErrorRange: "Grid dimensions out of range. Min/Max Rows: {minRows}-{maxRows}, Cols: {minCols}-{maxCols}.",
-            gridResizeErrorOutOfBoundsTitle: "Resize Error",
-            gridResizeErrorOutOfBoundsMessage: "Cannot reduce dimensions. Some items would be out of bounds.",
-            invalidSubdivisionTitle: "Invalid Subdivision",
-            invalidSubdivisionMessage: "Grid subdivision level is invalid.",
-            subdivisionChangedTitle: "Subdivision Changed",
-            subdivisionChangedMessage: "Grid subdivision has been updated. Existing items' dimensions are in minor cells and will not automatically scale. Manual adjustment may be needed if their intended size was relative to major grid units.",
+            gridDimensionErrorTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.gridDimensionErrorTitle'),
+            gridDimensionErrorRange: t('venue_management.venueManagement.useLayoutDesignerStateManagement.gridDimensionErrorRange'),
+            gridResizeErrorOutOfBoundsTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.gridResizeErrorOutOfBoundsTitle'),
+            gridResizeErrorOutOfBoundsMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.gridResizeErrorOutOfBoundsMessage'),
+            invalidSubdivisionTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidSubdivisionTitle'),
+            invalidSubdivisionMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.invalidSubdivisionMessage'),
+            subdivisionChangedTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.subdivisionChangedTitle'),
+            subdivisionChangedMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.subdivisionChangedMessage'),
             // Clear/Reset actions
-            designerClearedTitle: "Designer Cleared",
-            designerClearedMessage: "All items have been removed from the layout.",
-            designerResetTitle: "Designer Reset",
-            designerResetMessage: "Layout and grid settings have been reset to default.",
+            designerClearedTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.designerClearedTitle'),
+            designerClearedMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.designerClearedMessage'),
+            designerResetTitle: t('venue_management.venueManagement.useLayoutDesignerStateManagement.designerResetTitle'),
+            designerResetMessage: t('venue_management.venueManagement.useLayoutDesignerStateManagement.designerResetMessage'),
         },
         useQrCodeManager: {
             // Fetch errors
-            qrFetchErrorTitleGeneric: "Network Error",
-            qrFetchErrorTitleHttp: "QR Error (HTTP {status})",
-            qrFetchErrorMessage: "Could not fetch QR for Table {tableIdentifier}: {errorMessage}",
-            qrFetchServiceUnavailableTitle: "QR Service Info",
-            qrFetchServiceUnavailableMessage: "QR code generation for Table {tableIdentifier} is currently unavailable (endpoint not ready).",
+            qrFetchErrorTitleGeneric: t('venue_management.venueManagement.useQrCodeManager.qrFetchErrorTitleGeneric'),
+            qrFetchErrorTitleHttp: t('venue_management.venueManagement.useQrCodeManager.qrFetchErrorTitleHttp'),
+            qrFetchErrorMessage: t('venue_management.venueManagement.useQrCodeManager.qrFetchErrorMessage'),
+            qrFetchServiceUnavailableTitle: t('venue_management.venueManagement.useQrCodeManager.qrFetchServiceUnavailableTitle'),
+            qrFetchServiceUnavailableMessage: t('venue_management.venueManagement.useQrCodeManager.qrFetchServiceUnavailableMessage'),
             // Download errors/info
-            downloadErrorTitle: "Download Error",
-            downloadErrorInvalidTable: "Invalid table data for QR download.",
-            qrNotAvailableForDownloadTitle: "QR Not Available",
-            qrNotAvailableServiceMessage: "QR code for Table {tableIdentifier} cannot be downloaded as the generation service is unavailable.",
-            qrNotAvailablePreviouslyFailedMessage: "QR code for Table {tableIdentifier} could not be generated previously. Try refreshing or check logs.",
-            qrNotAvailableGenericDownloadError: "Could not download QR for Table {tableIdentifier}. Ensure it can be generated.",
-            noQrCodesToDownloadTitle: "No QR Codes",
-            noQrCodesToDownloadMessage: "There are no valid, numbered tables to download QR codes for.",
-            downloadStartingTitle: "Download Starting",
-            downloadStartingMessage: "Preparing to download available QR code(s) for {count} table(s). This may take a moment.",
-            downloadStartingSomeUnavailable: " Some QRs are unavailable or errored.", // Appended to downloadStartingMessage
-            downloadStartingSomeServiceDisabled: " Some QRs are unavailable (service disabled).", // Appended
-            downloadStartingSomeFailed: " Some QRs previously failed to generate.", // Appended
-            downloadCompleteTitle: "Download Complete",
-            downloadCompleteMessage: "Successfully downloaded {count} QR codes.",
-            downloadPartialTitle: "Download Partial",
-            downloadPartialMessageSuccess: "Successfully downloaded {downloadedCount} QR codes.", // Part 1
-            downloadPartialMessageFailed: " {failedCount} failed.", // Part 2 (appended)
-            downloadPartialMessageSkipped: " {skippedCount} skipped (service unavailable).", // Part 3 (appended)
-            downloadFailedTitle: "Download Failed",
-            downloadFailedAllMessage: "All {count} QR codes could not be downloaded at this time.",
-            downloadUnavailableAllServiceMessage: "All QR codes are currently unavailable because the generation service is offline.",
-            downloadIssueMixedTitle: "Download Issue",
-            downloadIssueMixedMessage: "No QR codes downloaded. {failedCount} failed, {skippedCount} skipped (service unavailable).",
+            downloadErrorTitle: t('venue_management.venueManagement.useQrCodeManager.downloadErrorTitle'),
+            downloadErrorInvalidTable: t('venue_management.venueManagement.useQrCodeManager.downloadErrorInvalidTable'),
+            qrNotAvailableForDownloadTitle: t('venue_management.venueManagement.useQrCodeManager.qrNotAvailableForDownloadTitle'),
+            qrNotAvailableServiceMessage: t('venue_management.venueManagement.useQrCodeManager.qrNotAvailableServiceMessage'),
+            qrNotAvailablePreviouslyFailedMessage: t('venue_management.venueManagement.useQrCodeManager.qrNotAvailablePreviouslyFailedMessage'),
+            qrNotAvailableGenericDownloadError: t('venue_management.venueManagement.useQrCodeManager.qrNotAvailableGenericDownloadError'),
+            noQrCodesToDownloadTitle: t('venue_management.venueManagement.useQrCodeManager.noQrCodesToDownloadTitle'),
+            noQrCodesToDownloadMessage: t('venue_management.venueManagement.useQrCodeManager.noQrCodesToDownloadMessage'),
+            downloadStartingTitle: t('venue_management.venueManagement.useQrCodeManager.downloadStartingTitle'),
+            downloadStartingMessage: t('venue_management.venueManagement.useQrCodeManager.downloadStartingMessage'),
+            downloadStartingSomeUnavailable: t('venue_management.venueManagement.useQrCodeManager.downloadStartingSomeUnavailable'), // Appended to downloadStartingMessage
+            downloadStartingSomeServiceDisabled: t('venue_management.venueManagement.useQrCodeManager.downloadStartingSomeServiceDisabled'), // Appended
+            downloadStartingSomeFailed: t('venue_management.venueManagement.useQrCodeManager.downloadStartingSomeFailed'), // Appended
+            downloadCompleteTitle: t('venue_management.venueManagement.useQrCodeManager.downloadCompleteTitle'),
+            downloadCompleteMessage: t('venue_management.venueManagement.useQrCodeManager.downloadCompleteMessage'),
+            downloadPartialTitle: t('venue_management.venueManagement.useQrCodeManager.downloadPartialTitle'),
+            downloadPartialMessageSuccess: t('venue_management.venueManagement.useQrCodeManager.downloadPartialMessageSuccess'), // Part 1
+            downloadPartialMessageFailed: t('venue_management.venueManagement.useQrCodeManager.downloadPartialMessageFailed'), // Part 2 (appended)
+            downloadPartialMessageSkipped: t('venue_management.venueManagement.useQrCodeManager.downloadPartialMessageSkipped'), // Part 3 (appended)
+            downloadFailedTitle: t('venue_management.venueManagement.useQrCodeManager.downloadFailedTitle'),
+            downloadFailedAllMessage: t('venue_management.venueManagement.useQrCodeManager.downloadFailedAllMessage'),
+            downloadUnavailableAllServiceMessage: t('venue_management.venueManagement.useQrCodeManager.downloadUnavailableAllServiceMessage'),
+            downloadIssueMixedTitle: t('venue_management.venueManagement.useQrCodeManager.downloadIssueMixedTitle'),
+            downloadIssueMixedMessage: t('venue_management.venueManagement.useQrCodeManager.downloadIssueMixedMessage'),
         },
         itemConfigs: {
             // Placed Item Display Names (used by ITEM_CONFIGS)
-            placedTableDisplayName: "Table",
-            placedWallDisplayName: "Wall",
-            placedDoorDisplayName: "Door",
-            placedDecorDisplayName: "Decor",
-            placedCounterDisplayName: "Counter",
+            placedTableDisplayName: t('venue_management.venueManagement.itemConfigs.placedTableDisplayName'),
+            placedWallDisplayName: t('venue_management.venueManagement.itemConfigs.placedWallDisplayName'),
+            placedDoorDisplayName: t('venue_management.venueManagement.itemConfigs.placedDoorDisplayName'),
+            placedDecorDisplayName: t('venue_management.venueManagement.itemConfigs.placedDecorDisplayName'),
+            placedCounterDisplayName: t('venue_management.venueManagement.counterRenderer.defaultLabel'),
 
             // Tool Names (used by toolDefinitions)
-            squareTableToolName: "Square Table",
-            rectTableToolName: "Rect. Table", // Abbreviation kept for consistency with original
-            roundTableToolName: "Round Table",
-            counterToolName: "Counter",
-            wallToolName: "Wall",
-            doorToolName: "Door",
-            plantToolName: "Plant",
-            rugToolName: "Rug",
+            squareTableToolName: t('venue_management.venueManagement.itemConfigs.squareTableToolName'),
+            rectTableToolName: t('venue_management.venueManagement.itemConfigs.rectTableToolName'), // Abbreviation kept for consistency with original
+            roundTableToolName: t('venue_management.venueManagement.itemConfigs.roundTableToolName'),
+            counterToolName: t('venue_management.venueManagement.counterRenderer.defaultLabel'),
+            wallToolName: t('venue_management.venueManagement.itemConfigs.placedWallDisplayName'),
+            doorToolName: t('venue_management.venueManagement.itemConfigs.placedDoorDisplayName'),
+            plantToolName: t('venue_management.venueManagement.itemConfigs.plantToolName'),
+            rugToolName: t('venue_management.venueManagement.itemConfigs.rugToolName'),
 
             // Tool Categories (if we want to localize these too, though original uses hardcoded strings)
             // categoryFurniture: "Furniture",
@@ -413,37 +415,37 @@ export const scriptLines = {
             // categoryDecor: "Decor",
         },
         draggableTool: {
-            tooltipActivePlacement: "Tool '{toolName}' active. Click a cell to place.",
-            tooltipDefaultZenMode: "{toolName}", // Tooltip in Zen mode is just the name
-            tooltipDefaultFullMode: "Click to select, or Drag to add {toolName}",
-            ariaLabelActivePlacement: "{toolName} tool. Currently active for placement.",
-            ariaLabelDefault: "{toolName} tool. Click to select or drag to add.",
+            tooltipActivePlacement: t('venue_management.venueManagement.draggableTool.tooltipActivePlacement'),
+            tooltipDefaultZenMode: t('venue_management.venueManagement.draggableTool.tooltipDefaultZenMode'), // Tooltip in Zen mode is just the name
+            tooltipDefaultFullMode: t('venue_management.venueManagement.draggableTool.tooltipDefaultFullMode'),
+            ariaLabelActivePlacement: t('venue_management.venueManagement.draggableTool.ariaLabelActivePlacement'),
+            ariaLabelDefault: t('venue_management.venueManagement.draggableTool.ariaLabelDefault'),
         },
         venueLayoutPreview: {
-            previewUnavailableTitle: "Layout Preview Unavailable",
-            previewUnavailableMessage: "It seems there's no layout data to display, or grid dimensions are invalid. <br />Please design your layout in 'Design Mode' first.",
-            qrSidebarTitle: "Table QR Codes",
-            qrTableNumberLabel: "Table {number}",
-            qrSeatsLabel: "{seats} Seats", // e.g., "4 Seats"
-            qrSeatsNotAvailable: "N/A Seats",
-            qrShapeLabel: "{shape}", // e.g., "square-1x1"
-            qrDownloadButtonTooltip: "Download QR Code",
-            qrStatusLoading: "Loading QR...", // Alt text or status if image fails
-            qrStatusError: "Error loading QR",
-            qrStatusSkipped: "QR Generation Offline",
-            qrStatusPending: "QR Pending",
-            qrErrorMessage: "Could not load.", // Displayed below QR if error
-            qrSkippedMessage: "Unavailable.", // Displayed below QR if skipped
-            noTablesForQrTitle: "No Tables for QR Codes",
-            noTablesForQrMessage: "Switch to 'Design Mode' to add tables to your layout and assign them numbers.",
-            downloadAllQrsButtonText: "Download All QRs",
+            previewUnavailableTitle: t('venue_management.venueManagement.venueLayoutPreview.previewUnavailableTitle'),
+            previewUnavailableMessage: t('venue_management.venueManagement.venueLayoutPreview.previewUnavailableMessage'),
+            qrSidebarTitle: t('venue_management.venueManagement.venueLayoutPreview.qrSidebarTitle'),
+            qrTableNumberLabel: t('venue_management.venueManagement.liveOrderDashboard.tableLabel'),
+            qrSeatsLabel: t('venue_management.venueManagement.venueLayoutPreview.qrSeatsLabel'), // e.g., "4 Seats"
+            qrSeatsNotAvailable: t('venue_management.venueManagement.venueLayoutPreview.qrSeatsNotAvailable'),
+            qrShapeLabel: t('venue_management.venueManagement.venueLayoutPreview.qrShapeLabel'), // e.g., "square-1x1"
+            qrDownloadButtonTooltip: t('venue_management.venueManagement.venueLayoutPreview.qrDownloadButtonTooltip'),
+            qrStatusLoading: t('venue_management.venueManagement.venueLayoutPreview.qrStatusLoading'), // Alt text or status if image fails
+            qrStatusError: t('venue_management.venueManagement.venueLayoutPreview.qrStatusError'),
+            qrStatusSkipped: t('venue_management.venueManagement.venueLayoutPreview.qrStatusSkipped'),
+            qrStatusPending: t('venue_management.venueManagement.venueLayoutPreview.qrStatusPending'),
+            qrErrorMessage: t('venue_management.venueManagement.venueLayoutPreview.qrErrorMessage'), // Displayed below QR if error
+            qrSkippedMessage: t('venue_management.venueManagement.venueLayoutPreview.qrSkippedMessage'), // Displayed below QR if skipped
+            noTablesForQrTitle: t('venue_management.venueManagement.venueLayoutPreview.noTablesForQrTitle'),
+            noTablesForQrMessage: t('venue_management.venueManagement.venueLayoutPreview.noTablesForQrMessage'),
+            downloadAllQrsButtonText: t('venue_management.venueManagement.venueLayoutPreview.downloadAllQrsButtonText'),
             // Tooltips for items in the grid (can be constructed dynamically)
-            gridItemTableTooltip: "Table {number} - Click to see QR in sidebar",
-            gridItemDefaultTooltip: "{itemName}",
+            gridItemTableTooltip: t('venue_management.venueManagement.venueLayoutPreview.gridItemTableTooltip'),
+            gridItemDefaultTooltip: t('venue_management.venueManagement.placedItem.itemBaseTitle'),
         },
         layoutItemRendererUtils: {
-            defaultPreviewRendererTitle: "{itemName} (ID: {itemId})",
-            defaultPreviewRendererItemNameFallback: "Unknown Item",
+            defaultPreviewRendererTitle: t('venue_management.venueManagement.layoutItemRendererUtils.defaultPreviewRendererTitle'),
+            defaultPreviewRendererItemNameFallback: t('venue_management.venueManagement.layoutItemRendererUtils.defaultPreviewRendererItemNameFallback'),
         },
     }
 };
