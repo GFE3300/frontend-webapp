@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -9,15 +9,13 @@ import DoorRenderer from '../../venue_management/subcomponents/layout_designer/i
 import DecorRenderer from '../../venue_management/subcomponents/layout_designer/item_renderers/DecorRenderer';
 import CounterRenderer from '../../venue_management/subcomponents/layout_designer/item_renderers/CounterRenderer';
 
-// Import the overlay component we will build next
+// Import the refined overlay component
 import TableStatusOverlay from './TableStatusOverlay';
 
 // Import i18n text
 import { scriptLines_liveOrders } from '../utils/script_lines';
 
-// A map to look up the correct renderer component for each item type.
 const itemRenderers = {
-    // Note: The backend `item_type` is the key (e.g., 'placedTable')
     'placedTable': TableRenderer,
     'placedWall': WallRenderer,
     'placedDoor': DoorRenderer,
@@ -27,21 +25,19 @@ const itemRenderers = {
 
 /**
  * Renders the static venue layout and overlays live table status information on top.
- * This is a "dumb" presentational component that receives all data via props.
- * @param {{ 
- *   layoutData: object, 
+ * This component is now fully responsive and scales its content to fit the container.
+ * @param {{
+ *   layoutData: object,
  *   liveDataMap: Object.<string, object>,
- *   onSelectTable: (layoutItemId: string) => void 
+ *   onSelectTable: (layoutItemId: string) => void
  * }} props
- *        - layoutData: The full layout data object from the useLayoutData hook.
- *        - liveDataMap: An object mapping layout_item_id to live table data.
- *        - onSelectTable: The handler to call when a table is clicked.
  */
 const VenueLayoutDisplay = ({ layoutData, liveDataMap, onSelectTable }) => {
     const { user } = useAuth();
+    const containerRef = useRef(null);
+    // --- REFINED: Default cell size is just an initial value ---
+    const [scaledCellSize, setScaledCellSize] = useState(16);
 
-    // The parent component (`LiveOrdersPage`) handles the main loading/error states.
-    // This component handles the specific case where data is loaded but the layout is empty.
     if (!layoutData || !layoutData.items || layoutData.items.length === 0) {
         const canConfigure = user?.role === 'ADMIN' || user?.role === 'MANAGER';
         return (
@@ -60,43 +56,77 @@ const VenueLayoutDisplay = ({ layoutData, liveDataMap, onSelectTable }) => {
     }
 
     const { grid_rows, grid_cols, grid_subdivision } = layoutData;
-    const cellSize = 16; // Base size in pixels for a grid cell. Consistent with designer.
 
+    // --- NEW: Adaptive scaling with ResizeObserver ---
+    useLayoutEffect(() => {
+        const calculateSize = (entries) => {
+            if (!containerRef.current) return;
+
+            const entry = entries[0];
+            const { width, height } = entry.contentRect;
+
+            // p-4 on the container is 1rem (16px) per side -> 32px total
+            const padding = 32;
+            const availableWidth = width - padding;
+            const availableHeight = height - padding;
+
+            if (grid_cols > 0 && grid_rows > 0) {
+                const cellSizeFromWidth = availableWidth / grid_cols;
+                const cellSizeFromHeight = availableHeight / grid_rows;
+
+                // Use the smaller of the two to maintain aspect ratio and fit within the container
+                const newCellSize = Math.floor(Math.min(cellSizeFromWidth, cellSizeFromHeight));
+                setScaledCellSize(newCellSize > 0 ? newCellSize : 1); // Ensure size is at least 1px
+            }
+        };
+
+        const resizeObserver = new ResizeObserver(calculateSize);
+        const currentRef = containerRef.current;
+        if (currentRef) {
+            resizeObserver.observe(currentRef);
+        }
+
+        return () => {
+            if (currentRef) {
+                resizeObserver.unobserve(currentRef);
+            }
+        };
+    }, [grid_cols, grid_rows]); // Rerun effect if the grid dimensions change
+
+    // --- REFINED: Grid style now uses dynamic values for responsive rendering ---
     const gridStyle = {
         display: 'grid',
-        gridTemplateRows: `repeat(${grid_rows * grid_subdivision}, ${cellSize / grid_subdivision}px)`,
-        gridTemplateColumns: `repeat(${grid_cols * grid_subdivision}, ${cellSize / grid_subdivision}px)`,
+        gridTemplateRows: `repeat(${grid_rows * grid_subdivision}, ${scaledCellSize / grid_subdivision}px)`,
+        gridTemplateColumns: `repeat(${grid_cols * grid_subdivision}, ${scaledCellSize / grid_subdivision}px)`,
         position: 'relative',
-        width: `${grid_cols * cellSize}px`,
-        height: `${grid_rows * cellSize}px`,
-        margin: 'auto', // Center the layout within its flexible container
+        width: `${grid_cols * scaledCellSize}px`,
+        height: `${grid_rows * scaledCellSize}px`,
     };
 
     return (
-        <div className="relative w-full h-full overflow-auto p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+        <div
+            ref={containerRef}
+            className="w-full h-full flex items-center justify-center p-4 bg-gray-50 dark:bg-neutral-800 rounded-lg overflow-hidden"
+        >
             <div style={gridStyle}>
                 {layoutData.items.map(item => {
                     const Renderer = itemRenderers[item.item_type];
-                    if (!Renderer) {
-                        console.warn(`No renderer found for item_type: ${item.item_type}`);
-                        return null;
-                    }
+                    if (!Renderer) return null;
 
                     const itemStyle = {
                         gridColumnStart: item.grid_col_start,
                         gridColumnEnd: `span ${item.w_minor}`,
                         gridRowStart: item.grid_row_start,
                         gridRowEnd: `span ${item.h_minor}`,
-                        position: 'relative', // Crucial for absolutely positioning children like the overlay
+                        position: 'relative', // Necessary for the absolute overlay
                     };
 
                     const isTable = item.item_type === 'placedTable';
-                    // Look up the live data for this specific table using its UUID.
                     const tableLiveData = isTable ? liveDataMap[item.id] : null;
 
                     return (
                         <div key={item.id} style={itemStyle}>
-                            <Renderer item={item} cellSize={cellSize} isPreview={true} />
+                            <Renderer item={item} cellSize={scaledCellSize} isPreview={true} />
                             {isTable && (
                                 <TableStatusOverlay
                                     tableStaticData={item}

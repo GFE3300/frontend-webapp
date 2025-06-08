@@ -31,31 +31,10 @@ const DRAG_HANDLE_BG = "bg-neutral-300 dark:bg-neutral-500";
 const DRAG_SWIPE_THRESHOLD_VH_PERCENT = 30;
 const DRAG_VELOCITY_THRESHOLD = 200;
 
-/**
- * Visual indicator for dragging the mobile drawer.
- * @param {object} props - Component props.
- * @param {string} [props.className=""] - Additional classes for the drag handle.
- * @returns {React.ReactElement}
- */
 const DragHandle = ({ className = "" }) => (
     <div className={`absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1.5 ${DRAG_HANDLE_BG} rounded-full ${className}`} aria-hidden="true" />
 );
 
-/**
- * Manages the display and interaction of the order summary,
- * appearing as a draggable drawer on mobile or a sidebar on desktop.
- * @param {object} props - Component props.
- * @param {Array} [props.orderItems=[]] - Array of items in the current order.
- * @param {object} props.orderFinancials - Object containing subtotal, totalDiscountAmount, finalTotal, appliedPromoUIDetails, itemLevelDiscountsMap.
- * @param {object} props.venueContext - Contextual information about the venue.
- * @param {boolean} props.isDesktop - Flag indicating if the view is for desktop.
- * @param {Function} props.onUpdateQuantity - Callback to update item quantity.
- * @param {Function} props.onConfirmOrderAction - Callback to confirm and place the order.
- * @param {Function} props.onPromoValidationChange - Callback to inform parent of promo validation results.
- * @param {Function} props.navigateToMenu - Callback to navigate to the menu (e.g., from empty order state).
- * @param {React.RefObject} props.interactionAreaRef - Ref for the main draggable element.
- * @returns {React.ReactElement | null}
- */
 const OrderInteractionController = ({
     orderItems = [],
     orderFinancials,
@@ -63,7 +42,7 @@ const OrderInteractionController = ({
     isDesktop,
     onUpdateQuantity,
     onConfirmOrderAction,
-    onPromoValidationChange, // Added to destructuring
+    onPromoValidationChange,
     navigateToMenu,
     interactionAreaRef,
 }) => {
@@ -143,7 +122,8 @@ const OrderInteractionController = ({
     };
 
     const peekBarTotalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-    const peekBarAriaLabel = `View your order. ${peekBarTotalItems} ${peekBarTotalItems === 1 ? 'item' : 'items'}. Total ${formatCurrency(orderFinancials.finalTotal)}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
+    // Use the financials prop, which comes from the parent hook.
+    const peekBarAriaLabel = `View your order. ${peekBarTotalItems} ${peekBarTotalItems === 1 ? 'item' : 'items'}. Total ${formatCurrency(orderFinancials?.finalTotal || 0)}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
 
     if (isDesktop) {
         if (!venueContext) return null;
@@ -153,14 +133,11 @@ const OrderInteractionController = ({
                 {hasOrderItems ? (
                     <OrderSummaryPanel
                         orderItems={orderItems}
-                        subtotal={orderFinancials.subtotal}
-                        totalDiscountAmount={orderFinancials.totalDiscountAmount}
-                        finalTotal={orderFinancials.finalTotal}
-                        appliedPromoUIDetails={orderFinancials.appliedPromoUIDetails}
-                        itemLevelDiscountsMap={orderFinancials.itemLevelDiscountsMap}
+                        // MODIFIED: Pass the entire orderFinancials object
+                        orderFinancials={orderFinancials}
                         onUpdateQuantity={onUpdateQuantity}
                         onConfirmOrderAction={onConfirmOrderAction}
-                        onPromoValidationChange={onPromoValidationChange} // Pass it down
+                        onPromoValidationChange={onPromoValidationChange}
                         isSidebarVersion={true}
                         venueContext={venueContext}
                         hidePanelTitle={false}
@@ -229,7 +206,7 @@ const OrderInteractionController = ({
                         View Your Order ({peekBarTotalItems} {peekBarTotalItems === 1 ? 'item' : 'items'})
                     </span>
                     <span className={`${FONT_MONTSERRAT} font-bold text-base`}>
-                        {formatCurrency(orderFinancials.finalTotal)}
+                        {formatCurrency(orderFinancials?.finalTotal || 0)}
                     </span>
                 </motion.div>
 
@@ -252,11 +229,8 @@ const OrderInteractionController = ({
                         <div className="flex-1 overflow-y-auto">
                             <OrderSummaryPanel
                                 orderItems={orderItems}
-                                subtotal={orderFinancials.subtotal}
-                                totalDiscountAmount={orderFinancials.totalDiscountAmount}
-                                finalTotal={orderFinancials.finalTotal}
-                                appliedPromoUIDetails={orderFinancials.appliedPromoUIDetails}
-                                itemLevelDiscountsMap={orderFinancials.itemLevelDiscountsMap}
+                                // MODIFIED: Pass the entire orderFinancials object
+                                orderFinancials={orderFinancials}
                                 onUpdateQuantity={onUpdateQuantity}
                                 onConfirmOrderAction={onConfirmOrderAction}
                                 onPromoValidationChange={onPromoValidationChange}

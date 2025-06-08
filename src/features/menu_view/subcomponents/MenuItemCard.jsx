@@ -5,7 +5,7 @@ import Icon from '../../../components/common/Icon.jsx';
 import WavingBackground from "../../../components/animations/WavingLine.jsx";
 import { getEffectiveDisplayPrice } from "../utils/productUtils.js";
 import { useTheme } from "../../../utils/ThemeProvider.jsx";
-import { useCurrency } from "../../../hooks/useCurrency.js"; // Import the new hook
+import { useCurrency } from "../../../hooks/useCurrency.js"; // MODIFIED: Import the new hook
 
 const CARD_CONTENT_WIDTH_PX = 240;
 const CARD_CONTENT_HEIGHT_PX = 270;
@@ -29,7 +29,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
     const imageAnimationStartRef = useRef(null);
     const { theme } = useTheme();
     const shouldReduceMotion = useReducedMotion();
-    const { formatCurrency } = useCurrency(); // Use the hook here
+    const { formatCurrency } = useCurrency(); // MODIFIED: Use the hook here
 
     const { originalPrice, displayPrice, bestDiscountApplied } = useMemo(
         () => getEffectiveDisplayPrice(product),
@@ -45,7 +45,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
 
     const handleCardClick = () => {
         if (!isProductAvailable) return;
-        if (!shouldReduceMotion) { // Only run animation if motion is not reduced
+        if (!shouldReduceMotion) {
             setIsEffectActive(true);
             setTimeout(() => setIsEffectActive(false), 1200);
         }
@@ -97,7 +97,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
     };
 
     const unavailableButtonText = "Unavailable";
-    const actionButtonText = isProductAvailable ? (hasOptions ? "View" : "Add") : unavailableButtonText; // Changed for clarity
+    const actionButtonText = isProductAvailable ? (hasOptions ? "View" : "Add") : unavailableButtonText;
     const actionButtonIcon = isProductAvailable ? (hasOptions ? "tune" : "add_shopping_cart") : "block";
 
     const wavingBgColors = theme === 'dark' ? ['#E11D48', '#FB7185', '#FECDD3'] : ['#F43F5E', '#FDA4AF', '#FECDD3'];
@@ -106,7 +106,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
     const unavailableButtonBg = "bg-neutral-300 dark:bg-neutral-600";
     const unavailableButtonTextCol = "text-neutral-500 dark:text-neutral-400";
 
-    // ARIA Label construction
+    // MODIFIED: ARIA Label construction with formatCurrency
     let ariaLabel = `
         ${name}, price ${formatCurrency(displayPrice)}. 
         ${!isProductAvailable ? "This item is currently unavailable." : (hasOptions ? "Tap to view details and configure options." : "Tap to add to order.")}
@@ -114,10 +114,10 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
 
     return (
         <motion.div
-            key={product?.id || 'menu-item-card-fallback'} // Ensure key is present
+            key={product?.id || 'menu-item-card-fallback'}
             variants={cardVariants}
             whileHover="hover"
-            whileTap="tap" // Added whileTap for click feedback
+            whileTap="tap"
             initial="initial"
             animate="animate"
             className={`relative flex-shrink-0 select-none group font-inter ${unavailableCardClasses} ${isProductAvailable ? FOCUS_CLASSES : ''}`}
@@ -125,14 +125,14 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                 width: `${CARD_CONTENT_WIDTH_PX}px`,
                 height: `${totalComponentHeight}px`,
             }}
-            role="button" // ARIA: Role is button as the whole card is clickable
-            tabIndex={isProductAvailable ? 0 : -1} // ARIA: Focusable if available, otherwise not
-            aria-label={ariaLabel} // ARIA: Comprehensive label
-            aria-disabled={!isProductAvailable} // ARIA: Disabled state
+            role="button"
+            tabIndex={isProductAvailable ? 0 : -1}
+            aria-label={ariaLabel}
+            aria-disabled={!isProductAvailable}
             onClick={isProductAvailable ? handleCardClick : undefined}
-            onKeyPress={(e) => { // ARIA: Keyboard actionable
+            onKeyPress={(e) => {
                 if (isProductAvailable && (e.key === 'Enter' || e.key === ' ')) {
-                    e.preventDefault(); // Prevent space from scrolling page
+                    e.preventDefault();
                     handleCardClick();
                 }
             }}
@@ -154,7 +154,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                             animate={{ opacity: 1, scaleY: 1 }}
                             exit={{ opacity: 0, scaleY: 0.8 }}
                             transition={{ duration: 0.4, ease: "circOut" }}
-                            aria-hidden="true" // Decorative animation
+                            aria-hidden="true"
                         >
                             <WavingBackground colors={wavingBgColors} waveOpacity={0.6} />
                         </motion.div>
@@ -181,12 +181,12 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                         width: `${IMAGE_DIAMETER_PX}px`,
                         height: `${IMAGE_DIAMETER_PX}px`,
                     }}
-                    aria-hidden="true" // Image is described by the main aria-label
+                    aria-hidden="true"
                 >
                     {effectiveImageUrl && !imageLoadError ? (
                         <img
                             src={effectiveImageUrl}
-                            alt="" // ARIA: Decorative, main card has aria-label
+                            alt=""
                             className="w-full h-full object-cover"
                             onError={() => setImageLoadError(true)}
                             loading="lazy"
@@ -211,7 +211,6 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                         className="w-full flex flex-col items-center text-center flex-1 min-h-0"
                         style={{ paddingTop: `${TEXT_AREA_TOP_CLEARANCE_FROM_CARD_TOP_PX}px` }}
                     >
-                        {/* Use h4 for product name as it's likely within a section (h3 for category) */}
                         <h4 className="font-montserrat font-medium text-xl text-neutral-900 dark:text-neutral-100 tracking-tight leading-snug truncate w-full" title={name}>
                             {name}
                         </h4>
@@ -242,21 +241,13 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                         {totalPublicTagsCount > 0 && (
                             <div className={TAG_CONTAINER_STYLES} aria-label="Product tags">
                                 {publicTagsToDisplay.map(tag => (
-                                    <span
-                                        key={tag.id}
-                                        className={TAG_PILL_STYLES}
-                                        title={tag.name}
-                                    >
+                                    <span key={tag.id} className={TAG_PILL_STYLES} title={tag.name}>
                                         {tag.icon_name && <Icon name={tag.icon_name} className={TAG_ICON_STYLES} aria-hidden="true" />}
                                         {tag.name}
                                     </span>
                                 ))}
                                 {remainingTagsCount > 0 && (
-                                    <span
-                                        className={PLUS_N_MORE_TAG_PILL_STYLES}
-                                        aria-label={`and ${remainingTagsCount} more tags`}
-                                        title={`+${remainingTagsCount} more tags`}
-                                    >
+                                    <span className={PLUS_N_MORE_TAG_PILL_STYLES} aria-label={`and ${remainingTagsCount} more tags`} title={`+${remainingTagsCount} more tags`}>
                                         +{remainingTagsCount}
                                     </span>
                                 )}
@@ -264,8 +255,9 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                         )}
                     </div>
 
-                    <div className={`w-full font-montserrat flex items-end justify-between py-2  mt-auto flex-shrink-0`}>
+                    <div className={`w-full font-montserrat flex items-end justify-between py-2 mt-auto flex-shrink-0`}>
                         <div className="flex flex-col items-start text-left">
+                            {/* MODIFIED: Using formatCurrency and logic for strikethrough price */}
                             {bestDiscountApplied && isProductAvailable ? (
                                 <>
                                     <span className="font-inter text-xs line-through text-neutral-400 dark:text-neutral-500" aria-label={`Original price ${formatCurrency(originalPrice)}`}>
@@ -293,12 +285,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                                 }`}
                             aria-hidden="true"
                         >
-                            <Icon
-                                name={actionButtonIcon}
-                                className="w-4 h-4"
-                                variations={isProductAvailable ? { fill: 1, weight: 400, grade: 0, opsz: 24 } : {}}
-                                style={{ fontSize: '1rem' }}
-                            />
+                            <Icon name={actionButtonIcon} className="w-4 h-4" style={{ fontSize: '1rem' }} />
                             <span>{actionButtonText}</span>
                         </div>
                     </div>

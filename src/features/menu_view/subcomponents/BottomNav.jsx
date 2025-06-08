@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 
-// ... (Styling constants remain the same as provided in the prompt)
+// --- Styling Constants ---
 const NAV_BG = "bg-white dark:bg-neutral-800";
 const NAV_BORDER = "border-neutral-200 dark:border-neutral-700";
 const ITEM_ACTIVE_TEXT = "text-rose-600 dark:text-rose-400";
@@ -20,10 +20,9 @@ const ITEM_PADDING = "p-2";
 const ITEM_FOCUS_RING_RADIUS = "rounded-t-lg";
 const ICON_BG_RADIUS = "rounded-full";
 const INDICATOR_RADIUS = "rounded-full";
-// BADGE constants are no longer needed as order count is removed from BottomNav
 
 const NavItem = React.memo(React.forwardRef(
-    ({ label, iconName, onClick, itemKey, isTabActive }, ref) => ( // Removed hasBadge, badgeCount
+    ({ label, iconName, onClick, itemKey, isTabActive }, ref) => (
         <motion.button
             ref={ref}
             key={itemKey}
@@ -39,15 +38,14 @@ const NavItem = React.memo(React.forwardRef(
             aria-label={label}
         >
             <div className={`relative p-1 ${ICON_BG_RADIUS} transition-colors duration-150 ${isTabActive ? ITEM_ACTIVE_ICON_BG : ''}`}>
-                <Icon name={iconName} className={ICON_SIZE} />
-                {/* Badge rendering logic removed */}
+                <Icon name={iconName} className={ICON_SIZE} style={{ fontSize: "1.25rem" }} />
             </div>
             <span className={`${LABEL_TEXT_SIZE} ${LABEL_FONT_WEIGHT} mt-0.5 ${isTabActive ? ITEM_ACTIVE_TEXT : ITEM_INACTIVE_TEXT}`}>
                 {label}
             </span>
             {isTabActive && (
                 <motion.div
-                    layoutId="activeBottomNavIndicatorCustomerMenu" // layoutId can remain if you want smooth transition between 'Menu' and future tabs
+                    layoutId="activeBottomNavIndicatorCustomerMenu"
                     className={`absolute bottom-0 h-[3px] w-8 ${ITEM_ACTIVE_INDICATOR_BG} ${INDICATOR_RADIUS}`}
                     initial={false}
                     animate={{ opacity: 1 }}
@@ -59,14 +57,14 @@ const NavItem = React.memo(React.forwardRef(
 NavItem.displayName = 'NavItem';
 
 function BottomNav({
-    currentPage, // 'menu' or 'filtered'
+    currentPage,
     setCurrentPage,
-    onOpenGuestProfile, // New prop
+    onOpenSettingsModal, // MODIFIED: Changed prop name for clarity
 }) {
-    // MODIFIED: navItems array
+    // MODIFIED: navItems array is updated
     const navItems = [
         { key: 'menu', label: 'Menu', icon: 'restaurant_menu' },
-        { key: 'profile', label: 'My Info', icon: 'badge' }, // Changed 'Account' to 'My Info', icon to 'badge'
+        { key: 'profile', label: 'My Info', icon: 'badge' },
     ];
 
     const navBarAnimation = {
@@ -85,28 +83,26 @@ function BottomNav({
             aria-label="Main bottom navigation"
         >
             {navItems.map((item) => {
-                // MODIFIED: Logic for active state and onClick
-                // 'Menu' tab is active if currentPage is 'menu'.
-                // 'My Info' tab does not have an active state in the tab bar itself.
+                // MODIFIED: Logic for active state and onClick handler
                 const isCurrentTabActive = item.key === 'menu' && currentPage === 'menu';
 
                 let handleClick;
                 if (item.key === 'menu') {
+                    // This button navigates to the 'menu' page state.
                     handleClick = () => setCurrentPage('menu');
                 } else if (item.key === 'profile') {
-                    handleClick = onOpenGuestProfile;
+                    // This button opens the settings modal.
+                    handleClick = onOpenSettingsModal;
                 }
 
                 return (
                     <NavItem
-                        // No ref needed for these items unless specific animation targeting is required
                         key={item.key}
                         itemKey={item.key}
                         label={item.label}
                         iconName={item.icon}
                         isTabActive={isCurrentTabActive}
                         onClick={handleClick}
-                    // Removed hasBadge and badgeCount props
                     />
                 );
             })}

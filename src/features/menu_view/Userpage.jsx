@@ -11,14 +11,12 @@ import { useHeaderScrollAnimation } from './hooks/useHeaderScrollAnimation';
 import useWindowSize from '../../hooks/useWindowSize';
 import { ToastProvider, useToast }
     from '../../contexts/ToastContext';
-import ToastContainer from '../../components/common/ToastContainer';
-import { getEffectiveDisplayPrice } from "./utils/productUtils.js";
 
 // UI Components
 import UserPageHeader from './user_page/UserPageHeader';
 import MenuContentArea from './user_page/MenuContentArea';
 import OrderInteractionController from './user_page/OrderInteractionController';
-import GuestSettingsModal from './user_page/GuestSettingsModal'; // MODIFIED: Import new settings modal
+import GuestSettingsModal from './user_page/GuestSettingsModal';
 
 // Common & SubComponents
 import Spinner from '../../components/common/Spinner.jsx';
@@ -28,12 +26,18 @@ import ProductDetailModal from './subcomponents/ProductDetailModal.jsx';
 import FlyingItemAnimator from './subcomponents/FlyingItemAnimator';
 import SetupStage from './subcomponents/SetupStage.jsx';
 
+// NEW: Import the Order Tracker view
+import OrderTrackerView from './live_order_view/OrderTrackerView.jsx';
+
 // Utilities & Contexts
 import { useTheme } from '../../utils/ThemeProvider.jsx';
 import { VenueContext } from '../../contexts/VenueDataContext.jsx';
 import apiService from '../../services/api';
+import { getEffectiveDisplayPrice } from "./utils/productUtils.js";
 
-// --- Styling Constants ---
+// --- Styling & Logic Constants ---
+const ACTIVE_ORDER_ID_STORAGE_KEY = 'smore-active-order-id'; // NEW: localStorage key
+
 const PAGE_BG_LIGHT = "bg-neutral-100";
 const PAGE_BG_DARK = "dark:bg-neutral-900";
 const FONT_INTER = "font-inter";
@@ -49,15 +53,6 @@ const FULL_PAGE_TEXT_SECONDARY_LIGHT = "text-neutral-600";
 const FULL_PAGE_TEXT_SECONDARY_DARK = "dark:text-neutral-400";
 const FULL_PAGE_BUTTON_BG = "bg-rose-500 hover:bg-rose-600";
 const FULL_PAGE_BUTTON_TEXT = "text-white";
-const ORDER_PLACED_BG_LIGHT = "bg-green-50";
-const ORDER_PLACED_BG_DARK = "dark:bg-green-900/30";
-const ORDER_PLACED_ICON_COLOR_LIGHT = "text-green-500";
-const ORDER_PLACED_ICON_COLOR_DARK = "dark:text-green-400";
-const ORDER_PLACED_TITLE_COLOR_LIGHT = "text-green-700";
-const ORDER_PLACED_TITLE_COLOR_DARK = "dark:text-green-200";
-const ORDER_PLACED_SUBTEXT_COLOR_LIGHT = "text-green-600";
-const ORDER_PLACED_SUBTEXT_COLOR_DARK = "dark:text-green-300";
-const ORDER_PLACED_BUTTON_BG = "bg-green-600 hover:bg-green-700";
 
 const HEADER_SCROLL_THRESHOLD_PX = 80;
 const HEADER_ANIMATION_DURATION = 0.3;
@@ -88,12 +83,15 @@ function AppContent() {
     const isDesktop = useIsDesktop();
     const { addToast } = useToast();
 
+    // MODIFIED: State for app flow and order tracking
     const [appStage, setAppStage] = useState('loading');
+    const [activeOrderId, setActiveOrderId] = useState(null);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     // Modals State
     const [isProductDetailModalOpen, setIsProductDetailModalOpen] = useState(false);
     const [currentProductForDetailModal, setCurrentProductForDetailModal] = useState(null);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false); // MODIFIED: New state for settings modal
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [userInteractionModal, setUserInteractionModal] = useState({ isOpen: false, title: '', message: '', type: 'info', isLoading: false });
 
     // Refs
@@ -117,12 +115,23 @@ function AppContent() {
     );
 
     // --- Effects ---
+    // MODIFIED: Effect to check for an active order on initial load
     useEffect(() => {
+        const storedOrderId = localStorage.getItem(ACTIVE_ORDER_ID_STORAGE_KEY);
+        if (storedOrderId) {
+            setActiveOrderId(storedOrderId);
+        }
+        setIsInitialLoad(false);
+    }, []);
+
+    useEffect(() => {
+        if (isInitialLoad || activeOrderId) return; // Don't run this logic if we are still loading or an active order exists
+
         if (!tableLayoutItemId) {
             setAppStage('error'); return;
         }
         if (isLoadingVenueContext) {
-            if (!['main', 'orderPlaced', 'error', 'setup'].includes(appStage)) {
+            if (appStage !== 'main' && appStage !== 'setup') {
                 setAppStage('loading');
             }
             return;
@@ -137,17 +146,25 @@ function AppContent() {
         } else {
             if (appStage !== 'error') setAppStage('loading');
         }
-    }, [tableLayoutItemId, venueContext, isLoadingVenueContext, isVenueContextError, appStage]);
+    }, [tableLayoutItemId, venueContext, isLoadingVenueContext, isVenueContextError, appStage, activeOrderId, isInitialLoad]);
 
     // --- Callbacks ---
     const handleSetupComplete = useCallback((setupData) => {
-        // useVenueContextManager now handles localStorage persistence
         updateVenueUserDetails({ newUserName: setupData.userName, newNumberOfPeople: setupData.numberOfPeople });
         setAppStage('main');
         addToast(`Welcome, ${setupData.userName}! Ready to order.`, "success", 3000);
     }, [updateVenueUserDetails, addToast]);
 
-    // MODIFIED: Callbacks for the new GuestSettingsModal
+    // NEW: Handler to exit the tracker view and return to the menu
+    const handleReturnToMenu = useCallback(() => {
+        localStorage.removeItem(ACTIVE_ORDER_ID_STORAGE_KEY);
+        setActiveOrderId(null);
+        order.clearOrder();
+        setPromoValidationResult(null);
+        // This will re-trigger the main useEffect to decide between 'setup' and 'main'
+        setAppStage('loading');
+    }, [order, setPromoValidationResult]);
+
     const handleOpenSettingsModal = useCallback(() => setIsSettingsModalOpen(true), []);
     const handleCloseSettingsModal = useCallback(() => setIsSettingsModalOpen(false), []);
     const handleSaveSettings = useCallback((newSettings) => {
@@ -195,17 +212,25 @@ function AppContent() {
         setCurrentProductForDetailModal(null);
     }, [order.addToOrder]);
 
+    // MODIFIED: Order placement now triggers the tracker view
     const handleConfirmOrderAction = useCallback(async (payloadFromSummaryPanel) => {
         showUserModal("Placing Order...", "Please wait while we submit your order.", "loading", true);
         try {
             const response = await apiService.post('orders/create/', payloadFromSummaryPanel);
+            const newOrderId = response.data.id;
+
+            // NEW: Set up the tracker view
+            localStorage.setItem(ACTIVE_ORDER_ID_STORAGE_KEY, newOrderId);
+            setActiveOrderId(newOrderId);
+
             order.clearOrder();
             setPromoValidationResult(null);
-            setAppStage('orderPlaced');
+            hideUserModal(); // Hide the "placing order" modal
+
             setTimeout(() => {
                 addToast(
-                    `Order #${String(response.data.id).substring(0, 6)}... Placed! Pickup: ${response.data.pickup_code || 'N/A'}`,
-                    "success", 5000
+                    `Order #${String(response.data.id).substring(0, 6)}... Placed!`,
+                    "success", 3000
                 );
             }, 100);
         } catch (error) {
@@ -216,7 +241,7 @@ function AppContent() {
             console.error("[Userpage] Order placement error:", error.response || error);
             showUserModal("Order Failed", errorMsg, "error");
         }
-    }, [showUserModal, order.clearOrder, addToast]);
+    }, [showUserModal, hideUserModal, order, setPromoValidationResult, addToast]);
 
     const scrollToProductCard = useCallback((productId) => {
         const cardElement = document.getElementById(`product-card-${productId}`);
@@ -235,21 +260,19 @@ function AppContent() {
     }, []);
 
     // --- Conditional Renders ---
+    if (isInitialLoad) {
+        return <FullPageSpinner message="Checking for active orders..." />;
+    }
+
+    if (activeOrderId) {
+        return <OrderTrackerView orderId={activeOrderId} onReturnToMenu={handleReturnToMenu} />;
+    }
+
     if (appStage === 'loading') return <FullPageSpinner message={!tableLayoutItemId ? "Invalid link..." : "Loading Restaurant Info..."} />;
     if (appStage === 'error') return <FullPageError message={venueContextError?.message || "This link is invalid or the restaurant is not found."} onRetry={refetchVenueContext} />;
     if (appStage === 'setup') return <SetupStage tableNumber={venueContext?.tableNumber || "N/A"} onSetupComplete={handleSetupComplete} theme={theme} />;
-    if (appStage === 'orderPlaced') {
-        return (
-            <div className={`flex flex-col items-center justify-center min-h-screen ${ORDER_PLACED_BG_LIGHT} ${ORDER_PLACED_BG_DARK} p-8 text-center ${FONT_INTER}`}>
-                <Icon name="check_circle" className={`w-24 h-24 ${ORDER_PLACED_ICON_COLOR_LIGHT} ${ORDER_PLACED_ICON_COLOR_DARK} mb-6`} style={{ fontSize: '4rem' }} />
-                <h2 className={`text-3xl font-bold ${ORDER_PLACED_TITLE_COLOR_LIGHT} ${ORDER_PLACED_TITLE_COLOR_DARK} mb-4 ${FONT_MONTSERRAT}`}>Order Confirmed!</h2>
-                <p className={`${ORDER_PLACED_SUBTEXT_COLOR_LIGHT} ${ORDER_PLACED_SUBTEXT_COLOR_DARK} max-w-md mb-8`}>Thank you! Your order has been placed. Our team is on it.</p>
-                <button onClick={() => { order.clearOrder(); setPromoValidationResult(null); setAppStage('main'); }} className={`${ORDER_PLACED_BUTTON_BG} ${FULL_PAGE_BUTTON_TEXT} font-semibold font-montserrat py-3 px-6 rounded-full shadow-md transition-colors`}>
-                    Place Another Order
-                </button>
-            </div>
-        );
-    }
+
+    // REMOVED: orderPlaced stage is now handled by OrderTrackerView
 
     const preventScrollOnMain = !isDesktop && order.orderItems.length > 0 && orderInteractionAreaRef.current?.getAttribute('data-drawer-state') === 'open';
 
@@ -260,7 +283,7 @@ function AppContent() {
                 <UserPageHeader
                     venueContext={venueContext}
                     logoError={logoError} onLogoError={() => setLogoError(true)}
-                    onOpenSettingsModal={handleOpenSettingsModal} // MODIFIED: Pass new handler
+                    onOpenSettingsModal={handleOpenSettingsModal}
                     searchProps={{
                         onSearchSubmit: menu.handleSearchSubmit,
                         onSuggestionSelect: menu.handleSuggestionSelect,
@@ -342,7 +365,6 @@ function AppContent() {
                 >
                     <p>{userInteractionModal.message}</p>
                 </Modal>
-                {/* MODIFIED: Render the new GuestSettingsModal */}
                 <GuestSettingsModal
                     isOpen={isSettingsModalOpen}
                     onClose={handleCloseSettingsModal}
@@ -366,7 +388,6 @@ export default function UserpageWrapper() {
         <ToastProvider>
             <VenueContext.Provider value={venueContextValue}>
                 <AppContent />
-                <ToastContainer />
             </VenueContext.Provider>
         </ToastProvider>
     );

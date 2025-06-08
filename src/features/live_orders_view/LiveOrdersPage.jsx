@@ -35,12 +35,12 @@ const LiveOrdersPage = () => {
     const queryClient = useQueryClient();
     const { addToast } = useToast();
 
-    // --- Mutation for Updating Order Status ---
+    // --- REFINED: Mutation now accepts a flexible payload ---
     const orderUpdateMutation = useMutation({
         mutationFn: (payload) => apiService.updateOrderStatus(payload.orderId, payload),
         onSuccess: (data, variables) => {
             addToast(`Order ${variables.orderId.substring(0, 8)} updated successfully!`, 'success');
-            // Invalidate the query to trigger a refetch of the live data
+            // Invalidate queries to refetch live data immediately after an update
             queryClient.invalidateQueries({ queryKey: queryKeys.liveOrdersView });
         },
         onError: (err) => {
@@ -62,7 +62,7 @@ const LiveOrdersPage = () => {
         setSelectedTableId(null);
     };
 
-    // --- Derived State & Memoized Calculations ---
+    // --- REFINED: Memoized calculations for Commander's View stats ---
     const commanderStats = useMemo(() => {
         if (!liveTableData) {
             return { activeTables: 0, totalGuests: 0, pendingOrders: 0, totalSales: 0 };
@@ -116,7 +116,9 @@ const LiveOrdersPage = () => {
 
             return (
                 <div className="flex flex-col items-center justify-center h-full p-4 text-center bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    {/* ICON: Sizing mandate */}
                     <Icon name="error_outline" style={{ fontSize: '4rem' }} className="text-red-400" />
+                    {/* TYPOGRAPHY: font-montserrat for title */}
                     <h2 className="mt-4 text-xl font-bold font-montserrat text-red-700 dark:text-red-400">{title}</h2>
                     <p className="mt-2 text-red-600 dark:text-red-300">{body}</p>
                     {error && (
@@ -143,9 +145,11 @@ const LiveOrdersPage = () => {
     };
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 h-full flex flex-col bg-gray-100 dark:bg-gray-900 font-inter">
+        // --- REFINED: Page layout, theming, and flexbox structure ---
+        <div className="p-4 sm:p-6 lg:p-8 h-full flex flex-col bg-gray-100 dark:bg-neutral-900 font-inter">
             {/* Header */}
             <header className="pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
+                {/* TYPOGRAPHY: font-montserrat for main page title */}
                 <h1 className="text-2xl font-bold font-montserrat text-gray-900 dark:text-white">
                     {t(scriptLines_liveOrders.pageTitle)}
                 </h1>
@@ -154,7 +158,7 @@ const LiveOrdersPage = () => {
                 </p>
             </header>
 
-            {/* Commander's View Stats */}
+            {/* --- REFINED: Commander's View Stats Panel --- */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <StatCard title={t(scriptLines_liveOrders.stats.activeTables)} value={commanderStats.activeTables} icon="table_restaurant" />
                 <StatCard title={t(scriptLines_liveOrders.stats.totalGuests)} value={commanderStats.totalGuests} icon="group" />
@@ -162,7 +166,7 @@ const LiveOrdersPage = () => {
                 <StatCard title={t(scriptLines_liveOrders.stats.totalSales)} value={formatCurrency(commanderStats.totalSales, currency)} icon="monitoring" />
             </div>
 
-            {/* Main Content Area */}
+            {/* --- REFINED: Main content area layout and theming --- */}
             <main className="flex-grow h-full overflow-hidden relative rounded-lg shadow-inner bg-gray-200 dark:bg-gray-800">
                 {renderContent()}
             </main>

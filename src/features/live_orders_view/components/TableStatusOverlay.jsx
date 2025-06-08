@@ -1,11 +1,8 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 import { scriptLines_liveOrders, t } from '../utils/script_lines';
 
-/**
- * Maps aggregate_status values to Tailwind CSS classes for styling.
- * The colors are chosen to be visually distinct and informative, with animations for high-priority states.
- */
 const statusStyles = {
     IDLE: {
         bgColor: 'bg-gray-400/80 dark:bg-gray-700/80 hover:bg-gray-500/90',
@@ -13,6 +10,7 @@ const statusStyles = {
         icon: 'chair_alt',
     },
     NEW_ORDER: {
+        // REFINED: Added pulsing ring for higher visibility
         bgColor: 'bg-green-500/90 dark:bg-green-600/90 hover:bg-green-600/100 ring-4 ring-green-500/50 animate-pulse',
         textColor: 'text-white font-bold',
         icon: 'notifications_active',
@@ -33,45 +31,42 @@ const statusStyles = {
         icon: 'payment',
     },
     NEEDS_ATTENTION: {
+        // REFINED: Added pulsing ring for higher visibility
         bgColor: 'bg-red-600/90 dark:bg-red-700/90 hover:bg-red-700/100 ring-4 ring-red-500/50 animate-pulse',
         textColor: 'text-white font-bold',
         icon: 'error',
     },
 };
 
-/**
- * An overlay component that displays the status of a table based on live data.
- * It is designed to be positioned absolutely over a table item rendered in the layout.
- *
- * @param {{
- *   tableStaticData: object,
- *   tableLiveData: object | null,
- *   onSelect: () => void
- * }} props
- *        - tableStaticData: The item object from the venue layout (contains id, table_number, etc.).
- *        - tableLiveData: The corresponding live data object from the API, or null if no live data exists.
- *        - onSelect: A function to call when the overlay is clicked.
- */
+// --- NEW: Jiggle animation definition for framer-motion ---
+const jiggleAnimation = {
+    x: [0, -1, 1, -1, 1, 0],
+    transition: {
+        duration: 0.4,
+        repeat: Infinity,
+        repeatDelay: 3,
+        ease: "easeInOut"
+    }
+};
+
 const TableStatusOverlay = ({ tableStaticData, tableLiveData, onSelect }) => {
-    // Default to IDLE status if no live data is available for the table
     const aggregateStatus = tableLiveData?.aggregate_status || 'IDLE';
-    const statusConfig = statusStyles[aggregateStatus] || statusStyles.IDLE; // Fallback to IDLE if status is unknown
+    const statusConfig = statusStyles[aggregateStatus] || statusStyles.IDLE;
 
-    const totalGuests = tableLiveData?.total_guests || 0;
-    const orderCount = tableLiveData?.order_count || 0;
+    // --- REFINED: Smart indicator logic ---
+    const isIdle = aggregateStatus === 'IDLE';
+    const isNewOrder = aggregateStatus === 'NEW_ORDER';
 
-    // Use the i18n script lines for text and the `t` function for pluralization
     const statusText = t(scriptLines_liveOrders.status[aggregateStatus]) || aggregateStatus;
     const tableNumber = tableStaticData.item_specific_props.table_number;
-    const guestsText = t(scriptLines_liveOrders.guestsSummary, { count: totalGuests });
-    const ordersText = t(scriptLines_liveOrders.ordersSummary, { count: orderCount });
+    const guestsText = t(scriptLines_liveOrders.guestsSummary, { count: tableLiveData?.total_guests || 0 });
+    const ordersText = t(scriptLines_liveOrders.ordersSummary, { count: tableLiveData?.order_count || 0 });
 
-    // A comprehensive tooltip for accessibility and hover info
     const tooltipText = `Table ${tableNumber} - ${statusText} (${guestsText}, ${ordersText})`;
 
     return (
         <div
-            className={`absolute inset-0 flex flex-col items-center justify-center p-2 rounded-md
+            className={`absolute inset-0 flex flex-col items-center justify-center p-1 rounded-md
                        cursor-pointer group transition-all duration-300 transform hover:scale-105
                        ${statusConfig.bgColor} ${statusConfig.textColor}`}
             onClick={onSelect}
@@ -79,9 +74,29 @@ const TableStatusOverlay = ({ tableStaticData, tableLiveData, onSelect }) => {
             role="button"
             aria-label={tooltipText}
         >
+            {/* TYPOGRAPHY: font-montserrat for table number */}
+            { isIdle &&
             <div className="text-lg font-semibold font-montserrat">{tableNumber}</div>
-            <Icon name={statusConfig.icon} style={{ fontSize: '1.5rem' }} className="mt-1" />
-            <div className="mt-1 text-xs font-medium uppercase tracking-wider">{statusText}</div>
+            }
+
+            {/* --- REFINED: Animate presence of status details --- */}
+            <AnimatePresence>
+                {!isIdle && (
+                    <motion.div
+                        key="status-details"
+                        className="flex flex-col items-center justify-center"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.1 }}
+                    >
+                        <motion.div animate={isNewOrder ? jiggleAnimation : {}}>
+                            {/* ICON: Sizing mandate */}
+                            <Icon name={statusConfig.icon} style={{ fontSize: '1.5rem' }} className="mt-1" />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

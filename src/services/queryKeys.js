@@ -34,6 +34,7 @@ export const queryKeys = {
     // Subscription related keys
     subscriptionStatus: [SUBSCRIPTIONS_BASE_KEY, 'status'],
 
-    // --- NEWLY ADDED for Live Orders ---
+    // --- Orders ---
     liveOrdersView: [ORDERS_BASE_KEY, 'live-view'],
+    order: (orderId) => [ORDERS_BASE_KEY, 'detail', orderId], // NEWLY ADDED for order tracking
 };

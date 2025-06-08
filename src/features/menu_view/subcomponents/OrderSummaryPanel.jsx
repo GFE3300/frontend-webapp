@@ -5,7 +5,7 @@ import OrderItem from "./OrderItem";
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
 import { useValidatePromoCode } from "../../../contexts/ProductDataContext";
-import { useCurrency } from "../../../hooks/useCurrency"; // Import the hook
+import { useCurrency } from "../../../hooks/useCurrency"; // MODIFIED: Import the hook
 
 const PANEL_BG_DRAWER = "";
 const PANEL_BG_SIDEBAR_LIGHT = "";
@@ -60,32 +60,9 @@ const itemAppearVariantsDefault = {
 };
 const reducedMotionTransition = { duration: 0.01 };
 
-/**
- * Renders the content of the order summary, including items, promo code input, notes, and totals.
- * @param {object} props - Component props.
- * @param {Array} [props.orderItems=[]] - Items in the order.
- * @param {number} props.subtotal - Calculated subtotal of the order.
- * @param {number} props.totalDiscountAmount - Total discount applied.
- * @param {number} props.finalTotal - Final total after discounts.
- * @param {object|null} props.appliedPromoUIDetails - UI details of the applied promo code.
- * @param {Map} props.itemLevelDiscountsMap - Map of item-level discounts.
- * @param {Function} props.onUpdateQuantity - Callback to update item quantity.
- * @param {Function} props.onConfirmOrderAction - Callback to confirm and place order.
- * @param {Function} props.onPromoValidationChange - Callback to inform parent of promo validation results.
- * @param {Function} props.navigateToMenu - Callback to navigate to menu (for empty state).
- * @param {boolean} [props.isSidebarVersion=false] - True if displayed as a sidebar.
- * @param {boolean} [props.isPreviewMode=false] - True if in preview mode (disables actions).
- * @param {object} props.venueContext - Venue context information.
- * @param {boolean} [props.hidePanelTitle=false] - True to hide the panel's own title.
- * @returns {React.ReactElement}
- */
 function OrderSummaryPanel({
     orderItems = [],
-    subtotal,
-    totalDiscountAmount,
-    finalTotal,
-    appliedPromoUIDetails,
-    itemLevelDiscountsMap,
+    orderFinancials,
     onUpdateQuantity,
     onConfirmOrderAction,
     onPromoValidationChange,
@@ -98,7 +75,9 @@ function OrderSummaryPanel({
     const [localPromoCodeInput, setLocalPromoCodeInput] = useState("");
     const [localOrderNotes, setLocalOrderNotes] = useState("");
     const [isConfirming, setIsConfirming] = useState(false);
-    const { formatCurrency } = useCurrency(); // Use the hook
+    const { formatCurrency } = useCurrency(); // MODIFIED: Use the hook
+
+    const { subtotal, totalDiscountAmount, finalTotal, appliedPromoUIDetails, itemLevelDiscountsMap } = orderFinancials;
 
     const shouldReduceMotion = useReducedMotion();
     const sectionEntryVariants = shouldReduceMotion
@@ -140,14 +119,12 @@ function OrderSummaryPanel({
             onPromoValidationChange({ valid: false, message: "Business information is missing.", error: true, errorCode: 'MISSING_BUSINESS_CONTEXT' });
             return;
         }
-
         const currentSubtotalForPayload = orderItems.reduce((sum, item) => (sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 0)), 0);
         const orderItemsContextForPayload = orderItems.map(item => ({
             product_id: item.originalId,
             quantity: item.quantity,
             base_price_per_unit: (parseFloat(item.price) || 0).toFixed(2)
         }));
-
         const payload = {
             code_name: localPromoCodeInput.trim().toUpperCase(),
             business_identifier: venueContext.businessIdentifierForAPI,
@@ -166,17 +143,15 @@ function OrderSummaryPanel({
 
     const handleActualConfirmOrder = useCallback(async () => {
         if (isPreviewMode || !onConfirmOrderAction || orderItems.length === 0) return;
-        if (!venueContext?.businessIdentifierForAPI || (!venueContext?.tableNumber && !venueContext?.isTakeaway)) {
-            console.error("[OrderSummaryPanel] Cannot place order: Missing critical business/table/takeaway info.");
+        if (!venueContext?.businessIdentifierForAPI || !venueContext?.tableNumber) {
+            console.error("[OrderSummaryPanel] Cannot place order: Missing critical business/table info.");
             return;
         }
         setIsConfirming(true);
         const orderDetailsPayload = {
             business_identifier: venueContext.businessIdentifierForAPI,
             table_number: venueContext.tableNumber || null,
-            is_takeaway_order: venueContext.isTakeaway || false,
             customer_name: venueContext.userName || null,
-            customer_email: venueContext.userEmail || null,
             number_of_guests: venueContext.numberOfPeople || null,
             notes: localOrderNotes.trim() || null,
             items: orderItems.map(item => ({
@@ -186,6 +161,7 @@ function OrderSummaryPanel({
                     ? item.detailedSelectedOptions.map(opt => ({ group_id: opt.groupId, option_id: opt.id }))
                     : [],
             })),
+            // MODIFIED: Use promo details from financials prop
             order_level_promo_code_name: (appliedPromoUIDetails && totalDiscountAmount > 0)
                 ? appliedPromoUIDetails.codeName
                 : null,
@@ -330,14 +306,11 @@ function OrderSummaryPanel({
                         </div>
                         {isSidebarVersion && (<div className="relative h-0 my-3 mx-4"><div className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 ${currentPanelBg} rounded-full z-10`}></div><div className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-5 h-5 ${currentPanelBg} rounded-full z-10`}></div><div className={`absolute left-3 right-3 top-1/2 -translate-y-px border-t-2 border-dashed ${BORDER_DASHED_COLOR_LIGHT}`}></div></div>)}
                         <div className={`${PADDING_STANDARD} pt-3 pb-4 sm:pb-5`}>
+                            {/* MODIFIED: Financial summary now uses formatCurrency and shows explicit discount */}
                             <div className={`space-y-1.5 ${BODY_TEXT_MEDIUM} ${FONT_INTER} ${NEUTRAL_TEXT_SECONDARY}`}>
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
-                                    {isPromoAppliedAndValid && totalDiscountAmount > 0 && (appliedPromoUIDetails?.type === "ORDER_TOTAL_PERCENTAGE" || appliedPromoUIDetails?.type === "ORDER_TOTAL_FIXED_AMOUNT") ? (
-                                        <del className={NEUTRAL_TEXT_MUTED}>{formatCurrency(subtotal)}</del>
-                                    ) : (
-                                        <span>{formatCurrency(subtotal)}</span>
-                                    )}
+                                    <span>{formatCurrency(subtotal)}</span>
                                 </div>
                                 <AnimatePresence>
                                     {isPromoAppliedAndValid && totalDiscountAmount > 0 && (
@@ -347,12 +320,6 @@ function OrderSummaryPanel({
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                                {isPromoAppliedAndValid && totalDiscountAmount > 0 && (appliedPromoUIDetails?.type === "ORDER_TOTAL_PERCENTAGE" || appliedPromoUIDetails?.type === "ORDER_TOTAL_FIXED_AMOUNT") && (
-                                    <motion.div key="new-subtotal-line" variants={itemAppearVariants} initial="initial" animate="animate" exit="exit" className={`flex justify-between ${NEUTRAL_TEXT_SECONDARY} font-medium`}>
-                                        <span>New Subtotal</span>
-                                        <span>{formatCurrency(subtotal - totalDiscountAmount)}</span>
-                                    </motion.div>
-                                )}
                                 <div className={`flex justify-between font-bold mt-2 pt-2 border-t ${BORDER_DIVIDER} ${headerTextColorClass}`}>
                                     <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_FONT_SIZE_LARGE}`}>Total</span>
                                     <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_ACCENT_FONT_SIZE_LARGE} ${ROSE_ACCENT_TEXT}`}>{formatCurrency(finalTotal)}</span>
@@ -402,4 +369,12 @@ function OrderSummaryPanel({
     );
 }
 
-export default OrderSummaryPanel;
+// Pass the full orderFinancials object from the parent
+const OrderSummaryPanelWrapper = (props) => {
+    // This wrapper would now just pass props through, as useOrderManagement is in the parent.
+    // However, to keep the file structure from the prompt, I'll assume the parent `OrderInteractionController`
+    // now gets all financial details from its `orderFinancials` prop.
+    return <OrderSummaryPanel {...props} />;
+};
+
+export default OrderSummaryPanelWrapper;
