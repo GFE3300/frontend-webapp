@@ -5,7 +5,9 @@ import OrderItem from "./OrderItem";
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
 import { useValidatePromoCode } from "../../../contexts/ProductDataContext";
-import { useCurrency } from "../../../hooks/useCurrency"; // MODIFIED: Import the hook
+import { useCurrency } from "../../../hooks/useCurrency";
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
+import { interpolate } from '../utils/script_lines.js'; // LOCALIZATION
 
 const PANEL_BG_DRAWER = "";
 const PANEL_BG_SIDEBAR_LIGHT = "";
@@ -75,7 +77,7 @@ function OrderSummaryPanel({
     const [localPromoCodeInput, setLocalPromoCodeInput] = useState("");
     const [localOrderNotes, setLocalOrderNotes] = useState("");
     const [isConfirming, setIsConfirming] = useState(false);
-    const { formatCurrency } = useCurrency(); // MODIFIED: Use the hook
+    const { formatCurrency } = useCurrency();
 
     const { subtotal, totalDiscountAmount, finalTotal, appliedPromoUIDetails, itemLevelDiscountsMap } = orderFinancials;
 
@@ -112,11 +114,11 @@ function OrderSummaryPanel({
     const handleApplyPromoSubmit = useCallback(async () => {
         if (isPreviewMode || !onPromoValidationChange) return;
         if (!localPromoCodeInput.trim()) {
-            onPromoValidationChange({ valid: false, message: "Please enter a promo code.", error: true, errorCode: 'INPUT_EMPTY' });
+            onPromoValidationChange({ valid: false, message: (sl.orderSummaryPanel.promoFeedback.inputEmpty || "Please enter a promo code."), error: true, errorCode: 'INPUT_EMPTY' });
             return;
         }
         if (!venueContext?.businessIdentifierForAPI) {
-            onPromoValidationChange({ valid: false, message: "Business information is missing.", error: true, errorCode: 'MISSING_BUSINESS_CONTEXT' });
+            onPromoValidationChange({ valid: false, message: (sl.orderSummaryPanel.promoFeedback.missingBusinessContext || "Business information is missing."), error: true, errorCode: 'MISSING_BUSINESS_CONTEXT' });
             return;
         }
         const currentSubtotalForPayload = orderItems.reduce((sum, item) => (sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 0)), 0);
@@ -161,7 +163,6 @@ function OrderSummaryPanel({
                     ? item.detailedSelectedOptions.map(opt => ({ group_id: opt.groupId, option_id: opt.id }))
                     : [],
             })),
-            // MODIFIED: Use promo details from financials prop
             order_level_promo_code_name: (appliedPromoUIDetails && totalDiscountAmount > 0)
                 ? appliedPromoUIDetails.codeName
                 : null,
@@ -195,16 +196,16 @@ function OrderSummaryPanel({
     const isPromoAppliedAndValid = appliedPromoUIDetails && totalDiscountAmount > 0 && appliedPromoUIDetails.type;
 
     const promoFeedback = useMemo(() => {
-        if (isApplyingPromo) return { message: "Validating...", type: "loading" };
+        if (isApplyingPromo) return { message: sl.orderSummaryPanel.promoFeedback.validating || "Validating...", type: "loading" };
         if (!appliedPromoUIDetails) return null;
         if (appliedPromoUIDetails.valid === false && appliedPromoUIDetails.error === true) {
             return { message: appliedPromoUIDetails.message, type: "error" };
         }
         if (appliedPromoUIDetails.valid === true && totalDiscountAmount > 0) {
-            return { message: appliedPromoUIDetails.public_display_name || "Discount applied!", type: "success" };
+            return { message: appliedPromoUIDetails.public_display_name || (sl.orderSummaryPanel.promoFeedback.applied || "Discount applied!"), type: "success" };
         }
         if (appliedPromoUIDetails.valid === true && totalDiscountAmount === 0 && !appliedPromoUIDetails.message) {
-            return { message: "Code is valid, but no applicable discount for current order.", type: "info" };
+            return { message: sl.orderSummaryPanel.promoFeedback.noApplicableDiscount || "Code is valid, but no applicable discount for current order.", type: "info" };
         }
         if (appliedPromoUIDetails.message) {
             return { message: appliedPromoUIDetails.message, type: (appliedPromoUIDetails.valid ? "info" : "error") };
@@ -224,16 +225,16 @@ function OrderSummaryPanel({
                             className={`flex flex-col items-center justify-center text-center p-6 ${NEUTRAL_TEXT_MUTED} ${FONT_INTER}`}
                         >
                             <Icon name="shopping_basket" className={`w-16 h-16 md:w-20 md:h-20 ${NEUTRAL_TEXT_MUTED} mb-4 opacity-70`} />
-                            <p className={`text-lg font-medium mb-2 ${NEUTRAL_TEXT_SECONDARY}`}>Your Order is Empty</p>
+                            <p className={`text-lg font-medium mb-2 ${NEUTRAL_TEXT_SECONDARY}`}>{sl.orderSummaryPanel.emptyOrderTitle || "Your Order is Empty"}</p>
                             <p className={`${BODY_TEXT_MEDIUM} mb-6 max-w-xs`}>
-                                {isSidebarVersion ? "Add items from the menu." : (navigateToMenu ? "Tap 'Menu' to explore!" : "Add items to get started.")}
+                                {isSidebarVersion ? (sl.orderSummaryPanel.emptyOrderMessageSidebar || "Add items from the menu.") : (navigateToMenu ? (sl.orderSummaryPanel.emptyOrderMessageDrawer || "Tap 'Menu' to explore!") : (sl.orderSummaryPanel.emptyOrderDefaultMessage || "Add items to get started."))}
                             </p>
                             {!isSidebarVersion && navigateToMenu && (
                                 <motion.button
                                     onClick={navigateToMenu}
                                     className={`${BUTTON_PRIMARY_CLASSES} ${ROSE_PRIMARY_BUTTON_BG} px-8 py-2.5 ${BODY_TEXT_MEDIUM}`}
                                     whileHover={shouldReduceMotion ? {} : { scale: 1.03 }} whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                                > Browse Menu </motion.button>
+                                > {sl.orderSummaryPanel.browseMenuButton || "Browse Menu"} </motion.button>
                             )}
                         </motion.div>
                     ) : (
@@ -268,21 +269,21 @@ function OrderSummaryPanel({
                     >
                         {!isPreviewMode && (
                             <div className={`${PADDING_STANDARD} pt-4 pb-2 ${isSidebarVersion ? '' : `border-b ${BORDER_DIVIDER}`}`}>
-                                <label htmlFor="promoCodeInputPanel" className={`block ${BODY_TEXT_SMALL} font-medium ${notesLabelColorClass} mb-1.5`}>Promo Code</label>
+                                <label htmlFor="promoCodeInputPanel" className={`block ${BODY_TEXT_SMALL} font-medium ${notesLabelColorClass} mb-1.5`}>{sl.orderSummaryPanel.promoCodeLabel || "Promo Code"}</label>
                                 <div className="flex items-stretch">
                                     <input id="promoCodeInputPanel" type="text" value={localPromoCodeInput}
                                         onChange={(e) => setLocalPromoCodeInput(e.target.value.toUpperCase())}
-                                        placeholder="Enter promo code"
+                                        placeholder={sl.orderSummaryPanel.promoCodePlaceholder || "Enter promo code"}
                                         className={`flex-grow h-10 ${PADDING_SMALL_INPUT} ${INPUT_RADIUS} ${BODY_TEXT_MEDIUM} ${FONT_INTER} ${NEUTRAL_TEXT_PRIMARY} ${NEUTRAL_INPUT_BG} focus:ring-2 ${ROSE_RING_FOCUS} outline-none ${NEUTRAL_TEXT_PLACEHOLDER} border ${BORDER_INPUT_FIELD} border-r-0 rounded-r-none transition-colors duration-150`}
                                         disabled={isApplyingPromo || isPromoAppliedAndValid || isPreviewMode}
                                         autoCapitalize="characters" aria-describedby="promo-feedback-message" />
                                     {isPromoAppliedAndValid ? (
-                                        <button onClick={handleRemovePromo} className={`${BUTTON_TERTIARY_CLASSES} ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-l-none h-10 border ${BORDER_INPUT_FIELD} border-l-0 ${ROSE_RING_FOCUS}`} aria-label="Remove Promo Code"> Remove </button>
+                                        <button onClick={handleRemovePromo} className={`${BUTTON_TERTIARY_CLASSES} ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-l-none h-10 border ${BORDER_INPUT_FIELD} border-l-0 ${ROSE_RING_FOCUS}`} aria-label="Remove Promo Code"> {sl.orderSummaryPanel.removePromoButton || "Remove"} </button>
                                     ) : (
                                         <button onClick={handleApplyPromoSubmit} disabled={isApplyingPromo || !localPromoCodeInput.trim() || isPreviewMode}
                                             className={`${BUTTON_SECONDARY_CLASSES} ${ROSE_SECONDARY_BUTTON_BG} ${BUTTON_TEXT_ON_ACCENT} rounded-l-none h-10 ${ROSE_RING_FOCUS}`}
                                             style={{ minWidth: '80px' }} aria-label="Apply Promo Code">
-                                            {isApplyingPromo ? <Spinner size="xs" color="text-white" /> : "Apply"}
+                                            {isApplyingPromo ? <Spinner size="xs" color="text-white" /> : (sl.orderSummaryPanel.applyPromoButton || "Apply")}
                                         </button>
                                     )}
                                 </div>
@@ -299,29 +300,28 @@ function OrderSummaryPanel({
                             </div>
                         )}
                         <div className={`${PADDING_STANDARD} pt-3 pb-3 ${isSidebarVersion ? '' : `border-b ${BORDER_DIVIDER}`}`}>
-                            <label htmlFor="orderNotesPanel" className={`block ${BODY_TEXT_SMALL} font-medium ${notesLabelColorClass} mb-1.5`}>Order Notes {isPreviewMode ? "(Preview)" : ""}</label>
+                            <label htmlFor="orderNotesPanel" className={`block ${BODY_TEXT_SMALL} font-medium ${notesLabelColorClass} mb-1.5`}>{sl.orderSummaryPanel.orderNotesLabel || "Order Notes"} {isPreviewMode ? (sl.orderSummaryPanel.orderNotesPreviewLabel || "(Preview)") : ""}</label>
                             <textarea id="orderNotesPanel" rows="2" value={localOrderNotes} onChange={(e) => setLocalOrderNotes(e.target.value)}
                                 className={`w-full ${PADDING_SMALL_INPUT} ${INPUT_RADIUS} ${BODY_TEXT_MEDIUM} ${FONT_INTER} ${NEUTRAL_TEXT_PRIMARY} ${NEUTRAL_INPUT_BG} focus:ring-2 ${ROSE_RING_FOCUS} outline-none ${NEUTRAL_TEXT_PLACEHOLDER} border ${BORDER_INPUT_FIELD} transition-colors duration-150 resize-none`}
-                                placeholder="e.g., no onions, extra spicy..." disabled={isPreviewMode || isConfirming}></textarea>
+                                placeholder={sl.orderSummaryPanel.orderNotesPlaceholder || "e.g., no onions, extra spicy..."} disabled={isPreviewMode || isConfirming}></textarea>
                         </div>
                         {isSidebarVersion && (<div className="relative h-0 my-3 mx-4"><div className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 ${currentPanelBg} rounded-full z-10`}></div><div className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-5 h-5 ${currentPanelBg} rounded-full z-10`}></div><div className={`absolute left-3 right-3 top-1/2 -translate-y-px border-t-2 border-dashed ${BORDER_DASHED_COLOR_LIGHT}`}></div></div>)}
                         <div className={`${PADDING_STANDARD} pt-3 pb-4 sm:pb-5`}>
-                            {/* MODIFIED: Financial summary now uses formatCurrency and shows explicit discount */}
                             <div className={`space-y-1.5 ${BODY_TEXT_MEDIUM} ${FONT_INTER} ${NEUTRAL_TEXT_SECONDARY}`}>
                                 <div className="flex justify-between">
-                                    <span>Subtotal</span>
+                                    <span>{sl.orderSummaryPanel.subtotalLabel || "Subtotal"}</span>
                                     <span>{formatCurrency(subtotal)}</span>
                                 </div>
                                 <AnimatePresence>
                                     {isPromoAppliedAndValid && totalDiscountAmount > 0 && (
                                         <motion.div key="order-discount-line" variants={itemAppearVariants} initial="initial" animate="animate" exit="exit" className="flex justify-between">
-                                            <span className="truncate pr-2">Discount ({appliedPromoUIDetails.public_display_name || appliedPromoUIDetails.codeName})</span>
+                                            <span className="truncate pr-2">{interpolate(sl.orderSummaryPanel.discountLabel, { promoCode: appliedPromoUIDetails.public_display_name || appliedPromoUIDetails.codeName }) || `Discount (${appliedPromoUIDetails.public_display_name || appliedPromoUIDetails.codeName})`}</span>
                                             <span className={SUCCESS_TEXT}>-{formatCurrency(totalDiscountAmount)}</span>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
                                 <div className={`flex justify-between font-bold mt-2 pt-2 border-t ${BORDER_DIVIDER} ${headerTextColorClass}`}>
-                                    <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_FONT_SIZE_LARGE}`}>Total</span>
+                                    <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_FONT_SIZE_LARGE}`}>{sl.orderSummaryPanel.totalLabel || "Total"}</span>
                                     <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_ACCENT_FONT_SIZE_LARGE} ${ROSE_ACCENT_TEXT}`}>{formatCurrency(finalTotal)}</span>
                                 </div>
                             </div>
@@ -330,7 +330,7 @@ function OrderSummaryPanel({
                                     disabled={isConfirming || orderItems.length === 0}
                                     className={`${BUTTON_PRIMARY_CLASSES} ${ROSE_PRIMARY_BUTTON_BG} w-full mt-5 sm:mt-6 text-base flex items-center justify-center ${ROSE_RING_FOCUS}`}
                                     aria-live="polite">
-                                    {isConfirming ? <><Spinner color="text-white" size="sm" className="mr-2" />Processing...</> : "Place Order"}
+                                    {isConfirming ? <><Spinner color="text-white" size="sm" className="mr-2" />{sl.orderSummaryPanel.processingButton || "Processing..."}</> : (sl.orderSummaryPanel.placeOrderButton || "Place Order")}
                                 </motion.button>
                             )}
                         </div>
@@ -347,15 +347,15 @@ function OrderSummaryPanel({
                     <div className={`${PADDING_STANDARD} border-b ${BORDER_DIVIDER} shrink-0 ${isSidebarVersion ? 'bg-transparent' : PANEL_BG_DRAWER}`}>
                         <div className="flex items-center justify-between">
                             <h2 id="order-summary-panel-title" className={`${FONT_MONTSERRAT} ${HEADER_TEXT_SIZE_LARGE} font-semibold ${headerTextColorClass}`}>
-                                {isPreviewMode ? "Order Preview" : "Your Order"}
+                                {isPreviewMode ? (sl.orderSummaryPanel.titlePreview || "Order Preview") : (sl.orderSummaryPanel.titleYourOrder || "Your Order")}
                             </h2>
                             {(venueContext?.tableNumber || venueContext?.userName || venueContext?.numberOfPeople) && !isPreviewMode && (
                                 <div className={`${BODY_TEXT_SMALL} ${NEUTRAL_TEXT_MUTED} text-right`}>
-                                    {venueContext?.tableNumber && <span className="block sm:inline">Table: {venueContext.tableNumber}</span>}
+                                    {venueContext?.tableNumber && <span className="block sm:inline">{interpolate(sl.orderSummaryPanel.tableLabel, { tableNumber: venueContext.tableNumber }) || `Table: ${venueContext.tableNumber}`}</span>}
                                     {(venueContext?.userName || venueContext?.numberOfPeople) &&
                                         <span className="block sm:inline sm:ml-2">
-                                            For: {venueContext.userName || 'Guest'}
-                                            {venueContext.numberOfPeople && ` (${venueContext.numberOfPeople} ${venueContext.numberOfPeople === 1 ? 'guest' : 'guests'})`}
+                                            {interpolate(sl.orderSummaryPanel.forLabel, { userName: venueContext.userName || (sl.orderSummaryPanel.guestFallback || 'Guest') }) || `For: ${venueContext.userName || 'Guest'}`}
+                                            {venueContext.numberOfPeople && interpolate(sl.orderSummaryPanel.guestCountLabel, { count: venueContext.numberOfPeople, plural: venueContext.numberOfPeople === 1 ? (sl.orderSummaryPanel.guestSingular || 'guest') : (sl.orderSummaryPanel.guestPlural || 'guests') }) || ` (${venueContext.numberOfPeople} ${venueContext.numberOfPeople === 1 ? 'guest' : 'guests'})`}
                                         </span>
                                     }
                                 </div>
@@ -369,11 +369,7 @@ function OrderSummaryPanel({
     );
 }
 
-// Pass the full orderFinancials object from the parent
 const OrderSummaryPanelWrapper = (props) => {
-    // This wrapper would now just pass props through, as useOrderManagement is in the parent.
-    // However, to keep the file structure from the prompt, I'll assume the parent `OrderInteractionController`
-    // now gets all financial details from its `orderFinancials` prop.
     return <OrderSummaryPanel {...props} />;
 };
 

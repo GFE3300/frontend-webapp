@@ -1,3 +1,6 @@
+import { scriptLines_menu_view as sl } from './script_lines.js'; // LOCALIZATION
+import { interpolate } from './script_lines.js'; // LOCALIZATION
+
 /**
  * Calculates the effective display price for a product, considering active product-level discounts.
  *
@@ -92,17 +95,19 @@ export function getEffectiveDisplayPrice(product) {
             if (currentMonetaryDiscount > maxMonetaryDiscount) {
                 maxMonetaryDiscount = currentMonetaryDiscount;
 
-                const codeName = discount.discount_master_code_name || "Discount";
+                const codeName = discount.discount_master_code_name || (sl.productUtils.discountFallbackName || "Discount");
 
                 let description = "";
                 if (masterType === 'percentage') {
                     const percentageToShow = (overrideRate !== null && !isNaN(overrideRate))
                         ? overrideRate
                         : (!isNaN(masterDefaultValue) ? masterDefaultValue : effectiveValue);
-                    description = `${codeName}: ${percentageToShow.toFixed(0)}% OFF`;
+                    description = `${codeName}: ${interpolate(sl.orderManagement.itemDiscountPercentage, { value: percentageToShow.toFixed(0) }) || `${percentageToShow.toFixed(0)}% OFF`}`;
                 } else if (masterType === 'fixed_amount') {
                     const amountToShow = (!isNaN(masterDefaultValue) ? masterDefaultValue : effectiveValue);
-                    description = `${codeName}: $${amountToShow.toFixed(2)} OFF`;
+                    // This is a simple fallback, proper formatting should happen in the component with useCurrency
+                    const formattedAmount = amountToShow.toFixed(2);
+                    description = `${codeName}: ${interpolate(sl.orderManagement.itemDiscountFixed, { value: formattedAmount }) || `$${formattedAmount} OFF`}`;
                 } else {
                     description = `${codeName}: Value $${currentMonetaryDiscount.toFixed(2)}`;
                 }

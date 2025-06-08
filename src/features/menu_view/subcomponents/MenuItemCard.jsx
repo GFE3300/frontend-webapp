@@ -5,7 +5,9 @@ import Icon from '../../../components/common/Icon.jsx';
 import WavingBackground from "../../../components/animations/WavingLine.jsx";
 import { getEffectiveDisplayPrice } from "../utils/productUtils.js";
 import { useTheme } from "../../../utils/ThemeProvider.jsx";
-import { useCurrency } from "../../../hooks/useCurrency.js"; // MODIFIED: Import the new hook
+import { useCurrency } from "../../../hooks/useCurrency.js";
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
+import { interpolate } from '../utils/script_lines.js'; // LOCALIZATION
 
 const CARD_CONTENT_WIDTH_PX = 240;
 const CARD_CONTENT_HEIGHT_PX = 270;
@@ -29,7 +31,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
     const imageAnimationStartRef = useRef(null);
     const { theme } = useTheme();
     const shouldReduceMotion = useReducedMotion();
-    const { formatCurrency } = useCurrency(); // MODIFIED: Use the hook here
+    const { formatCurrency } = useCurrency(); // LOCALIZATION: Use the currency hook
 
     const { originalPrice, displayPrice, bestDiscountApplied } = useMemo(
         () => getEffectiveDisplayPrice(product),
@@ -53,7 +55,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
         onOpenProductDetailModal(product, imageRect, !hasOptions && isProductAvailable);
     };
 
-    const name = product?.name || "Unnamed Product";
+    const name = product?.name || (sl.menuItemCard.unnamedProduct || "Unnamed Product");
     const subtitle = product?.subtitle;
     const description = product?.description?.trim() || null;
     const effectiveImageUrl = product?.image_url;
@@ -96,8 +98,8 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
         hover: (isProductAvailable && !shouldReduceMotion) ? { y: -3, transition: { type: "spring", stiffness: 350, damping: 18 } } : {}
     };
 
-    const unavailableButtonText = "Unavailable";
-    const actionButtonText = isProductAvailable ? (hasOptions ? "View" : "Add") : unavailableButtonText;
+    const unavailableButtonText = sl.menuItemCard.unavailable || "Unavailable";
+    const actionButtonText = isProductAvailable ? (hasOptions ? (sl.menuItemCard.viewAction || "View") : (sl.menuItemCard.addAction || "Add")) : unavailableButtonText;
     const actionButtonIcon = isProductAvailable ? (hasOptions ? "tune" : "add_shopping_cart") : "block";
 
     const wavingBgColors = theme === 'dark' ? ['#E11D48', '#FB7185', '#FECDD3'] : ['#F43F5E', '#FDA4AF', '#FECDD3'];
@@ -106,11 +108,18 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
     const unavailableButtonBg = "bg-neutral-300 dark:bg-neutral-600";
     const unavailableButtonTextCol = "text-neutral-500 dark:text-neutral-400";
 
-    // MODIFIED: ARIA Label construction with formatCurrency
-    let ariaLabel = `
-        ${name}, price ${formatCurrency(displayPrice)}. 
-        ${!isProductAvailable ? "This item is currently unavailable." : (hasOptions ? "Tap to view details and configure options." : "Tap to add to order.")}
-    `.trim().replace(/\s+/g, ' ');
+    const ariaLabel = useMemo(() => {
+        let actionText = '';
+        if (!isProductAvailable) {
+            actionText = sl.menuItemCard.ariaLabel.unavailable || "This item is currently unavailable.";
+        } else {
+            actionText = hasOptions
+                ? (sl.menuItemCard.ariaLabel.hasOptions || "Tap to view details and configure options.")
+                : (sl.menuItemCard.ariaLabel.noOptions || "Tap to add to order.");
+        }
+        const base = interpolate(sl.menuItemCard.ariaLabel.base, { name, price: formatCurrency(displayPrice) }) || `${name}, price ${formatCurrency(displayPrice)}.`;
+        return `${base} ${actionText}`.trim().replace(/\s+/g, ' ');
+    }, [name, displayPrice, isProductAvailable, hasOptions, formatCurrency]);
 
     return (
         <motion.div
@@ -239,7 +248,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                         )}
 
                         {totalPublicTagsCount > 0 && (
-                            <div className={TAG_CONTAINER_STYLES} aria-label="Product tags">
+                            <div className={TAG_CONTAINER_STYLES} aria-label={sl.menuItemCard.tagsAriaLabel || "Product tags"}>
                                 {publicTagsToDisplay.map(tag => (
                                     <span key={tag.id} className={TAG_PILL_STYLES} title={tag.name}>
                                         {tag.icon_name && <Icon name={tag.icon_name} className={TAG_ICON_STYLES} aria-hidden="true" />}
@@ -247,7 +256,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                                     </span>
                                 ))}
                                 {remainingTagsCount > 0 && (
-                                    <span className={PLUS_N_MORE_TAG_PILL_STYLES} aria-label={`and ${remainingTagsCount} more tags`} title={`+${remainingTagsCount} more tags`}>
+                                    <span className={PLUS_N_MORE_TAG_PILL_STYLES} aria-label={interpolate(sl.menuItemCard.moreTagsAriaLabel, { count: remainingTagsCount }) || `and ${remainingTagsCount} more tags`} title={interpolate(sl.menuItemCard.moreTagsTitle, { count: remainingTagsCount }) || `+${remainingTagsCount} more tags`}>
                                         +{remainingTagsCount}
                                     </span>
                                 )}
@@ -257,18 +266,17 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
 
                     <div className={`w-full font-montserrat flex items-end justify-between py-2 mt-auto flex-shrink-0`}>
                         <div className="flex flex-col items-start text-left">
-                            {/* MODIFIED: Using formatCurrency and logic for strikethrough price */}
                             {bestDiscountApplied && isProductAvailable ? (
                                 <>
-                                    <span className="font-inter text-xs line-through text-neutral-400 dark:text-neutral-500" aria-label={`Original price ${formatCurrency(originalPrice)}`}>
+                                    <span className="font-inter text-xs line-through text-neutral-400 dark:text-neutral-500" aria-label={interpolate(sl.menuItemCard.ariaLabelPrice.original, { price: formatCurrency(originalPrice) }) || `Original price ${formatCurrency(originalPrice)}`}>
                                         {formatCurrency(originalPrice)}
                                     </span>
-                                    <span className="font-montserrat text-lg font-bold text-red-500 dark:text-red-400 leading-tight" aria-label={`Discounted price ${formatCurrency(displayPrice)}`}>
+                                    <span className="font-montserrat text-lg font-bold text-red-500 dark:text-red-400 leading-tight" aria-label={interpolate(sl.menuItemCard.ariaLabelPrice.discounted, { price: formatCurrency(displayPrice) }) || `Discounted price ${formatCurrency(displayPrice)}`}>
                                         {formatCurrency(displayPrice)}
                                     </span>
                                 </>
                             ) : (
-                                <span className="font-montserrat text-lg font-bold text-neutral-700 dark:text-neutral-200 leading-tight" aria-label={`Price ${formatCurrency(originalPrice)}`}>
+                                <span className="font-montserrat text-lg font-bold text-neutral-700 dark:text-neutral-200 leading-tight" aria-label={interpolate(sl.menuItemCard.ariaLabelPrice.standard, { price: formatCurrency(originalPrice) }) || `Price ${formatCurrency(originalPrice)}`}>
                                     {formatCurrency(originalPrice)}
                                 </span>
                             )}

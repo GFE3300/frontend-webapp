@@ -1,11 +1,14 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useToast } from '../../../contexts/ToastContext';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
+import { interpolate } from '../utils/script_lines.js'; // LOCALIZATION
+import { useCurrency } from '../../../hooks/useCurrency.js'; // LOCALIZATION
 
 export const useOrderManagement = (promoValidationResult = null) => {
     const [orderItems, setOrderItems] = useState([]);
     const [flyingItem, setFlyingItem] = useState(null);
-
     const { addToast } = useToast();
+    const { formatCurrency } = useCurrency(); // LOCALIZATION: Get formatCurrency for discount strings
 
     const addToOrder = useCallback((itemToAdd, itemImageRect, flyingImageTargetRef) => {
         setOrderItems(prevOrderItems => {
@@ -29,34 +32,25 @@ export const useOrderManagement = (promoValidationResult = null) => {
             });
         }
 
-        // NEW: Trigger toast notification
-        // Ensure itemToAdd.name is available and a string
-        const itemName = itemToAdd.name || 'Item'; // Fallback name
-        addToast(`"${itemName}" added to order!`, "success", 3000);
+        const itemName = itemToAdd.name || (sl.orderManagement.itemFallbackName || 'Item');
+        addToast(interpolate(sl.orderManagement.itemAddedToast, { itemName }) || `"${itemName}" added to order!`, "success", 3000);
 
-    }, [addToast]); // addToast is now a dependency
+    }, [addToast]);
 
     const handleUpdateQuantity = useCallback((itemId, newQuantity) => {
         setOrderItems(prevItems => {
             if (newQuantity <= 0) {
-                // Optionally add a toast for item removal if desired
-                // const removedItem = prevItems.find(item => item.id === itemId);
-                // if (removedItem) {
-                //     addToast(`"${removedItem.name}" removed from order.`, "info", 2500);
-                // }
                 return prevItems.filter(item => item.id !== itemId);
             }
             return prevItems.map(item =>
                 item.id === itemId ? { ...item, quantity: newQuantity } : item
             );
         });
-    }, []); // addToast could be a dependency here if item removal toasts are implemented
+    }, []);
 
     const clearOrder = useCallback(() => {
         setOrderItems([]);
-        // Optionally add a toast when order is cleared, e.g., after successful placement
-        // addToast("Order cleared.", "info", 2000);
-    }, []); // addToast could be a dependency here too
+    }, []);
 
     const { subtotal, totalDiscountAmount, finalTotal, appliedPromoUIDetails, itemLevelDiscountsMap } = useMemo(() => {
         const currentSubtotal = orderItems.reduce((sum, item) => {
@@ -86,19 +80,16 @@ export const useOrderManagement = (promoValidationResult = null) => {
                     const minOrderValue = parseFloat(minimum_order_value_for_order_discount);
                     if (!isNaN(minOrderValue) && currentSubtotal < minOrderValue) {
                         meetsMinOrderValueForOrderDiscount = false;
-                        // Note: The actual update to promoValidationResult if min order value isn't met
-                        // is handled in OrderSummaryPanel.jsx. This hook just calculates based on the
-                        // promoValidationResult it receives.
                     }
                 }
 
                 if (meetsMinOrderValueForOrderDiscount) {
                     if (promoType === "ORDER_TOTAL_PERCENTAGE") {
                         calculatedOverallDiscount = currentSubtotal * (promoValue / 100);
-                        if (calculatedOverallDiscount > 0) uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || `${promoValue}% Off Order`, type: promoType };
+                        if (calculatedOverallDiscount > 0) uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || (interpolate(sl.orderManagement.orderDiscountPercentage, { value: promoValue }) || `${promoValue}% Off Order`), type: promoType };
                     } else if (promoType === "ORDER_TOTAL_FIXED_AMOUNT") {
                         calculatedOverallDiscount = promoValue;
-                        if (calculatedOverallDiscount > 0) uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || `$${promoValue.toFixed(2)} Off Order`, type: promoType };
+                        if (calculatedOverallDiscount > 0) uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || (interpolate(sl.orderManagement.orderDiscountFixed, { value: formatCurrency(promoValue) }) || `${formatCurrency(promoValue)} Off Order`), type: promoType };
                     } else if (promoType === "percentage" || promoType === "fixed_amount_product") {
                         const applicableProductUUIDs = new Set(applicability?.applicable_target_product_uuids || []);
                         let sumOfItemDiscounts = 0;
@@ -123,7 +114,7 @@ export const useOrderManagement = (promoValidationResult = null) => {
                                     sumOfItemDiscounts += discountAmountForThisLineItem;
                                     tempItemDiscountsMap.set(orderItem.id, {
                                         amount: discountAmountForThisLineItem,
-                                        description: public_display_name || (promoType === "percentage" ? `${promoValue}% off` : `$${promoValue.toFixed(2)} off`),
+                                        description: public_display_name || (promoType === "percentage" ? (interpolate(sl.orderManagement.itemDiscountPercentage, { value: promoValue }) || `${promoValue}% off`) : (interpolate(sl.orderManagement.itemDiscountFixed, { value: formatCurrency(promoValue) }) || `${formatCurrency(promoValue)} off`)),
                                         originalItemTotal: parseFloat(originalItemLineTotal.toFixed(2)),
                                     });
                                 }
@@ -131,7 +122,7 @@ export const useOrderManagement = (promoValidationResult = null) => {
                         });
                         calculatedOverallDiscount = sumOfItemDiscounts;
                         if (calculatedOverallDiscount > 0 && !uiPromoDetailsForDisplay) {
-                            uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || "Item Discounts Applied", type: "ITEM_SPECIFIC_AGGREGATE" };
+                            uiPromoDetailsForDisplay = { codeName: code_name, public_display_name: public_display_name || (sl.orderManagement.itemDiscountsApplied || "Item Discounts Applied"), type: "ITEM_SPECIFIC_AGGREGATE" };
                         }
                     }
                 }
@@ -150,7 +141,7 @@ export const useOrderManagement = (promoValidationResult = null) => {
             appliedPromoUIDetails: uiPromoDetailsForDisplay,
             itemLevelDiscountsMap: tempItemDiscountsMap,
         };
-    }, [orderItems, promoValidationResult]);
+    }, [orderItems, promoValidationResult, formatCurrency]);
 
     return {
         orderItems,

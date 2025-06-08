@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usePublicTableInfo } from '../../../contexts/VenueDataContext'; // Adjust path if necessary
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 // --- Constants for localStorage keys ---
 const GUEST_NAME_KEY = 'smore-guest-name';
@@ -59,7 +60,7 @@ export const useVenueContextManager = (tableLayoutItemId) => {
                     
                     // Guest details: prioritize persisted data, then fall back to defaults.
                     // The `prevCtx` check is to maintain state across hot-reloads or minor refetches, but localStorage is the primary source.
-                    userName: storedName !== null ? storedName : (prevCtx?.userName) || 'Guest',
+                    userName: storedName !== null ? storedName : (prevCtx?.userName) || (sl.venueContextManager.defaultGuestName || 'Guest'),
                     userEmail: storedEmail !== null ? storedEmail : (prevCtx?.userEmail) || '',
                     numberOfPeople: storedPeople ? parseInt(storedPeople, 10) : (prevCtx?.numberOfPeople) || 1,
                 };
@@ -75,7 +76,7 @@ export const useVenueContextManager = (tableLayoutItemId) => {
         setVenueContext(prev => {
             if (!prev) {
                 // This shouldn't happen if UI waits for initial context load, but it's a safe fallback.
-                console.warn("[useVenueContextManager] updateVenueUserDetails called before context was initialized.");
+                console.warn(`[useVenueContextManager] ${sl.venueContextManager.updateWarning || "updateVenueUserDetails called before context was initialized."}`);
                 return null;
             }
 

@@ -4,6 +4,7 @@ import {
     usePublicCategories,
     usePublicProductTags,
 } from '../../../contexts/ProductDataContext';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 /**
  * Custom hook to manage fetching and filtering of menu data for the Userpage.
@@ -89,7 +90,7 @@ export const useMenuDataAndFilters = (businessIdentifierForAPI, appStage) => {
         const categoriesMap = {};
         categoriesData.forEach(cat => { if (cat && cat.id) categoriesMap[cat.id] = { ...cat, items: [] }; });
         const UNCAT_ID = 'uncategorized';
-        const UNCAT_DETAILS = { id: UNCAT_ID, name: 'Other Items', color_class: 'bg-neutral-500 dark:bg-neutral-600', icon_name: 'label', display_order: Infinity, items: [] };
+        const UNCAT_DETAILS = { id: UNCAT_ID, name: sl.menuDisplayLayout.otherItemsCategory || 'Other Items', color_class: 'bg-neutral-500 dark:bg-neutral-600', icon_name: 'label', display_order: Infinity, items: [] };
 
         productsData.forEach(product => {
             if (!product || !product.id) return;

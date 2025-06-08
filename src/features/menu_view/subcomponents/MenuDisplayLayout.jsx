@@ -5,6 +5,7 @@ import HorizontalScroll from './HorizontalScroll';
 import Icon from '../../../components/common/Icon.jsx';
 import Spinner from '../../../components/common/Spinner.jsx';
 import SkeletonProductCard from '../../../components/loaders/SkeletonProductCard.jsx';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 const DESKTOP_VERTICAL_SPACING_BETWEEN_PAIRED_ITEMS = 'space-y-5';
 
@@ -44,7 +45,7 @@ const itemsContainerVariants = {
 };
 
 const DEFAULT_CATEGORY_DETAILS = {
-    name: "Uncategorized",
+    name: sl.menuDisplayLayout.uncategorized || "Uncategorized",
     color_class: "bg-neutral-500 dark:bg-neutral-600",
     icon_name: "label",
     display_order: 9999,
@@ -89,7 +90,7 @@ function MenuDisplayLayout({
         const skeletonCount = isDesktop ? 6 : 3;
         const skeletonCategory = {
             id: 'skeleton-cat',
-            name: 'Loading Cuisine...',
+            name: sl.menuDisplayLayout.loadingCuisine || 'Loading Cuisine...',
             color_class: 'bg-neutral-300 dark:bg-neutral-700',
             icon_name: 'restaurant_menu',
             items: Array(skeletonCount).fill(null)
@@ -150,30 +151,30 @@ function MenuDisplayLayout({
             <div className="relative min-h-[calc(100vh-300px)]">
                 <div className="absolute inset-0 bg-slate-100/50 dark:bg-neutral-900/50 z-10 backdrop-blur-sm transition-opacity duration-300"></div>
                 <div className="absolute inset-0 flex items-center justify-center z-20">
-                    <Spinner size="lg" message="Refreshing menu..." />
+                    <Spinner size="lg" message={sl.menuDisplayLayout.refreshingMenu || "Refreshing menu..."} />
                 </div>
             </div>
         );
     }
-    
+
     if (isError) {
         return (
             <motion.div
                 initial="initial" animate="in" exit="out"
                 variants={{ ...pageVariants, in: { ...pageVariants.in, transition: pageTransition } }}
                 className="flex flex-col items-center justify-center h-full p-8 text-center min-h-[calc(100vh-350px)]"
-                aria-live="polite" 
-                role="alert"  
+                aria-live="polite"
+                role="alert"
             >
                 <Icon name="error_outline" className="w-20 h-20 md:w-24 md:h-24 text-red-400 dark:text-red-500 mb-6" />
-                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3 font-montserrat"> 
-                    Oops! Could not load menu.
+                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3 font-montserrat">
+                    {sl.menuDisplayLayout.errorTitle || "Oops! Could not load menu."}
                 </h2>
-                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base font-inter"> 
-                    {error?.message || "There was a problem fetching the menu items."}
+                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base font-inter">
+                    {error?.message || (sl.menuDisplayLayout.errorMessageDefault || "There was a problem fetching the menu items.")}
                 </p>
-                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6 font-inter"> 
-                    Please try again in a moment, or contact staff if the issue persists.
+                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6 font-inter">
+                    {sl.menuDisplayLayout.errorSuggestion || "Please try again in a moment, or contact staff if the issue persists."}
                 </p>
             </motion.div>
         );
@@ -182,12 +183,12 @@ function MenuDisplayLayout({
 
     if (sortedCategoriesToRender.length === 0) {
         const message = isFiltered
-            ? "No menu items match your current selection."
-            : "The menu is currently empty."; 
+            ? (sl.menuDisplayLayout.noResultsMessage || "No menu items match your current selection.")
+            : (sl.menuDisplayLayout.menuEmptyMessage || "The menu is currently empty.");
         const iconName = isFiltered ? "search_off" : "sentiment_very_dissatisfied";
         const suggestionText = isFiltered
-            ? "Try adjusting your search or filters."
-            : "Please check back later or ask our staff for assistance.";
+            ? (sl.menuDisplayLayout.noResultsSuggestion || "Try adjusting your search or filters.")
+            : (sl.menuDisplayLayout.menuEmptySuggestion || "Please check back later or ask our staff for assistance.");
 
         return (
             <motion.div
@@ -197,13 +198,13 @@ function MenuDisplayLayout({
                 aria-live="polite" // Guideline 7: ARIA
             >
                 <Icon name={iconName} className="w-20 h-20 md:w-24 md:h-24 text-neutral-400 dark:text-neutral-500 mb-6" />
-                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3 font-montserrat"> 
-                    {isFiltered ? "No Results Found" : "Menu Empty"}
+                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-200 mb-3 font-montserrat">
+                    {isFiltered ? (sl.menuDisplayLayout.noResultsTitle || "No Results Found") : (sl.menuDisplayLayout.menuEmptyTitle || "Menu Empty")}
                 </h2>
-                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base font-inter"> 
+                <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-2 text-sm md:text-base font-inter">
                     {message}
                 </p>
-                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6 font-inter"> 
+                <p className="text-neutral-400 dark:text-neutral-500 max-w-md text-xs md:text-sm mb-6 font-inter">
                     {suggestionText}
                 </p>
                 {/* G.2: Clear Filters & Search Button */}
@@ -215,7 +216,7 @@ function MenuDisplayLayout({
                         whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
                         aria-label="Clear all active filters and search query" // Guideline 7: ARIA
                     >
-                        Clear Filters & Search
+                        {sl.menuDisplayLayout.clearFiltersButton || "Clear Filters & Search"}
                     </motion.button>
                 )}
             </motion.div>
@@ -264,7 +265,7 @@ function MenuDisplayLayout({
                         </motion.div>
 
                         <motion.div variants={{ ...itemsContainerVariants, animate: { ...itemsContainerVariants.animate, transition: itemsContainerTransition } }}>
-                            <HorizontalScroll 
+                            <HorizontalScroll
                                 className="
                                     flex items-center h-90
                                     pl-4 pr-2 md:pl-6 md:pr-4 overflow-y-visible"

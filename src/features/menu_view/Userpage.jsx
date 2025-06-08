@@ -34,6 +34,8 @@ import { useTheme } from '../../utils/ThemeProvider.jsx';
 import { VenueContext } from '../../contexts/VenueDataContext.jsx';
 import apiService from '../../services/api';
 import { getEffectiveDisplayPrice } from "./utils/productUtils.js";
+import { scriptLines_menu_view as sl } from './utils/script_lines.js'; // LOCALIZATION: Import script lines
+import { interpolate } from './utils/script_lines.js'; // LOCALIZATION: Import helper
 
 // --- Styling & Logic Constants ---
 const ACTIVE_ORDER_ID_STORAGE_KEY = 'smore-active-order-id'; // NEW: localStorage key
@@ -65,9 +67,9 @@ const useIsDesktop = () => {
 const FullPageError = ({ message, iconName = "error_outline", onRetry }) => (
     <div className={`flex font-montserrat flex-col items-center justify-center min-h-screen ${FULL_PAGE_STATE_BG_LIGHT} ${FULL_PAGE_STATE_BG_DARK} p-8 text-center ${FONT_INTER}`}>
         <Icon name={iconName} className={`w-20 h-20 ${FULL_PAGE_ERROR_ICON_COLOR} mb-6`} style={{ fontSize: "4rem" }} />
-        <h2 className={`text-2xl font-semibold ${FULL_PAGE_TEXT_PRIMARY_LIGHT} ${FULL_PAGE_TEXT_PRIMARY_DARK} mb-3 ${FONT_MONTSERRAT}`}>{message ? "Oops! Something went wrong." : "Error"}</h2>
-        <p className={`${FULL_PAGE_TEXT_SECONDARY_LIGHT} ${FULL_PAGE_TEXT_SECONDARY_DARK} max-w-md mb-6`}>{message || "We encountered an issue."}</p>
-        {onRetry && <button onClick={onRetry} className={`${FULL_PAGE_BUTTON_BG} ${FULL_PAGE_BUTTON_TEXT} flex items-center font-semibold py-2 px-6 rounded-full shadow-md transition-colors`}>Try Again <Icon name="refresh" className="w-5 h-5 ml-2" style={{ fontSize: "1.25rem" }} /></button>}
+        <h2 className={`text-2xl font-semibold ${FULL_PAGE_TEXT_PRIMARY_LIGHT} ${FULL_PAGE_TEXT_PRIMARY_DARK} mb-3 ${FONT_MONTSERRAT}`}>{message ? (sl.userpage.errorTitle || "Oops! Something went wrong.") : (sl.userpage.errorTitleFallback || "Error")}</h2>
+        <p className={`${FULL_PAGE_TEXT_SECONDARY_LIGHT} ${FULL_PAGE_TEXT_SECONDARY_DARK} max-w-md mb-6`}>{message || (sl.userpage.errorMessageFallback || "We encountered an issue.")}</p>
+        {onRetry && <button onClick={onRetry} className={`${FULL_PAGE_BUTTON_BG} ${FULL_PAGE_BUTTON_TEXT} flex items-center font-semibold py-2 px-6 rounded-full shadow-md transition-colors`}>{sl.userpage.retryButton || "Try Again"} <Icon name="refresh" className="w-5 h-5 ml-2" style={{ fontSize: "1.25rem" }} /></button>}
     </div>
 );
 const FullPageSpinner = ({ message }) => (
@@ -152,7 +154,7 @@ function AppContent() {
     const handleSetupComplete = useCallback((setupData) => {
         updateVenueUserDetails({ newUserName: setupData.userName, newNumberOfPeople: setupData.numberOfPeople });
         setAppStage('main');
-        addToast(`Welcome, ${setupData.userName}! Ready to order.`, "success", 3000);
+        addToast(interpolate(sl.userpage.toastWelcome, { userName: setupData.userName }) || `Welcome, ${setupData.userName}! Ready to order.`, "success", 3000);
     }, [updateVenueUserDetails, addToast]);
 
     // NEW: Handler to exit the tracker view and return to the menu
@@ -170,7 +172,7 @@ function AppContent() {
     const handleSaveSettings = useCallback((newSettings) => {
         updateVenueUserDetails(newSettings);
         setIsSettingsModalOpen(false);
-        addToast("Your settings have been saved!", "success", 2500);
+        addToast(sl.userpage.toastSettingsSaved || "Your settings have been saved!", "success", 2500);
     }, [updateVenueUserDetails, addToast]);
 
     const showUserModal = useCallback((title, message, type = 'info', isLoading = false) => {
@@ -214,7 +216,7 @@ function AppContent() {
 
     // MODIFIED: Order placement now triggers the tracker view
     const handleConfirmOrderAction = useCallback(async (payloadFromSummaryPanel) => {
-        showUserModal("Placing Order...", "Please wait while we submit your order.", "loading", true);
+        showUserModal(sl.userpage.modalPlacingOrderTitle || "Placing Order...", sl.userpage.modalPlacingOrderMessage || "Please wait while we submit your order.", "loading", true);
         try {
             const response = await apiService.post('orders/create/', payloadFromSummaryPanel);
             const newOrderId = response.data.id;
@@ -229,17 +231,17 @@ function AppContent() {
 
             setTimeout(() => {
                 addToast(
-                    `Order #${String(response.data.id).substring(0, 6)}... Placed!`,
+                    interpolate(sl.userpage.toastOrderPlaced, { orderId: String(response.data.id).substring(0, 6) }) || `Order #${String(response.data.id).substring(0, 6)}... Placed!`,
                     "success", 3000
                 );
             }, 100);
         } catch (error) {
-            let errorMsg = "Failed to place order. Please try again or alert staff.";
+            let errorMsg = sl.userpage.errorOrderFailed || "Failed to place order. Please try again or alert staff.";
             if (error.response?.data?.message) errorMsg = error.response.data.message;
             else if (error.response?.data?.detail) errorMsg = error.response.data.detail;
             else if (error.message) errorMsg = error.message;
             console.error("[Userpage] Order placement error:", error.response || error);
-            showUserModal("Order Failed", errorMsg, "error");
+            showUserModal(sl.userpage.modalOrderFailedTitle || "Order Failed", errorMsg, "error");
         }
     }, [showUserModal, hideUserModal, order, setPromoValidationResult, addToast]);
 
@@ -261,15 +263,15 @@ function AppContent() {
 
     // --- Conditional Renders ---
     if (isInitialLoad) {
-        return <FullPageSpinner message="Checking for active orders..." />;
+        return <FullPageSpinner message={sl.userpage.loadingActiveOrder || "Checking for active orders..."} />;
     }
 
     if (activeOrderId) {
         return <OrderTrackerView orderId={activeOrderId} onReturnToMenu={handleReturnToMenu} />;
     }
 
-    if (appStage === 'loading') return <FullPageSpinner message={!tableLayoutItemId ? "Invalid link..." : "Loading Restaurant Info..."} />;
-    if (appStage === 'error') return <FullPageError message={venueContextError?.message || "This link is invalid or the restaurant is not found."} onRetry={refetchVenueContext} />;
+    if (appStage === 'loading') return <FullPageSpinner message={!tableLayoutItemId ? (sl.userpage.loadingInvalidLink || "Invalid link...") : (sl.userpage.loadingVenueInfo || "Loading Restaurant Info...")} />;
+    if (appStage === 'error') return <FullPageError message={venueContextError?.message || (sl.userpage.errorInvalidLinkOrNotFound || "This link is invalid or the restaurant is not found.")} onRetry={refetchVenueContext} />;
     if (appStage === 'setup') return <SetupStage tableNumber={venueContext?.tableNumber || "N/A"} onSetupComplete={handleSetupComplete} theme={theme} />;
 
     // REMOVED: orderPlaced stage is now handled by OrderTrackerView

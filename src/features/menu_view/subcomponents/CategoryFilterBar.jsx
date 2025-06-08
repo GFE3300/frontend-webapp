@@ -3,6 +3,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 import HorizontalScroll from './HorizontalScroll';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
+import { interpolate } from '../utils/script_lines.js'; // LOCALIZATION
 
 const CHIP_ACTIVE_BG = "bg-rose-500";
 const CHIP_ACTIVE_TEXT = "text-white";
@@ -100,7 +102,7 @@ function CategoryFilterBar({
     isError,
     error
 }) {
-    const allCategory = { id: null, name: 'All', icon_name: 'apps' };
+    const allCategory = { id: null, name: sl.categoryFilterBar.allCategoryName || 'All', icon_name: 'apps' };
 
     const displayCategories = isLoading || isError || !categoriesData || categoriesData.length === 0
         ? []
@@ -121,9 +123,9 @@ function CategoryFilterBar({
             <div className="py-2">
                 <HorizontalScroll
                     className="pb-2"
-                    ariaLabel="Loading category filters"
+                    ariaLabel={sl.categoryFilterBar.loadingAriaLabel || "Loading category filters"}
                 >
-                    <div className="flex items-center space-x-2.5 px-4" aria-label="Loading categories..." role="toolbar">
+                    <div className="flex items-center space-x-2.5 px-4" aria-label={sl.categoryFilterBar.loadingCategoriesAriaLabel || "Loading categories..."} role="toolbar">
                         {Array.from({ length: skeletonCount }).map((_, index) => (
                             <SkeletonCategoryChip key={`skeleton-cat-${index}`} />
                         ))}
@@ -138,7 +140,7 @@ function CategoryFilterBar({
             <div className="py-2 px-4 text-center">
                 <p className={`${BODY_TEXT_SMALL} ${ERROR_TEXT_COLOR} flex items-center justify-center`}>
                     <Icon name="error_outline" className="w-4 h-4 mr-1.5" aria-hidden="true" />
-                    Could not load categories. {error?.message ? `(${error.message.substring(0, 50)}${error.message.length > 50 ? '...' : ''})` : ''}
+                    {sl.categoryFilterBar.errorLoading || "Could not load categories."} {error?.message ? `(${error.message.substring(0, 50)}${error.message.length > 50 ? '...' : ''})` : ''}
                 </p>
             </div>
         );
@@ -148,7 +150,7 @@ function CategoryFilterBar({
         return (
             <div className="py-2 px-4 text-center">
                 <p className={`${BODY_TEXT_SMALL} ${NEUTRAL_TEXT_MUTED}`}>
-                    No categories available.
+                    {sl.categoryFilterBar.noCategoriesAvailable || "No categories available."}
                 </p>
             </div>
         );
@@ -158,7 +160,7 @@ function CategoryFilterBar({
         <div className="py-2">
             <HorizontalScroll
                 className="pb-2"
-                ariaLabel="Filter by category" 
+                ariaLabel={sl.categoryFilterBar.filterByCategoryAriaLabel || "Filter by category"}
             >
                 <motion.div
                     className="flex items-center space-x-2.5 px-4"
@@ -166,7 +168,7 @@ function CategoryFilterBar({
                     initial="hidden"
                     animate="visible"
                     role="tablist"
-                    aria-label="Category filters"
+                    aria-label={sl.categoryFilterBar.categoryFiltersAriaLabel || "Category filters"}
                 >
                     {displayCategories.map(category => (
                         <motion.div key={category.id === null ? 'all-categories-filter' : category.id} variants={itemVariants}>

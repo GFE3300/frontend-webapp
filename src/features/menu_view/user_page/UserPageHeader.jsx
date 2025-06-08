@@ -4,6 +4,8 @@ import Icon from '../../../components/common/Icon.jsx';
 import MenuSearchBar from '../subcomponents/MenuSearchBar';
 import CategoryFilterBar from '../subcomponents/CategoryFilterBar';
 import TagFilterPills from '../subcomponents/TagFilterPills';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
+import { interpolate } from '../utils/script_lines.js'; // LOCALIZATION
 
 // --- Styling & Theming Constants ---
 const CONTAINER_PADDING_X = "px-4 md:px-6";
@@ -32,14 +34,14 @@ const UserPageHeader = ({
     venueContext,
     logoError,
     onLogoError,
-    onOpenSettingsModal, // <-- MODIFIED: Prop name matches parent's handler
+    onOpenSettingsModal,
     searchProps,
     categoryFilterProps,
     tagFilterProps,
     animationProps,
     scrollToProductCardFn,
 }) => {
-    const businessName = venueContext?.businessName || "Restaurant Menu";
+    const businessName = venueContext?.businessName || (sl.userPageHeader.defaultBusinessName || "Restaurant Menu");
     const businessLogoUrl = venueContext?.businessLogoUrl;
     const displayFallbackIcon = logoError || !businessLogoUrl;
 
@@ -48,7 +50,7 @@ const UserPageHeader = ({
             className="sticky top-0 z-30"
             animate={{ y: animationProps.headerTargetY }}
             transition={animationProps.headerTransition}
-            style={{ '--header-height': 'var(--actual-header-height, 9rem)' }} // CSS var for dynamic height
+            style={{'--header-height': 'var(--actual-header-height, 9rem)'}} // CSS var for dynamic height
         >
             <header className={`${CONTAINER_PADDING_X} ${HEADER_AREA_PADDING_Y} ${HEADER_AREA_BG_LIGHT} ${HEADER_AREA_BG_DARK} ${HEADER_AREA_SHADOW}`} role="banner">
                 <div className="container mx-auto">
@@ -56,25 +58,24 @@ const UserPageHeader = ({
                         <div className="flex items-center flex-1 min-w-0">
                             {displayFallbackIcon ? (
                                 <div className={`bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center ${LOGO_MAX_HEIGHT_MOBILE} ${LOGO_ROUNDED} ${LOGO_FALLBACK_ICON_SIZE} ${LOGO_MARGIN_RIGHT} ${LOGO_FALLBACK_ICON_COLOR}`}>
-                                    <Icon name="storefront" aria-label={`${businessName} logo placeholder`} style={{ fontSize: "2rem" }} />
+                                    <Icon name="storefront" aria-label={interpolate(sl.userPageHeader.logoPlaceholderAriaLabel, { businessName }) || `${businessName} logo placeholder`} style={{ fontSize: "2rem" }} />
                                 </div>
                             ) : (
-                                <img src={businessLogoUrl} alt={`${businessName} logo`} className={`${LOGO_MAX_HEIGHT_MOBILE} ${LOGO_MARGIN_RIGHT} w-auto object-contain ${LOGO_ROUNDED}`} onError={onLogoError} loading="lazy" />
+                                <img src={businessLogoUrl} alt={interpolate(sl.userPageHeader.logoAlt, { businessName }) || `${businessName} logo`} className={`${LOGO_MAX_HEIGHT_MOBILE} ${LOGO_MARGIN_RIGHT} w-auto object-contain ${LOGO_ROUNDED}`} onError={onLogoError} loading="lazy" />
                             )}
                             <div className="flex-1 min-w-0">
                                 <h1 className={`text-xl sm:text-2xl font-semibold ${FONT_MONTSERRAT} ${TEXT_PRIMARY} truncate`} title={businessName}>{businessName}</h1>
                                 <div className="flex items-center mt-0.5">
                                     <p className={`text-xs sm:text-sm ${TEXT_SECONDARY} truncate ${FONT_INTER}`}>
-                                        Table: {venueContext?.tableNumber || "N/A"}
+                                        {sl.userPageHeader.tableLabel || "Table:"} {venueContext?.tableNumber || "N/A"}
                                         <span className="mx-1.5 select-none" aria-hidden="true">•</span>
-                                        For: {venueContext?.userName || "Guest"}
+                                        {sl.userPageHeader.guestLabel || "For:"} {venueContext?.userName || (sl.userPageHeader.guestFallback || "Guest")}
                                     </p>
-                                    {/* --- INTEGRATION: Settings Icon --- */}
                                     <button
                                         onClick={onOpenSettingsModal}
                                         className={`ml-1.5 p-1 flex items-center justify-center w-7 h-7 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS}`}
-                                        aria-label="Open guest settings"
-                                        title="Guest Settings"
+                                        aria-label={sl.userPageHeader.settingsAriaLabel || "Open guest settings"}
+                                        title={sl.userPageHeader.settingsTitle || "Guest Settings"}
                                     >
                                         <Icon name="badge" className={`w-5 h-5 ${TEXT_MUTED}`} style={{ fontSize: "1.25rem" }} />
                                     </button>

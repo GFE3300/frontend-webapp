@@ -1,11 +1,9 @@
-// frontend/src/features/menu_view/subcomponents/TagFilterPills.jsx
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
-import HorizontalScroll from './HorizontalScroll'; // Assuming HorizontalScroll is in the same directory or path is correct
+import HorizontalScroll from './HorizontalScroll';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
-// Color Palette (Guideline 2.1, 6.10 Tags & Pills)
 const PILL_ACTIVE_BG = "bg-rose-500";
 const PILL_ACTIVE_TEXT = "text-white";
 const PILL_ACTIVE_RING_FOCUS = "focus-visible:ring-rose-300 dark:focus-visible:ring-rose-600";
@@ -25,18 +23,14 @@ const SKELETON_ELEMENT_BG_PILL = "bg-neutral-300 dark:bg-neutral-600";
 
 const ERROR_TEXT_COLOR = "text-red-500 dark:text-red-400";
 
-// Typography (Guideline 2.2, 6.10 Tags & Pills)
 const FONT_INTER = "font-inter";
 const PILL_TEXT_SIZE = "text-xs";
 const PILL_FONT_WEIGHT = "font-medium";
 
-// Iconography (Guideline 2.3)
 const ICON_SIZE_PILL = "w-3.5 h-3.5";
 
-// Borders & Corner Radii (Guideline 2.6, 6.10 Tags & Pills)
 const PILL_RADIUS = "rounded-full";
 
-// Spacing (Guideline 3.2, 6.10 Tags & Pills)
 const PILL_PADDING_Y = "py-1";
 const PILL_PADDING_X = "px-2.5";
 const ICON_MARGIN_RIGHT_PILL = "mr-1.5";
@@ -112,9 +106,9 @@ function TagFilterPills({
             <div className="py-2">
                 <HorizontalScroll
                     className="pb-2"
-                    ariaLabel="Loading tag filters" // NEW: ARIA Label
+                    ariaLabel={sl.tagFilterPills.loadingAriaLabel || "Loading tag filters"}
                 >
-                    <div className="flex items-center space-x-2 px-4" aria-label="Loading tags..." role="toolbar">
+                    <div className="flex items-center space-x-2 px-4" aria-label={sl.tagFilterPills.loadingTagsAriaLabel || "Loading tags..."} role="toolbar">
                         {Array.from({ length: skeletonCount }).map((_, index) => (
                             <SkeletonTagPill key={`skeleton-tag-${index}`} />
                         ))}
@@ -129,7 +123,7 @@ function TagFilterPills({
             <div className="py-2 px-4 text-center">
                 <p className={`${PILL_TEXT_SIZE} ${ERROR_TEXT_COLOR} flex items-center justify-center`}>
                     <Icon name="error_outline" className="w-4 h-4 mr-1.5" aria-hidden="true" />
-                    Could not load tags. {error?.message ? `(${error.message.substring(0, 50)}${error.message.length > 50 ? '...' : ''})` : ''}
+                    {sl.tagFilterPills.errorLoading || "Could not load tags."} {error?.message ? `(${error.message.substring(0, 50)}${error.message.length > 50 ? '...' : ''})` : ''}
                 </p>
             </div>
         );
@@ -143,7 +137,7 @@ function TagFilterPills({
         <div className="py-2">
             <HorizontalScroll
                 className="pb-2"
-                ariaLabel="Filter by tags" // NEW: ARIA Label
+                ariaLabel={sl.tagFilterPills.filterByTagsAriaLabel || "Filter by tags"}
             >
                 <motion.div
                     className="flex items-center space-x-2 px-4"
@@ -151,7 +145,7 @@ function TagFilterPills({
                     initial="hidden"
                     animate="visible"
                     role="toolbar"
-                    aria-label="Tag filters" // More specific label for the toolbar itself
+                    aria-label={sl.tagFilterPills.tagFiltersAriaLabel || "Tag filters"}
                 >
                     {tagsData.map(tag => (
                         <motion.div key={tag.id} variants={itemVariants}>

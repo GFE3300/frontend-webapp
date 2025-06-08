@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '../../../services/api';
 import { queryKeys } from '../../../services/queryKeys';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 // Polling interval in milliseconds (e.g., 15 seconds)
 const ORDER_STATUS_POLL_INTERVAL = 15000;
@@ -27,7 +28,7 @@ export const useOrderTracking = (orderId) => {
 
     const fetchOrderStatus = async () => {
         if (!orderId) {
-            throw new Error("Order ID is required to track status.");
+            throw new Error(sl.orderTracking.errorMissingId || "Order ID is required to track status.");
         }
         // This maps to our backend's OrderDetailAPIView.
         const response = await apiService.get(`orders/${orderId}/`);

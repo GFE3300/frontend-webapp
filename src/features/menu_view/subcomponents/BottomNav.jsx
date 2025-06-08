@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 // --- Styling Constants ---
 const NAV_BG = "bg-white dark:bg-neutral-800";
@@ -63,8 +64,8 @@ function BottomNav({
 }) {
     // MODIFIED: navItems array is updated
     const navItems = [
-        { key: 'menu', label: 'Menu', icon: 'restaurant_menu' },
-        { key: 'profile', label: 'My Info', icon: 'badge' },
+        { key: 'menu', label: sl.bottomNav.menuLabel || "Menu", icon: 'restaurant_menu' },
+        { key: 'profile', label: sl.bottomNav.myInfoLabel || "My Info", icon: 'badge' },
     ];
 
     const navBarAnimation = {

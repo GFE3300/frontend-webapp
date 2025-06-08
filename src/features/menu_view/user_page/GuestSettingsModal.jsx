@@ -5,6 +5,7 @@ import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
 import { InputField } from '../../register/subcomponents/index.js';
 import LanguageSwitcher from '../../../components/common/LanguageSwitcher.jsx';
 import { ThemeToggleButton } from '../../../utils/ThemeToggleButton.jsx';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 // --- Styling & Theming Constants ---
 const NEUTRAL_BG_MODAL_CARD = "bg-white dark:bg-neutral-800";
@@ -30,16 +31,6 @@ const modalTransitionDefault = { type: "spring", stiffness: 320, damping: 28 };
 const backdropAnimationDefault = { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.25, ease: "circOut" } };
 const reducedMotionTransition = { duration: 0.01 };
 
-/**
- * A modal for guests to update their name, email, and number of people,
- * and to control UI settings like theme and language.
- *
- * @param {object} props - The component's props.
- * @param {boolean} props.isOpen - Controls the visibility of the modal.
- * @param {() => void} props.onClose - Callback function to close the modal.
- * @param {object} props.currentSettings - The current settings object { name, email, people }.
- * @param {(settings: object) => void} props.onSave - Callback function to save the updated settings.
- */
 function GuestSettingsModal({
     isOpen,
     onClose,
@@ -98,7 +89,7 @@ function GuestSettingsModal({
 
     const handleSave = useCallback(() => {
         if (name.trim() === '') {
-            setNameError("Please enter a name for the order.");
+            setNameError(sl.guestSettingsModal.nameRequiredError || "Please enter a name for the order.");
             nameInputRef.current?.focus();
             return;
         }
@@ -123,8 +114,8 @@ function GuestSettingsModal({
                         role="dialog" aria-modal="true" aria-labelledby="guest-settings-modal-title"
                     >
                         <header className={`flex items-start justify-between p-4 sm:p-5 border-b ${NEUTRAL_BORDER_LIGHTER}`}>
-                            <h2 id="guest-settings-modal-title" className={`${FONT_MONTSERRAT} font-semibold text-lg ${NEUTRAL_TEXT_PRIMARY}`}>Guest Settings</h2>
-                            <button ref={closeButtonRef} onClick={onClose} className={`p-1.5 rounded-full ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS} transition-colors`} aria-label="Close settings">
+                            <h2 id="guest-settings-modal-title" className={`${FONT_MONTSERRAT} font-semibold text-lg ${NEUTRAL_TEXT_PRIMARY}`}>{sl.guestSettingsModal.title || "Guest Settings"}</h2>
+                            <button ref={closeButtonRef} onClick={onClose} className={`p-1.5 rounded-full ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS} transition-colors`} aria-label={sl.guestSettingsModal.closeAriaLabel || "Close settings"}>
                                 <Icon name="close" className="w-5 h-5" style={{ fontSize: "1.25rem" }} />
                             </button>
                         </header>
@@ -132,26 +123,26 @@ function GuestSettingsModal({
                         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="flex-1 contents">
                             <main className="p-4 sm:p-5 space-y-6 flex-1 overflow-y-auto">
                                 <fieldset>
-                                    <legend className="text-base w-full font-montserrat font-semibold text-neutral-800 dark:text-neutral-100 border-b border-neutral-200 dark:border-neutral-700 pb-2 mb-4">Order Information</legend>
+                                    <legend className="text-base w-full font-montserrat font-semibold text-neutral-800 dark:text-neutral-100 border-b border-neutral-200 dark:border-neutral-700 pb-2 mb-4">{sl.guestSettingsModal.orderInfoLegend || "Order Information"}</legend>
                                     <div className="space-y-4 mt-4">
-                                        <InputField ref={nameInputRef} id="guestNameSettingsInput" label="Name for this Order" value={name} onChange={(e) => { setName(e.target.value); if (nameError) setNameError(''); }} error={nameError} required />
-                                        <InputField id="guestEmailSettingsInput" label="Email for Receipt (Optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                        <InputField ref={nameInputRef} id="guestNameSettingsInput" label={sl.guestSettingsModal.nameLabel || "Name for this Order"} value={name} onChange={(e) => { setName(e.target.value); if (nameError) setNameError(''); }} error={nameError} required />
+                                        <InputField id="guestEmailSettingsInput" label={sl.guestSettingsModal.emailLabel || "Email for Receipt (Optional)"} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                                         <div>
-                                            <label className='block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2'>Number of guests</label>
-                                            <NumberStepperfix id="guestPeopleSettingsInput" min={1} max={20} value={people} onChange={setPeople} label="Number of guests" hideLabel={true} />
+                                            <label className='block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2'>{sl.guestSettingsModal.guestCountLabel || "Number of guests"}</label>
+                                            <NumberStepperfix id="guestPeopleSettingsInput" min={1} max={20} value={people} onChange={setPeople} label={sl.guestSettingsModal.guestCountLabel || "Number of guests"} hideLabel={true} />
                                         </div>
                                     </div>
                                 </fieldset>
 
                                 <fieldset>
-                                    <legend className="text-base w-full font-montserrat font-semibold text-neutral-800 dark:text-neutral-100 border-b border-neutral-200 dark:border-neutral-700 pb-2 mb-4">UI Preferences</legend>
+                                    <legend className="text-base w-full font-montserrat font-semibold text-neutral-800 dark:text-neutral-100 border-b border-neutral-200 dark:border-neutral-700 pb-2 mb-4">{sl.guestSettingsModal.uiPrefsLegend || "UI Preferences"}</legend>
                                     <div className="space-y-4 mt-4">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Language</label>
+                                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">{sl.guestSettingsModal.languageLabel || "Language"}</label>
                                             <LanguageSwitcher />
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Theme</label>
+                                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">{sl.guestSettingsModal.themeLabel || "Theme"}</label>
                                             <ThemeToggleButton />
                                         </div>
                                     </div>
@@ -159,8 +150,8 @@ function GuestSettingsModal({
                             </main>
 
                             <footer className={`p-4 sm:p-5 border-t ${NEUTRAL_BORDER_LIGHTER} ${NEUTRAL_BG_MODAL_FOOTER} flex justify-end space-x-3`}>
-                                <button type="button" onClick={onClose} className={`${BUTTON_BASE_CLASSES} ${BUTTON_SECONDARY_BG} ${BUTTON_SECONDARY_TEXT} ${ROSE_ACCENT_RING_FOCUS}`}>Cancel</button>
-                                <button type="submit" className={`${BUTTON_BASE_CLASSES} ${BUTTON_PRIMARY_BG} ${BUTTON_PRIMARY_TEXT} ${ROSE_ACCENT_RING_FOCUS}`}>Save Changes</button>
+                                <button type="button" onClick={onClose} className={`${BUTTON_BASE_CLASSES} ${BUTTON_SECONDARY_BG} ${BUTTON_SECONDARY_TEXT} ${ROSE_ACCENT_RING_FOCUS}`}>{sl.guestSettingsModal.cancelButton || "Cancel"}</button>
+                                <button type="submit" className={`${BUTTON_BASE_CLASSES} ${BUTTON_PRIMARY_BG} ${BUTTON_PRIMARY_TEXT} ${ROSE_ACCENT_RING_FOCUS}`}>{sl.guestSettingsModal.saveButton || "Save Changes"}</button>
                             </footer>
                         </form>
                     </motion.div>

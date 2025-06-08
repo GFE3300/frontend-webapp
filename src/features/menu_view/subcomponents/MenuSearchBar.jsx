@@ -5,9 +5,11 @@ import Spinner from '../../../components/common/Spinner';
 import { usePublicProductSuggestions } from '../../../contexts/ProductDataContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Weight } from 'lucide-react';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
+import { interpolate } from '../utils/script_lines.js'; // LOCALIZATION
 
-const INPUT_BG = "bg-neutral-100 dark:bg-neutral-200"; 
-const INPUT_BG_FOCUSED = "bg-white dark:bg-neutral-700"; 
+const INPUT_BG = "bg-neutral-100 dark:bg-neutral-200";
+const INPUT_BG_FOCUSED = "bg-white dark:bg-neutral-700";
 const INPUT_TEXT_COLOR = "text-neutral-900 dark:text-neutral-800";
 const INPUT_PLACEHOLDER_COLOR = "placeholder-neutral-400 dark:placeholder-neutral-500";
 const INPUT_RING_FOCUSED = "ring-2 ring-rose-400 dark:ring-rose-500";
@@ -24,8 +26,8 @@ const DROPDOWN_ITEM_TEXT_SECONDARY = "text-neutral-500 dark:text-neutral-400";
 // Typography 
 const FONT_INTER = "font-inter";
 const INPUT_TEXT_SIZE = "text-sm";
-const SUGGESTION_NAME_TEXT_SIZE = "text-sm"; 
-const SUGGESTION_DETAIL_TEXT_SIZE = "text-xs"; 
+const SUGGESTION_NAME_TEXT_SIZE = "text-sm";
+const SUGGESTION_DETAIL_TEXT_SIZE = "text-xs";
 
 // Shadows & Elevation
 const DROPDOWN_SHADOW = "shadow-lg";
@@ -68,7 +70,7 @@ const MenuSearchBar = ({
                     ...baseSuggestions,
                     {
                         id: `general-search-${debouncedSearchTerm.replace(/\s+/g, '_').toLowerCase()}`,
-                        name: `Search all items for "${debouncedSearchTerm}"`,
+                        name: interpolate(sl.menuSearchBar.searchAllPrompt, { term: debouncedSearchTerm }) || `Search all items for "${debouncedSearchTerm}"`,
                         type: 'GeneralSearch',
                         query: debouncedSearchTerm.trim(),
                     },
@@ -110,7 +112,7 @@ const MenuSearchBar = ({
     const handleFocus = () => {
         setIsFocused(true);
     };
-    
+
     const handleBlur = () => {
         setTimeout(() => {
             if (suggestionsListRef.current && suggestionsListRef.current.contains(document.activeElement)) {
@@ -123,10 +125,10 @@ const MenuSearchBar = ({
     const handleSuggestionClick = (suggestion) => {
         if (suggestion.type === 'GeneralSearch') {
             onSearchSubmit(suggestion.query);
-            setInputValue(suggestion.query); 
+            setInputValue(suggestion.query);
         } else {
             onSuggestionSelect(suggestion);
-            setInputValue(''); 
+            setInputValue('');
         }
         setShowSuggestionsList(false);
         setIsFocused(false);
@@ -179,7 +181,7 @@ const MenuSearchBar = ({
                 break;
         }
     };
-    
+
     useEffect(() => {
         if (activeIndex >= 0 && suggestionsListRef.current) {
             const activeElement = suggestionsListRef.current.children[activeIndex];
@@ -199,13 +201,13 @@ const MenuSearchBar = ({
             default: return 'help_outline';
         }
     };
-    
+
     const currentInputBgClass = isFocused ? INPUT_BG_FOCUSED : INPUT_BG;
     const currentInputRingClass = isFocused ? INPUT_RING_FOCUSED : 'border border-transparent';
 
     return (
         <div ref={searchContainerRef} className={`relative w-full ${className} ${FONT_INTER}`}>
-            <form onSubmit={handleSubmit} role="search" aria-label="Menu search">
+            <form onSubmit={handleSubmit} role="search" aria-label={sl.menuSearchBar.searchAriaLabel || "Menu search"}>
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                         <Icon name="search" className={`w-5 h-5 ${INPUT_ICON_COLOR}`} style={{ fontSize: "1.25rem" }} variations={{ fill: 0, weight: 600, grade: 0, opsz: 48 }} />
@@ -218,24 +220,24 @@ const MenuSearchBar = ({
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         onKeyDown={handleKeyDown}
-                        placeholder="Search menu..."
+                        placeholder={sl.menuSearchBar.placeholder || "Search menu..."}
                         className={`w-full h-10 pl-10 pr-10 py-2 ${INPUT_TEXT_SIZE} ${FONT_INTER} ${INPUT_TEXT_COLOR} ${currentInputBgClass} ${INPUT_PLACEHOLDER_COLOR} ${INPUT_RADIUS} focus:outline-none transition-all duration-150 ${currentInputRingClass}`}
-                        aria-label="Search menu items, categories, or tags" 
+                        aria-label={sl.menuSearchBar.inputAriaLabel || "Search menu items, categories, or tags"}
                         aria-autocomplete="list"
                         aria-expanded={showSuggestionsList && suggestions.length > 0}
                         aria-controls="search-suggestions-listbox"
                     />
                     {inputValue && (
-                         <button
+                        <button
                             type="button"
                             onClick={() => {
                                 setInputValue('');
                                 inputRef.current?.focus();
                             }}
                             className={`absolute inset-y-0 right-0 pr-3.5 flex items-center ${INPUT_ICON_COLOR} hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors`}
-                            aria-label="Clear search input"
+                            aria-label={sl.menuSearchBar.clearInputAriaLabel || "Clear search input"}
                         >
-                            <Icon name="close" className="w-4 h-4" style={{ fontSize: "1rem" }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 24 }}/>
+                            <Icon name="close" className="w-4 h-4" style={{ fontSize: "1rem" }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 24 }} />
                         </button>
                     )}
                 </div>
@@ -247,29 +249,29 @@ const MenuSearchBar = ({
                         id="search-suggestions-listbox"
                         ref={suggestionsListRef}
                         className={`absolute font-montserrat top-full left-0 right-0 mt-1.5 w-full ${DROPDOWN_PANEL_BG} ${DROPDOWN_RADIUS} ${DROPDOWN_SHADOW} overflow-y-auto z-20 ${DROPDOWN_PANEL_BORDER}`}
-                        style={{ maxHeight: '300px' }} 
+                        style={{ maxHeight: '300px' }}
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25, duration: 0.2 }}
                         role="listbox" // Guideline 7: ARIA
-                        aria-label="Search results"
+                        aria-label={sl.menuSearchBar.suggestionsAriaLabel || "Search results"}
                     >
                         {isLoadingSuggestions && (
                             // Loader Feedback (Guideline 4.5)
                             <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${DROPDOWN_ITEM_TEXT_SECONDARY} flex items-center justify-center`}>
-                                <Spinner size="sm" className="mr-2" /> Searching...
+                                <Spinner size="sm" className="mr-2" /> {sl.menuSearchBar.loadingSuggestions || "Searching..."}
                             </li>
                         )}
                         {!isLoadingSuggestions && isSuggestionsError && (
-                             <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${ERROR_TEXT} text-center`}>
-                                <Icon name="error_outline" className="inline w-4 h-4 mr-1 align-text-bottom" style={{ fontSize: "1rem" }} /> 
-                                {suggestionsError?.message || "Error loading suggestions."}
+                            <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${ERROR_TEXT} text-center`}>
+                                <Icon name="error_outline" className="inline w-4 h-4 mr-1 align-text-bottom" style={{ fontSize: "1rem" }} />
+                                {suggestionsError?.message || (sl.menuSearchBar.errorLoading || "Error loading suggestions.")}
                             </li>
                         )}
-                        {!isLoadingSuggestions && !isSuggestionsError && suggestions.length === 0 && debouncedSearchTerm.trim().length >=2 && (
+                        {!isLoadingSuggestions && !isSuggestionsError && suggestions.length === 0 && debouncedSearchTerm.trim().length >= 2 && (
                             <li className={`px-4 py-3 ${SUGGESTION_NAME_TEXT_SIZE} ${DROPDOWN_ITEM_TEXT_SECONDARY} text-center`}>
-                                No suggestions for "{debouncedSearchTerm}".
+                                {interpolate(sl.menuSearchBar.noSuggestions, { term: debouncedSearchTerm }) || `No suggestions for "${debouncedSearchTerm}".`}
                             </li>
                         )}
 
@@ -299,10 +301,10 @@ const MenuSearchBar = ({
                                         />
                                     ) : (
                                         // Icon (Guideline 2.3 Small size for inline with text)
-                                        <Icon name={getIconForSuggestionType(suggestion.type)} className={`w-4 h-4 ${activeIndex === index ? 'opacity-90' : DROPDOWN_ITEM_TEXT_SECONDARY }`} style={{ fontSize: "1rem" }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 24 }} />
+                                        <Icon name={getIconForSuggestionType(suggestion.type)} className={`w-4 h-4 ${activeIndex === index ? 'opacity-90' : DROPDOWN_ITEM_TEXT_SECONDARY}`} style={{ fontSize: "1rem" }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 24 }} />
                                     )}
                                 </div>
-                                
+
                                 {/* Suggestion Text (Guideline 2.2 Typography) */}
                                 <div className="flex-grow min-w-0">
                                     {/* Name: Body Medium */}
@@ -310,12 +312,12 @@ const MenuSearchBar = ({
                                     {/* Detail: Body Small/Extra Small */}
                                     {suggestion.type !== 'GeneralSearch' && suggestion.details?.category_name && suggestion.type === 'product' && (
                                         <span className={`${SUGGESTION_DETAIL_TEXT_SIZE} ${activeIndex === index ? 'opacity-80' : DROPDOWN_ITEM_TEXT_SECONDARY} block truncate`} title={suggestion.details.category_name}>
-                                            In: {suggestion.details.category_name}
+                                            {interpolate(sl.menuSearchBar.suggestionTypeProduct, { categoryName: suggestion.details.category_name }) || `In: ${suggestion.details.category_name}`}
                                         </span>
                                     )}
                                     {suggestion.type !== 'GeneralSearch' && suggestion.type !== 'product' && (
-                                         <span className={`${SUGGESTION_DETAIL_TEXT_SIZE} ${activeIndex === index ? 'opacity-80' : DROPDOWN_ITEM_TEXT_SECONDARY} capitalize`}>
-                                            {suggestion.type.replace('_', ' ')}
+                                        <span className={`${SUGGESTION_DETAIL_TEXT_SIZE} ${activeIndex === index ? 'opacity-80' : DROPDOWN_ITEM_TEXT_SECONDARY} capitalize`}>
+                                            {interpolate(sl.menuSearchBar.suggestionTypeFallback, { type: suggestion.type.replace('_', ' ') }) || suggestion.type.replace('_', ' ')}
                                         </span>
                                     )}
                                 </div>

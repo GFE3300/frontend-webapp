@@ -5,6 +5,8 @@ import OrderSummaryPanel from '../subcomponents/OrderSummaryPanel';
 import Icon from '../../../components/common/Icon.jsx';
 import useWindowSize from '../../../hooks/useWindowSize.js';
 import { useCurrency } from '../../../hooks/useCurrency';
+import i18n from '../../../i18n.js'; // LOCALIZATION: Import i18n for pluralization
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 const PEEK_BAR_HEIGHT_VALUE_PX = 72;
 const PEEK_BAR_TAILWIND_HEIGHT = "h-[72px]";
@@ -122,8 +124,9 @@ const OrderInteractionController = ({
     };
 
     const peekBarTotalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-    // Use the financials prop, which comes from the parent hook.
-    const peekBarAriaLabel = `View your order. ${peekBarTotalItems} ${peekBarTotalItems === 1 ? 'item' : 'items'}. Total ${formatCurrency(orderFinancials?.finalTotal || 0)}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
+    const peekBarItemsText = i18n.t('orderInteractionController.peekBar.item', { count: peekBarTotalItems }); // LOCALIZATION: Pluralization
+    
+    const peekBarAriaLabel = `${sl.orderInteractionController.peekBar.title || 'View your order'}. ${peekBarItemsText}. Total ${formatCurrency(orderFinancials?.finalTotal || 0)}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
 
     if (isDesktop) {
         if (!venueContext) return null;
@@ -133,7 +136,6 @@ const OrderInteractionController = ({
                 {hasOrderItems ? (
                     <OrderSummaryPanel
                         orderItems={orderItems}
-                        // MODIFIED: Pass the entire orderFinancials object
                         orderFinancials={orderFinancials}
                         onUpdateQuantity={onUpdateQuantity}
                         onConfirmOrderAction={onConfirmOrderAction}
@@ -144,7 +146,7 @@ const OrderInteractionController = ({
                     />
                 ) : (
                     <div className={`h-full flex items-center justify-center ${PANEL_BG_SIDEBAR_LIGHT} ${DRAWER_TITLE_TEXT_COLOR} shadow-xl ${PANEL_RADIUS_SIDEBAR} p-6 text-center ${FONT_INTER}`}>
-                        <p className={`${NEUTRAL_TEXT_MUTED} ${BODY_TEXT_MEDIUM}`}>Your order summary will appear here once you add items.</p>
+                        <p className={`${NEUTRAL_TEXT_MUTED} ${BODY_TEXT_MEDIUM}`}>{sl.orderInteractionController.desktopEmptyMessage || "Your order summary will appear here once you add items."}</p>
                     </div>
                 )}
             </aside>
@@ -203,7 +205,7 @@ const OrderInteractionController = ({
                 >
                     <DragHandle className={PEEK_BAR_BG === "bg-rose-600 hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600" ? "bg-rose-300 dark:bg-rose-300" : DRAG_HANDLE_BG} />
                     <span className={`${FONT_INTER} font-medium text-sm`}>
-                        View Your Order ({peekBarTotalItems} {peekBarTotalItems === 1 ? 'item' : 'items'})
+                        {sl.orderInteractionController.peekBar.title || "View Your Order"} {peekBarItemsText}
                     </span>
                     <span className={`${FONT_MONTSERRAT} font-bold text-base`}>
                         {formatCurrency(orderFinancials?.finalTotal || 0)}
@@ -215,13 +217,13 @@ const OrderInteractionController = ({
                         <div className={`p-3 flex justify-between items-center border-b ${NEUTRAL_BORDER_LIGHTER} shrink-0 relative`}>
                             <DragHandle className={DRAG_HANDLE_BG} />
                             <h3 id="order-drawer-title-mobile-oic" className={`text-lg font-semibold ${FONT_MONTSERRAT} ${DRAWER_TITLE_TEXT_COLOR} pl-2`}>
-                                Your Order
+                                {sl.orderInteractionController.drawerTitle || "Your Order"}
                             </h3>
                             <button
                                 ref={drawerCloseButtonRef}
                                 onClick={toggleMobileDrawer}
                                 className={`p-1.5 rounded-full ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none ${ROSE_ACCENT_RING_FOCUS} transition-colors`}
-                                aria-label="Close order summary"
+                                aria-label={sl.orderInteractionController.closeDrawerAriaLabel || "Close order summary"}
                             >
                                 <Icon name="close" className="w-6 h-6" />
                             </button>
@@ -229,7 +231,6 @@ const OrderInteractionController = ({
                         <div className="flex-1 overflow-y-auto">
                             <OrderSummaryPanel
                                 orderItems={orderItems}
-                                // MODIFIED: Pass the entire orderFinancials object
                                 orderFinancials={orderFinancials}
                                 onUpdateQuantity={onUpdateQuantity}
                                 onConfirmOrderAction={onConfirmOrderAction}

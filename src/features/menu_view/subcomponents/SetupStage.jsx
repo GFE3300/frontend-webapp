@@ -3,11 +3,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon.jsx';
 import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
-// Assuming InputField from register/subcomponents is styled according to general InputField guidelines (6.2)
-// If not, those styles would need to be applied within that component or overridden here.
 import { InputField } from '../../register/subcomponents/index.js';
 import BubbleAnimation from '../../../components/animations/bubble/BubbleAnimation.jsx';
 import { cn } from '../../../components/animations/bubble/utils.js';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 function debounce(func, wait) {
     let timeout;
@@ -79,20 +78,20 @@ const NEUTRAL_TEXT_MUTED_DARK_BG = "dark:text-neutral-200/80";
 const NEUTRAL_LABEL_TEXT = "text-neutral-700 dark:text-neutral-300";
 const NEUTRAL_TEXT_MUTED = "text-neutral-800 dark:text-neutral-400";
 
-const ERROR_TEXT_COLOR = "text-red-500 dark:text-red-400"; 
+const ERROR_TEXT_COLOR = "text-red-500 dark:text-red-400";
 
 const FONT_SANS = "font-inter";
-const FONT_DISPLAY = "font-montserrat"; 
+const FONT_DISPLAY = "font-montserrat";
 
-const HEADING_XL_TEXT = `text-3xl ${FONT_DISPLAY} font-bold`; 
-const HEADING_LG_TEXT = `text-2xl ${FONT_DISPLAY} font-semibold`; 
-const TABLE_NUMBER_TEXT = `text-6xl ${FONT_DISPLAY} font-bold`; 
-const BODY_TEXT_LG = `text-xl ${FONT_SANS}`; 
-const BODY_TEXT_MD = `text-base ${FONT_SANS}`; 
-const BODY_TEXT_SM = `text-sm ${FONT_SANS}`; 
+const HEADING_XL_TEXT = `text-3xl ${FONT_DISPLAY} font-bold`;
+const HEADING_LG_TEXT = `text-2xl ${FONT_DISPLAY} font-semibold`;
+const TABLE_NUMBER_TEXT = `text-6xl ${FONT_DISPLAY} font-bold`;
+const BODY_TEXT_LG = `text-xl ${FONT_SANS}`;
+const BODY_TEXT_MD = `text-base ${FONT_SANS}`;
+const BODY_TEXT_SM = `text-sm ${FONT_SANS}`;
 const BUTTON_TEXT = `font-semibold ${FONT_SANS}`;
 
-const CARD_SHADOW = "shadow-2xl"; 
+const CARD_SHADOW = "shadow-2xl";
 const BUTTON_SHADOW = "shadow-md";
 
 const CARD_RADIUS = "rounded-3xl";
@@ -136,7 +135,7 @@ function SetupStage({ tableNumber, onSetupComplete, theme }) {
 
     const handleSubmit = () => {
         if (userName.trim() === '') {
-            setNameError("Please enter your name to continue.");
+            setNameError(sl.setupStage.nameRequiredError || "Please enter your name to continue.");
             return;
         }
         setNameError('');
@@ -187,10 +186,10 @@ function SetupStage({ tableNumber, onSetupComplete, theme }) {
                                 <Icon name="menu_book" className={`w-16 h-16 ${ROSE_PRIMARY_ACCENT} mx-auto mb-3`} style={{ fontSize: '2rem' }} />
                             </motion.div>
                             <motion.h1 variants={itemFadeInUpVariants} id="welcome-heading" className={`${HEADING_XL_TEXT} ${NEUTRAL_TEXT_PRIMARY}`}>
-                                Welcome!
+                                {sl.setupStage.welcomeTitle || "Welcome!"}
                             </motion.h1>
                             <motion.p variants={itemFadeInUpVariants} className={`${BODY_TEXT_LG} ${NEUTRAL_TEXT_SECONDARY} mt-1`}>
-                                You are at Table
+                                {sl.setupStage.atTableLabel || "You are at Table"}
                             </motion.p>
                             <motion.p
                                 variants={tableNumberTextVariants}
@@ -220,21 +219,21 @@ function SetupStage({ tableNumber, onSetupComplete, theme }) {
                                 <h2 id="setup-form-heading" className={`${HEADING_LG_TEXT} ${NEUTRAL_TEXT_PRIMARY}`}>
                                     Table {tableNumber}
                                 </h2>
-                                <p className={`${BODY_TEXT_SM} ${NEUTRAL_TEXT_MUTED} font-montserrat mt-1`}>Let's get you set up!</p>
+                                <p className={`${BODY_TEXT_SM} ${NEUTRAL_TEXT_MUTED} font-montserrat mt-1`}>{sl.setupStage.setupPrompt || "Let's get you set up!"}</p>
                             </motion.div>
 
                             <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
                                 <motion.div variants={itemFadeInUpVariants}>
                                     <InputField
                                         id="userName"
-                                        label="Your Name"
+                                        label={sl.setupStage.yourNameLabel || "Your Name"}
                                         type="text"
                                         value={userName}
                                         onChange={(e) => {
                                             setUserName(e.target.value);
                                             if (nameError && e.target.value.trim() !== '') setNameError('');
                                         }}
-                                        placeholder="e.g., Alex Smith"
+                                        placeholder={sl.setupStage.yourNamePlaceholder || "e.g., Alex Smith"}
                                         error={nameError}
                                         required
                                         className='flex items-end h-15'
@@ -249,8 +248,8 @@ function SetupStage({ tableNumber, onSetupComplete, theme }) {
                                         max={12}
                                         value={actualNumberOfPeople}
                                         onChange={handleNumberOfPeopleChange}
-                                        label="Number of people ordering"
-                                        hideLabel={true} 
+                                        label={sl.setupStage.peopleLabel || "Number of people ordering"}
+                                        hideLabel={true}
                                         inputClassName={`text-center dark:bg-neutral-700 dark:text-neutral-100 h-10 ${BUTTON_RADIUS}`}
                                         buttonClassName={`bg-neutral-200 dark:bg-neutral-600 hover:bg-neutral-300 dark:hover:bg-neutral-500 text-neutral-700 dark:text-neutral-200 w-10 h-10 ${BUTTON_RADIUS}`}
                                         containerClassName="flex justify-center items-center"
@@ -268,11 +267,11 @@ function SetupStage({ tableNumber, onSetupComplete, theme }) {
                                 >
                                     {isLoading ? (
                                         <>
-                                            <Icon name="progress_activity" className="w-4 h-4 mr-2 animate-spin" style={{ fontSize: '1rem' }} variations={{ fill: 0, weight: 800, grade: 0, opsz: 48 }}/>
-                                            Starting...
+                                            <Icon name="progress_activity" className="w-4 h-4 mr-2 animate-spin" style={{ fontSize: '1rem' }} variations={{ fill: 0, weight: 800, grade: 0, opsz: 48 }} />
+                                            {sl.setupStage.startingButton || "Starting..."}
                                         </>
                                     ) : (
-                                        "Start Ordering"
+                                        sl.setupStage.startOrderingButton || "Start Ordering"
                                     )}
                                 </motion.button>
                             </form>
@@ -285,7 +284,7 @@ function SetupStage({ tableNumber, onSetupComplete, theme }) {
                 animate={{ opacity: 1, y: 0, transition: { delay: animationStep === 'showForm' ? 1.0 : 2.7, duration: 0.6, ease: smoothEase } }}
                 className={`relative font-montserrat z-10 mt-8 ${BODY_TEXT_SM} ${theme === 'dark' ? NEUTRAL_TEXT_MUTED_DARK_BG : NEUTRAL_TEXT_MUTED_LIGHT_BG}`}
             >
-                Enjoy your meal! If you need assistance, please alert our staff.
+                {sl.setupStage.footerMessage || "Enjoy your meal! If you need assistance, please alert our staff."}
             </motion.p>
         </motion.div>
     );

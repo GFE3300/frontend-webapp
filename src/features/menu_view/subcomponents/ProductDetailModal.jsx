@@ -3,7 +3,9 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
 import Icon from '../../../components/common/Icon.jsx';
 import { calculateItemPriceWithSelectedOptions } from '../utils/productUtils.js';
-import { useCurrency } from '../../../hooks/useCurrency.js'; // MODIFIED: Import hook
+import { useCurrency } from '../../../hooks/useCurrency.js';
+import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
+import { interpolate } from '../utils/script_lines.js'; // LOCALIZATION
 
 // --- Styling Constants ---
 const SINGLE_SELECT = 'single_select';
@@ -36,6 +38,8 @@ const MODAL_RADIUS = "rounded-2xl";
 const OPTION_BUTTON_RADIUS = "rounded-lg";
 const CHECKBOX_RADIUS = "rounded";
 
+const reducedMotionTransition = { duration: 0.01, ease: "linear" };
+
 export default function ProductDetailModal({ isOpen, onClose, product, onConfirmWithOptions }) {
     const [quantity, setQuantity] = useState(1);
     const [selectedOptionsMap, setSelectedOptionsMap] = useState({});
@@ -47,7 +51,7 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
 
     const shouldReduceMotion = useReducedMotion();
     const isProductAvailable = product?.is_active !== false;
-    const { formatCurrency } = useCurrency(); // MODIFIED: Use the currency hook
+    const { formatCurrency } = useCurrency();
 
     const basePriceForOptions = useMemo(() => {
         if (!product) return 0;
@@ -139,7 +143,7 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
                     if (group.type === SINGLE_SELECT && !selection) isError = true;
                     else if (group.type === MULTI_SELECT && (!Array.isArray(selection) || selection.length === 0)) isError = true;
                     if (isError) {
-                        errors[group.id] = `Please make a selection for ${group.name}.`;
+                        errors[group.id] = interpolate(sl.productDetailModal.selectionNeededError, { groupName: group.name }) || `Please make a selection for ${group.name}.`;
                         if (!firstErrorKey) firstErrorKey = group.id;
                     }
                 }
@@ -211,31 +215,30 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
                     >
                         <header className={`flex items-start justify-between p-4 sm:p-5 border-b ${NEUTRAL_BORDER_LIGHTER} shrink-0`}>
                             <div className="flex-1 min-w-0 pr-2">
-                                <h2 id="product-options-title" className={`${FONT_MONTSERRAT} font-semibold text-xl ${NEUTRAL_TEXT_PRIMARY} truncate`} title={product.name}>{product.name || "Configure Item"}</h2>
+                                <h2 id="product-options-title" className={`${FONT_MONTSERRAT} font-semibold text-xl ${NEUTRAL_TEXT_PRIMARY} truncate`} title={product.name}>{product.name || (sl.productDetailModal.configureItemTitle || "Configure Item")}</h2>
                                 {product.subtitle && <p className={`text-xs ${NEUTRAL_TEXT_MUTED} mt-0.5 truncate`} title={product.subtitle}>{product.subtitle}</p>}
                             </div>
-                            <button ref={closeButtonRef} onClick={onClose} className={`p-1.5 w-8 h-8 rounded-full ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS} transition-colors`} aria-label="Close product options">
+                            <button ref={closeButtonRef} onClick={onClose} className={`p-1.5 w-8 h-8 rounded-full ${NEUTRAL_TEXT_MUTED} hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS} transition-colors`} aria-label={sl.productDetailModal.closeAriaLabel || "Close product options"}>
                                 <Icon name="close" className="w-5 h-5" />
                             </button>
                         </header>
 
                         <main className="flex-1 p-4 sm:p-5 space-y-5 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent">
-                            {!isProductAvailable && <div className={`p-3 mb-2 ${ERROR_BG} border ${ERROR_BORDER} ${MODAL_RADIUS} text-center`} role="alert"><p className={`font-medium text-sm ${ERROR_TEXT}`}>This item is currently unavailable.</p></div>}
-                            {product.description && <div><h3 className={`text-sm font-semibold ${NEUTRAL_TEXT_SECONDARY} mb-1`}>Description</h3><p id="product-modal-description" className={`text-sm ${NEUTRAL_TEXT_MUTED} leading-relaxed`}>{product.description}</p></div>}
+                            {!isProductAvailable && <div className={`p-3 mb-2 ${ERROR_BG} border ${ERROR_BORDER} ${MODAL_RADIUS} text-center`} role="alert"><p className={`font-medium text-sm ${ERROR_TEXT}`}>{sl.productDetailModal.unavailableMessage || "This item is currently unavailable."}</p></div>}
+                            {product.description && <div><h3 className={`text-sm font-semibold ${NEUTRAL_TEXT_SECONDARY} mb-1`}>{sl.productDetailModal.descriptionLabel || "Description"}</h3><p id="product-modal-description" className={`text-sm ${NEUTRAL_TEXT_MUTED} leading-relaxed`}>{product.description}</p></div>}
 
                             {(product.editable_attribute_groups || []).sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)).map(group => (
                                 <fieldset key={group.id} id={`group-${group.id}`} ref={groupErrorRefs.current[group.id]} className={`p-3 rounded-lg transition-colors ${validationErrors[group.id] ? ERROR_BG : ''}`}>
                                     <legend className={`${FONT_MONTSERRAT} text-base sm:text-lg font-medium ${NEUTRAL_TEXT_SECONDARY} mb-2.5 flex items-center`}>
                                         {group.name}
-                                        {group.is_required && <span className={`ml-2 text-xs font-normal ${validationErrors[group.id] ? ERROR_TEXT : NEUTRAL_TEXT_MUTED}`} aria-hidden="true">(Required)</span>}
+                                        {group.is_required && <span className={`ml-2 text-xs font-normal ${validationErrors[group.id] ? ERROR_TEXT : NEUTRAL_TEXT_MUTED}`} aria-hidden="true">{sl.productDetailModal.requiredLabel || "(Required)"}</span>}
                                     </legend>
                                     <div className={`flex ${group.type === SINGLE_SELECT ? 'flex-wrap gap-2' : 'flex-col space-y-2'}`} role={group.type === SINGLE_SELECT ? "radiogroup" : "group"} aria-required={group.is_required}>
                                         {(group.options || []).sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)).map(option => {
                                             const priceAdj = parseFloat(option.price_adjustment) || 0;
                                             const isSelected = group.type === SINGLE_SELECT ? selectedOptionsMap[group.id] === option.id : (selectedOptionsMap[group.id] || []).includes(option.id);
                                             const baseClasses = `border-2 text-sm font-medium transition-all duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS}`;
-                                            
-                                            // MODIFIED: ARIA label and display now use formatCurrency
+
                                             const ariaLabel = `${option.name}${priceAdj !== 0 ? ` (${priceAdj > 0 ? '+' : ''}${formatCurrency(priceAdj)})` : ''}`;
                                             const displayPriceAdj = `(${priceAdj > 0 ? '+' : ''}${formatCurrency(priceAdj)})`;
 
@@ -256,17 +259,16 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
                                 </fieldset>
                             ))}
 
-                            {isProductAvailable && <NumberStepperfix id="productDetailQuantityModal" min={1} max={product?.max_quantity_per_order || 20} value={quantity} onChange={setQuantity} label="Item quantity" hideLabel={true} disabled={!isProductAvailable} />}
+                            {isProductAvailable && <NumberStepperfix id="productDetailQuantityModal" min={1} max={product?.max_quantity_per_order || 20} value={quantity} onChange={setQuantity} label={sl.productDetailModal.quantityLabel || "Item quantity"} hideLabel={true} disabled={!isProductAvailable} />}
                         </main>
 
                         <footer className={`p-4 sm:p-5 border-t ${NEUTRAL_BORDER_LIGHTER} ${NEUTRAL_BG_MODAL_FOOTER} shrink-0`}>
                             <div className="flex justify-between items-center mb-3" aria-live="polite">
-                                <span className={`${FONT_MONTSERRAT} text-lg font-medium ${NEUTRAL_TEXT_PRIMARY}`}>Total:</span>
-                                {/* MODIFIED: Final total uses formatCurrency */}
+                                <span className={`${FONT_MONTSERRAT} text-lg font-medium ${NEUTRAL_TEXT_PRIMARY}`}>{sl.productDetailModal.totalLabel || "Total:"}</span>
                                 <span className={`${FONT_MONTSERRAT} text-xl sm:text-2xl font-bold ${ROSE_ACCENT_TEXT}`}>{formatCurrency(totalPriceForQuantity)}</span>
                             </div>
                             <motion.button onClick={handleConfirm} className={`w-full ${FONT_INTER} font-semibold py-3 ${MODAL_RADIUS} shadow-md transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed ${!isProductAvailable || Object.keys(validationErrors).length > 0 || quantity <= 0 ? 'bg-neutral-300 dark:bg-neutral-600 text-neutral-500 dark:text-neutral-400' : `${ROSE_PRIMARY_BG} ${ROSE_PRIMARY_TEXT_ON_ACCENT} ${ROSE_ACCENT_RING_FOCUS}`}`} whileTap={isProductAvailable ? { scale: 0.98 } : {}} disabled={!isProductAvailable || Object.keys(validationErrors).length > 0 || quantity <= 0}>
-                                {isProductAvailable ? `Add ${quantity} to Order` : "Unavailable"}
+                                {isProductAvailable ? (interpolate(sl.productDetailModal.addToOrderButton, { quantity }) || `Add ${quantity} to Order`) : (sl.productDetailModal.unavailableButton || "Unavailable")}
                             </motion.button>
                         </footer>
                     </motion.div>
