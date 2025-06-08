@@ -5,7 +5,7 @@ import Icon from '../../../components/common/Icon.jsx';
 import WavingBackground from "../../../components/animations/WavingLine.jsx";
 import { getEffectiveDisplayPrice } from "../utils/productUtils.js";
 import { useTheme } from "../../../utils/ThemeProvider.jsx";
-import { useCurrency as useCurrency } from "../../../hooks/useCurrency.js"; // Import the new hook
+import { useCurrency } from "../../../hooks/useCurrency.js"; // Import the new hook
 
 const CARD_CONTENT_WIDTH_PX = 240;
 const CARD_CONTENT_HEIGHT_PX = 270;
@@ -111,14 +111,6 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
         ${name}, price ${formatCurrency(displayPrice)}. 
         ${!isProductAvailable ? "This item is currently unavailable." : (hasOptions ? "Tap to view details and configure options." : "Tap to add to order.")}
     `.trim().replace(/\s+/g, ' ');
-
-    if (!isProductAvailable) {
-        ariaLabel += " This item is currently unavailable.";
-    } else if (hasOptions) {
-        ariaLabel += " Tap to view details and configure options.";
-    } else {
-        ariaLabel += " Tap to add to order.";
-    }
 
     return (
         <motion.div

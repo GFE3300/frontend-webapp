@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import EditableCell from './EditableCell';
 import { motion } from 'framer-motion';
-import { useBusinessCurrencyFormatter } from '../../../utils/formatCurrency';
+import { formatCurrency } from '../../../utils/formatCurrency';
 
 const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStatusProductId }) => {
     const {
@@ -16,8 +16,6 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
         sticky,
         align = 'left',
     } = column;
-
-    const { formatCurrency } = useBusinessCurrencyFormatter();
     
     const isEditable = cellType === 'editableCurrency' || cellType === 'editableText';
 

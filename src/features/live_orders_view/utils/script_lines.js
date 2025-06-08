@@ -13,19 +13,32 @@ export const scriptLines_liveOrders = {
     errorBody: "There was an issue fetching the live order data. Please try again later.",
 
     // Generic labels used in multiple components
-    tableLabel: "Table {{tableNumber}}",
+    tableLabel: {
+        one: "Table {{tableNumber}}",
+        other: "Table {{tableNumber}}",
+    },
+    guestsSummary: {
+        one: "{{count}} guest",
+        other: "{{count}} guests",
+    },
+    ordersSummary: {
+        one: "{{count}} order",
+        other: "{{count}} orders",
+    },
 
     // Modal-specific text
-    modalTitle: "Details for Table {{tableNumber}}",
-    guestsLabel: "Guests",
-    ordersLabel: "Orders",
-    closeButton: "Close",
-    noOrdersFound: "No active orders for this table.",
+    modal: {
+        title: "Details for Table {{tableNumber}}",
+        noOrdersFound: "No active orders for this table.",
+        closeButton: "Close",
+    },
 
     // Order Card specific text
-    orderIdLabel: "Order #",
-    statusLabel: "Status:",
-    totalLabel: "Total:",
+    orderCard: {
+        idLabel: "Order #",
+        statusLabel: "Status:",
+        totalLabel: "Total:",
+    },
 
     // Status mappings for the main table overlay
     status: {

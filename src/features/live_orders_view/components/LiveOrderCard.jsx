@@ -27,19 +27,30 @@ const orderStatusStyles = {
         textColor: 'text-red-800 dark:text-red-200',
         icon: 'cancel',
     },
+    // Adding other statuses for completeness, even if they don't have actions
+    PREPARING: {
+        bgColor: 'bg-indigo-100 dark:bg-indigo-800/50',
+        textColor: 'text-indigo-800 dark:text-indigo-200',
+        icon: 'skillet',
+    },
+    READY_FOR_PICKUP: {
+        bgColor: 'bg-teal-100 dark:bg-teal-800/50',
+        textColor: 'text-teal-800 dark:text-teal-200',
+        icon: 'local_mall',
+    },
     DEFAULT: {
         bgColor: 'bg-gray-100 dark:bg-gray-700',
         textColor: 'text-gray-800 dark:text-gray-200',
-        icon: 'receipt',
+        icon: 'receipt_long',
     },
 };
 
 /**
- * Renders a card displaying the details of a single live order.
+ * Renders a card displaying the details of a single live order and its actions.
  * @param {{
  *  order: {id: string, status: string, total_amount_payable: string},
  *  onUpdateStatus: (orderId: string, newStatus: string) => void,
- *  isUpdating: boolean // Will be used to disable buttons during mutation
+ *  isUpdating: boolean
  * }} props
  */
 const LiveOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
@@ -52,6 +63,7 @@ const LiveOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
         const commonProps = {
             size: 'sm',
             disabled: isUpdating,
+            className: 'flex-grow justify-center'
         };
 
         switch (order.status) {
@@ -60,7 +72,7 @@ const LiveOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
                     <Button key="confirm" {...commonProps} variant="primary" onClick={() => onUpdateStatus(order.id, 'CONFIRMED')}>
                         {scriptLines_liveOrders.actions.confirm}
                     </Button>,
-                    <Button key="cancel" {...commonProps} variant="danger_outline" onClick={() => onUpdateStatus(order.id, 'CANCELED')}>
+                    <Button key="cancel" {...commonProps} variant="danger_outline" onClick={() => onUpdateStatus(order.id, 'CANCELLED_BY_BUSINESS')}>
                         {scriptLines_liveOrders.actions.cancel}
                     </Button>
                 );
@@ -70,14 +82,13 @@ const LiveOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
                     <Button key="serve" {...commonProps} variant="primary" onClick={() => onUpdateStatus(order.id, 'SERVED')}>
                         {scriptLines_liveOrders.actions.markServed}
                     </Button>,
-                     <Button key="cancel" {...commonProps} variant="danger_outline" onClick={() => onUpdateStatus(order.id, 'CANCELED')}>
+                    <Button key="cancel" {...commonProps} variant="danger_outline" onClick={() => onUpdateStatus(order.id, 'CANCELLED_BY_BUSINESS')}>
                         {scriptLines_liveOrders.actions.cancel}
                     </Button>
                 );
                 break;
-
-                default:
-                return null;
+            default:
+                return null; // No actions for SERVED, CANCELED, etc. statuses.
         }
         return <div className="flex items-center space-x-2">{buttons}</div>;
     };
@@ -88,11 +99,11 @@ const LiveOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
             <div className="flex items-start justify-between">
                 <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        {scriptLines_liveOrders.orderIdLabel}
+                        {scriptLines_liveOrders.orderCard.idLabel}
                         <span className="font-mono ml-1">{order.id.substring(0, 8)}...</span>
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                        {formatCurrency(parseFloat(order.total_amount_payable), currency)}
+                        {formatCurrency(order.total_amount_payable, currency)}
                     </p>
                 </div>
                 <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${style.bgColor} ${style.textColor}`}>

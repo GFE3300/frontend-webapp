@@ -1,7 +1,6 @@
 import React from 'react';
 import Icon from '../../../components/common/Icon';
-import { scriptLines_liveOrders } from '../utils/script_lines';
-import { t } from '../../../i18n'; // Import i18n t function for direct pluralization usage if needed
+import { scriptLines_liveOrders, t } from '../utils/script_lines';
 
 /**
  * Maps aggregate_status values to Tailwind CSS classes for styling.
@@ -9,40 +8,34 @@ import { t } from '../../../i18n'; // Import i18n t function for direct pluraliz
  */
 const statusStyles = {
     IDLE: {
-        bgColor: 'bg-gray-300/70 dark:bg-gray-700/70', // Slightly transparent gray
-        textColor: 'text-gray-900 dark:text-gray-100',
-        iconColor: 'text-gray-600 dark:text-gray-300',
-        icon: 'chair_alt', // Or just 'chair'
+        bgColor: 'bg-gray-400/80 dark:bg-gray-700/80',
+        textColor: 'text-white',
+        icon: 'chair_alt',
     },
     NEW_ORDER: {
-        bgColor: 'bg-green-500/80 dark:bg-green-600/80', // Green for new activity
+        bgColor: 'bg-green-500/90 dark:bg-green-600/90 ring-4 ring-green-500/50 animate-pulse',
         textColor: 'text-white',
-        iconColor: 'text-white',
-        icon: 'notifications', // Bell icon
+        icon: 'notifications_active',
     },
     WAITING: {
-        bgColor: 'bg-yellow-500/80 dark:bg-yellow-600/80', // Yellow for needing attention
+        bgColor: 'bg-yellow-500/90 dark:bg-yellow-600/90',
         textColor: 'text-white',
-        iconColor: 'text-white',
-        icon: 'timer', // Timer icon
+        icon: 'hourglass_top',
     },
     SERVED: {
-        bgColor: 'bg-blue-500/80 dark:bg-blue-600/80', // Blue for service completed
+        bgColor: 'bg-blue-500/90 dark:bg-blue-600/90',
         textColor: 'text-white',
-        iconColor: 'text-white',
-        icon: 'restaurant', // Utensils icon
+        icon: 'restaurant',
     },
     NEEDS_PAYMENT: {
-        bgColor: 'bg-purple-500/80 dark:bg-purple-600/80', // Purple for payment required
+        bgColor: 'bg-purple-600/90 dark:bg-purple-700/90',
         textColor: 'text-white',
-        iconColor: 'text-white',
-        icon: 'payment', // Payment icon
+        icon: 'payment',
     },
     NEEDS_ATTENTION: {
-        bgColor: 'bg-red-500/80 dark:bg-red-600/80', // Red for urgent issues
+        bgColor: 'bg-red-600/90 dark:bg-red-700/90 ring-4 ring-red-500/50 animate-pulse',
         textColor: 'text-white',
-        iconColor: 'text-white',
-        icon: 'error', // Error icon
+        icon: 'error',
     },
 };
 
@@ -50,9 +43,14 @@ const statusStyles = {
  * An overlay component that displays the status of a table based on live data.
  * It is designed to be positioned absolutely over a table item rendered in the layout.
  *
- * @param {{ tableStaticData: object, tableLiveData: object | null }} props
+ * @param {{ 
+ *   tableStaticData: object, 
+ *   tableLiveData: object | null,
+ *   onSelect: () => void
+ * }} props
  *        - tableStaticData: The item object from the venue layout (contains id, table_number, etc.).
  *        - tableLiveData: The corresponding live data object from the API, or null if no live data exists.
+ *        - onSelect: A function to call when the overlay is clicked.
  */
 const TableStatusOverlay = ({ tableStaticData, tableLiveData, onSelect }) => {
     // Default to IDLE status if no live data is available for the table
@@ -60,47 +58,30 @@ const TableStatusOverlay = ({ tableStaticData, tableLiveData, onSelect }) => {
     const statusConfig = statusStyles[aggregateStatus] || statusStyles.IDLE; // Fallback to IDLE if status is unknown
 
     const totalGuests = tableLiveData?.total_guests || 0;
-    const orderCount = tableLiveData?.order_count || 0; // Total number of orders for this table
+    const orderCount = tableLiveData?.order_count || 0;
 
-    // Use the i18n script lines for text, accessing the status translation directly
+    // Use the i18n script lines for text and the `t` function for pluralization
     const statusText = scriptLines_liveOrders.status[aggregateStatus] || aggregateStatus;
-    const tableLabel = t(scriptLines_liveOrders.tableLabel, { tableNumber: tableStaticData.table_number });
+    const tableLabel = t(scriptLines_liveOrders.tableLabel, { tableNumber: tableStaticData.item_specific_props.table_number });
+    const guestsText = t(scriptLines_liveOrders.guestsSummary, { count: totalGuests });
+    const ordersText = t(scriptLines_liveOrders.ordersSummary, { count: orderCount });
 
-    // We can add pluralization for order count here if needed, using the t() function directly.
-    // Example: const ordersText = t(scriptLines_liveOrders.ordersSummary, { count: orderCount }); // Assuming you add ordersSummary to script_lines
+    const tooltipText = `${tableLabel} - ${statusText} (${guestsText}, ${ordersText})`;
 
     return (
-        // Position the overlay absolutely within the parent container (which is relative)
-        // Adjust top, right, bottom, left, width, height as needed to fit your layout design.
-        // This example places a small badge in the top-right corner.
         <div
-            className={`absolute top-1 right-1 transform translate-x-1/4 -translate-y-1/4
-                        flex items-center justify-center p-1 rounded-full shadow-md
-                        ${statusConfig.bgColor} ${statusConfig.textColor} text-xs font-bold
-                        min-w-[1.75rem] min-h-[1.75rem] text-center
-                        transition-transform duration-200 ease-in-out group-hover:scale-110`}
+            className={`absolute inset-0 flex flex-col items-center justify-center p-2 rounded-md 
+                       cursor-pointer group transition-all duration-300
+                       ${statusConfig.bgColor} ${statusConfig.textColor}`}
             onClick={onSelect}
-            title={`${tableLabel} - ${statusText} (${totalGuests} guests, ${orderCount} orders)`} // Tooltip for detailed info
+            title={tooltipText}
+            role="button"
+            aria-label={tooltipText}
         >
-            <Icon
-                name={statusConfig.icon}
-                className={`w-4 h-4 ${statusConfig.iconColor}`}
-            />
-            {/* Optionally display table number or guest count inside or next to the badge */}
-            {/* <span className="ml-1">{tableStaticData.table_number}</span> */}
+            <div className="text-lg font-semibold">{tableStaticData.item_specific_props.table_number}</div>
+            <Icon name={statusConfig.icon} className="w-6 h-6 mt-1" />
+            <div className="mt-1 text-xs font-medium uppercase tracking-wider">{statusText}</div>
         </div>
-        // Alternative: A larger overlay covering part of the table
-        // <div
-        //     className={`absolute inset-0 flex flex-col items-center justify-center p-2
-        //                ${statusConfig.bgColor} ${statusConfig.textColor} text-sm font-bold`}
-        // >
-        //     <div className="text-lg font-semibold">{tableLabel}</div>
-        //     <Icon name={statusConfig.icon} className={`w-6 h-6 mt-1 ${statusConfig.iconColor}`} />
-        //     <div className="mt-1">{statusText}</div>
-        //     {totalGuests > 0 && (
-        //         <div className="text-xs mt-0.5">{totalGuests} guests</div>
-        //     )}
-        // </div>
     );
 };
 

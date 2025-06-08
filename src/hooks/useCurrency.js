@@ -7,6 +7,7 @@ const currencySymbols = {
     EUR: '€',
     GBP: '£',
     JPY: '¥',
+    // Add other currencies as needed
 };
 
 /**
