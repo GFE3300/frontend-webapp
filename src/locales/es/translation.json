@@ -340,6 +340,65 @@
     },
     "warnCannotSetSelection": "No se ha podido establecer el rango de selección en la entrada:"
   },
+  "live_orders_view": {
+    "liveOrders": {
+      "actions": {
+        "cancel": "Cancelar pedido",
+        "markPaid": "Marcar como pagado",
+        "markServed": "Marcar como servido"
+      },
+      "errorBody": "Se ha producido un problema al obtener los datos del pedido en tiempo real. Vuelva a intentarlo más tarde.",
+      "errorTitle": "No se puede cargar live view",
+      "guestsSummary_one": "{{count}} invitado",
+      "guestsSummary_other": "{{count}} invitados",
+      "layoutErrorBody": "Se ha producido un problema al recuperar el diseño estático de la sede.",
+      "layoutErrorTitle": "No se ha podido cargar el diseño de la sede",
+      "loadingText": "Cargando live view...",
+      "modal": {
+        "noOrdersFound": "No hay pedidos activos para esta mesa.",
+        "title": "Detalles para Tabla {{tableNumber}}"
+      },
+      "noLayoutConfiguredBody": "Un administrador puede crear uno en el Diseñador de Sedes.",
+      "noLayoutConfiguredTitle": "No se ha configurado ninguna disposición del recinto.",
+      "orderCard": {
+        "collapseTooltip": "Ocultar detalles",
+        "expandTooltip": "Mostrar detalles",
+        "idLabel": "Número de pedido",
+        "noActions": "No hay acciones disponibles.",
+        "notesHeader": "Notas",
+        "statusLabel": "Estado:",
+        "timeAgo": "{{time}} hace"
+      },
+      "orderStatus": {
+        "CANCELLED_BY_BUSINESS": "Cancelado por empresa",
+        "CANCELLED_BY_CUSTOMER": "Cancelado por el cliente",
+        "COMPLETED": "Completado",
+        "CONFIRMED": "Confirmado",
+        "PENDING_CONFIRMATION": "Pendiente de confirmación",
+        "PREPARING": "Preparación",
+        "READY_FOR_PICKUP": "Listo para recoger"
+      },
+      "ordersSummary_one": "{{count}} pedido",
+      "ordersSummary_other": "{{count}} pedidos",
+      "pageSubtitle": "Una visión general en tiempo real de la actividad de las mesas de su local.",
+      "pageTitle": "Vista de pedidos en directo",
+      "stats": {
+        "activeTables": "Mesas activas",
+        "pendingOrders": "Órdenes pendientes",
+        "totalGuests": "Total Invitados",
+        "totalSales": "Ventas en directo"
+      },
+      "status": {
+        "IDLE": "Ocioso",
+        "NEEDS_ATTENTION": "Necesita atención",
+        "NEEDS_PAYMENT": "Necesidades de pago",
+        "NEW_ORDER": "Nuevo orden",
+        "SERVED": "Servido",
+        "WAITING": "En espera"
+      },
+      "tableLabel_one": "Tabla {{tableNumber}}"
+    }
+  },
   "menu_view": {
     "menu_view": {
       "bottomNav": {
@@ -1219,6 +1278,7 @@
       "registrationPage": {
         "error": {
           "formLoadError": "Se ha producido un error al cargar el formulario de registro. Vuelva a intentarlo más tarde.",
+          "genericError": "Se ha producido un error (Estado: {{status}}). Por favor, compruebe su entrada.",
           "noResponse": "No hay respuesta del servidor. Por favor, compruebe su conexión de red.",
           "noTokensReturned": "El registro se ha realizado correctamente, pero no se ha devuelto ninguna ficha.",
           "registrationFailed": "Registro fallido. Por favor, inténtelo de nuevo.",
@@ -1242,7 +1302,9 @@
         "success": {
           "accountCreatedWithIssues": {
             "base": "Cuenta creada con éxito. ",
-            "manageInDashboard": "Puede gestionarlos desde su panel de control."
+            "logoFail": "Sin embargo, no se ha podido cargar el logotipo de la empresa: {{error}} ",
+            "manageInDashboard": "Puede gestionarlos desde su panel de control.",
+            "profileFail": "No se ha podido cargar la imagen de perfil: {{error}} "
           },
           "finalSuccessMessage": "Su cuenta y su perfil profesional se han creado correctamente. Ya ha iniciado sesión.",
           "finalSuccessTitle": "Inscripción completada",

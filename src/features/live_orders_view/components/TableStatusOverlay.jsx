@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
-import { scriptLines_liveOrders, t } from '../utils/script_lines';
+import i18n from '../../../i18n';
+import { scriptLines_liveOrders } from '../utils/script_lines';
 
 const statusStyles = {
     IDLE: {
@@ -57,10 +58,10 @@ const TableStatusOverlay = ({ tableStaticData, tableLiveData, onSelect }) => {
     const isIdle = aggregateStatus === 'IDLE';
     const isNewOrder = aggregateStatus === 'NEW_ORDER';
 
-    const statusText = t(scriptLines_liveOrders.status[aggregateStatus]) || aggregateStatus;
+    const statusText = i18n.t(scriptLines_liveOrders.status[aggregateStatus]) || aggregateStatus;
     const tableNumber = tableStaticData.item_specific_props.table_number;
-    const guestsText = t(scriptLines_liveOrders.guestsSummary, { count: tableLiveData?.total_guests || 0 });
-    const ordersText = t(scriptLines_liveOrders.ordersSummary, { count: tableLiveData?.order_count || 0 });
+    const guestsText = i18n.t(scriptLines_liveOrders.guestsSummary, { count: tableLiveData?.total_guests || 0 });
+    const ordersText = i18n.t(scriptLines_liveOrders.ordersSummary, { count: tableLiveData?.order_count || 0 });
 
     const tooltipText = `Table ${tableNumber} - ${statusText} (${guestsText}, ${ordersText})`;
 

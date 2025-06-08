@@ -18,7 +18,8 @@ import VenueLayoutDisplay from './components/VenueLayoutDisplay';
 import TableOrdersModal from './components/TableOrdersModal';
 
 // Text content
-import { scriptLines_liveOrders, t } from './utils/script_lines';
+import { scriptLines_liveOrders } from './utils/script_lines';
+import i18n from '../../i18n';
 
 /**
  * Renders the main page for the Live Orders Dashboard.
@@ -103,7 +104,7 @@ const LiveOrdersPage = () => {
                 <div className="flex items-center justify-center h-full">
                     <Spinner size="lg" />
                     <span className="ml-4 text-lg text-gray-600 dark:text-gray-300">
-                        {isLoadingLayout ? t(scriptLines_liveOrders.layoutErrorTitle) : t(scriptLines_liveOrders.loadingText)}
+                        {isLoadingLayout ? i18n.t(scriptLines_liveOrders.layoutErrorTitle) : i18n.t(scriptLines_liveOrders.loadingText)}
                     </span>
                 </div>
             );
@@ -111,8 +112,8 @@ const LiveOrdersPage = () => {
 
         if (isErrorLayout || isErrorLive) {
             const error = isErrorLayout ? errorLayout : errorLive;
-            const title = isErrorLayout ? t(scriptLines_liveOrders.layoutErrorTitle) : t(scriptLines_liveOrders.errorTitle);
-            const body = isErrorLayout ? t(scriptLines_liveOrders.layoutErrorBody) : t(scriptLines_liveOrders.errorBody);
+            const title = isErrorLayout ? i18n.t(scriptLines_liveOrders.layoutErrorTitle) : i18n.t(scriptLines_liveOrders.errorTitle);
+            const body = isErrorLayout ? i18n.t(scriptLines_liveOrders.layoutErrorBody) : i18n.t(scriptLines_liveOrders.errorBody);
 
             return (
                 <div className="flex flex-col items-center justify-center h-full p-4 text-center bg-red-50 dark:bg-red-900/20 rounded-lg">
@@ -151,19 +152,19 @@ const LiveOrdersPage = () => {
             <header className="pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
                 {/* TYPOGRAPHY: font-montserrat for main page title */}
                 <h1 className="text-2xl font-bold font-montserrat text-gray-900 dark:text-white">
-                    {t(scriptLines_liveOrders.pageTitle)}
+                    {i18n.t(scriptLines_liveOrders.pageTitle)}
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t(scriptLines_liveOrders.pageSubtitle)}
+                    {i18n.t(scriptLines_liveOrders.pageSubtitle)}
                 </p>
             </header>
 
             {/* --- REFINED: Commander's View Stats Panel --- */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <StatCard title={t(scriptLines_liveOrders.stats.activeTables)} value={commanderStats.activeTables} icon="table_restaurant" />
-                <StatCard title={t(scriptLines_liveOrders.stats.totalGuests)} value={commanderStats.totalGuests} icon="group" />
-                <StatCard title={t(scriptLines_liveOrders.stats.pendingOrders)} value={commanderStats.pendingOrders} icon="pending_actions" color="text-yellow-500" />
-                <StatCard title={t(scriptLines_liveOrders.stats.totalSales)} value={formatCurrency(commanderStats.totalSales, currency)} icon="monitoring" />
+                <StatCard title={i18n.t(scriptLines_liveOrders.stats.activeTables)} value={commanderStats.activeTables} icon="table_restaurant" />
+                <StatCard title={i18n.t(scriptLines_liveOrders.stats.totalGuests)} value={commanderStats.totalGuests} icon="group" />
+                <StatCard title={i18n.t(scriptLines_liveOrders.stats.pendingOrders)} value={commanderStats.pendingOrders} icon="pending_actions" color="text-yellow-500" />
+                <StatCard title={i18n.t(scriptLines_liveOrders.stats.totalSales)} value={formatCurrency(commanderStats.totalSales, currency)} icon="monitoring" />
             </div>
 
             {/* --- REFINED: Main content area layout and theming --- */}

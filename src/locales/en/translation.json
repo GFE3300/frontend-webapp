@@ -340,6 +340,65 @@
     },
     "warnCannotSetSelection": "Could not set selection range on input: "
   },
+  "live_orders_view": {
+    "liveOrders": {
+      "actions": {
+        "cancel": "Cancel Order",
+        "markPaid": "Mark as Paid",
+        "markServed": "Mark as Served"
+      },
+      "errorBody": "There was an issue fetching the live order data. Please try again later.",
+      "errorTitle": "Could not load live view",
+      "guestsSummary_one": "{{count}} guest",
+      "guestsSummary_other": "{{count}} guests",
+      "layoutErrorBody": "There was a problem fetching the static venue design.",
+      "layoutErrorTitle": "Could not load venue layout",
+      "loadingText": "Loading live view...",
+      "modal": {
+        "noOrdersFound": "No active orders for this table.",
+        "title": "Details for Table {{tableNumber}}"
+      },
+      "noLayoutConfiguredBody": "An administrator can create one in the Venue Designer.",
+      "noLayoutConfiguredTitle": "No venue layout has been configured.",
+      "orderCard": {
+        "collapseTooltip": "Hide Details",
+        "expandTooltip": "Show Details",
+        "idLabel": "Order #",
+        "noActions": "No actions available.",
+        "notesHeader": "Notes",
+        "statusLabel": "Status:",
+        "timeAgo": "{{time}} ago"
+      },
+      "orderStatus": {
+        "CANCELLED_BY_BUSINESS": "Canceled by Business",
+        "CANCELLED_BY_CUSTOMER": "Canceled by Customer",
+        "COMPLETED": "Completed",
+        "CONFIRMED": "Confirmed",
+        "PENDING_CONFIRMATION": "Pending Confirmation",
+        "PREPARING": "Preparing",
+        "READY_FOR_PICKUP": "Ready for Pickup"
+      },
+      "ordersSummary_one": "{{count}} order",
+      "ordersSummary_other": "{{count}} orders",
+      "pageSubtitle": "A real-time overview of your venue's table activity.",
+      "pageTitle": "Live Orders View",
+      "stats": {
+        "activeTables": "Active Tables",
+        "pendingOrders": "Pending Orders",
+        "totalGuests": "Total Guests",
+        "totalSales": "Live Sales"
+      },
+      "status": {
+        "IDLE": "Idle",
+        "NEEDS_ATTENTION": "Needs Attention",
+        "NEEDS_PAYMENT": "Needs Payment",
+        "NEW_ORDER": "New Order",
+        "SERVED": "Served",
+        "WAITING": "Waiting"
+      },
+      "tableLabel_one": "Table {{tableNumber}}"
+    }
+  },
   "menu_view": {
     "menu_view": {
       "bottomNav": {
@@ -1219,6 +1278,7 @@
       "registrationPage": {
         "error": {
           "formLoadError": "An error occurred while loading the registration form. Please try again later.",
+          "genericError": "An error occurred (Status: {{status}}). Please check your input.",
           "noResponse": "No response from the server. Please check your network connection.",
           "noTokensReturned": "Registration succeeded but no tokens were returned.",
           "registrationFailed": "Registration failed. Please try again.",
@@ -1242,7 +1302,9 @@
         "success": {
           "accountCreatedWithIssues": {
             "base": "Account created successfully. ",
-            "manageInDashboard": "You can manage these from your dashboard."
+            "logoFail": "However, the business logo could not be uploaded: {{error}} ",
+            "manageInDashboard": "You can manage these from your dashboard.",
+            "profileFail": "The profile image could not be uploaded: {{error}} "
           },
           "finalSuccessMessage": "Your account and business profile have been successfully created. You are now logged in.",
           "finalSuccessTitle": "Registration Complete!",

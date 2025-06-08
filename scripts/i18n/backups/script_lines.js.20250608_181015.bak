@@ -1,0 +1,85 @@
+// This file will be processed by the i18n sync script.
+// It should only contain the object with the text strings.
+
+export const scriptLines_liveOrders = {
+    // --- Page-level Text ---
+    pageTitle: "Live Orders View",
+    pageSubtitle: "A real-time overview of your venue's table activity.",
+    loadingText: "Loading live view...",
+    errorTitle: "Could not load live view",
+    errorBody: "There was an issue fetching the live order data. Please try again later.",
+    layoutErrorTitle: "Could not load venue layout",
+    layoutErrorBody: "There was a problem fetching the static venue design.",
+    noLayoutConfiguredTitle: "No venue layout has been configured.",
+    noLayoutConfiguredBody: "An administrator can create one in the Venue Designer.",
+
+    // --- Table Status Overlay (Aggregate Status from backend) ---
+    tableLabel: {
+        one: "Table {{tableNumber}}",
+        other: "Table {{tableNumber}}",
+    },
+    guestsSummary: {
+        one: "{{count}} guest",
+        other: "{{count}} guests",
+    },
+    ordersSummary: {
+        one: "{{count}} order",
+        other: "{{count}} orders",
+    },
+    status: {
+        IDLE: "Idle",
+        NEW_ORDER: "New Order",
+        WAITING: "Waiting",
+        SERVED: "Served",
+        NEEDS_PAYMENT: "Needs Payment",
+        NEEDS_ATTENTION: "Needs Attention",
+    },
+
+    // --- Table Orders Modal ---
+    modal: {
+        title: "Details for Table {{tableNumber}}",
+        noOrdersFound: "No active orders for this table.",
+        closeButton: "Close",
+    },
+
+    // --- Live Order Card ---
+    orderCard: {
+        idLabel: "Order #",
+        statusLabel: "Status:",
+        totalLabel: "Total:",
+        timeAgo: "{{time}} ago",
+        expandTooltip: "Show Details",
+        collapseTooltip: "Hide Details",
+        itemsHeader: "Items",
+        notesHeader: "Notes",
+        noActions: "No actions available."
+    },
+
+    // Individual Order Statuses (from backend model: orders.models.OrderStatus)
+    orderStatus: {
+        PENDING_CONFIRMATION: "Pending Confirmation",
+        CONFIRMED: "Confirmed",
+        PREPARING: "Preparing",
+        READY_FOR_PICKUP: "Ready for Pickup",
+        SERVED: "Served",
+        COMPLETED: "Completed",
+        CANCELLED_BY_CUSTOMER: "Canceled by Customer",
+        CANCELLED_BY_BUSINESS: "Canceled by Business",
+    },
+
+    // Action Buttons
+    actions: {
+        confirm: "Confirm",
+        cancel: "Cancel Order",
+        markServed: "Mark as Served",
+        markPaid: "Mark as Paid",
+    },
+
+    // Commander's View Header Stats
+    stats: {
+        activeTables: "Active Tables",
+        totalGuests: "Total Guests",
+        pendingOrders: "Pending Orders",
+        totalSales: "Live Sales",
+    },
+};

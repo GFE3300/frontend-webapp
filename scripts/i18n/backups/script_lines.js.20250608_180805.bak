@@ -190,8 +190,8 @@ export const scriptLines_Registration = {
             registrationComplete: i18n.t('register.registration.registrationPage.success.registrationComplete'), // "Registration successful! Please choose a plan to activate your account."
             accountCreatedWithIssues: {
                 base: i18n.t('register.registration.registrationPage.success.accountCreatedWithIssues.base'), // "Account created successfully. "
-                logoFail: i18n.t('register.registration.registrationPage.success.accountCreatedWithIssues.logoFail'),
-                profileFail: i18n.t('register.registration.registrationPage.success.accountCreatedWithIssues.profileFail'),
+                logoFail: "However, the business logo could not be uploaded: {{error}} ",
+                profileFail: "The profile image could not be uploaded: {{error}} ",
                 manageInDashboard: i18n.t('register.registration.registrationPage.success.accountCreatedWithIssues.manageInDashboard'), // "You can manage these from your dashboard."
             },
             toastFileUploadWarning: i18n.t('register.registration.registrationPage.success.toastFileUploadWarning'), // "Account created! Some file uploads had issues, you can manage them from your dashboard. Please choose a plan."
@@ -202,7 +202,7 @@ export const scriptLines_Registration = {
             noTokensReturned: i18n.t('register.registration.registrationPage.error.noTokensReturned'), // "Registration succeeded but no tokens were returned."
             registrationFailed: i18n.t('register.registration.registrationPage.error.registrationFailed'), // "Registration failed. Please try again."
             serverError: i18n.t('register.registration.registrationPage.error.serverError'), // "A server error occurred. Please try again later or contact support."
-            genericError: i18n.t('register.registration.registrationPage.error.genericError'),
+            genericError: "An error occurred (Status: {{status}}). Please check your input.",
             noResponse: i18n.t('register.registration.registrationPage.error.noResponse'), // "No response from the server. Please check your network connection."
             unknownError: i18n.t('register.registration.registrationPage.error.unknownError'), // "An unknown error occurred during registration."
             formLoadError: i18n.t('register.registration.registrationPage.error.formLoadError'), // "An error occurred while loading the registration form. Please try again later."

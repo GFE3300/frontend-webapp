@@ -2,7 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 import Button from '../../../components/common/Button';
-import { scriptLines_liveOrders, t } from '../utils/script_lines';
+import { scriptLines_liveOrders } from '../utils/script_lines';
+import i18n from '../../../i18n';
 import LiveOrderCard from './LiveOrderCard';
 
 /**
@@ -44,18 +45,18 @@ const TableOrdersModal = ({ tableData, onClose, onUpdateOrderStatus, isUpdating 
                             <div>
                                 {/* TYPOGRAPHY: font-montserrat for the main title */}
                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-montserrat">
-                                    {t(scriptLines_liveOrders.modal.title, { tableNumber: tableData.table_number })}
+                                    {i18n.t(scriptLines_liveOrders.modal.title, { tableNumber: tableData.table_number })}
                                 </h2>
                                 <div className="flex items-center mt-1 space-x-4 text-sm text-gray-500 dark:text-gray-400">
                                     <span className="flex items-center">
                                         {/* ICON: Sizing mandate */}
                                         <Icon name="group" style={{ fontSize: '1.25rem' }} className="mr-1.5" />
-                                        {t(scriptLines_liveOrders.guestsSummary, { count: tableData.total_guests })}
+                                        {i18n.t(scriptLines_liveOrders.guestsSummary, { count: tableData.total_guests })}
                                     </span>
                                     <span className="flex items-center">
                                         {/* ICON: Sizing mandate */}
                                         <Icon name="receipt_long" style={{ fontSize: '1.25rem' }} className="mr-1.5" />
-                                        {t(scriptLines_liveOrders.ordersSummary, { count: tableData.orders.length })}
+                                        {i18n.t(scriptLines_liveOrders.ordersSummary, { count: tableData.orders.length })}
                                     </span>
                                 </div>
                             </div>
@@ -80,7 +81,7 @@ const TableOrdersModal = ({ tableData, onClose, onUpdateOrderStatus, isUpdating 
                                     <div className="py-12 text-center text-gray-500 dark:text-gray-400">
                                         {/* ICON: Sizing mandate */}
                                         <Icon name="inbox" style={{ fontSize: '4rem' }} className="mx-auto mb-4 opacity-50" />
-                                        <p className="text-lg">{t(scriptLines_liveOrders.modal.noOrdersFound)}</p>
+                                        <p className="text-lg">{i18n.t(scriptLines_liveOrders.modal.noOrdersFound)}</p>
                                     </div>
                                 )}
                             </div>
@@ -88,7 +89,7 @@ const TableOrdersModal = ({ tableData, onClose, onUpdateOrderStatus, isUpdating 
 
                         <footer className="flex justify-end p-4 bg-white border-t border-gray-200 dark:bg-gray-800 flex-shrink-0">
                             <Button onClick={onClose} variant="secondary">
-                                {t(scriptLines_liveOrders.modal.closeButton)}
+                                {i18n.t(scriptLines_liveOrders.modal.closeButton)}
                             </Button>
                         </footer>
                     </motion.div>
