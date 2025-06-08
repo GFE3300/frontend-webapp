@@ -11,10 +11,11 @@ const OrderCard = ({ order, onUpdateStatus }) => {
     const timeAgo = order.orderTime ? formatDistanceToNowStrict(new Date(order.orderTime), { addSuffix: true }) : 'N/A';
 
     const getNextStatusAndAction = () => {
-        if (order.status === 'new') return { nextStatus: 'preparing', actionText: sl.markAsPreparing || "Mark as Preparing" };
+        if (order.status === 'new') return { nextStatus: 'preparing', actionText: sl.markAsPreparing || "Start Preparing" };
         if (order.status === 'preparing') return { nextStatus: 'ready', actionText: sl.markAsReady || "Mark as Ready" };
-        if (order.status === 'ready') return { nextStatus: 'paid', actionText: sl.markAsPaid || "Mark as Paid" };
-        if (order.status === 'paid') return { nextStatus: 'served', actionText: sl.markAsServed || "Mark as Served" };
+        if (order.status === 'ready') return { nextStatus: 'served', actionText: sl.markAsServed || "Mark as Served" };
+        if (order.status === 'served') return { nextStatus: 'paid', actionText: sl.markAsPaid || "Mark as Paid" };
+        if (order.status === 'paid') return { nextStatus: 'completed', actionText: sl.markAsCompleted || "Complete Order" };
         return { nextStatus: null, actionText: "" };
     };
 
@@ -25,8 +26,9 @@ const OrderCard = ({ order, onUpdateStatus }) => {
             case 'new': return 'bg-sky-50 dark:bg-sky-800/30 border-sky-300 dark:border-sky-700';
             case 'preparing': return 'bg-amber-50 dark:bg-amber-800/30 border-amber-300 dark:border-amber-700';
             case 'ready': return 'bg-emerald-50 dark:bg-emerald-800/30 border-emerald-300 dark:border-emerald-700';
+            case 'served': return 'bg-neutral-100 dark:bg-neutral-800/30 border-neutral-300 dark:border-neutral-700 opacity-80';
             case 'paid': return 'bg-lime-50 dark:bg-lime-800/30 border-lime-300 dark:border-lime-700'; // New color for paid
-            case 'served': return 'bg-neutral-100 dark:bg-neutral-800/30 border-neutral-300 dark:border-neutral-700 opacity-70';
+            case 'completed': return 'bg-neutral-200 dark:bg-neutral-900/50 border-neutral-300 dark:border-neutral-700 opacity-60'; // Should be removed, but styled just in case
             default: return 'bg-white dark:bg-neutral-700/50 border-neutral-300 dark:border-neutral-600';
         }
     };
@@ -57,6 +59,7 @@ const OrderCard = ({ order, onUpdateStatus }) => {
                                     ${order.status === 'new' ? 'bg-sky-500 hover:bg-sky-600 text-white' : ''}
                                     ${order.status === 'preparing' ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''}
                                     ${order.status === 'ready' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''}
+                                    ${order.status === 'served' ? 'bg-slate-500 hover:bg-slate-600 text-white' : ''} 
                                     ${order.status === 'paid' ? 'bg-lime-500 hover:bg-lime-600 text-white' : ''} 
                                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 focus-visible:ring-current`}
                     >

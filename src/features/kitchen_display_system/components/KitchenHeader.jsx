@@ -4,12 +4,14 @@ import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
 const sl = slRaw.kitchenDisplaySystem.header;
 const slPage = slRaw.kitchenDisplaySystem;
 
-const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts }) => {
+const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable, onToggleGroupByTable }) => {
     const filters = [
         { key: 'all', label: sl.filterAll || "All", icon: "apps" },
         { key: 'new', label: sl.filterNew || "New", icon: "fiber_new" },
         { key: 'preparing', label: sl.filterPreparing || "Preparing", icon: "soup_kitchen" },
         { key: 'ready', label: sl.filterReady || "Ready", icon: "room_service" },
+        { key: 'served', label: sl.filterServed || "Served", icon: "done_all" },
+        { key: 'paid', label: sl.filterPaid || "Paid", icon: "receipt_long" },
     ];
 
     return (
@@ -41,6 +43,22 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts }) => {
                         </span>
                     </button>
                 ))}
+                
+                {/* Visual Separator */}
+                <div className="h-6 w-px bg-neutral-300 dark:bg-neutral-600/70 mx-1 sm:mx-2"></div>
+
+                {/* Group by Table Toggle */}
+                <button
+                    onClick={onToggleGroupByTable}
+                    className={`p-2 rounded-full transition-colors duration-150 ease-in-out
+                                ${groupByTable
+                                    ? 'bg-rose-500 text-white shadow-sm'
+                                    : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'
+                                }`}
+                    title={sl.groupByTableToggle || "Group by Table"}
+                >
+                    <Icon name="table_rows" className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
             </div>
         </header>
     );

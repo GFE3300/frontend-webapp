@@ -94,6 +94,8 @@ const KitchenDisplayPage = () => {
                     new: orders.filter(o => o.status === 'new').length,
                     preparing: orders.filter(o => o.status === 'preparing').length,
                     ready: orders.filter(o => o.status === 'ready').length,
+                    served: orders.filter(o => o.status === 'served').length,
+                    paid: orders.filter(o => o.status === 'paid').length,
                 }}
                 groupByTable={viewMode === KITCHEN_VIEW_MODE.GROUP_BY_TABLE}
                 onToggleGroupByTable={toggleGroupByTable}

@@ -2,8 +2,9 @@ export const OrderStatus = {
     NEW: 'new',
     PREPARING: 'preparing',
     READY: 'ready',
+    SERVED: 'served',
     PAID: 'paid', // New status
-    SERVED: 'served', // Or COMPLETED
+    COMPLETED: 'completed',
     CANCELLED: 'cancelled',
 };
 
@@ -12,7 +13,8 @@ export const KITCHEN_ORDER_FILTERS = [
     { key: OrderStatus.NEW, labelKey: 'filterNew' },
     { key: OrderStatus.PREPARING, labelKey: 'filterPreparing' },
     { key: OrderStatus.READY, labelKey: 'filterReady' },
-    // You might add 'paid' to the filter list if you want a dedicated filter for it
+    { key: OrderStatus.SERVED, labelKey: 'filterServed' },
+    { key: OrderStatus.PAID, labelKey: 'filterPaid' }, // New filter for paid orders
 ];
 
 export const KITCHEN_VIEW_MODE = {

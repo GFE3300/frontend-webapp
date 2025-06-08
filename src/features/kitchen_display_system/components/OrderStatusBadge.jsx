@@ -21,18 +21,20 @@ const OrderStatusBadge = ({ status }) => {
             textColor = 'text-emerald-700 dark:text-emerald-300';
             text = sl.readyStatus || 'Ready';
             break;
-        case 'paid': // New case
-            bgColor = 'bg-lime-100 dark:bg-lime-500/30';
-            textColor = 'text-lime-700 dark:text-lime-300';
-            text = sl.markAsPaid || 'Paid'; // Assuming you have a 'paidStatus' or similar in script_lines for display
-                                            // For now, using markAsPaid, but 'Paid' would be better for the badge.
-                                            // Let's add 'paidStatus' to script_lines later if needed.
-            text = sl.paidStatus || 'Paid';
-            break;
-        case 'served': // or 'completed'
+        case 'served':
             bgColor = 'bg-neutral-200 dark:bg-neutral-600/30';
             textColor = 'text-neutral-600 dark:text-neutral-300';
             text = sl.servedStatus || 'Served';
+            break;
+        case 'paid':
+            bgColor = 'bg-lime-100 dark:bg-lime-500/30';
+            textColor = 'text-lime-700 dark:text-lime-300';
+            text = sl.paidStatus || 'Paid';
+            break;
+        case 'completed': // This status will cause the card to be removed, but styled for safety.
+            bgColor = 'bg-gray-200 dark:bg-gray-700/30';
+            textColor = 'text-gray-500 dark:text-gray-400';
+            text = sl.completedStatus || 'Completed';
             break;
         default:
             bgColor = 'bg-gray-100 dark:bg-gray-500/30';

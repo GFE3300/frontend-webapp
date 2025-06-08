@@ -19,12 +19,17 @@ const initialSampleOrders = [
         items: [{ id: 'item_e', name: 'Espresso', quantity: 2 }],
         orderTime: new Date(Date.now() - 2 * 60000).toISOString()
     },
-    { // Example of a paid order
-        id: 'order_4', tableNumber: '5', status: OrderStatus.PAID,
+    { // Example of a served order
+        id: 'order_4', tableNumber: '5', status: OrderStatus.SERVED,
         items: [{id: 'item_f', name: 'Cheesecake', quantity: 1}],
         orderTime: new Date(Date.now() - 10 * 60000).toISOString()
     },
-     { // Another order for table 3
+    { // Example of a paid order, waiting for completion
+        id: 'order_6', tableNumber: 'Patio 2', status: OrderStatus.PAID,
+        items: [{id: 'item_h', name: 'Latte', quantity: 2}],
+        orderTime: new Date(Date.now() - 25 * 60000).toISOString()
+    },
+    { // Another order for table 3
         id: 'order_5', tableNumber: '3', status: OrderStatus.NEW,
         items: [{ id: 'item_g', name: 'Water Bottle', quantity: 1 }],
         orderTime: new Date(Date.now() - 1 * 60000).toISOString()
@@ -45,8 +50,8 @@ const useKitchenOrders = () => {
             // setOrders(fetchedOrders);
             
             setTimeout(() => {
-                // Filter out served orders for the active KDS display
-                setOrders(initialSampleOrders.filter(o => o.status !== OrderStatus.SERVED));
+                // Filter out COMPLETED orders for the active KDS display
+                setOrders(initialSampleOrders.filter(o => o.status !== OrderStatus.COMPLETED));
                 setIsLoading(false);
             }, 1000);
 
@@ -68,8 +73,8 @@ const useKitchenOrders = () => {
                 prevOrders.map(order =>
                     order.id === orderId ? { ...order, status: newStatus } : order
                 )
-                // If the new status is 'served', filter it out from the active display immediately
-                .filter(order => newStatus === OrderStatus.SERVED ? order.id !== orderId : true)
+                // If the new status is 'completed', filter it out from the active display immediately
+                .filter(order => newStatus === OrderStatus.COMPLETED ? order.id !== orderId : true)
             );
             return true;
         } catch (err) {
@@ -79,7 +84,7 @@ const useKitchenOrders = () => {
     }, []);
     
     const addOrder = useCallback((newOrder) => {
-        setOrders(prevOrders => [newOrder, ...prevOrders].filter(o => o.status !== OrderStatus.SERVED));
+        setOrders(prevOrders => [newOrder, ...prevOrders].filter(o => o.status !== OrderStatus.COMPLETED));
     }, []);
 
 
