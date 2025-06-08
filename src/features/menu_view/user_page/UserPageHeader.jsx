@@ -49,7 +49,7 @@ const UserPageHeader = ({
     onOpenSettingsModal, // Changed from onEditGuestProfile
     searchProps,
     categoryFilterProps,
-    // tagFilterProps, // Temporarily commented if not used
+    tagFilterProps,
     animationProps,
     scrollToProductCardFn,
 }) => {
@@ -138,17 +138,16 @@ const UserPageHeader = ({
                         error={categoryFilterProps.error}
                     />
 
-                    {/* Placeholder for TagFilterPills if it were to be used here */}
-                    {/* 
-                    <TagFilterPills
-                        tagsData={tagFilterProps.tagsData}
-                        activeTagIds={tagFilterProps.activeTagIds}
-                        onToggleTag={tagFilterProps.onToggleTag}
-                        isLoading={tagFilterProps.isLoading}
-                        isError={tagFilterProps.isError}
-                        error={tagFilterProps.error}
-                    /> 
-                    */}
+                    {tagFilterProps && (
+                        <TagFilterPills
+                            tagsData={tagFilterProps.tagsData}
+                            activeTagIds={tagFilterProps.activeTagIds}
+                            onToggleTag={tagFilterProps.onToggleTag}
+                            isLoading={tagFilterProps.isLoading}
+                            isError={tagFilterProps.isError}
+                            error={tagFilterProps.error}
+                        />
+                    )}
                 </div>
             </div>
         </motion.div>

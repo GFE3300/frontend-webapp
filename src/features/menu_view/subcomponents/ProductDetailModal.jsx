@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import NumberStepperfix from '../../../components/common/NumberStepperfix.jsx';
 import Icon from '../../../components/common/Icon.jsx';
 import { calculateItemPriceWithSelectedOptions } from '../utils/productUtils.js';
+import { useCurrency } from '../../../hooks/useCurrency.js'; // Import the new hook
 
 // Styling Constants
 const SINGLE_SELECT = 'single_select';
@@ -50,6 +51,7 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
 
     const shouldReduceMotion = useReducedMotion();
     const isProductAvailable = product?.is_active !== false;
+    const { formatCurrency } = useCurrency(); // Use the hook
 
     const basePriceForOptions = useMemo(() => {
         if (!product) return 0;
@@ -328,12 +330,12 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
                                                                 }`}
                                                             role="radio" // ARIA role
                                                             aria-checked={isSelected}
-                                                            aria-label={`${option.name}${priceAdjustmentNum !== 0 ? ` (${priceAdjustmentNum > 0 ? '+' : ''}${priceAdjustmentNum.toFixed(2)})` : ''}`}
+                                                            aria-label={`${option.name}${priceAdjustmentNum !== 0 ? ` (${priceAdjustmentNum > 0 ? '+' : ''}${formatCurrency(priceAdjustmentNum)})` : ''}`}
                                                         >
                                                             {option.name}
                                                             {priceAdjustmentNum !== 0 &&
                                                                 <span className={`ml-1.5 text-xs ${isSelected ? 'opacity-80' : NEUTRAL_TEXT_MUTED}`} aria-hidden="true">
-                                                                    ({priceAdjustmentNum > 0 ? '+' : ''}{priceAdjustmentNum.toFixed(2)})
+                                                                    ({priceAdjustmentNum > 0 ? '+' : ''}{formatCurrency(priceAdjustmentNum)})
                                                                 </span>}
                                                         </button>
                                                     ) : (
@@ -355,7 +357,7 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
                                                             <span className={`ml-2.5 text-sm ${NEUTRAL_TEXT_SECONDARY} cursor-pointer`}>{option.name}</span>
                                                             {priceAdjustmentNum !== 0 && (
                                                                 <span className={`ml-auto text-sm ${NEUTRAL_TEXT_MUTED}`} aria-hidden="true">
-                                                                    {priceAdjustmentNum > 0 ? '+' : ''}{priceAdjustmentNum.toFixed(2)}
+                                                                    {priceAdjustmentNum > 0 ? '+' : ''}{formatCurrency(priceAdjustmentNum)}
                                                                 </span>
                                                             )}
                                                         </label>
@@ -390,7 +392,7 @@ export default function ProductDetailModal({ isOpen, onClose, product, onConfirm
                             <div className="flex justify-between items-center mb-3 sm:mb-4" aria-live="polite"> {/* Announce total price changes */}
                                 <span className={`${FONT_MONTSERRAT} text-lg font-medium ${NEUTRAL_TEXT_PRIMARY}`}>Total:</span>
                                 <span className={`${FONT_MONTSERRAT} text-xl sm:text-2xl font-bold ${ROSE_ACCENT_TEXT}`}>
-                                    ${totalPriceForQuantity.toFixed(2)}
+                                    {formatCurrency(totalPriceForQuantity)}
                                 </span>
                             </div>
                             <motion.button

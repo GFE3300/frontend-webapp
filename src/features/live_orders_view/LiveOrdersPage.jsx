@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Hooks and services
 import { useLiveOrders } from './hooks/useLiveOrders';
-import { useLayoutData } from '../venue_management/hooks/useLayoutData';
+import { useLayoutData } from './hooks/useLayoutData';
 import { useToast } from '../../contexts/ToastContext';
 import { queryKeys } from '../../services/queryKeys';
 import apiService from '../../services/api';

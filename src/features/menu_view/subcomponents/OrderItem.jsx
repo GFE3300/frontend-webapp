@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon'; // Assuming this is your Icon component
-import { useCurrency  as useCurrency } from '../../../hooks/useCurrency'; // Import the new hook
+import { useCurrency } from '../../../hooks/useCurrency'; // Import the new hook
 
 // --- THEMING CONSTANTS ---
 // These constants define the visual appearance of the OrderItem component.
@@ -323,7 +323,7 @@ function OrderItem({
                         whileTap={{ scale: 0.9 }}
                         aria-label={`Increase quantity of ${itemName}`}
                     >
-                        <Icon name="add" className={STEPPER_BUTTON_ICON_SIZE}  style={{ fontSize: '1rem' }}  />
+                        <Icon name="add" className={STEPPER_BUTTON_ICON_SIZE} style={{ fontSize: '1rem' }} />
                     </motion.button>
                 </div>
 

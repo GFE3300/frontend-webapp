@@ -5,7 +5,7 @@ import OrderItem from "./OrderItem";
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
 import { useValidatePromoCode } from "../../../contexts/ProductDataContext";
-import { useCurrency  as useCurrency } from "../../../hooks/useCurrency"; // Import the hook
+import { useCurrency } from "../../../hooks/useCurrency"; // Import the hook
 
 const PANEL_BG_DRAWER = "";
 const PANEL_BG_SIDEBAR_LIGHT = "";
@@ -176,6 +176,7 @@ function OrderSummaryPanel({
             table_number: venueContext.tableNumber || null,
             is_takeaway_order: venueContext.isTakeaway || false,
             customer_name: venueContext.userName || null,
+            customer_email: venueContext.userEmail || null,
             number_of_guests: venueContext.numberOfPeople || null,
             notes: localOrderNotes.trim() || null,
             items: orderItems.map(item => ({

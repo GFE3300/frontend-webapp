@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import OrderSummaryPanel from '../subcomponents/OrderSummaryPanel';
 import Icon from '../../../components/common/Icon.jsx';
 import useWindowSize from '../../../hooks/useWindowSize.js';
+import { useCurrency } from '../../../hooks/useCurrency';
 
 const PEEK_BAR_HEIGHT_VALUE_PX = 72;
 const PEEK_BAR_TAILWIND_HEIGHT = "h-[72px]";
@@ -71,6 +72,7 @@ const OrderInteractionController = ({
     const peekBarTriggerRef = useRef(null);
     const { height: windowHeight } = useWindowSize();
     const shouldReduceMotion = useReducedMotion();
+    const { formatCurrency } = useCurrency();
 
     const hasOrderItems = orderItems && orderItems.length > 0;
 
@@ -141,7 +143,7 @@ const OrderInteractionController = ({
     };
 
     const peekBarTotalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-    const peekBarAriaLabel = `View your order. ${peekBarTotalItems} ${peekBarTotalItems === 1 ? 'item' : 'items'}. Total ${orderFinancials.finalTotal?.toFixed(2) || '0.00'}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
+    const peekBarAriaLabel = `View your order. ${peekBarTotalItems} ${peekBarTotalItems === 1 ? 'item' : 'items'}. Total ${formatCurrency(orderFinancials.finalTotal)}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
 
     if (isDesktop) {
         if (!venueContext) return null;
@@ -227,7 +229,7 @@ const OrderInteractionController = ({
                         View Your Order ({peekBarTotalItems} {peekBarTotalItems === 1 ? 'item' : 'items'})
                     </span>
                     <span className={`${FONT_MONTSERRAT} font-bold text-base`}>
-                        ${orderFinancials.finalTotal?.toFixed(2) || '0.00'}
+                        {formatCurrency(orderFinancials.finalTotal)}
                     </span>
                 </motion.div>
 
