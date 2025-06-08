@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
-//eslint-disable-next-line  
 import { motion } from "framer-motion";
 import Icon from "../../../components/common/Icon";
+import { scriptLines_Registration as scriptLines } from '../utils/script_lines';
+
 
 const sizeStyles = {
     sm: {
@@ -108,7 +109,8 @@ export const CheckboxGroup = ({
                         className={`${s.box} rounded border-gray-300 text-${color}-500 focus:ring-${color}-500`}
                     />
                     <span className={`${s.label} font-medium text-gray-800 dark:text-gray-100`}>
-                        Select All
+                        {/* MODIFICATION: Use centralized script lines */}
+                        {scriptLines.checkboxGroup.selectAll}
                     </span>
                 </label>
             )}

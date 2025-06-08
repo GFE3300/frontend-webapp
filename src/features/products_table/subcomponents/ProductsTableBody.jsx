@@ -1,11 +1,12 @@
-// src/features/products_table/subcomponents/ProductsTableBody.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
 import { AnimatePresence, motion } from 'framer-motion';
 import ProductsTableRow from './ProductsTableRow';
-import SkeletonTableRow from './SkeletonTableRow'; // Import the new skeleton component
+import SkeletonTableRow from './SkeletonTableRow';
 import Icon from '../../../components/common/Icon';
-import Button from '../../../components/common/Button'; // Assuming a generic Button component
+import Button from '../../../components/common/Button';
+
+import { scriptLines_ProductsTable as scriptLines } from '../utils/script_lines.js';
 
 const ProductsTableBody = ({
     products,
@@ -14,13 +15,13 @@ const ProductsTableBody = ({
     error,
     onUpdateProductField,
     updatingStatusProductId,
-    colSpan, // Still useful for full-width messages in error/empty states
+    colSpan,
     onCellSave,
     onRetry,
     onAddProductClick,
     onClearFiltersClick,
-    hasActiveFilters, // Boolean to indicate if filters are applied
-    numSkeletonRows = 3, // How many skeleton rows to display
+    hasActiveFilters,
+    numSkeletonRows = 3,
 }) => {
     if (isLoading) {
         return (
@@ -39,14 +40,15 @@ const ProductsTableBody = ({
                     <td colSpan={colSpan} className="text-center p-10 font-montserrat">
                         <div className="flex flex-col items-center justify-center text-red-500 dark:text-red-400">
                             <Icon name="error" className="w-12 h-12 mb-4" style={{ fontSize: '2.5rem' }}/>
-                            <h3 className="text-lg font-semibold mb-1">Oops! Something went wrong.</h3>
+                            {/* MODIFICATION: Use centralized script lines */}
+                            <h3 className="text-lg font-semibold mb-1">{scriptLines.productsTableBody.error.title}</h3>
                             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 max-w-md">
-                                {error?.message || "We couldn't load the products at this moment. Please try again."}
+                                {error?.message || scriptLines.productsTableBody.error.message}
                             </p>
                             {onRetry && (
                                 <Button onClick={onRetry} variant="outline" color="secondary">
                                     <Icon name="refresh" className="w-5 h-5 mr-2" style={{ fontSize: '1.25rem' }} />
-                                    Try Again
+                                    {scriptLines.productsTableBody.error.retryButton}
                                 </Button>
                             )}
                         </div>
@@ -63,29 +65,28 @@ const ProductsTableBody = ({
                     <td colSpan={colSpan} className="text-center p-10 font-montserrat">
                         <div className="flex flex-col items-center justify-center">
                             <Icon
-                                name={hasActiveFilters ? "filter_alt_off" : "inventory_2"} // More contextual icons
+                                name={hasActiveFilters ? "filter_alt_off" : "inventory_2"}
                                 className="w-16 h-16 text-neutral-400 dark:text-neutral-500 mb-4"
                                 style={{ fontSize: '2.5rem' }}
                             />
+                            {/* MODIFICATION: Use centralized script lines */}
                             <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 mb-1">
-                                {hasActiveFilters ? "No Products Match Filters" : "No Products Yet"}
+                                {hasActiveFilters ? scriptLines.productsTableBody.empty.filteredTitle : scriptLines.productsTableBody.empty.noProductsTitle}
                             </h3>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 max-w-sm">
-                                {hasActiveFilters
-                                    ? "Try adjusting or clearing your filters to see more products."
-                                    : "Get started by adding your first product to the inventory."}
+                                {hasActiveFilters ? scriptLines.productsTableBody.empty.filteredMessage : scriptLines.productsTableBody.empty.noProductsMessage}
                             </p>
                             <div className="flex space-x-3">
                                 {hasActiveFilters && onClearFiltersClick && (
                                     <Button onClick={onClearFiltersClick} variant="outline" color="secondary">
                                         <Icon name="clear_all" className="w-4 h-4 mr-2" />
-                                        Clear Filters
+                                        {scriptLines.productsTableBody.empty.clearFiltersButton}
                                     </Button>
                                 )}
                                 {onAddProductClick && (
                                      <Button onClick={onAddProductClick} variant="solid" color="primary">
                                         <Icon name="add_circle" className="w-4 h-4 mr-2" />
-                                        Add Product
+                                        {scriptLines.productsTableBody.empty.addProductButton}
                                     </Button>
                                 )}
                             </div>
@@ -108,8 +109,7 @@ const ProductsTableBody = ({
                         columns={columns}
                         updatingStatusProductId={updatingStatusProductId}
                         onUpdateProductField={onUpdateProductField}
-                        onCellSave={onCellSave} // Pass down the save handler for editable cells
-                        // Potentially pass down other interaction handlers if row needs them directly
+                        onCellSave={onCellSave}
                     />
                 ))}
             </AnimatePresence>
@@ -125,7 +125,7 @@ ProductsTableBody.propTypes = {
     error: PropTypes.object,
     onUpdateProductField: PropTypes.func.isRequired,
     colSpan: PropTypes.number.isRequired,
-    // New props
+    onCellSave: PropTypes.func, // This prop seems to be unused here, but defined in proptypes from original.
     onRetry: PropTypes.func,
     onAddProductClick: PropTypes.func,
     onClearFiltersClick: PropTypes.func,

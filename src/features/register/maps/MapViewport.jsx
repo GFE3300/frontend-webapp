@@ -1,9 +1,9 @@
-// src/features/register/maps/MapViewport.jsx
 import React, { useEffect, useRef, memo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useGoogleMapsApi } from './MapLoader';
-// Import DEFAULT_MAP_CENTER correctly
 import { useMapDisplay, DEFAULT_MAP_CENTER } from './MapDisplayContextProvider';
+// MODIFICATION: Import the centralized script lines
+import { scriptLines_Registration as scriptLines } from '../utils/script_lines';
 
 /**
  * @typedef {Object} Coordinates
@@ -11,13 +11,13 @@ import { useMapDisplay, DEFAULT_MAP_CENTER } from './MapDisplayContextProvider';
  * @property {number} lng - Longitude.
  */
 
-const DEFAULT_MAP_OPTIONS_BASE = { // Base options without center/zoom, those are dynamic
+const DEFAULT_MAP_OPTIONS_BASE = {
     disableDefaultUI: true,
     mapId: import.meta.env.VITE_GMAPS_MAP_ID,
     gestureHandling: 'cooperative',
 };
 
-const DEFAULT_ZOOM = 15; // Define default zoom separately
+const DEFAULT_ZOOM = 15;
 
 const isValidCoords = (coords) => {
     return coords && typeof coords.lat === 'number' && typeof coords.lng === 'number' && isFinite(coords.lat) && isFinite(coords.lng);
@@ -26,10 +26,11 @@ const isValidCoords = (coords) => {
 const MapViewport = memo(({
     mapContainerClassName,
     mapContainerStyle,
-    mapOptions, // User-provided overrides (can include center, zoom)
+    mapOptions,
     onMarkerDragEnd,
     onMapIdle,
-    markerTitle = 'Selected Location',
+    // MODIFICATION: Default value now comes from script lines
+    markerTitle = scriptLines.mapViewport.markerTitle,
     isMarkerDraggable = true,
 }) => {
     const { google, isLoaded: isApiLoaded } = useGoogleMapsApi();
@@ -37,13 +38,15 @@ const MapViewport = memo(({
         mapInstance,
         setMapInstance,
         markerVisualPosition,
-        mapVisualCenter, // This comes from MapDisplayContext, initialized by formData.locationCoords or DEFAULT_MAP_CENTER
+        mapVisualCenter,
         updateMapVisualCenter,
     } = useMapDisplay();
 
     const mapContainerRef = useRef(null);
     const markerRef = useRef(null);
     const [AdvancedMarkerElementClass, setAdvancedMarkerElementClass] = useState(null);
+
+    // ... (All useEffect hooks and logic remain the same) ...
 
     useEffect(() => {
         if (isApiLoaded && google && google.maps && !AdvancedMarkerElementClass) {
@@ -55,31 +58,22 @@ const MapViewport = memo(({
         }
     }, [isApiLoaded, google, AdvancedMarkerElementClass]);
 
-    // 1. Initialize Map Instance
     useEffect(() => {
         if (!isApiLoaded || !google || !mapContainerRef.current || mapInstance || !AdvancedMarkerElementClass) {
             return;
         }
 
-        // Determine the final center and zoom for map initialization
         let finalCenter;
         let finalZoom;
-
-        // Priority for center:
-        // 1. mapVisualCenter from context (if valid) - this reflects formData or user interaction
-        // 2. mapOptions.center from props (if valid) - direct override for this instance
-        // 3. DEFAULT_MAP_CENTER (global default)
+        
         if (isValidCoords(mapVisualCenter)) {
             finalCenter = mapVisualCenter;
         } else if (mapOptions && isValidCoords(mapOptions.center)) {
             finalCenter = mapOptions.center;
         } else {
-            finalCenter = DEFAULT_MAP_CENTER; // Use the imported default
+            finalCenter = DEFAULT_MAP_CENTER;
         }
-
-        // Priority for zoom:
-        // 1. mapOptions.zoom from props (if valid number)
-        // 2. DEFAULT_ZOOM
+        
         if (mapOptions && typeof mapOptions.zoom === 'number' && isFinite(mapOptions.zoom)) {
             finalZoom = mapOptions.zoom;
         } else {
@@ -87,46 +81,35 @@ const MapViewport = memo(({
         }
 
         const combinedMapOptions = {
-            ...DEFAULT_MAP_OPTIONS_BASE, // Start with base defaults (no center/zoom)
-            ...mapOptions, // Apply prop-based mapOptions (could override mapId, gestureHandling, etc.)
-            center: finalCenter, // Set the determined center
-            zoom: finalZoom,     // Set the determined zoom
+            ...DEFAULT_MAP_OPTIONS_BASE,
+            ...mapOptions,
+            center: finalCenter,
+            zoom: finalZoom,
         };
-
-        // This log should now always show a valid 'center'
-        // console.log("MapViewport Init - Combined Options:", JSON.stringify(combinedMapOptions));
-
-
-        // This defensive check should ideally not be needed if the logic above is sound
+        
         if (!isValidCoords(combinedMapOptions.center)) {
-            // This would indicate a flaw in the finalCenter determination logic
             console.error("Map Viewport: CRITICAL - Invalid center for map initialization even after fallbacks.", combinedMapOptions.center);
-            combinedMapOptions.center = DEFAULT_MAP_CENTER; // Absolute last resort
+            combinedMapOptions.center = DEFAULT_MAP_CENTER;
         }
 
         const newMap = new google.maps.Map(mapContainerRef.current, combinedMapOptions);
         setMapInstance(newMap);
 
-    }, [isApiLoaded, google, mapOptions, setMapInstance, mapInstance, mapVisualCenter, AdvancedMarkerElementClass]); // mapVisualCenter is key here
+    }, [isApiLoaded, google, mapOptions, setMapInstance, mapInstance, mapVisualCenter, AdvancedMarkerElementClass]);
 
-    // 2. Update Map Center when `mapVisualCenter` from context changes (e.g. driven by Step1Location)
     useEffect(() => {
         if (mapInstance && mapVisualCenter) {
             if (isValidCoords(mapVisualCenter)) {
                 const currentMapCenter = mapInstance.getCenter();
-                // Check if update is actually needed to prevent unnecessary pans
                 if (currentMapCenter &&
-                    (Math.abs(currentMapCenter.lat() - mapVisualCenter.lat) > 0.000001 || // Epsilon for float comparison
+                    (Math.abs(currentMapCenter.lat() - mapVisualCenter.lat) > 0.000001 ||
                         Math.abs(currentMapCenter.lng() - mapVisualCenter.lng) > 0.000001)) {
                     mapInstance.panTo(mapVisualCenter);
                 }
-            } else {
-                // console.warn("MapViewport: mapVisualCenter from context became invalid. Not panning.", mapVisualCenter);
             }
         }
     }, [mapInstance, mapVisualCenter]);
 
-    // 3. Initialize and Update Marker
     useEffect(() => {
         if (!mapInstance || !google || !AdvancedMarkerElementClass) {
             if (markerRef.current) {
@@ -174,12 +157,11 @@ const MapViewport = memo(({
         }
     }, [mapInstance, google, markerVisualPosition, markerTitle, isMarkerDraggable, onMarkerDragEnd, AdvancedMarkerElementClass]);
 
-    // 4. Handle Map Idle Event
     const handleMapIdle = useCallback(() => {
         if (mapInstance && onMapIdle) {
             const center = mapInstance.getCenter();
             const zoom = mapInstance.getZoom();
-            if (center && typeof center.lat === 'function' && typeof center.lng === 'function') { // Ensure center is valid LatLng object
+            if (center && typeof center.lat === 'function' && typeof center.lng === 'function') {
                 const newCenterCoords = { lat: center.lat(), lng: center.lng() };
                 onMapIdle(newCenterCoords, zoom);
 
@@ -202,8 +184,10 @@ const MapViewport = memo(({
         }
     }, [mapInstance, onMapIdle, handleMapIdle, google]);
 
+
     if (!isApiLoaded || !google || (isApiLoaded && google && !AdvancedMarkerElementClass)) {
-        const message = !isApiLoaded || !google ? "Loading map API..." : "Loading map components...";
+        // MODIFICATION: Loading message now comes from script lines
+        const message = !isApiLoaded || !google ? scriptLines.mapViewport.loading.api : scriptLines.mapViewport.loading.components;
         return (
             <div className={mapContainerClassName || "default-map-viewport-container rounded-2xl overflow-hidden"}
                 style={mapContainerStyle || { width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -218,7 +202,8 @@ const MapViewport = memo(({
             className={mapContainerClassName || "default-map-viewport-container rounded-2xl overflow-hidden"}
             style={mapContainerStyle || { width: '100%', height: '300px' }}
             role="application"
-            aria-label="Location selection map"
+            // MODIFICATION: ARIA label now comes from script lines
+            aria-label={scriptLines.mapViewport.aria.map}
         />
     );
 });

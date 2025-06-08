@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, memo, useCallback, useId, useMemo } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
+
+import { scriptLines_ProductsTable as scriptLines } from '../utils/script_lines.js';
 
 const ToolbarDropdown = memo(({
     options,
@@ -13,7 +14,7 @@ const ToolbarDropdown = memo(({
     disabled = false,
     iconName,
     ariaLabel,
-    isSortActiveTarget = false, // New prop for highlighting
+    isSortActiveTarget = false,
     ...restProps
 }) => {
     const generatedId = useId();
@@ -130,27 +131,15 @@ const ToolbarDropdown = memo(({
 
     if (!Array.isArray(options)) {
         console.error('ToolbarDropdown: `options` prop is required and must be an array.');
-        return <p className="text-red-500">Error: Dropdown options are missing.</p>;
+        return <p className="text-red-500">{scriptLines.toolbarDropdown.errors.optionsMissing}</p>;
     }
     if (typeof onChange !== 'function') {
         console.error('ToolbarDropdown: `onChange` prop is required and must be a function.');
-        return <p className="text-red-500">Error: Dropdown onChange missing.</p>;
+        return <p className="text-red-500">{scriptLines.toolbarDropdown.errors.onChangeMissing}</p>;
     }
 
-    const baseButtonClasses = `
-        dropdown-button group w-full h-9 py-2 pl-4 pr-3 rounded-full font-montserrat font-medium
-        flex items-center justify-between text-left
-        focus:outline-none focus-visible:ring-2 ${currentTheme.focusRing}
-        transition-all duration-200
-        text-neutral-900 dark:text-neutral-800 text-sm
-    `;
-
-    const stateClasses = disabled
-        ? 'cursor-not-allowed opacity-70 bg-neutral-100 dark:bg-neutral-200'
-        : isSortActiveTarget
-            ? 'cursor-pointer bg-sky-100 dark:bg-sky-200 ring-2 ring-sky-500 dark:ring-sky-500 shadow-sm hover:bg-sky-200 dark:hover:bg-sky-300/80'
-            : 'cursor-pointer bg-neutral-100 dark:bg-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-300/80';
-
+    const baseButtonClasses = `dropdown-button group w-full h-9 py-2 pl-4 pr-3 rounded-full font-montserrat font-medium flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 ${currentTheme.focusRing} transition-all duration-200 text-neutral-900 dark:text-neutral-800 text-sm`;
+    const stateClasses = disabled ? 'cursor-not-allowed opacity-70 bg-neutral-100 dark:bg-neutral-200' : isSortActiveTarget ? 'cursor-pointer bg-sky-100 dark:bg-sky-200 ring-2 ring-sky-500 dark:ring-sky-500 shadow-sm hover:bg-sky-200 dark:hover:bg-sky-300/80' : 'cursor-pointer bg-neutral-100 dark:bg-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-300/80';
 
     return (
         <div className={`toolbar-dropdown-container relative ${className}`} ref={dropdownRef}>
@@ -169,9 +158,7 @@ const ToolbarDropdown = memo(({
                 {...restProps}
             >
                 {iconName && <Icon name={iconName} className="w-4 h-4 mr-2 text-neutral-500 dark:text-neutral-400 flex-shrink-0" style={{ fontSize: '1rem' }} />}
-                <span
-                    className={`truncate ${!hasValue && placeholder ? 'text-neutral-500 dark:text-neutral-400' : ''}`}
-                >
+                <span className={`truncate ${!hasValue && placeholder ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
                     {displayLabelText}
                 </span>
                 <motion.span
@@ -189,11 +176,7 @@ const ToolbarDropdown = memo(({
                     <motion.ul
                         id={LISTBOX_ID}
                         ref={listboxRef}
-                        className="
-                            dropdown-options absolute top-full left-0 z-20 w-full mt-1
-                            bg-white dark:bg-neutral-100 font-montserrat text-neutral-900 dark:text-neutral-800
-                            border border-neutral-200 dark:border-neutral-600
-                            rounded-xl shadow-lg max-h-60 overflow-y-auto py-1 focus:outline-none"
+                        className="dropdown-options absolute top-full left-0 z-20 w-full mt-1 bg-white dark:bg-neutral-100 font-montserrat text-neutral-900 dark:text-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-xl shadow-lg max-h-60 overflow-y-auto py-1 focus:outline-none"
                         role="listbox"
                         tabIndex={-1}
                         variants={animationConfig.dropdownList}
@@ -205,15 +188,7 @@ const ToolbarDropdown = memo(({
                             <li
                                 key={option.value}
                                 id={`${CONTROL_ID}-option-${index}`}
-                                className={`
-                                    px-3 py-2 text-sm cursor-pointer transition-colors outline-none
-                                    flex items-center justify-between
-                                    text-neutral-700 dark:text-neutral-800 
-                                    ${option.disabled ? 'opacity-50 cursor-not-allowed'
-                                        : `${currentTheme.optionHoverBg}`}
-                                    ${activeIndex === index && !option.disabled ? `${currentTheme.selectedOptionBg} ${currentTheme.selectedOptionText}` : ''}
-                                    ${value === option.value && !option.disabled && activeIndex !== index ? 'font-medium' : ''}
-                                `}
+                                className={`px-3 py-2 text-sm cursor-pointer transition-colors outline-none flex items-center justify-between text-neutral-700 dark:text-neutral-800 ${option.disabled ? 'opacity-50 cursor-not-allowed' : `${currentTheme.optionHoverBg}`} ${activeIndex === index && !option.disabled ? `${currentTheme.selectedOptionBg} ${currentTheme.selectedOptionText}` : ''} ${value === option.value && !option.disabled && activeIndex !== index ? 'font-medium' : ''}`}
                                 onClick={() => !option.disabled && handleOptionClick(option.value)}
                                 onMouseEnter={() => !option.disabled && setActiveIndex(index)}
                                 role="option"
@@ -227,7 +202,8 @@ const ToolbarDropdown = memo(({
                             </li>
                         )) : (
                             <li className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400 italic">
-                                No options available
+                                {/* MODIFICATION: Use centralized script lines */}
+                                {scriptLines.toolbarDropdown.noOptions}
                             </li>
                         )}
                     </motion.ul>
@@ -249,11 +225,10 @@ ToolbarDropdown.propTypes = {
     onChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
     className: PropTypes.string,
-    buttonClassName: PropTypes.string,
     disabled: PropTypes.bool,
     iconName: PropTypes.string,
     ariaLabel: PropTypes.string,
-    isSortActiveTarget: PropTypes.bool, // New prop
+    isSortActiveTarget: PropTypes.bool,
 };
 
 export default ToolbarDropdown;

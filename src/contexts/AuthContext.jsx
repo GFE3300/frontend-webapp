@@ -24,6 +24,7 @@ const createUserObjectFromToken = (decodedToken) => {
         language: decodedToken.language || 'en', // Add language with fallback
         is_staff: decodedToken.is_staff || false,
         is_superuser: decodedToken.is_superuser || false,
+        activeBusinessCurrency: decodedToken.active_business_currency || 'USD', // Default to USD
     };
 };
 

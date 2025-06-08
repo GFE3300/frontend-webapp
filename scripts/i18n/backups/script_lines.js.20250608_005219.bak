@@ -1,0 +1,146 @@
+/**
+ * @auto-managed
+ *
+ * This file is managed by the I18N script. Any manual changes to this file will be
+ * overwritten during the next synchronization. To add or modify text, please
+ * update the original string in this file and then run the 'sync' command.
+ *
+ * @last-synced 2025-06-07 11:26:40 UTC
+ */
+
+import i18n from '../../../i18n';
+
+export const scriptLines_Components = {
+
+    planSelection: { 
+        themeColorDefault: "rose",
+        messages: {
+            loadingSubscription: "Checking your subscription status...",
+            subscriptionErrorTitle: "Error Loading Subscription",
+            subscriptionLoadError: "We couldn't load your subscription details. Please refresh the page or contact support if the problem persists."
+        },
+        buttons: {
+            chooseThisPlan: "Choose This Plan",
+            manageSubscription: "Manage Subscription",
+            upgradePlan: "Upgrade Plan",
+            downgradePlan: "Downgrade Plan",
+            switchPlan: "Switch Plan",
+            processing: "Processing...",
+            planSelected: "Plan Selected!",
+        },
+        badges: {
+            mostPopular: "Most Popular",
+            recommended: "Recommended",
+            specialOffer: "SPECIAL OFFER",
+            currentPlan: "Current Plan"
+        },
+        whyThisPlanTemplate: "Why {{planName}}?",
+        plans: [
+            {
+                id: 'starter_essentials', // Non-translatable identifier
+                name: "The First Batch",
+                price: "29.99",
+                frequency: "/month",
+                description: [
+                    "Perfect for solo and micro-shops.",
+                    "Get up and running fast with essential order & inventory tools."
+                ],
+                features: [
+                    { text: "Unlimited Orders" },
+                    { text: "Menu-Style Order Entry" },
+                    { text: "Live Low-Stock Alerts" },
+                    { text: "Basic Consumption Charts" },
+                    { text: "Email Support (48 hr response)" },
+                    { text: "Advanced Forecasting" },
+                    { text: "Custom Feature Requests" },
+                    { text: "Dedicated Account Manager" }
+                ],
+                whyThisPlan: "Lightweight, powerful, and cost-effective—First Batch gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation."
+            },
+            {
+                id: 'growth_accelerator', // Non-translatable identifier
+                name: "The Artisan Oven",
+                price: "49.99",
+                frequency: "/month",
+                description: [
+                    "For growing businesses ready to scale.",
+                    "All-in-one order management + deep insights to optimize and grow."
+                ],
+                features: [
+                    { text: "Everything in First Batch" },
+                    { text: "Advanced Cost & Consumption Forecasts" },
+                    { text: "Monthly Performance Reports" },
+                    { text: "Multi-Location Support (2 shops)" },
+                    { text: "Priority Email & Chat Support" },
+                    { text: "Access to Beta Features" },
+                    { text: "Dedicated Account Manager" },
+                    { text: "Custom Integrations" }
+                ],
+                whyThisPlan: "You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Artisan Oven brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently.",
+                badgeText: "Most Popular",
+                discount: {
+                    offerTitle: "First Month FREE!",
+                    displayPrice: "0.00",
+                    priceSuffix: "/first month",
+                    originalPriceText: "$49.99/month",
+                    details: "Then $49.99/month. Renews automatically, cancel anytime.",
+                    badgeText: "SPECIAL OFFER"
+                }
+            },
+            {
+                id: 'premium_pro_suite', // Non-translatable identifier
+                name: "Master Baker Suite",
+                price: "99.99",
+                frequency: "/month",
+                description: [
+                    "For established bakeries that demand excellence.",
+                    "Full-featured, white-glove service, and limitless scalability."
+                ],
+                features: [
+                    { text: "Everything in Artisan Oven, plus:" },
+                    { text: "Unlimited Locations & Team Users" },
+                    { text: "Personalized Onboarding & Training" },
+                    { text: "Custom Feature Roadmap Input" },
+                    { text: "24/7 Priority Phone & Emergency Support" },
+                    { text: "Bespoke API & System Integrations" },
+                    { text: "SLA-backed Uptime & Performance" }
+                ],
+                whyThisPlan: "If you’re running multiple sites, handling high order volume, or need bespoke workflows—Master Baker is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
+            }
+        ]
+    },
+
+    paymentSuccessPage: {
+        title: i18n.t('payments.components.paymentSuccessPage.title'), // "Payment Successful!"
+        titleSubscriptionActivated: i18n.t('payments.components.paymentSuccessPage.titleSubscriptionActivated'), // "Subscription Activated!"
+        thankYouMessage: i18n.t('payments.components.paymentSuccessPage.thankYouMessage'), // "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated."
+        thankYouGeneric: i18n.t('payments.components.paymentSuccessPage.thankYouGeneric'), // "Thank you! Your payment was successful and your subscription is now active."
+        accessMessage: i18n.t('payments.components.paymentSuccessPage.accessMessage'), // "You can now access all the premium features."
+        transactionIdLabel: i18n.t('payments.components.paymentSuccessPage.transactionIdLabel'), // "Transaction ID:"
+        buttons: {
+            goToDashboard: i18n.t('payments.components.paymentSuccessPage.buttons.goToDashboard'), // "Go to Dashboard"
+            viewBilling: i18n.t('payments.components.paymentSuccessPage.buttons.viewBilling'), // "View Billing Details"
+        },
+        links: {
+            contactSupport: i18n.t('payments.components.paymentSuccessPage.links.contactSupport'), // "contact our support team"
+        },
+        loading: {
+            finalizingSubscription: i18n.t('payments.components.paymentSuccessPage.loading.finalizingSubscription'), // "Finalizing your subscription..."
+            checkingDetails: i18n.t('payments.components.paymentSuccessPage.loading.checkingDetails'), // "Checking payment details..."
+        },
+        errors: {
+            missingSessionId: i18n.t('payments.components.paymentSuccessPage.errors.missingSessionId'), // "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support."
+            subscriptionUpdateFailed: i18n.t('payments.components.paymentSuccessPage.errors.subscriptionUpdateFailed'), // "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support."
+        }
+    },
+
+    paymentCancelPage: {
+        title: i18n.t('payments.components.paymentCancelPage.title'), // "Payment Not Completed"
+        message: i18n.t('payments.components.paymentCancelPage.message'), // "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated."
+        buttons: {
+            tryAgain: i18n.t('payments.components.paymentCancelPage.buttons.tryAgain'), // "Try Again"
+            contactSupport: i18n.t('payments.components.paymentCancelPage.buttons.contactSupport'), // "Contact Support"
+        },
+        footerNote: i18n.t('payments.components.paymentCancelPage.footerNote') // "If you believe this is an error or need assistance, please don't hesitate to reach out."
+    }
+};

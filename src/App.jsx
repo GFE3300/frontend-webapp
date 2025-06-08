@@ -26,6 +26,7 @@ import StaffDashboardLayout from './features/staff_portal/StaffDashboardLayout.j
 import AffiliatesPage from './features/staff_portal/pages/admin/AffiliatesPage.jsx';
 import AffiliateDetailPage from './features/staff_portal/pages/admin/AffiliateDetailPage.jsx';
 import PayoutsPage from './features/staff_portal/pages/admin/PayoutsPage.jsx';
+import StaffDashboardPage from './features/staff_portal/pages/StaffDashboardPage.jsx';
 
 import DashboardLayout from './features/dashboard/DashboardLayout.jsx';
 import OverviewPage from './features/dashboard/pages/OverviewPage.jsx';
@@ -33,6 +34,7 @@ import OrdersPage from './features/dashboard/pages/OrdersPage.jsx';
 import ProductsPage from './features/dashboard/pages/ProductsPage.jsx';
 import InventoryPage from './features/dashboard/pages/InventoryPage.jsx';
 import VenuePage from './features/dashboard/pages/VenuePage.jsx';
+import LiveOrdersPage from './features/live_orders_view/LiveOrdersPage.jsx';
 import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
 
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
@@ -98,13 +100,6 @@ const DNDBackendsConfig = {
     ],
 };
 
-// Placeholder for the staff dashboard index page
-const StaffDashboardPage = () => (
-    <div className="p-6">
-        <h1 className="text-2xl font-bold">Staff Dashboard</h1>
-        <p className="mt-2">Welcome to the staff portal. Select an option from the sidebar to begin.</p>
-    </div>
-);
 
 // Router Configuration
 const router = createBrowserRouter([
@@ -156,6 +151,7 @@ const router = createBrowserRouter([
         errorElement: <NotFoundPage />,
         children: [
             { index: true, element: <Navigate to="dashboard" replace /> },
+            // This path now correctly uses the imported, intelligent component
             { path: "dashboard", element: <StaffDashboardPage /> },
 
             {
@@ -183,7 +179,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="overview" replace /> },
             { path: "overview", element: <OverviewPage /> },
-            { path: "orders", element: <OrdersPage /> },
+            { path: "orders", element: <LiveOrdersPage /> },
             { path: "products", element: <ProductsPage /> },
             { path: "inventory", element: <InventoryPage /> },
             { path: "venue", element: <VenuePage /> },

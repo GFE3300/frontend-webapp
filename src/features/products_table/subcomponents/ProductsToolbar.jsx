@@ -5,12 +5,13 @@ import CustomColumnDropdown from './CustomColumnDropdown';
 import AnimatedSearchBar from './AnimatedSearchBar';
 import ToolbarDropdown from './ToolbarDropdown';
 import { useCategories } from '../../../contexts/ProductDataContext';
-import { filterOptions as defaultFilterOptions, sortOptions, COLUMN_KEYS } from '../utils/tableConfig'; // Added COLUMN_KEYS
+import { COLUMN_KEYS } from '../utils/tableConfig';
+import { scriptLines_ProductsTable as scriptLines } from '../utils/script_lines.js';
 
 const ProductsToolbar = ({
     filters,
     onFilterChange,
-    sort, // Contains sort.id and sort.desc
+    sort,
     onSortChange,
     columnVisibility,
     onColumnVisibilityChange,
@@ -20,26 +21,19 @@ const ProductsToolbar = ({
     onAddProduct,
     onRefresh,
     onResetTableSettings,
-    // These new props are passed from ProductsTable.jsx
-    // onClearFilters, 
-    // hasActiveFilters 
-    // These are already used if they were part of the old code, ensure they are passed from parent if needed by this component
 }) => {
     const { data: categoriesData } = useCategories();
-    const [currentFilterOptions, setCurrentFilterOptions] = useState(defaultFilterOptions);
+    const [categoryOptions, setCategoryOptions] = useState([]);
 
     useEffect(() => {
         const categoryOpts = categoriesData?.length
             ? [
-                { value: '', label: 'All Categories' },
+                { value: '', label: scriptLines.productsToolbar.filters.allCategoriesLabel },
                 ...categoriesData.map(cat => ({ value: cat.id, label: cat.name }))
             ]
-            : [{ value: '', label: 'Loading Categories...' }];
+            : [{ value: '', label: scriptLines.productsToolbar.filters.loadingCategoriesLabel, disabled: true }];
 
-        setCurrentFilterOptions(prev => ({
-            ...prev,
-            category: categoryOpts,
-        }));
+        setCategoryOptions(categoryOpts);
     }, [categoriesData]);
 
     const handleActualSearchSubmit = (term) => {
@@ -59,8 +53,7 @@ const ProductsToolbar = ({
             onSortChange({ id, desc: isDesc });
         }
     };
-
-    // Map sorted column ID to the corresponding filter key
+    
     const filterKeyMap = {
         [COLUMN_KEYS.NAME]: 'search',
         [COLUMN_KEYS.SKU]: 'search',
@@ -75,48 +68,48 @@ const ProductsToolbar = ({
             <AnimatedSearchBar
                 initialSearchTerm={filters.search || ''}
                 onSearchSubmit={handleActualSearchSubmit}
-                placeholder="Search name, SKU, tags..."
+                placeholder={scriptLines.productsToolbar.searchPlaceholder}
                 isSortActiveTarget={activeFilterKeyForSortedColumn === 'search'}
             />
 
             <ToolbarDropdown
-                ariaLabel="Filter by category"
-                options={currentFilterOptions.category}
+                ariaLabel={scriptLines.productsToolbar.filters.categoryAriaLabel}
+                options={categoryOptions}
                 value={filters.category || ''}
                 onChange={(newValue) => handleDropdownFilterChange('category', newValue)}
-                placeholder="Category"
+                placeholder={scriptLines.productsToolbar.filters.categoryPlaceholder}
                 className="min-w-[150px]"
                 isSortActiveTarget={activeFilterKeyForSortedColumn === 'category'}
             />
             <ToolbarDropdown
-                ariaLabel="Filter by product type"
-                options={currentFilterOptions.product_type}
+                ariaLabel={scriptLines.productsToolbar.filters.typeAriaLabel}
+                options={scriptLines.tableConfig.filterOptions.product_type}
                 value={filters.product_type || ''}
                 onChange={(newValue) => handleDropdownFilterChange('product_type', newValue)}
-                placeholder="Type"
+                placeholder={scriptLines.productsToolbar.filters.typePlaceholder}
                 className="min-w-[150px]"
                 isSortActiveTarget={activeFilterKeyForSortedColumn === 'product_type'}
             />
             <ToolbarDropdown
-                ariaLabel="Filter by status"
-                options={currentFilterOptions.is_active}
+                ariaLabel={scriptLines.productsToolbar.filters.statusAriaLabel}
+                options={scriptLines.tableConfig.filterOptions.is_active}
                 value={filters.is_active || ''}
                 onChange={(newValue) => handleDropdownFilterChange('is_active', newValue)}
-                placeholder="Status"
+                placeholder={scriptLines.productsToolbar.filters.statusPlaceholder}
                 className="min-w-[150px]"
                 isSortActiveTarget={activeFilterKeyForSortedColumn === 'is_active'}
             />
-            <ToolbarDropdown // This is the Sort By dropdown, usually not highlighted as a "filter"
-                ariaLabel="Sort by"
+            <ToolbarDropdown
+                ariaLabel={scriptLines.productsToolbar.sort.ariaLabel}
                 iconName="sort"
-                options={sortOptions}
+                options={scriptLines.tableConfig.sortOptions}
                 value={sort.id ? (sort.desc ? `-${sort.id}` : sort.id) : ''}
                 onChange={handleSortDropdownChange}
-                placeholder="Sort By"
+                placeholder={scriptLines.productsToolbar.sort.placeholder}
                 className="min-w-[160px]"
             />
 
-            <div className="flex-grow"></div> {/* Spacer */}
+            <div className="flex-grow"></div> 
 
             <CustomColumnDropdown
                 allTableColumns={allColumns}
@@ -130,7 +123,7 @@ const ProductsToolbar = ({
             <button
                 onClick={onRefresh}
                 className="p-2 h-9 text-sm font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-200 dark:text-neutral-800 dark:hover:bg-neutral-300 rounded-full flex items-center"
-                title="Refresh Data"
+                title={scriptLines.productsToolbar.buttons.refreshTooltip}
             >
                 <Icon name="refresh" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
             </button>
@@ -139,7 +132,7 @@ const ProductsToolbar = ({
                 className="px-2 pr-4 h-9 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-full flex items-center"
             >
                 <Icon name="add_circle" className="w-5 h-5 mr-2" style={{ fontSize: '1.25rem' }} />
-                Add Product
+                {scriptLines.productsToolbar.buttons.addProduct}
             </button>
         </div>
     );
@@ -158,8 +151,6 @@ ProductsToolbar.propTypes = {
     onAddProduct: PropTypes.func.isRequired,
     onRefresh: PropTypes.func.isRequired,
     onResetTableSettings: PropTypes.func,
-    // onClearFilters: PropTypes.func, // Ensure these are passed from parent if logic relies on them
-    // hasActiveFilters: PropTypes.bool,
 };
 
 export default ProductsToolbar;

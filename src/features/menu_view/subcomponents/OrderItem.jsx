@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line
 import { motion } from 'framer-motion';
 import Icon from '../../../components/common/Icon'; // Assuming this is your Icon component
+import { useCurrency  as useCurrency } from '../../../hooks/useCurrency'; // Import the new hook
 
 // --- THEMING CONSTANTS ---
 // These constants define the visual appearance of the OrderItem component.
@@ -110,6 +111,7 @@ function OrderItem({
     // --- State ---
     // Manages the loading state of the item image.
     const [imageLoadError, setImageLoadError] = useState(false);
+    const { formatCurrency } = useCurrency(); // Use the hook
 
     // --- Effects ---
     // Reset image error state if the item's imageUrl changes.
@@ -173,8 +175,8 @@ function OrderItem({
     // Construct a detailed ARIA label for the entire list item for screen readers.
     const ariaLabel = `
         ${itemName}, quantity ${item.quantity},
-        final price ${displayLineTotal.toFixed(2)} dollars
-        ${showDiscountedPrice ? `(discounted from ${originalLineTotal.toFixed(2)} dollars, ${discountDescriptionToShow || 'special discount'})` : ''}
+        final price ${formatCurrency(displayLineTotal)}
+        ${showDiscountedPrice ? `(discounted from ${formatCurrency(originalLineTotal)}, ${discountDescriptionToShow || 'special discount'})` : ''}
     `.trim().replace(/\s+/g, ' ');
 
 
@@ -249,7 +251,7 @@ function OrderItem({
                 )}
 
                 <p className={`${ITEM_PRICE_UNIT_TEXT_SIZE} ${NEUTRAL_TEXT_SECONDARY} mt-1 sm:mt-1.5`}>
-                    ${itemBasePricePerUnit.toFixed(2)} / unit
+                    {formatCurrency(itemBasePricePerUnit)} / unit
                 </p>
 
                 {showDiscountedPrice && discountDescriptionToShow && (
@@ -330,9 +332,9 @@ function OrderItem({
                     {showDiscountedPrice && (
                         <del
                             className={`${ITEM_OPTIONS_TEXT_SIZE} ${NEUTRAL_TEXT_MUTED} block`}
-                            aria-label={`Original price ${originalLineTotal.toFixed(2)}`}
+                            aria-label={`Original price ${formatCurrency(originalLineTotal)}`}
                         >
-                            ${originalLineTotal.toFixed(2)}
+                            {formatCurrency(originalLineTotal)}
                         </del>
                     )}
                     <p
@@ -340,9 +342,9 @@ function OrderItem({
                             ${ITEM_TOTAL_PRICE_TEXT_SIZE} font-semibold
                             ${showDiscountedPrice ? DISCOUNT_PRICE_TEXT : NEUTRAL_TEXT_PRIMARY}
                         `}
-                        aria-label={`Current total price ${displayLineTotal.toFixed(2)}`}
+                        aria-label={`Current total price ${formatCurrency(displayLineTotal)}`}
                     >
-                        ${displayLineTotal.toFixed(2)}
+                        {formatCurrency(displayLineTotal)}
                     </p>
                 </div>
             </div>

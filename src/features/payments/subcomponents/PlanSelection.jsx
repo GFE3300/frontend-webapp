@@ -1,10 +1,9 @@
 import React, { memo, useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Icon from "../../../components/common/Icon";
 import { scriptLines_Components as scriptLines } from '../utils/script_lines';
-import { useSubscription } from '../../../contexts/SubscriptionContext'; 
+import { useSubscription } from '../../../contexts/SubscriptionContext';
 import { useAuth } from '../../../contexts/AuthContext';
 
 // Simple skeleton loader for plan cards
@@ -44,12 +43,12 @@ PlanCardSkeleton.propTypes = {
 
 const PlanSelection = ({
     onPlanSelect,
-    onManageSubscription, // New prop for handling "Manage Subscription" click
+    onManageSubscription,
     themeColor = scriptLines.planSelection.themeColorDefault,
-    isLoading = false, // Global loading state from parent (e.g., checkout processing)
+    isLoading = false,
 }) => {
     const prefersReducedMotion = useReducedMotion();
-    const { isAuthenticated } = useAuth(); // For completeness, though SubscriptionContext handles auth checks internally
+    const { isAuthenticated } = useAuth();
     const {
         subscription: currentSubscription,
         isLoading: isSubscriptionLoading,
@@ -65,8 +64,8 @@ const PlanSelection = ({
     const PLANS_DATA = useMemo(() => {
         const staticPlanData = [
             {
-                id: 'starter_essentials',
-                iconName: 'bolt',
+                id: 'starter_essentials', // Non-translatable identifier
+                iconName: 'bolt',         // Non-translatable icon name
                 featuresLogic: [true, true, true, true, true, false, false, false],
                 theme: {
                     borderColor: 'border-purple-500 dark:border-purple-400',
@@ -78,8 +77,8 @@ const PlanSelection = ({
                 highlight: false,
             },
             {
-                id: 'growth_accelerator',
-                iconName: 'mode_heat',
+                id: 'growth_accelerator', // Non-translatable identifier
+                iconName: 'mode_heat',     // Non-translatable icon name
                 featuresLogic: [true, true, true, true, true, true, true, true],
                 theme: {
                     borderColor: themeColor === "rose" ? 'border-rose-500 dark:border-rose-400' : 'border-blue-500 dark:border-blue-400',
@@ -96,9 +95,9 @@ const PlanSelection = ({
                 }
             },
             {
-                id: 'premium_pro_suite',
-                iconName: 'verified',
-                featuresLogic: [true, true, true, true, true, true, true, true], // Assuming all features for premium
+                id: 'premium_pro_suite', // Non-translatable identifier
+                iconName: 'verified',    // Non-translatable icon name
+                featuresLogic: [true, true, true, true, true, true, true, true],
                 theme: {
                     borderColor: 'border-yellow-500 dark:border-yellow-400',
                     buttonClass: 'bg-yellow-500 hover:bg-yellow-600 text-white',
@@ -110,23 +109,20 @@ const PlanSelection = ({
             }
         ];
 
-        return scriptLines.planSelection.plans.map((localizedPlan) => {
-            const staticData = staticPlanData.find(p => p.id === localizedPlan.id);
-            if (!staticData) {
-                console.warn(`[PlanSelection] No static data found for plan ID: ${localizedPlan.id}. Using localized data only.`);
-                return {
-                    ...localizedPlan,
-                    theme: staticPlanData[0].theme, // Fallback theme
-                    features: localizedPlan.features.map(f => ({ ...f, check: false })), // Default all features to false if no logic
-                    highlight: false,
-                };
+        // Merge static logic with localized text from scriptLines
+        return staticPlanData.map((staticData) => {
+            const localizedPlan = scriptLines.planSelection.plans.find(p => p.id === staticData.id);
+            if (!localizedPlan) {
+                console.warn(`[PlanSelection] No localized text found for plan ID: ${staticData.id}.`);
+                return { ...staticData }; // Return static data as a fallback
             }
+
             return {
-                ...staticData,
-                ...localizedPlan,
+                ...staticData, // Start with non-translatable data (id, iconName, theme, etc.)
+                ...localizedPlan, // Overwrite with translatable text (name, description, etc.)
                 features: localizedPlan.features.map((feature, fIndex) => ({
                     text: feature.text,
-                    check: staticData.featuresLogic?.[fIndex] ?? false // Handle cases where featuresLogic might be shorter
+                    check: staticData.featuresLogic?.[fIndex] ?? false
                 })),
                 discount: localizedPlan.discount ? {
                     ...staticData.discountLogic,
@@ -151,25 +147,16 @@ const PlanSelection = ({
 
     const handleSelectAndProceed = useCallback((plan) => {
         if (isLoading || isSubscriptionLoading) return;
-
         setSelectedPlanIdForProcessing(plan.id);
 
-        // If the selected plan is the current active plan, do not call onPlanSelect to go to checkout.
-        // The button text and handler should ideally prevent this path.
         if (currentSubscription && currentSubscription.is_active && currentSubscription.plan_name === plan.id) {
-            console.warn("[PlanSelection] Attempted to re-select current active plan. This should be handled by 'Manage Subscription' button.");
-            // Optionally show a toast here if button logic didn't prevent it.
-            // The parent (PlanAndPaymentPage) will also have a check.
-            setSelectedPlanIdForProcessing(null); // Reset
+            console.warn("[PlanSelection] Attempted to re-select current active plan.");
+            setSelectedPlanIdForProcessing(null);
             return;
         }
 
-        // Simulate processing time before calling the parent callback.
         setTimeout(() => {
             onPlanSelect(plan);
-            // Note: Parent's `isLoading` prop will take over.
-            // We don't reset selectedPlanIdForProcessing here immediately;
-            // it can be reset if the parent's isLoading state changes or component unmounts.
         }, 800);
     }, [onPlanSelect, isLoading, isSubscriptionLoading, currentSubscription]);
 
@@ -208,9 +195,8 @@ const PlanSelection = ({
             <div className="flex items-center justify-center h-screen p-4 text-center">
                 <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-6 py-4 rounded-lg shadow-md">
                     <Icon name="error_outline" className="w-12 h-12 text-red-500 dark:text-red-400 mx-auto mb-3" />
-                    <p className="font-semibold mb-1">Error Loading Subscription</p>
+                    <p className="font-semibold mb-1">{scriptLines.planSelection.messages.subscriptionErrorTitle}</p>
                     <p>{scriptLines.planSelection.messages.subscriptionLoadError}</p>
-                    {/* Optionally add a retry button if `fetchSubscriptionStatus` is exposed */}
                 </div>
             </div>
         );
@@ -233,15 +219,15 @@ const PlanSelection = ({
                     const discountBadgeBgColor = plan.discount?.badgeColor || (plan.discountLogic?.badgeColor || 'bg-green-500');
                     const discountOfferBadgeText = plan.discount?.badgeText || scriptLines.planSelection.badges.specialOffer;
 
-                    let ctaText = scriptLines.planSelection.buttons.chooseThisPlan;
+                    let ctaText;
                     let ctaHandler = () => handleSelectAndProceed(plan);
                     let isCurrentPlanButton = false;
 
                     if (isCurrentActivePlan) {
                         ctaText = scriptLines.planSelection.buttons.manageSubscription;
-                        ctaHandler = () => onManageSubscription(plan); // Parent handles this click
+                        ctaHandler = () => onManageSubscription(plan);
                         isCurrentPlanButton = true;
-                    } else if (currentSubscription?.is_active) { // User has an active plan, but it's not this one
+                    } else if (currentSubscription?.is_active) {
                         const currentPlanTier = PLAN_TIER_ORDER[currentSubscription.plan_name] ?? -1;
                         const targetPlanTier = PLAN_TIER_ORDER[plan.id] ?? -1;
 
@@ -249,10 +235,11 @@ const PlanSelection = ({
                             ctaText = scriptLines.planSelection.buttons.upgradePlan;
                         } else if (targetPlanTier < currentPlanTier && targetPlanTier !== -1) {
                             ctaText = scriptLines.planSelection.buttons.downgradePlan;
-                        } else if (targetPlanTier === currentPlanTier && targetPlanTier !== -1) {
-                            ctaText = scriptLines.planSelection.buttons.switchPlan; // Same tier
+                        } else {
+                            ctaText = scriptLines.planSelection.buttons.switchPlan;
                         }
-                        // If targetPlanTier is -1 (unknown plan), keep "Choose This Plan" or "Switch Plan"
+                    } else {
+                        ctaText = scriptLines.planSelection.buttons.chooseThisPlan;
                     }
 
                     const cardClassNames = `
@@ -343,7 +330,7 @@ const PlanSelection = ({
                                 </ul>
 
                                 <div className="mb-8 text-xs text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-700/60 p-3 rounded-md">
-                                    <p className={`font-semibold mb-1 ${plan.theme.textColor}`}>Why {plan.name}?</p>
+                                    <p className={`font-semibold mb-1 ${plan.theme.textColor}`}>{scriptLines.planSelection.whyThisPlanTemplate.replace('{planName}', plan.name)}</p>
                                     {plan.whyThisPlan}
                                 </div>
 
@@ -379,7 +366,7 @@ const PlanSelection = ({
 
 PlanSelection.propTypes = {
     onPlanSelect: PropTypes.func.isRequired,
-    onManageSubscription: PropTypes.func.isRequired, // New prop
+    onManageSubscription: PropTypes.func.isRequired,
     themeColor: PropTypes.string,
     isLoading: PropTypes.bool,
 };

@@ -6,6 +6,7 @@ import MenuSearchBar from '../subcomponents/MenuSearchBar';
 import CategoryFilterBar from '../subcomponents/CategoryFilterBar';
 import TagFilterPills from '../subcomponents/TagFilterPills';
 
+// --- Styling & Theming Constants ---
 const CONTAINER_PADDING_X = "px-4 md:px-6";
 const HEADER_AREA_PADDING_Y = "py-3 sm:py-4";
 const HEADER_AREA_BG_LIGHT = "bg-white";
@@ -28,26 +29,27 @@ const NEUTRAL_TEXT_MUTED = "text-neutral-500 dark:text-neutral-400";
 const ROSE_ACCENT_RING_FOCUS = "focus-visible:ring-rose-500 dark:focus-visible:ring-rose-400";
 
 /**
- * Header component for the User Page, including the business logo, table & guest info, search bar, and category/tag filter bars.
- * @param {Object} venueContext - Venue context object from the parent, containing business name, logo URL, table number, number of people, and user name.
- * @param {Boolean} logoError - Flag indicating if the logo image failed to load.
- * @param {Function} onLogoError - Callback to call when the logo image fails to load.
- * @param {Function} onEditGuestProfile - Callback to call when the "Edit guest info" button is clicked.
- * @param {Object} searchProps - Props for the MenuSearchBar component.
- * @param {Object} categoryFilterProps - Props for the CategoryFilterBar component.
- * @param {Object} tagFilterProps - Props for the TagFilterPills component.
- * @param {Object} animationProps - Props controlling the animation of the header.
- * @param {Function} scrollToProductCardFn - Callback to call when a suggestion is selected to scroll to the corresponding product card.
+ * Header component for the User Page, including business logo, table & guest info, search, and filters.
+ * @param {object} props - Component props.
+ * @param {object} props.venueContext - Venue context containing business name, logo, table info, etc.
+ * @param {boolean} props.logoError - Flag indicating if the logo image failed to load.
+ * @param {Function} props.onLogoError - Callback for logo image load failure.
+ * @param {Function} props.onOpenSettingsModal - Callback to open the guest settings modal.
+ * @param {object} props.searchProps - Props for the MenuSearchBar component.
+ * @param {object} props.categoryFilterProps - Props for the CategoryFilterBar component.
+ * @param {object} props.tagFilterProps - Props for the TagFilterPills component.
+ * @param {object} props.animationProps - Props for controlling the header's animation.
+ * @param {Function} props.scrollToProductCardFn - Callback to scroll to a product card.
  * @returns {React.ReactElement} The header component.
  */
 const UserPageHeader = ({
     venueContext,
     logoError,
     onLogoError,
-    onEditGuestProfile,
+    onOpenSettingsModal, // Changed from onEditGuestProfile
     searchProps,
     categoryFilterProps,
-    // tagFilterProps,
+    // tagFilterProps, // Temporarily commented if not used
     animationProps,
     scrollToProductCardFn,
 }) => {
@@ -82,7 +84,6 @@ const UserPageHeader = ({
                                     alt={`${businessName} logo`}
                                     className={`${LOGO_MAX_HEIGHT_MOBILE} sm:${LOGO_MAX_HEIGHT_DESKTOP} ${LOGO_MARGIN_RIGHT} w-auto object-contain ${LOGO_ROUNDED}`}
                                     onError={() => {
-                                        console.warn("[UserPageHeader] Logo image failed to load:", businessLogoUrl);
                                         if (onLogoError) onLogoError();
                                     }}
                                     loading="lazy"
@@ -100,16 +101,18 @@ const UserPageHeader = ({
                                         <span className="mx-1 sm:mx-1.5 select-none" aria-hidden="true">•</span>
                                         For: {venueContext?.userName || "Guest"}
                                     </p>
-                                    {onEditGuestProfile && (
+                                    {/* --- MODIFIED SECTION START --- */}
+                                    {onOpenSettingsModal && (
                                         <button
-                                            onClick={onEditGuestProfile}
+                                            onClick={onOpenSettingsModal}
                                             className={`ml-1.5 sm:ml-2 p-1 flex items-center justify-center w-6 h-6 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-800 ${ROSE_ACCENT_RING_FOCUS}`}
-                                            aria-label="Edit guest name and number of guests"
-                                            title="Edit guest info"
+                                            aria-label="Open guest settings"
+                                            title="Guest Settings"
                                         >
-                                            <Icon name="edit" className={`w-4 h-4 ${NEUTRAL_TEXT_MUTED}`} style={{ fontSize: "1rem" }} />
+                                            <Icon name="settings" className={`w-4 h-4 ${NEUTRAL_TEXT_MUTED}`} style={{ fontSize: "1rem" }} />
                                         </button>
                                     )}
+                                    {/* --- MODIFIED SECTION END --- */}
                                 </div>
                             </div>
                         </div>
@@ -134,6 +137,18 @@ const UserPageHeader = ({
                         isError={categoryFilterProps.isError}
                         error={categoryFilterProps.error}
                     />
+
+                    {/* Placeholder for TagFilterPills if it were to be used here */}
+                    {/* 
+                    <TagFilterPills
+                        tagsData={tagFilterProps.tagsData}
+                        activeTagIds={tagFilterProps.activeTagIds}
+                        onToggleTag={tagFilterProps.onToggleTag}
+                        isLoading={tagFilterProps.isLoading}
+                        isError={tagFilterProps.isError}
+                        error={tagFilterProps.error}
+                    /> 
+                    */}
                 </div>
             </div>
         </motion.div>

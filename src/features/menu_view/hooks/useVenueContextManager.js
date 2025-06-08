@@ -1,18 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usePublicTableInfo } from '../../../contexts/VenueDataContext'; // Adjust path if necessary
 
+// --- Constants for localStorage keys ---
+const GUEST_NAME_KEY = 'smore-guest-name';
+const GUEST_EMAIL_KEY = 'smore-guest-email';
+const GUEST_PEOPLE_KEY = 'smore-guest-people';
+
 /**
- * Custom hook to manage venue context information.
- * Fetches public table info and provides methods to update parts of the venue context.
+ * Custom hook to manage venue context information for the public menu view.
+ * Fetches public table info, manages guest details (name, email, people) from localStorage,
+ * and provides methods to update the context.
  *
  * @param {string} tableLayoutItemId - The ID of the table layout item.
  * @returns {object} An object containing:
- *  - venueContext: The current venue information (null if not loaded/error).
+ *  - venueContext: The current venue information.
  *  - isLoadingVenueContext: Boolean indicating if table info is loading.
  *  - isVenueContextError: Boolean indicating an error fetching table info.
  *  - venueContextError: The error object if an error occurred.
  *  - refetchVenueContext: Function to refetch table info.
- *  - updateVenueUserDetails: Callback to update userName and numberOfPeople.
+ *  - updateVenueUserDetails: Callback to update userName, userEmail, and numberOfPeople.
  *  - logoError: Boolean indicating if the business logo failed to load.
  *  - setLogoError: Function to set the logoError state.
  */
@@ -32,50 +38,63 @@ export const useVenueContextManager = (tableLayoutItemId) => {
     });
 
     useEffect(() => {
-        console.log("[useVenueContextManager Effect] Running. publicTableInfoData:", publicTableInfoData, "isError:", isPublicTableInfoError);
+        // This effect runs when the API data (publicTableInfoData) is fetched or an error occurs.
+        // It's responsible for merging API data with persisted guest data from localStorage.
+        
         if (publicTableInfoData) {
+            // Retrieve persisted guest data from localStorage.
+            const storedName = localStorage.getItem(GUEST_NAME_KEY);
+            const storedEmail = localStorage.getItem(GUEST_EMAIL_KEY);
+            const storedPeople = localStorage.getItem(GUEST_PEOPLE_KEY);
+
             setVenueContext(prevCtx => {
                 const newCtx = {
+                    // Core business data from the API
                     tableNumber: publicTableInfoData.table_display_number,
                     businessName: publicTableInfoData.business_name,
                     businessUUID: publicTableInfoData.business_uuid,
                     businessIdentifierForAPI: publicTableInfoData.business_slug || publicTableInfoData.business_uuid,
                     businessLogoUrl: publicTableInfoData.business_logo_url,
-                    // Preserve userName and numberOfPeople if they were already set (e.g., by SetupStage or GuestProfileModal)
-                    // and the core business data hasn't changed in a way that would invalidate them.
-                    // If prevCtx is null (first load) or tableNumber differs (significant change), use defaults.
-                    userName: (prevCtx && prevCtx.tableNumber === publicTableInfoData.table_display_number) ? prevCtx.userName : 'Guest',
-                    numberOfPeople: (prevCtx && prevCtx.tableNumber === publicTableInfoData.table_display_number) ? prevCtx.numberOfPeople : 1,
+                    businessCurrency: publicTableInfoData.business_currency || 'USD',
+                    
+                    // Guest details: prioritize persisted data, then fall back to defaults.
+                    // The `prevCtx` check is to maintain state across hot-reloads or minor refetches, but localStorage is the primary source.
+                    userName: storedName !== null ? storedName : (prevCtx?.userName) || 'Guest',
+                    userEmail: storedEmail !== null ? storedEmail : (prevCtx?.userEmail) || '',
+                    numberOfPeople: storedPeople ? parseInt(storedPeople, 10) : (prevCtx?.numberOfPeople) || 1,
                 };
-                console.log("[useVenueContextManager Effect] Setting venueContext:", newCtx, "Previous context was:", prevCtx);
                 return newCtx;
             });
             setLogoError(false);
         } else if (isPublicTableInfoError) {
-            console.log("[useVenueContextManager Effect] Error detected, setting venueContext to null.");
             setVenueContext(null);
         }
-    }, [publicTableInfoData, isPublicTableInfoError]); // Dependencies only on fetched data/error status
+    }, [publicTableInfoData, isPublicTableInfoError]); // This effect depends on the API fetch result.
 
-    const updateVenueUserDetails = useCallback(({ newUserName, newNumberOfPeople }) => {
+    const updateVenueUserDetails = useCallback(({ newUserName, newUserEmail, newNumberOfPeople }) => {
         setVenueContext(prev => {
             if (!prev) {
-                console.warn("[useVenueContextManager] updateVenueUserDetails called when prev context was null. This is unusual. Initializing with user details.");
-                // This scenario is less likely if AppContent waits for initial venueContext.
-                // If it happens, we only have user details to set.
-                return {
-                    // Core business data would be missing here.
-                    // This indicates a potential logic flaw if called before initial load.
-                    userName: newUserName,
-                    numberOfPeople: newNumberOfPeople,
-                };
+                // This shouldn't happen if UI waits for initial context load, but it's a safe fallback.
+                console.warn("[useVenueContextManager] updateVenueUserDetails called before context was initialized.");
+                return null;
             }
-            const updatedCtx = {
-                ...prev,
-                userName: newUserName !== undefined ? newUserName : prev.userName,
-                numberOfPeople: newNumberOfPeople !== undefined ? newNumberOfPeople : prev.numberOfPeople,
-            };
-            console.log("[useVenueContextManager] updateVenueUserDetails. New context:", updatedCtx);
+
+            // Prepare the updated context state
+            const updatedCtx = { ...prev };
+            
+            if (newUserName !== undefined) {
+                updatedCtx.userName = newUserName;
+                localStorage.setItem(GUEST_NAME_KEY, newUserName);
+            }
+            if (newUserEmail !== undefined) {
+                updatedCtx.userEmail = newUserEmail;
+                localStorage.setItem(GUEST_EMAIL_KEY, newUserEmail);
+            }
+            if (newNumberOfPeople !== undefined) {
+                updatedCtx.numberOfPeople = newNumberOfPeople;
+                localStorage.setItem(GUEST_PEOPLE_KEY, String(newNumberOfPeople));
+            }
+            
             return updatedCtx;
         });
     }, []);

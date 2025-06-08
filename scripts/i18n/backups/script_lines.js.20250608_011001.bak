@@ -1,0 +1,139 @@
+
+export const scriptLines_ProductsTable = {
+    tableConfig: {
+        headers: {
+            actions: "Actions",
+            image: "Image",
+            name: "Product Name",
+            sku: "SKU",
+            category: "Category",
+            type: "Type",
+            price: "Price",
+            cost: "Cost",
+            stock: "Stock Level",
+            sales: "Sales (7d)",
+            status: "Status",
+            tags: "Tags",
+            barcode: "Barcode",
+            lastUpdated: "Last Updated",
+        },
+        tooltips: {
+            editProduct: "Edit Product",
+            deleteProduct: "Delete Product",
+        },
+        alts: {
+            productImage: "Product",
+        },
+        errors: {
+            invalidDate: "Invalid Date",
+        },
+        productTypes: {
+            made_in_house: "Made In-House",
+            resold_item: "Resold Item",
+        },
+        filters: {
+            allTypes: "All Types",
+            allStatuses: "All Statuses",
+            active: "Active",
+            inactive: "Inactive",
+        },
+        sort: {
+            default: "Default Sort",
+            nameAsc: "Name (A-Z)",
+            nameDesc: "Name (Z-A)",
+            priceAsc: "Price (Low-High)",
+            priceDesc: "Price (High-Low)",
+            updatedAsc: "Last Updated (Oldest)",
+            updatedDesc: "Last Updated (Newest)",
+            stockAsc: "Stock (Low-High)",
+            stockDesc: "Stock (High-Low)",
+        },
+    },
+    productsToolbar: {
+        searchPlaceholder: "Search name, SKU, tags...",
+        buttons: {
+            addProduct: "Add Product",
+            refreshTooltip: "Refresh Data",
+        },
+        filters: {
+            allCategoriesLabel: "All Categories",
+            loadingCategoriesLabel: "Loading Categories...",
+            categoryPlaceholder: "Category",
+            categoryAriaLabel: "Filter by category",
+            typePlaceholder: "Type",
+            typeAriaLabel: "Filter by product type",
+            statusPlaceholder: "Status",
+            statusAriaLabel: "Filter by status",
+        },
+        sort: {
+            placeholder: "Sort By",
+            ariaLabel: "Sort by",
+        },
+    },
+    customColumnDropdown: {
+        triggerText: "Columns",
+        triggerTooltip: "Customize columns",
+        headerTitle: "Customize Table Columns",
+        headerSubtitle: "Toggle visibility or drag to reorder non-fixed columns.",
+        listTitles: {
+            fixed: "Fixed",
+            visibleAndDraggable: "Visible & Draggable",
+            hidden: "Hidden",
+        },
+        noColumnsAvailable: "No columns available.",
+        noDraggableColumns: "No draggable columns to show.",
+        resetButton: "Reset to Default",
+    },
+    draggableColumnItem: {
+        tooltips: {
+            dragReorder: "Drag to reorder",
+            fixedColumn: "Fixed column (cannot reorder or hide)",
+            hideColumn: "Hide column",
+            showColumn: "Show column",
+        },
+        aria: {
+            hide: "Hide {{columnName}} column",
+            show: "Show {{columnName}} column",
+        }
+    },
+    editableCell: {
+        emptyPlaceholder: "—",
+        editTooltip: "Click to edit {{fieldKey}}",
+        errors: {
+            invalidNumber: "Invalid number.",
+            invalidNumberShort: "Invalid",
+            negativeValue: "Value cannot be negative.",
+            nameCannotBeEmpty: "Name cannot be empty.",
+            saveFailed: "Save failed.",
+        }
+    },
+    productsTableBody: {
+        error: {
+            title: "Oops! Something went wrong.",
+            message: "We couldn't load the products at this moment. Please try again.",
+            retryButton: "Try Again",
+        },
+        empty: {
+            filteredTitle: "No Products Match Filters",
+            noProductsTitle: "No Products Yet",
+            filteredMessage: "Try adjusting or clearing your filters to see more products.",
+            noProductsMessage: "Get started by adding your first product to the inventory.",
+            clearFiltersButton: "Clear Filters",
+            addProductButton: "Add Product",
+        }
+    },
+    productsTableHeader: {
+        tooltips: {
+            sortBy: "Sort by {{headerText}}",
+            ascending: "(Ascending)",
+            descending: "(Descending)",
+        }
+    },
+    toolbarDropdown: {
+        noOptions: "No options available",
+        errors: {
+            optionsMissing: "Error: Dropdown options are missing.",
+            onChangeMissing: "Error: Dropdown onChange missing.",
+        }
+    },
+};

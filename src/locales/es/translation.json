@@ -30,7 +30,7 @@
     "appliedDiscountRow_percentagePlaceholder": "Por ejemplo, 10",
     "appliedDiscountRow_remove_ariaLabel": "Eliminar descuento {discountName}",
     "appliedDiscountRow_remove_title": "Eliminar {discountName}",
-    "appliedDiscountsManagerListHeaderPattern": "Descuentos aplicados ({contar}):",
+    "appliedDiscountsManagerListHeaderPattern": "Descuentos aplicados ({count}):",
     "appliedDiscountsManagerNoDiscountsPrimary": "Aún no se han aplicado descuentos a este producto.",
     "appliedDiscountsManagerNoDiscountsSecondary": "Seleccione un código de arriba o cree uno nuevo.",
     "ariaEditLabelInfix": ". Valor actual:",
@@ -306,16 +306,16 @@
     "step4EstCostIngredientsLabel": "Coste estimado de los ingredientes:",
     "step4FinalPriceLabel": "Precio de venta final (impuestos incluidos):",
     "step4LaborOverheadHelpText": "Costes adicionales más allá de las materias primas.",
-    "step4LaborOverheadLabelPattern": "Mano de obra, embalaje y gastos generales ({símbolo de moneda})",
+    "step4LaborOverheadLabelPattern": "Mano de obra, embalaje y gastos generales ({currencySymbol})",
     "step4LoadingTaxRates": "Cargando tipos impositivos...",
     "step4MainSubtitle": "Fije el precio de su producto, teniendo en cuenta los costes y el margen de beneficio deseado.",
     "step4MainTitle": "Configuración de precios",
     "step4ProfitPerUnitLabelPattern": "Beneficio por unidad (antes de impuestos): {símboloDivisa}{importeBeneficio}",
     "step4PurchaseCostHelpText": "Su coste para adquirir este artículo revendido.",
-    "step4PurchaseCostLabelPattern": "Coste de compra ({símbolo de moneda})",
+    "step4PurchaseCostLabelPattern": "Coste de compra ({currencySymbol})",
     "step4SaveAsTemplateHelpText": "Si está marcada, los detalles de este producto rellenarán previamente el formulario la próxima vez que añada un nuevo producto. Sólo un producto puede ser la plantilla activa por empresa.",
     "step4SaveAsTemplateLabel": "Utilice este producto como plantilla para futuras creaciones",
-    "step4SellingPriceLabelPattern": "Su precio de venta ({símbolo de moneda}) (impuestos no incluidos)",
+    "step4SellingPriceLabelPattern": "Su precio de venta ({currencySymbol}) (impuestos no incluidos)",
     "step4SellingPriceProfitTitle": "Precio de venta y beneficio",
     "step4TaxAmountLabelPattern": "Importe del impuesto ({taxRate}%):",
     "step4TaxRateLabel": "Tipo impositivo (aplicado al precio de venta)",
@@ -523,6 +523,135 @@
       }
     }
   },
+  "products_table": {
+    "productsTable": {
+      "customColumnDropdown": {
+        "headerSubtitle": "Alterne la visibilidad o arrastre para reordenar las columnas no fijas.",
+        "headerTitle": "Personalizar las columnas de la tabla",
+        "listTitles": {
+          "fixed": "Fijo",
+          "hidden": "Oculto",
+          "visibleAndDraggable": "Visible y arrastrable"
+        },
+        "noColumnsAvailable": "No hay columnas disponibles.",
+        "noDraggableColumns": "No se muestran columnas arrastrables.",
+        "resetButton": "Restablecer valores por defecto",
+        "triggerText": "Columnas",
+        "triggerTooltip": "Personalizar columnas"
+      },
+      "draggableColumnItem": {
+        "aria": {
+          "hide": "Ocultar {{columnName}} columna",
+          "show": "Mostrar {{columnName}} columna"
+        },
+        "tooltips": {
+          "dragReorder": "Arrastrar para reordenar",
+          "fixedColumn": "Columna fija (no se puede reordenar ni ocultar)",
+          "hideColumn": "Ocultar columna",
+          "showColumn": "Mostrar columna"
+        }
+      },
+      "editableCell": {
+        "editTooltip": "Haga clic para editar {{fieldKey}}",
+        "emptyPlaceholder": "-",
+        "errors": {
+          "invalidNumber": "Número no válido.",
+          "invalidNumberShort": "No válido",
+          "nameCannotBeEmpty": "El nombre no puede estar vacío.",
+          "negativeValue": "El valor no puede ser negativo.",
+          "saveFailed": "Guardar falló."
+        }
+      },
+      "productsTableBody": {
+        "empty": {
+          "clearFiltersButton": "Limpiar filtros",
+          "filteredMessage": "Intenta ajustar o borrar tus filtros para ver más productos.",
+          "filteredTitle": "Ningún producto coincide con los filtros",
+          "noProductsMessage": "Empiece añadiendo su primer producto al inventario.",
+          "noProductsTitle": "Aún no hay productos"
+        },
+        "error": {
+          "message": "No hemos podido cargar los productos en este momento. Por favor, inténtelo de nuevo.",
+          "title": "¡Uy! Algo ha salido mal."
+        }
+      },
+      "productsTableHeader": {
+        "tooltips": {
+          "ascending": "(Ascendente)",
+          "descending": "(Descendente)",
+          "sortBy": "Ordenar por {{headerText}}"
+        }
+      },
+      "productsToolbar": {
+        "buttons": {
+          "addProduct": "Añadir producto",
+          "refreshTooltip": "Actualizar datos"
+        },
+        "filters": {
+          "allCategoriesLabel": "Todas las categorías",
+          "categoryAriaLabel": "Filtrar por categoría",
+          "loadingCategoriesLabel": "Cargando Categorías...",
+          "statusAriaLabel": "Filtrar por estado",
+          "typeAriaLabel": "Filtrar por tipo de producto"
+        },
+        "searchPlaceholder": "Buscar nombre, SKU, etiquetas...",
+        "sort": {
+          "ariaLabel": "Ordenar por",
+          "placeholder": "Ordenar por"
+        }
+      },
+      "tableConfig": {
+        "errors": {
+          "invalidDate": "Fecha no válida"
+        },
+        "filters": {
+          "allStatuses": "Todos los estados",
+          "allTypes": "Todos los tipos",
+          "inactive": "Inactivo"
+        },
+        "headers": {
+          "barcode": "Código de barras",
+          "category": "Categoría",
+          "cost": "Coste",
+          "image": "Imagen",
+          "lastUpdated": "Última actualización",
+          "price": "Precio",
+          "sales": "Ventas (7d)",
+          "sku": "SKU",
+          "status": "Estado",
+          "stock": "Nivel de existencias",
+          "tags": "Etiquetas",
+          "type": "Tipo"
+        },
+        "productTypes": {
+          "made_in_house": "Fabricación propia",
+          "resold_item": "Artículo revendido"
+        },
+        "sort": {
+          "default": "Ordenación por defecto",
+          "nameAsc": "Nombre (A-Z)",
+          "nameDesc": "Nombre (Z-A)",
+          "priceAsc": "Precio (bajo-alto)",
+          "priceDesc": "Precio (alto-bajo)",
+          "stockAsc": "Acciones (mínimo-alto)",
+          "stockDesc": "Acción (alta-baja)",
+          "updatedAsc": "Última actualización (más antigua)",
+          "updatedDesc": "Última actualización (más reciente)"
+        },
+        "tooltips": {
+          "deleteProduct": "Borrar producto",
+          "editProduct": "Editar producto"
+        }
+      },
+      "toolbarDropdown": {
+        "errors": {
+          "onChangeMissing": "Error: Falta el desplegable onChange.",
+          "optionsMissing": "Error: Faltan opciones desplegables."
+        },
+        "noOptions": "No hay opciones disponibles"
+      }
+    }
+  },
   "register": {
     "addressForm": {
       "addressForm": {
@@ -660,7 +789,7 @@
         }
       },
       "trustFooter": {
-        "copyright": "© {año} {nombreDeLaEmpresa}. Todos los derechos reservados.",
+        "copyright": "© {año} {companyName}. Todos los derechos reservados.",
         "links": {
           "termsOfUse": "Condiciones de uso"
         },
@@ -697,6 +826,104 @@
         "label": {
           "useMyLocation": "Utilizar mi ubicación"
         }
+      }
+    },
+    "registration": {
+      "addressForm": {
+        "placeholder": {
+          "selectCountry": "Seleccione un país"
+        },
+        "staticCountries": {
+          "VE": "Venezuela"
+        }
+      },
+      "autocompleteInput": {
+        "aria": {
+          "addressSuggestions": "Sugerencias de direcciones"
+        },
+        "error": {
+          "fetchDetailsFailed": "No se han podido cargar los detalles de la ubicación seleccionada.",
+          "placesLibraryNotLoaded": "Los servicios de localización no están disponibles actualmente.",
+          "searchByTextError": "Error en la búsqueda de ubicaciones."
+        },
+        "label": "Buscar lugar o dirección",
+        "placeholder": "Por ejemplo, 123 Main St, Anytown, EE.UU.",
+        "status": {
+          "errorFetching": "No se han podido recuperar las sugerencias. Por favor, inténtelo de nuevo.",
+          "findingLocations": "Encontrar lugares...",
+          "loadingDetails": "Cargando detalles...",
+          "noResults": "No se han encontrado lugares coincidentes."
+        }
+      },
+      "checkboxGroup": {
+        "selectAll": "Seleccionar todo"
+      },
+      "geolocationButton": {
+        "error": {
+          "notSupported": "Su navegador no soporta la geolocalización.",
+          "permissionDenied": "Permiso denegado. Por favor, activa los servicios de localización.",
+          "timeout": "La solicitud para obtener la ubicación del usuario ha caducado.",
+          "unavailable": "No se dispone de información sobre la ubicación.",
+          "unknown": "Se ha producido un error desconocido al intentar obtener tu ubicación."
+        },
+        "label": {
+          "useMyLocation": "Utilizar mi ubicación actual"
+        },
+        "tooltip": {
+          "default": "Obtener la ubicación actual"
+        }
+      },
+      "mapViewport": {
+        "aria": {
+          "map": "Mapa de selección de ubicaciones"
+        },
+        "loading": {
+          "api": "Cargando mapa API...",
+          "components": "Cargando componentes del mapa..."
+        },
+        "markerTitle": "Ubicación seleccionada"
+      },
+      "passwordStrengthIndicator": {
+        "fair": "Feria",
+        "strong": "Fuerte",
+        "weak": "Débil"
+      },
+      "registrationPage": {
+        "error": {
+          "formLoadError": "Se ha producido un error al cargar el formulario de registro. Vuelva a intentarlo más tarde.",
+          "noResponse": "No hay respuesta del servidor. Por favor, compruebe su conexión de red.",
+          "noTokensReturned": "El registro se ha realizado correctamente, pero no se ha devuelto ninguna ficha.",
+          "registrationFailed": "Registro fallido. Por favor, inténtelo de nuevo.",
+          "serverError": "Se ha producido un error en el servidor. Vuelva a intentarlo más tarde o póngase en contacto con el servicio de asistencia.",
+          "unknownError": "Se ha producido un error desconocido durante el registro."
+        },
+        "stageTrackerLabels": {
+          "0": "Empresas",
+          "2": "Logotipo",
+          "3": "Perfil",
+          "4": "Preferencias"
+        },
+        "stepTitles": {
+          "businessInfo": "Información comercial",
+          "businessLocation": "Ubicación de la empresa",
+          "businessLogo": "Logotipo empresarial",
+          "setupPreferences": "Preferencias de configuración",
+          "yourProfile": "Su perfil",
+          "yourProfileImage": "Su imagen de perfil"
+        },
+        "success": {
+          "accountCreatedWithIssues": {
+            "base": "Cuenta creada con éxito. ",
+            "manageInDashboard": "Puede gestionarlos desde su panel de control."
+          },
+          "finalSuccessMessage": "Su cuenta y su perfil profesional se han creado correctamente. Ya ha iniciado sesión.",
+          "finalSuccessTitle": "Inscripción completada",
+          "registrationComplete": "¡Registro realizado con éxito! Por favor, elija un plan para activar su cuenta.",
+          "toastFileUploadWarning": "¡Cuenta creada! Algunas subidas de archivos han tenido problemas, puedes gestionarlas desde tu panel de control. Por favor, elija un plan."
+        }
+      },
+      "stageTracker": {
+        "optionalLabel": "(Opcional)"
       }
     },
     "steps": {
@@ -802,7 +1029,7 @@
         "placeholder": {
           "confirmPassword": "Vuelva a introducir su contraseña",
           "contactEmail": "Por ejemplo: alex.johnson@example.com",
-          "contactPhone": "(555) 123-4567",
+          "contactPhone": "(664) 123-4567",
           "firstName": "Por ejemplo, Alex",
           "lastName": "Por ejemplo, Johnson",
           "passwordMinChars": "Mínimo 8 caracteres",
@@ -1033,7 +1260,7 @@
       "error": {
         "form": {
           "correctErrorsInStep": "Por favor, corrija los errores en el paso {stepNumber}.",
-          "correctErrorsInStepTitleCase": "Por favor, corrija los errores en el Paso {númeroDePaso}."
+          "correctErrorsInStepTitleCase": "Por favor, corrija los errores en el Paso {stepNumber}."
         }
       },
       "log": {
@@ -1088,7 +1315,7 @@
     "cancel": "Cancelar",
     "close": "Cerrar",
     "confirm": "Confirme",
-    "currencyFormat": "{símbolo}{importe}",
+    "currencyFormat": "{symbol}{amount}",
     "currencySymbol": "$",
     "decimalSeparator": ".",
     "delete": "Borrar",
@@ -1157,7 +1384,7 @@
         "ariaLabelDefault": "{toolName} herramienta. Haga clic para seleccionar o arrastre para añadir.",
         "tooltipActivePlacement": "Herramienta '{toolName}' activa. Haga clic en una celda para colocarla.",
         "tooltipDefaultFullMode": "Haga clic para seleccionar o arrastre para añadir {toolName}.",
-        "tooltipDefaultZenMode": "{nombreDeLaHerramienta}"
+        "tooltipDefaultZenMode": "{toolName}"
       },
       "editorCanvas": {
         "gridRegionLabel": "Área de la cuadrícula de diseño",
@@ -1178,7 +1405,7 @@
         "resetZoomTooltip": "Restablecer zoom ({porcentaje}%)",
         "rowsLabel": "R:",
         "saveLayoutTooltip": "Guardar diseño (Ctrl+S)",
-        "subdivisionOptionSuffix": "x{valor}",
+        "subdivisionOptionSuffix": "x{value}",
         "toolbarLabel": "Barra de herramientas del editor de diseño",
         "undoTooltip": "Deshacer (Ctrl+Z)",
         "zoomInTooltip": "Acercar (+)",
@@ -1218,30 +1445,30 @@
         "activeStatus": "Activo",
         "activeViewedLabel": "Activo Visto: {contar}",
         "alertNoTablesForSimulateMessage": "Por favor, diseñe primero la disposición de la mesa antes de simular los pedidos.",
-        "alertNoTablesForSimulateTitle": "No hay tablas definidas",
+        "alertNoTablesForSimulateTitle": "No hay mesas definidas",
         "confirmChargeCancelText": "No, todavía no",
         "confirmChargeConfirmText": "Sí, cargado y limpio",
-        "confirmChargeMessage": "¿Ha cobrado al cliente y está listo para liquidar la Tabla {número}?",
-        "confirmChargeTitle": "Confirmar carga y borrar tabla",
+        "confirmChargeMessage": "¿Ha cobrado al cliente y está listo para liquidar la Tabla {number}?",
+        "confirmChargeTitle": "Confirmar carga y borrar mesas",
         "delayedStatus": "Retraso",
         "designLayoutButton": "Disposición de la mesa de diseño",
-        "footerText": "Sistema de gestión de mesas de panadería © {año}",
+        "footerText": "Sistema de gestión de mesas de panadería © {year}",
         "hideSidebar": "Ocultar barra lateral",
         "idLabel": "ID: {id}...",
         "itemsLabel": "Artículos:",
         "kitchenAreaLabel": "Cocina",
-        "liveStatusTitle": "Estado de la tabla en vivo (Actualiza {timeAgo})",
+        "liveStatusTitle": "Estado de la mesas en vivo (Actualiza {timeAgo})",
         "newOrdersLabel": "Nuevos pedidos: {count}",
-        "noTablesDefinedMessage": "Haga clic en \"Diseñar diseño de tabla\" para empezar.",
-        "noTablesDefinedTitle": "Aún no hay tablas definidas.",
-        "orderDetailsTitle": "Detalles del pedido: Tabla {número}",
+        "noTablesDefinedMessage": "Haga clic en \"Diseñar diseño de mesas\" para empezar.",
+        "noTablesDefinedTitle": "Aún no hay mesas definidas.",
+        "orderDetailsTitle": "Detalles del pedido: Mesa {number}",
         "peopleLabel": "Gente:",
         "showSidebar": "Mostrar barra lateral",
         "simulateOrderButton": "Simular Nueva Orden",
-        "tableLabel": "Tabla {número}",
+        "tableLabel": "Mesa {number}",
         "title": "Pedidos de panadería",
-        "totalPriceLabel": "Total: {precio}",
-        "viewedOrdersTitle": "Pedidos vistos ({contar})"
+        "totalPriceLabel": "Total: {price}",
+        "viewedOrdersTitle": "Pedidos vistos ({count})"
       },
       "placedItem": {
         "defaultRendererIdLabel": "ID: {itemId}",
@@ -1267,7 +1494,7 @@
         "directionN": "Norte",
         "directionS": "Sur",
         "directionW": "Oeste",
-        "tooltipPrefix": "Redimensionar {dirección}"
+        "tooltipPrefix": "Redimensionar {direction}"
       },
       "rotationHandle": {
         "ariaLabel": "Girar el elemento 90 grados",
@@ -1302,7 +1529,7 @@
         "resetLocallyMessage": "El diseño se ha restablecido a los valores predeterminados. Guarde para mantener los cambios.",
         "resetLocallyTitle": "Layout Reset Local",
         "saveErrorDefault": "No se ha podido guardar el diseño de la sede.",
-        "saveErrorDetailsPrefix": "Detalles: {detalles}",
+        "saveErrorDetailsPrefix": "Detalles: {details}",
         "saveErrorNoData": "No se proporcionan datos de diseño para guardar.",
         "saveErrorNotLoaded": "Los datos del diseño aún no se han cargado. Espere e inténtelo de nuevo.",
         "saveErrorTitle": "Guardar error"
@@ -1323,7 +1550,7 @@
         "duplicateTableNumberTitle": "Número de mesa duplicado",
         "factoryErrorMessage": "Error al crear propiedades para un nuevo elemento ({itemType}).",
         "factoryErrorTitle": "Error de fábrica",
-        "gridDimensionErrorRange": "Dimensiones de cuadrícula fuera de rango. Filas mín./máx: {minFilas}-{maxFilas}, Cols: {minCols}-{maxCols}.",
+        "gridDimensionErrorRange": "Dimensiones de cuadrícula fuera de rango. Filas mín./máx: {minRows}-{maxRows}, Cols: {minCols}-{maxCols}.",
         "gridDimensionErrorTitle": "Dimensión no válida",
         "gridResizeErrorOutOfBoundsMessage": "No se pueden reducir las dimensiones. Algunos artículos quedarían fuera de los límites.",
         "gridResizeErrorOutOfBoundsTitle": "Error de cambio de tamaño",
@@ -1408,16 +1635,16 @@
       },
       "venueLayoutPreview": {
         "downloadAllQrsButtonText": "Descargar todos los QR",
-        "gridItemTableTooltip": "Tabla {número} - Haga clic para ver el QR en la barra lateral",
+        "gridItemTableTooltip": "Tabla {number} - Haga clic para ver el QR en la barra lateral",
         "noTablesForQrMessage": "Cambie al \"Modo Diseño\" para añadir tablas a su diseño y asignarles números.",
         "noTablesForQrTitle": "No hay tablas para códigos QR",
         "previewUnavailableMessage": "Parece que no hay datos de diseño para mostrar, o las dimensiones de la cuadrícula no son válidas. <br />Por favor, diseñe primero su diseño en 'Modo Diseño'.",
         "previewUnavailableTitle": "Vista previa del diseño no disponible",
         "qrDownloadButtonTooltip": "Descargar Código QR",
         "qrErrorMessage": "No se ha podido cargar.",
-        "qrSeatsLabel": "{asientos} Asientos",
+        "qrSeatsLabel": "{seats} Asientos",
         "qrSeatsNotAvailable": "N/A Asientos",
-        "qrShapeLabel": "{forma}",
+        "qrShapeLabel": "{shape}",
         "qrSidebarTitle": "Tabla Códigos QR",
         "qrSkippedMessage": "No disponible.",
         "qrStatusError": "Error al cargar QR",
@@ -1430,7 +1657,7 @@
         "baseWidthLabel": "Anchura de la base (menor):",
         "infoSectionTitle": "Información mural",
         "lengthLabel": "Longitud (unidades principales):",
-        "thicknessHelpText": "Grosor dentro de su propia celda de la cuadrícula. No afecta a la colisión. Max: {espesor máximo}.",
+        "thicknessHelpText": "Grosor dentro de su propia celda de la cuadrícula. No afecta a la colisión. Max: {maxThickness}.",
         "thicknessLabel": "Grosor visual (células menores)",
         "thicknessTooltip": "Espesor visual de la pared dentro de su propia célula."
       }

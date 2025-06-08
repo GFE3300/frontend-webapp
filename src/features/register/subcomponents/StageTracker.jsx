@@ -2,6 +2,8 @@ import clsx from "clsx";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Icon from "../../../components/common/Icon";
+import { scriptLines_Registration as scriptLines } from '../utils/script_lines';
+
 export const StageTracker = ({
     steps = [],
     currentStep = 0,
@@ -36,6 +38,9 @@ export const StageTracker = ({
             orientation === "responsive" && "flex-col md:flex-row"
         )}>
             {steps.map((step, index) => {
+                const stepLabel = typeof step === 'object' ? step.label : step;
+                const isOptional = typeof step === 'object' && step.optional;
+
                 const isCompleted = index < currentStep;
                 const isCurrent = index === currentStep;
                 const stepNumber = index + 1;
@@ -58,7 +63,7 @@ export const StageTracker = ({
                                 <StepShape
                                     isCompleted={isCompleted}
                                     isCurrent={isCurrent}
-                                    isOptional={step.optional}
+                                    isOptional={isOptional}
                                     onClick={() => handleStepClick(index)}
                                     stepSize={stepSize}
                                     completedColor={completedColor}
@@ -111,9 +116,9 @@ export const StageTracker = ({
                                 {steps[stepNumber - 1]}
                             </h1>
                             <p className="text-lg font-semibold text-gray-900">
-                                {step.label}
-                                {step.optional && (
-                                    <span className="ml-2 text-xs text-rose-500">(Optional)</span>
+                                {stepLabel}
+                                {isOptional && (
+                                    <span className="ml-2 text-xs text-rose-500">{scriptLines.stageTracker.optionalLabel}</span>
                                 )}
                             </p>
                             {showDescriptions && step.description && (

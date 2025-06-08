@@ -1,38 +1,8 @@
 import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { InputField, Dropdown } from '../subcomponents'; // Assuming InputField and Dropdown are in this path
-// import { scriptLines_AddressForm } from '../utils/script_lines'; // Assuming you have localized strings
-
-// Placeholder for localized strings. Replace with your actual localization setup.
-const scriptLines_AddressForm = {
-    addressForm: {
-        label: {
-            streetAddress: "Street Address",
-            city: "City",
-            postalCode: "Postal Code",
-            country: "Country",
-        },
-        staticCountries: {
-            US: "United States",
-            CA: "Canada",
-            GB: "United Kingdom",
-            AU: "Australia",
-            ES: "Spain",
-            FR: "France",
-            DE: "Germany",
-            IT: "Italy",
-            PT: "Portugal",
-            BR: "Brazil",
-            MX: "Mexico",
-            IN: "India",
-            JP: "Japan",
-            CN: "China",
-            RU: "Russia",
-            ZA: "South Africa",
-            VE: "Venezuela",
-        }
-    }
-};
+import { InputField, Dropdown } from '../subcomponents';
+// MODIFICATION: Import the centralized script lines
+import { scriptLines_Registration as scriptLines } from '../utils/script_lines';
 
 /**
  * @typedef {object} AddressData
@@ -56,7 +26,8 @@ const scriptLines_AddressForm = {
  * @returns {CountryOption[]}
  */
 const getDefaultCountryOptions = () => {
-    return Object.entries(scriptLines_AddressForm.addressForm.staticCountries).map(([code, name]) => ({
+    // MODIFICATION: Use centralized script lines
+    return Object.entries(scriptLines.addressForm.staticCountries).map(([code, name]) => ({
         label: name,
         value: code,
         key: code,
@@ -65,20 +36,7 @@ const getDefaultCountryOptions = () => {
 
 /**
  * AddressForm Component
- *
- * A fully controlled component for displaying and editing address fields.
- * It receives address data and validation errors as props and emits changes
- * for individual fields upwards via the `onFieldChange` callback.
- *
- * This component does not manage its own internal state for address values.
- *
- * @component
- * @param {object} props
- * @param {AddressData | null} props.addressData - The current address data to display.
- * @param {(fieldName: keyof AddressData, value: string) => void} props.onFieldChange - Callback when an address field changes.
- * @param {object} [props.validationErrors] - Validation errors for address fields (e.g., { street: "Street is required" }).
- * @param {CountryOption[]} [props.countryOptions] - Options for the country dropdown. Defaults to a static list.
- * @param {boolean} [props.disabled] - If true, all fields are disabled.
+ * ... (docstring remains the same) ...
  */
 const AddressForm = memo(({
     addressData,
@@ -87,8 +45,6 @@ const AddressForm = memo(({
     countryOptions,
     disabled = false,
 }) => {
-    // Memoize country options to prevent re-computation if props.countryOptions is not provided
-    // or if the provided array reference is stable.
     const memoizedCountryOptions = useMemo(() => {
         return countryOptions || getDefaultCountryOptions();
     }, [countryOptions]);
@@ -101,33 +57,31 @@ const AddressForm = memo(({
         onFieldChange(fieldName, selectedValue);
     };
 
-    // Ensure addressData is not null for safe access, provide empty strings as fallbacks.
     const currentAddress = addressData || { street: '', city: '', postalCode: '', country: '' };
 
     return (
-        <div className="flex flex-col gap-y-12"> {/* Adjusted gap for consistency */}
+        <div className="flex flex-col gap-y-12">
             <InputField
-                label={scriptLines_AddressForm.addressForm.label.streetAddress}
+                label={scriptLines.addressForm.label.streetAddress}
                 name="street"
                 value={currentAddress.street || ''}
                 onChange={handleInputChange('street')}
                 error={validationErrors?.street}
                 disabled={disabled}
                 autoComplete="street-address"
-            // required // Visual indicator can be handled by label or InputField itself
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12"> {/* Responsive layout for city/postal */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
                 <InputField
-                    label={scriptLines_AddressForm.addressForm.label.city}
+                    label={scriptLines.addressForm.label.city}
                     name="city"
                     value={currentAddress.city || ''}
                     onChange={handleInputChange('city')}
                     error={validationErrors?.city}
                     disabled={disabled}
-                    autoComplete="address-level2" // More specific autocomplete hint for city
+                    autoComplete="address-level2"
                 />
                 <InputField
-                    label={scriptLines_AddressForm.addressForm.label.postalCode}
+                    label={scriptLines.addressForm.label.postalCode}
                     name="postalCode"
                     value={currentAddress.postalCode || ''}
                     onChange={handleInputChange('postalCode')}
@@ -137,15 +91,15 @@ const AddressForm = memo(({
                 />
             </div>
             <Dropdown
-                label={scriptLines_AddressForm.addressForm.label.country}
+                label={scriptLines.addressForm.label.country}
                 name="country"
                 options={memoizedCountryOptions}
                 value={currentAddress.country || null}
                 onChange={handleDropdownChange('country')}
                 error={validationErrors?.country}
                 disabled={disabled}
-                autoComplete="country-name" // Hint for browser autocomplete
-                placeholder="Select a country" // Optional: if your Dropdown supports it
+                autoComplete="country-name"
+                placeholder={scriptLines.addressForm.placeholder.selectCountry}
             />
         </div>
     );
@@ -158,8 +112,8 @@ AddressForm.propTypes = {
         street: PropTypes.string,
         city: PropTypes.string,
         postalCode: PropTypes.string,
-        country: PropTypes.string, // Should be a country code
-        formattedAddress: PropTypes.string, // Optional
+        country: PropTypes.string,
+        formattedAddress: PropTypes.string,
     }),
     onFieldChange: PropTypes.func.isRequired,
     validationErrors: PropTypes.object,

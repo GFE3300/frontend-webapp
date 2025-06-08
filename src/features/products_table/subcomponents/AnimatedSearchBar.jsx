@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 import { useProductSearchSuggestions } from '../../../contexts/ProductDataContext';
 import { useDebounce } from '../../../hooks/useDebounce';
+
+import { scriptLines_ProductsTable as scriptLines } from '../utils/script_lines.js';
 
 const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder = "Search...", isSortActiveTarget = false }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -111,14 +112,7 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
         }
     };
 
-    const baseClasses = `
-        dropdown-button group w-full h-9 py-2 px-2 rounded-full font-montserrat font-medium
-        flex items-center justify-between text-left
-        focus:outline-none focus-visible:ring-2
-        transition-all duration-200
-        text-neutral-900 dark:text-neutral-800 text-sm
-        cursor-pointer`;
-
+    const baseClasses = `dropdown-button group w-full h-9 py-2 px-2 rounded-full font-montserrat font-medium flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 transition-all duration-200 text-neutral-900 dark:text-neutral-800 text-sm cursor-pointer`;
     const normalStateClasses = 'bg-neutral-100 dark:bg-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-300/80';
     const activeSortTargetClasses = 'bg-sky-100 dark:bg-sky-200 ring-2 ring-sky-500 dark:ring-sky-500 shadow-md';
     const expandedStateClasses = isExpanded ? 'shadow-lg' : 'shadow-xs hover:shadow-md';
@@ -155,7 +149,7 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
                         type="button"
                         onClick={handleClearSearch}
                         className="absolute p-1 w-6 h-6 right-10 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-                        title="Clear search"
+                        title={scriptLines.animatedSearchBar.tooltips.clearSearch}
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.5 }}
@@ -168,7 +162,7 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
                     type={isExpanded && searchTerm ? "submit" : "button"}
                     onClick={handleIconClick}
                     className="p-1 h-6 flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-600 focus:outline-none rounded-full transition-colors"
-                    title={isExpanded ? "Search" : "Open search"}
+                    title={isExpanded ? scriptLines.animatedSearchBar.tooltips.search : scriptLines.animatedSearchBar.tooltips.openSearch}
                 >
                     <Icon name="search" className="w-4 h-4" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 48 }} />
                 </button>
@@ -182,15 +176,13 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
                         exit={{ opacity: 0, y: 5, maxHeight: 0, transition: { duration: 0.2 } }}
                         className="absolute font-montserrat top-full mt-1.5 w-full min-w-[280px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-xl shadow-xl z-20 overflow-y-auto"
                     >
-                        {isLoadingSuggestions && <li className="px-3 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">Loading suggestions...</li>}
+                        {isLoadingSuggestions && <li className="px-3 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">{scriptLines.animatedSearchBar.status.loading}</li>}
                         {!isLoadingSuggestions && suggestions && suggestions.length > 0 && suggestions.map((suggestion, index) => (
                             <li
                                 key={suggestion.id || suggestion.value + index}
                                 onClick={() => handleSuggestionClick(suggestion)}
                                 onMouseEnter={() => setActiveIndex(index)}
-                                className={`px-3 py-2.5 text-sm cursor-pointer
-                                            ${index === activeIndex ? 'bg-rose-50 dark:bg-rose-700/50' : 'hover:bg-neutral-50 dark:hover:bg-neutral-700/60'}
-                                            text-neutral-700 dark:text-neutral-200`}
+                                className={`px-3 py-2.5 text-sm cursor-pointer ${index === activeIndex ? 'bg-rose-50 dark:bg-rose-700/50' : 'hover:bg-neutral-50 dark:hover:bg-neutral-700/60'} text-neutral-700 dark:text-neutral-200`}
                             >
                                 <div className="flex justify-between items-center">
                                     <span className="font-medium">{suggestion.value}</span>
@@ -206,7 +198,7 @@ const AnimatedSearchBar = ({ initialSearchTerm = '', onSearchSubmit, placeholder
                             </li>
                         ))}
                         {!isLoadingSuggestions && (!suggestions || suggestions.length === 0) && debouncedSearchTerm.length >= 2 && (
-                            <li className="px-3 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">No suggestions found.</li>
+                            <li className="px-3 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">{scriptLines.animatedSearchBar.status.noSuggestions}</li>
                         )}
                     </motion.ul>
                 )}
@@ -219,7 +211,7 @@ AnimatedSearchBar.propTypes = {
     initialSearchTerm: PropTypes.string,
     onSearchSubmit: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
-    isSortActiveTarget: PropTypes.bool, // New prop
+    isSortActiveTarget: PropTypes.bool,
 };
 
 export default AnimatedSearchBar;

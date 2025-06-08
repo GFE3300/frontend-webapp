@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Icon from '../../../../components/common/Icon';
 
+import { scriptLines_ProductsTable as scriptLines } from '../../utils/script_lines.js';
+
 const TagPills = ({ tags, pillClassName, maxVisibleTags = Infinity }) => {
     if (!tags || tags.length === 0) {
-        return null; // Or a placeholder like '-'
+        return null;
     }
-
-    // console.log("Rendering TagPills with tags:", tags);
 
     const visibleTags = tags.slice(0, maxVisibleTags);
     const hiddenTagsCount = tags.length - maxVisibleTags;
@@ -20,7 +20,7 @@ const TagPills = ({ tags, pillClassName, maxVisibleTags = Infinity }) => {
                 <span
                     key={index}
                     className={`flex flex-row items-center gap-1 ${pillClassName || defaultPillClass}`}
-                    title={typeof tag === 'object' ? tag.name : tag} // Show full tag name on hover if it's an object
+                    title={typeof tag === 'object' ? tag.name : tag}
                 >
                     <div className='flex items-center justify-center w-4 h-4'>
                         <Icon name={tag.icon_name} className="w-3 h-3 flex-shrink-0" style={{ fontSize: '0.75rem' }}/>
@@ -30,7 +30,8 @@ const TagPills = ({ tags, pillClassName, maxVisibleTags = Infinity }) => {
             ))}
             {hiddenTagsCount > 0 && (
                 <span className="text-xs text-neutral-500 dark:text-neutral-400 ml-1">
-                    +{hiddenTagsCount} more
+
+                    {scriptLines.tagPills.more.replace('{count}', hiddenTagsCount)}
                 </span>
             )}
         </div>
@@ -41,10 +42,10 @@ TagPills.propTypes = {
     tags: PropTypes.arrayOf(
         PropTypes.oneOfType([
             PropTypes.string,
-            PropTypes.shape({ name: PropTypes.string.isRequired })
+            PropTypes.shape({ name: PropTypes.string.isRequired, icon_name: PropTypes.string }) // Added icon_name to shape
         ])
     ).isRequired,
-    pillClassName: PropTypes.string, // Optional custom class for pills
+    pillClassName: PropTypes.string,
     maxVisibleTags: PropTypes.number,
 };
 

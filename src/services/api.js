@@ -234,7 +234,7 @@ const apiService = {
                         const errorJson = JSON.parse(errorJsonText);
                         errorMessage += ` Server error: ${errorJson.detail || errorJson.message || errorJsonText}`;
                     } catch (e) {
-                        // console.error("[API SERVICE] Failed to parse blob error response:", e);
+                        console.error("[API SERVICE] Failed to parse blob error response:", e);
                         errorMessage += ` Server returned an error (could not parse blob response). Status: ${error.response.status}.`;
                     }
                 } else if (error.response.data?.detail) {
@@ -307,6 +307,24 @@ const apiService = {
     createCustomerPortalSession: () => {
         // console.log("[API SERVICE] Attempting to create Stripe Customer Portal session.");
         return apiInstance.post('payments/create-customer-portal-session/');
+    },
+
+    /**
+     * Fetches the real-time status of all tables for the live orders dashboard.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response containing an array of table statuses.
+     */
+    getLiveOrdersView: () => {
+        return apiInstance.get('orders/live-view/');
+    },
+
+    /**
+     * Updates the status of a specific order.
+     * @param {string} orderId - The UUID of the order to update.
+     * @param {{status: string}} data - The payload containing the new status.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response.
+     */
+    updateOrderStatus: (orderId, data) => {
+        return apiInstance.patch(`orders/${orderId}/`, data);
     },
 
 };

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import EditableCell from './EditableCell';
 import { motion } from 'framer-motion';
-import Icon from '../../../components/common/Icon';
+import { useBusinessCurrencyFormatter } from '../../../utils/formatCurrency';
 
 const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStatusProductId }) => {
     const {
@@ -17,6 +17,8 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
         align = 'left',
     } = column;
 
+    const { formatCurrency } = useBusinessCurrencyFormatter();
+    
     const isEditable = cellType === 'editableCurrency' || cellType === 'editableText';
 
     const rawValue = useMemo(() => {
@@ -50,7 +52,7 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
             const num = parseFloat(rawValue);
             cellContent = isNaN(num)
                 ? <span className="italic text-red-500 dark:text-red-400">Invalid</span>
-                : `$${num.toFixed(2)}`;
+                : `${formatCurrency(num.toFixed(2))}`;
         } else {
             cellContent = String(rawValue);
         }

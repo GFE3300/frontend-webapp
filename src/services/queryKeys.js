@@ -2,6 +2,7 @@ export const PRODUCTS_BASE_KEY = 'products';
 export const VENUE_BASE_KEY = 'venue';
 export const PAYMENTS_BASE_KEY = 'payments'; // Existing or ensure it's here
 export const SUBSCRIPTIONS_BASE_KEY = 'subscriptions'; // New or ensure it's here
+export const ORDERS_BASE_KEY = 'orders';
 
 export const queryKeys = {
     // Product related data for dropdowns, selectors, etc. in AddProductModal
@@ -39,4 +40,7 @@ export const queryKeys = {
     // Subscription related keys
     subscriptionStatus: [SUBSCRIPTIONS_BASE_KEY, 'status'], // For fetching current user's subscription status
     // Example: subscriptionDetails: (subscriptionId) => [SUBSCRIPTIONS_BASE_KEY, 'details', subscriptionId],
+    
+    // Live Orders View (Dashboard)
+    liveOrdersView: [ORDERS_BASE_KEY, 'live-view'],
 };

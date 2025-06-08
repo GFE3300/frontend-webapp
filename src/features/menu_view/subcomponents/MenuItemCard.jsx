@@ -5,6 +5,7 @@ import Icon from '../../../components/common/Icon.jsx';
 import WavingBackground from "../../../components/animations/WavingLine.jsx";
 import { getEffectiveDisplayPrice } from "../utils/productUtils.js";
 import { useTheme } from "../../../utils/ThemeProvider.jsx";
+import { useCurrency as useCurrency } from "../../../hooks/useCurrency.js"; // Import the new hook
 
 const CARD_CONTENT_WIDTH_PX = 240;
 const CARD_CONTENT_HEIGHT_PX = 270;
@@ -28,6 +29,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
     const imageAnimationStartRef = useRef(null);
     const { theme } = useTheme();
     const shouldReduceMotion = useReducedMotion();
+    const { formatCurrency } = useCurrency(); // Use the hook here
 
     const { originalPrice, displayPrice, bestDiscountApplied } = useMemo(
         () => getEffectiveDisplayPrice(product),
@@ -105,7 +107,11 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
     const unavailableButtonTextCol = "text-neutral-500 dark:text-neutral-400";
 
     // ARIA Label construction
-    let ariaLabel = `${name}, price ${displayPrice.toFixed(2)}.`;
+    let ariaLabel = `
+        ${name}, price ${formatCurrency(displayPrice)}. 
+        ${!isProductAvailable ? "This item is currently unavailable." : (hasOptions ? "Tap to view details and configure options." : "Tap to add to order.")}
+    `.trim().replace(/\s+/g, ' ');
+
     if (!isProductAvailable) {
         ariaLabel += " This item is currently unavailable.";
     } else if (hasOptions) {
@@ -195,7 +201,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-600">
-                            <Icon name={FALLBACK_PLACEHOLDER_ICON_NAME} className="flex items-center justify-center text-neutral-400 dark:text-neutral-500" style={{ fontSize: '2rem'}}/>
+                            <Icon name={FALLBACK_PLACEHOLDER_ICON_NAME} className="flex items-center justify-center text-neutral-400 dark:text-neutral-500" style={{ fontSize: '2rem' }} />
                         </div>
                     )}
                 </motion.div>
@@ -256,7 +262,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                                 {remainingTagsCount > 0 && (
                                     <span
                                         className={PLUS_N_MORE_TAG_PILL_STYLES}
-                                        aria-label={`and ${remainingTagsCount} more tags`} 
+                                        aria-label={`and ${remainingTagsCount} more tags`}
                                         title={`+${remainingTagsCount} more tags`}
                                     >
                                         +{remainingTagsCount}
@@ -270,16 +276,16 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                         <div className="flex flex-col items-start text-left">
                             {bestDiscountApplied && isProductAvailable ? (
                                 <>
-                                    <span className="font-inter text-xs line-through text-neutral-400 dark:text-neutral-500" aria-label={`Original price ${originalPrice.toFixed(2)}`}>
-                                        ${originalPrice.toFixed(2)}
+                                    <span className="font-inter text-xs line-through text-neutral-400 dark:text-neutral-500" aria-label={`Original price ${formatCurrency(originalPrice)}`}>
+                                        {formatCurrency(originalPrice)}
                                     </span>
-                                    <span className="font-montserrat text-lg font-bold text-red-500 dark:text-red-400 leading-tight" aria-label={`Discounted price ${displayPrice.toFixed(2)}`}>
-                                        ${displayPrice.toFixed(2)}
+                                    <span className="font-montserrat text-lg font-bold text-red-500 dark:text-red-400 leading-tight" aria-label={`Discounted price ${formatCurrency(displayPrice)}`}>
+                                        {formatCurrency(displayPrice)}
                                     </span>
                                 </>
                             ) : (
-                                <span className="font-montserrat text-lg font-bold text-neutral-700 dark:text-neutral-200 leading-tight" aria-label={`Price ${originalPrice.toFixed(2)}`}>
-                                    ${originalPrice.toFixed(2)}
+                                <span className="font-montserrat text-lg font-bold text-neutral-700 dark:text-neutral-200 leading-tight" aria-label={`Price ${formatCurrency(originalPrice)}`}>
+                                    {formatCurrency(originalPrice)}
                                 </span>
                             )}
                         </div>
@@ -293,7 +299,7 @@ export default function MenuItemCard({ product, onOpenProductDetailModal }) {
                                     )
                                     : `${unavailableButtonBg} ${unavailableButtonTextCol}`
                                 }`}
-                            aria-hidden="true" 
+                            aria-hidden="true"
                         >
                             <Icon
                                 name={actionButtonIcon}

@@ -1,26 +1,9 @@
 import React, { useState, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
-import { motion, AnimatePresence } from 'framer-motion'; // For animations
-import Icon from '../../../components/common/Icon'; // Assuming Icon component path
-
-// Placeholder for localized strings. Replace with your actual localization setup.
-const scriptLines_Geolocation = {
-    label: {
-        useMyLocation: "Use my current location",
-        locating: "Locating...",
-    },
-    error: {
-        notSupported: "Geolocation is not supported by your browser.",
-        permissionDenied: "Permission denied. Please enable location services.",
-        unavailable: "Location information is unavailable.",
-        timeout: "The request to get user location timed out.",
-        unknown: "An unknown error occurred while trying to get your location.",
-    },
-    tooltip: {
-        default: "Get current location",
-    }
-};
+import { motion, AnimatePresence } from 'framer-motion';
+import Icon from '../../../components/common/Icon';
+// MODIFICATION: Import the centralized script lines
+import { scriptLines_Registration as scriptLines } from '../utils/script_lines';
 
 /**
  * @typedef {Object} Coordinates
@@ -28,13 +11,12 @@ const scriptLines_Geolocation = {
  * @property {number} lng - Longitude.
  */
 
-// Simple spinner for loading state within the button
 const ButtonSpinner = () => (
     <motion.div
         initial={{ rotate: 0 }}
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className="w-5 h-5" // Adjust size as needed
+        className="w-5 h-5"
     >
         <Icon name="progress_activity" className="w-full h-full" />
     </motion.div>
@@ -42,21 +24,7 @@ const ButtonSpinner = () => (
 
 /**
  * GeolocationButton Component
- *
- * A button that, when clicked, attempts to get the user's current
- * geographical location using the browser's Geolocation API.
- * It handles loading and error states and calls `onLocate` with the coordinates.
- *
- * This component is self-contained regarding geolocation logic.
- *
- * @component
- * @param {object} props
- * @param {(coords: Coordinates) => void} props.onLocate - Callback function invoked with the user's coordinates on success.
- * @param {(error: GeolocationPositionError | { code: number, message: string }) => void} [props.onError] - Optional callback for geolocation errors.
- * @param {string} [props.buttonClassName] - Custom CSS class for the button.
- * @param {React.ReactNode} [props.children] - Custom content for the button (overrides default icon).
- * @param {boolean} [props.disabled] - If true, the button is disabled.
- * @param {object} [props.geolocationOptions] - Options for navigator.geolocation.getCurrentPosition().
+ * ... (docstring remains the same) ...
  */
 const GeolocationButton = memo(({
     onLocate,
@@ -67,12 +35,13 @@ const GeolocationButton = memo(({
     geolocationOptions = { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 },
 }) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [errorState, setErrorState] = useState(null); // Stores error message for tooltip or display
+    const [errorState, setErrorState] = useState(null);
     const [isHovered, setIsHovered] = useState(false);
 
     const handleGeolocation = useCallback(async () => {
         if (!navigator.geolocation) {
-            const err = { code: -1, message: scriptLines_Geolocation.error.notSupported };
+            // MODIFICATION: Use centralized script lines
+            const err = { code: -1, message: scriptLines.geolocationButton.error.notSupported };
             setErrorState(err.message);
             onError?.(err);
             return;
@@ -94,34 +63,36 @@ const GeolocationButton = memo(({
             setIsLoading(false);
         } catch (err) {
             setIsLoading(false);
-            let message = scriptLines_Geolocation.error.unknown;
+            // MODIFICATION: Use centralized script lines
+            let message = scriptLines.geolocationButton.error.unknown;
             switch (err.code) {
                 case err.PERMISSION_DENIED:
-                    message = scriptLines_Geolocation.error.permissionDenied;
+                    message = scriptLines.geolocationButton.error.permissionDenied;
                     break;
                 case err.POSITION_UNAVAILABLE:
-                    message = scriptLines_Geolocation.error.unavailable;
+                    message = scriptLines.geolocationButton.error.unavailable;
                     break;
                 case err.TIMEOUT:
-                    message = scriptLines_Geolocation.error.timeout;
+                    message = scriptLines.geolocationButton.error.timeout;
                     break;
                 default:
                     break;
             }
             setErrorState(message);
-            onError?.({ code: err.code, message }); // Pass a simplified error object
+            onError?.({ code: err.code, message });
             console.error("Geolocation error:", err);
         }
     }, [onLocate, onError, geolocationOptions]);
 
-    const effectiveLabel = isLoading ? scriptLines_Geolocation.label.locating : scriptLines_Geolocation.label.useMyLocation;
-    const tooltipText = errorState || scriptLines_Geolocation.tooltip.default;
+    // MODIFICATION: Use centralized script lines
+    const effectiveLabel = isLoading ? scriptLines.geolocationButton.label.locating : scriptLines.geolocationButton.label.useMyLocation;
+    const tooltipText = errorState || scriptLines.geolocationButton.tooltip.default;
 
     return (
         <div className="relative inline-block"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onFocus={() => setIsHovered(true)} // Show tooltip on focus for accessibility
+            onFocus={() => setIsHovered(true)}
             onBlur={() => setIsHovered(false)}
         >
             <motion.button
@@ -165,11 +136,10 @@ const GeolocationButton = memo(({
                         role="tooltip"
                     >
                         {tooltipText}
-                        {/* Optional: Tooltip arrow - adjust styling as needed */}
                         <div className="absolute top-full left-1/2 w-2 h-2 
                                         bg-neutral-200 dark:bg-neutral-200 
                                         transform -translate-x-1/2 rotate-45"
-                            style={{ marginTop: '-4px' }} // Overlap slightly for seamless look
+                            style={{ marginTop: '-4px' }}
                         />
                     </motion.div>
                 )}

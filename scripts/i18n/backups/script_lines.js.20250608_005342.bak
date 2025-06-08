@@ -1,0 +1,146 @@
+/**
+ * @auto-managed
+ *
+ * This file is managed by the I18N script. Any manual changes to this file will be
+ * overwritten during the next synchronization. To add or modify text, please
+ * update the original string in this file and then run the 'sync' command.
+ *
+ * @last-synced 2025-06-07 11:26:40 UTC
+ */
+
+import i18n from '../../../i18n';
+
+export const scriptLines_Components = {
+
+    planSelection: { 
+        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'),
+        messages: {
+            loadingSubscription: i18n.t('payments.components.planSelection.messages.loadingSubscription'),
+            subscriptionErrorTitle: i18n.t('payments.components.planSelection.messages.subscriptionErrorTitle'),
+            subscriptionLoadError: i18n.t('payments.components.planSelection.messages.subscriptionLoadError')
+        },
+        buttons: {
+            chooseThisPlan: i18n.t('payments.components.planSelection.buttons.chooseThisPlan'),
+            manageSubscription: i18n.t('payments.components.planSelection.buttons.manageSubscription'),
+            upgradePlan: i18n.t('payments.components.planSelection.buttons.upgradePlan'),
+            downgradePlan: i18n.t('payments.components.planSelection.buttons.downgradePlan'),
+            switchPlan: i18n.t('payments.components.planSelection.buttons.switchPlan'),
+            processing: i18n.t('payments.components.planSelection.buttons.processing'),
+            planSelected: i18n.t('payments.components.planSelection.buttons.planSelected'),
+        },
+        badges: {
+            mostPopular: i18n.t('payments.components.planSelection.badges.mostPopular'),
+            recommended: i18n.t('payments.components.planSelection.badges.recommended'),
+            specialOffer: i18n.t('payments.components.planSelection.badges.specialOffer'),
+            currentPlan: i18n.t('payments.components.planSelection.badges.currentPlan')
+        },
+        whyThisPlanTemplate: "Why {{planName}}?",
+        plans: [
+            {
+                id: i18n.t('payments.components.planSelection.plans.0.id'), // Non-translatable identifier
+                name: i18n.t('register.components.planSelection.plans.0.name'),
+                price: i18n.t('payments.components.planSelection.plans.0.price'),
+                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
+                description: [
+                    i18n.t('payments.components.planSelection.plans.0.description.0'),
+                    i18n.t('payments.components.planSelection.plans.0.description.1')
+                ],
+                features: [
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.0.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.1.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.2.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.3.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.4.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.5.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.6.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.7.text') }
+                ],
+                whyThisPlan: i18n.t('register.components.planSelection.plans.0.whyThisPlan')
+            },
+            {
+                id: i18n.t('payments.components.planSelection.plans.1.id'), // Non-translatable identifier
+                name: i18n.t('register.components.planSelection.plans.1.name'),
+                price: i18n.t('register.components.planSelection.plans.1.price'),
+                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
+                description: [
+                    i18n.t('payments.components.planSelection.plans.1.description.0'),
+                    i18n.t('payments.components.planSelection.plans.1.description.1')
+                ],
+                features: [
+                    { text: i18n.t('register.components.planSelection.plans.1.features.0.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.1.features.1.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.1.features.2.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.1.features.3.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.1.features.4.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.1.features.5.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.0.features.7.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.1.features.7.text') }
+                ],
+                whyThisPlan: i18n.t('register.components.planSelection.plans.1.whyThisPlan'),
+                badgeText: i18n.t('payments.components.planSelection.badges.mostPopular'),
+                discount: {
+                    offerTitle: i18n.t('register.components.planSelection.plans.1.discount.offerTitle'),
+                    displayPrice: i18n.t('register.components.planSelection.plans.1.discount.displayPrice'),
+                    priceSuffix: i18n.t('payments.components.planSelection.plans.1.discount.priceSuffix'),
+                    originalPriceText: i18n.t('register.components.planSelection.plans.1.discount.originalPriceText'),
+                    details: i18n.t('register.components.planSelection.plans.1.discount.details'),
+                    badgeText: i18n.t('payments.components.planSelection.badges.specialOffer')
+                }
+            },
+            {
+                id: i18n.t('payments.components.planSelection.plans.2.id'), // Non-translatable identifier
+                name: i18n.t('register.components.planSelection.plans.2.name'),
+                price: i18n.t('register.components.planSelection.plans.2.price'),
+                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
+                description: [
+                    i18n.t('payments.components.planSelection.plans.2.description.0'),
+                    i18n.t('payments.components.planSelection.plans.2.description.1')
+                ],
+                features: [
+                    { text: i18n.t('register.components.planSelection.plans.2.features.0.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.2.features.1.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.2.features.2.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.2.features.3.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.2.features.4.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.2.features.5.text') },
+                    { text: i18n.t('payments.components.planSelection.plans.2.features.6.text') }
+                ],
+                whyThisPlan: i18n.t('register.components.planSelection.plans.2.whyThisPlan')
+            }
+        ]
+    },
+
+    paymentSuccessPage: {
+        title: i18n.t('payments.components.paymentSuccessPage.title'), // "Payment Successful!"
+        titleSubscriptionActivated: i18n.t('payments.components.paymentSuccessPage.titleSubscriptionActivated'), // "Subscription Activated!"
+        thankYouMessage: i18n.t('payments.components.paymentSuccessPage.thankYouMessage'), // "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated."
+        thankYouGeneric: i18n.t('payments.components.paymentSuccessPage.thankYouGeneric'), // "Thank you! Your payment was successful and your subscription is now active."
+        accessMessage: i18n.t('payments.components.paymentSuccessPage.accessMessage'), // "You can now access all the premium features."
+        transactionIdLabel: i18n.t('payments.components.paymentSuccessPage.transactionIdLabel'), // "Transaction ID:"
+        buttons: {
+            goToDashboard: i18n.t('payments.components.paymentSuccessPage.buttons.goToDashboard'), // "Go to Dashboard"
+            viewBilling: i18n.t('payments.components.paymentSuccessPage.buttons.viewBilling'), // "View Billing Details"
+        },
+        links: {
+            contactSupport: i18n.t('payments.components.paymentSuccessPage.links.contactSupport'), // "contact our support team"
+        },
+        loading: {
+            finalizingSubscription: i18n.t('payments.components.paymentSuccessPage.loading.finalizingSubscription'), // "Finalizing your subscription..."
+            checkingDetails: i18n.t('payments.components.paymentSuccessPage.loading.checkingDetails'), // "Checking payment details..."
+        },
+        errors: {
+            missingSessionId: i18n.t('payments.components.paymentSuccessPage.errors.missingSessionId'), // "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support."
+            subscriptionUpdateFailed: i18n.t('payments.components.paymentSuccessPage.errors.subscriptionUpdateFailed'), // "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support."
+        }
+    },
+
+    paymentCancelPage: {
+        title: i18n.t('payments.components.paymentCancelPage.title'), // "Payment Not Completed"
+        message: i18n.t('payments.components.paymentCancelPage.message'), // "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated."
+        buttons: {
+            tryAgain: i18n.t('payments.components.paymentCancelPage.buttons.tryAgain'), // "Try Again"
+            contactSupport: i18n.t('payments.components.paymentCancelPage.buttons.contactSupport'), // "Contact Support"
+        },
+        footerNote: i18n.t('payments.components.paymentCancelPage.footerNote') // "If you believe this is an error or need assistance, please don't hesitate to reach out."
+    }
+};

@@ -4,18 +4,23 @@ import { useMutation } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiService from '../../../services/api';
 import { useToast } from '../../../contexts/ToastContext';
+
+// Common UI Components
 import InputField from '../../../components/common/InputField';
 import Button from '../../../components/common/Button';
 import Icon from '../../../components/common/Icon';
 
-// A simple toggle switch component (unchanged)
-const ToggleSwitch = ({ label, enabled, setEnabled }) => (
+/**
+ * A simple, reusable toggle switch component for the modal form.
+ */
+const ToggleSwitch = ({ label, enabled, setEnabled, disabled = false }) => (
     <div className="flex items-center">
         <button
             type="button"
             className={`${enabled ? 'bg-primary-600' : 'bg-neutral-200 dark:bg-neutral-600'}
-            relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 focus:ring-primary-500`}
+            relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed`}
             onClick={() => setEnabled(!enabled)}
+            disabled={disabled}
         >
             <span className="sr-only">{label}</span>
             <span
@@ -23,41 +28,52 @@ const ToggleSwitch = ({ label, enabled, setEnabled }) => (
                 inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
             />
         </button>
-        <span className="ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300">{label}</span>
+        <label className="ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300">{label}</label>
     </div>
 );
 
+ToggleSwitch.propTypes = {
+    label: PropTypes.string.isRequired,
+    enabled: PropTypes.bool.isRequired,
+    setEnabled: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+
+/**
+ * A modal for creating a new affiliate or editing an existing one.
+ * Handles form state, validation, and API interaction.
+ */
 const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
     const { addToast } = useToast();
-    const [formData, setFormData] = useState({
-        name: '', email: '', commission_rate: 10, is_active: true,
-    });
+    const [formData, setFormData] = useState({ email: '', commission_rate: 10, is_active: true });
     const [errors, setErrors] = useState({});
-
     const [generatedPassword, setGeneratedPassword] = useState(null);
     const [isCopied, setIsCopied] = useState(false);
 
+    // Effect to reset and populate the form when the modal opens or the affiliate to edit changes.
     useEffect(() => {
         if (isOpen) {
-            setGeneratedPassword(null); // Always reset password on open
+            setGeneratedPassword(null);
             setIsCopied(false);
             setErrors({});
             if (affiliateToEdit) {
                 setFormData({
-                    name: affiliateToEdit.name || '',
-                    email: affiliateToEdit.email || '',
-                    commission_rate: parseFloat(affiliateToEdit.commission_rate) * 100,
+                    // Email is not directly editable but needed for context.
+                    email: affiliateToEdit.user_email || '',
+                    // Commission rate is stored as a decimal (0.1) but displayed as a percentage (10).
+                    commission_rate: affiliateToEdit.commission_rate ? (parseFloat(affiliateToEdit.commission_rate) * 100).toFixed(1) : 10,
                     is_active: affiliateToEdit.is_active,
                 });
             } else {
-                setFormData({
-                    name: '', email: '', commission_rate: 10, is_active: true,
-                });
+                // Reset to default for creation.
+                setFormData({ email: '', commission_rate: 10, is_active: true });
             }
         }
     }, [isOpen, affiliateToEdit]);
 
     const handleClose = () => {
+        // Reset state before closing for a clean next open.
         setGeneratedPassword(null);
         setIsCopied(false);
         onClose();
@@ -65,22 +81,26 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
 
     const mutation = useMutation({
         mutationFn: (data) => {
+            // Convert commission rate from percentage to decimal for the backend.
             const apiPayload = { ...data, commission_rate: parseFloat(data.commission_rate) / 100 };
-            // MODIFICATION: API endpoints are updated to point to the new staff-namespaced URL.
+            
             if (affiliateToEdit) {
-                return apiService.put(`/staff/affiliates/${affiliateToEdit.id}/`, apiPayload);
+                // Update requires sending only editable fields.
+                const { email, ...updatePayload } = apiPayload;
+                return apiService.patch(`/affiliates/${affiliateToEdit.id}/`, updatePayload);
             }
-            return apiService.post('/staff/affiliates/', apiPayload);
+            return apiService.post('/affiliates/', apiPayload);
         },
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['staff_affiliates'] });
+
+            // Special success state for creation to show the password.
             if (!affiliateToEdit && response.data?.password) {
                 addToast('Affiliate created successfully!', 'success');
                 setGeneratedPassword(response.data.password);
-                // DO NOT close the modal, so admin can copy the password
             } else {
                 addToast(`Affiliate ${affiliateToEdit ? 'updated' : 'created'} successfully!`, 'success');
-                handleClose();
+                handleClose(); // Close modal on update or if create doesn't return a password.
             }
         },
         onError: (error) => {
@@ -113,18 +133,16 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
             setTimeout(() => setIsCopied(false), 2000);
         }).catch(err => {
             addToast("Failed to copy password.", "error");
-            console.error('Could not copy text: ', err);
         });
     };
 
+    // Sub-component for the success view after creation
     const SuccessDisplay = () => (
         <>
             <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 text-center">
                 <Icon name="check_circle" className="w-16 h-16 text-green-500 mx-auto mb-3" />
-                <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">
-                    Affiliate Created
-                </h2>
-                <p className="text-sm text-neutral-500 mt-1">A new staff account has been created for this affiliate.</p>
+                <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Affiliate Created</h2>
+                <p className="text-sm text-neutral-500 mt-1">A new staff account has been created.</p>
             </div>
             <div className="p-6 space-y-4">
                 <InputField label="Affiliate Email" name="email" value={formData.email} readOnly />
@@ -135,25 +153,17 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
                         value={generatedPassword}
                         readOnly
                         adornment={
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={handleCopyPassword}
-                                className="w-24"
-                                disabled={isCopied}
-                            >
+                            <Button size="sm" variant="ghost" onClick={handleCopyPassword} className="w-24" disabled={isCopied}>
                                 <Icon name={isCopied ? "done" : "content_copy"} className="mr-1.5 h-4 w-4" />
                                 {isCopied ? "Copied!" : "Copy"}
                             </Button>
                         }
                     />
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Please share this password securely with the affiliate. They will be prompted to change it on first login.</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Please share this password securely with the affiliate.</p>
                 </div>
             </div>
             <div className="p-6 bg-neutral-50 dark:bg-neutral-700/50 rounded-b-xl flex justify-end">
-                <Button variant="solid" color="primary" onClick={handleClose}>
-                    Done
-                </Button>
+                <Button variant="solid" color="primary" onClick={handleClose}>Done</Button>
             </div>
         </>
     );
@@ -181,15 +191,14 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
                                         {affiliateToEdit ? 'Edit Affiliate' : 'Create New Affiliate'}
                                     </h2>
                                 </div>
-                                <div className="p-6 space-y-6">
-                                    <InputField label="Full Name" name="name" value={formData.name} onChange={handleChange} error={errors.name} required />
-                                    <InputField label="Email Address" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} required disabled={!!affiliateToEdit} />
-                                    <p className={`text-xs -mt-5 ml-1 text-neutral-500 ${!affiliateToEdit ? 'hidden' : ''}`}>Email cannot be changed after creation.</p>
+                                <div className="p-6 pt-12 space-y-12">
+                                    <InputField label="Email Address" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} required disabled={!!affiliateToEdit} placeholder="new.affiliate@example.com" />
+                                    {!!affiliateToEdit && <p className="text-xs -mt-5 ml-1 text-neutral-500">Email cannot be changed after creation.</p>}
                                     <div>
                                         <InputField label="Commission Rate (%)" name="commission_rate" type="number" value={formData.commission_rate} onChange={handleChange} error={errors.commission_rate} required />
                                         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Enter a value between 0 and 100.</p>
                                     </div>
-                                    <ToggleSwitch label="Active Status" enabled={formData.is_active} setEnabled={(val) => setFormData(p => ({ ...p, is_active: val }))} />
+                                    <ToggleSwitch label="Active Status" enabled={formData.is_active} setEnabled={(val) => setFormData(p => ({ ...p, is_active: val }))} disabled={mutation.isPending} />
                                 </div>
                                 <div className="p-6 bg-neutral-50 dark:bg-neutral-700/50 rounded-b-xl flex justify-end space-x-3">
                                     <Button type="button" variant="ghost" onClick={handleClose} disabled={mutation.isPending}>Cancel</Button>
@@ -206,18 +215,11 @@ const AffiliateModal = ({ isOpen, onClose, affiliateToEdit, queryClient }) => {
     );
 };
 
-
 AffiliateModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     affiliateToEdit: PropTypes.object,
     queryClient: PropTypes.object.isRequired,
-};
-
-ToggleSwitch.propTypes = {
-    label: PropTypes.string.isRequired,
-    enabled: PropTypes.bool.isRequired,
-    setEnabled: PropTypes.func.isRequired,
 };
 
 export default AffiliateModal;

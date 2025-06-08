@@ -1,12 +1,12 @@
-// features/products_table/utils/tableConfig.jsx
 import React from 'react';
 import Icon from '../../../components/common/Icon';
-
 import CategoryLabel from '../subcomponents/cell_contents/CategoryLabel';
 import StockLevelDisplay from '../subcomponents/cell_contents/StockLevelDisplay';
 import TagPills from '../subcomponents/cell_contents/TagPills';
 import SalesSparkline from '../subcomponents/cell_contents/SalesSparkline';
 import SimpleToggle from '../subcomponents/cell_contents/SimpleToggle';
+import { scriptLines_ProductsTable as scriptLines } from './script_lines.js';
+
 
 export const COLUMN_KEYS = {
     ACTIONS: 'actions',
@@ -40,11 +40,11 @@ export const setTableInteractionContext = (context) => {
 export const initialColumns = [
     {
         id: COLUMN_KEYS.ACTIONS,
-        header: 'Actions',
+        header: scriptLines.tableConfig.headers.actions,
         accessorKey: 'actions',
         isSortable: false,
-        isResizable: false, // Actions column usually not resizable
-        minWidth: 100,      // Still good to have a minWidth
+        isResizable: false,
+        minWidth: 100,
         isVisibilityToggleable: false,
         size: 100,
         sticky: 'left',
@@ -54,14 +54,14 @@ export const initialColumns = [
             <div className="flex space-x-2 items-center justify-center">
                 <button
                     onClick={() => tableInteractionContext.onEdit(row.original)}
-                    title="Edit Product"
+                    title={scriptLines.tableConfig.tooltips.editProduct}
                     className="p-1 w-7 h-7 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                 >
                     <Icon name="edit" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
                 </button>
                 <button
                     onClick={() => tableInteractionContext.onDeleteRequest(row.original.id, row.original.name)}
-                    title="Delete Product"
+                    title={scriptLines.tableConfig.tooltips.deleteProduct}
                     className="p-1 w-7 h-7 text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 transition-colors"
                 >
                     <Icon name="delete" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
@@ -71,24 +71,24 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.IMAGE,
-        header: 'Image',
+        header: scriptLines.tableConfig.headers.image,
         accessorKey: 'image_url',
         isSortable: false,
-        isResizable: false, // Images are usually fixed size
+        isResizable: false,
         minWidth: 80,
-        isVisibilityToggleable: true, // Assuming this can be toggled
+        isVisibilityToggleable: true,
         size: 80,
         align: 'center',
         skeletonType: 'image',
         cell: ({ getValue }) => (
             <div className="flex justify-center items-center w-full h-full">
-                {getValue() ? <img src={getValue()} alt="Product" className="w-10 h-10 object-cover rounded" /> : <div className="w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded flex items-center justify-center text-neutral-400 dark:text-neutral-500"><Icon name="image_not_supported" /></div>}
+                {getValue() ? <img src={getValue()} alt={scriptLines.tableConfig.alts.productImage} className="w-10 h-10 object-cover rounded" /> : <div className="w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded flex items-center justify-center text-neutral-400 dark:text-neutral-500"><Icon name="image_not_supported" /></div>}
             </div>
         ),
     },
     {
         id: COLUMN_KEYS.NAME,
-        header: 'Product Name',
+        header: scriptLines.tableConfig.headers.name,
         accessorKey: 'name',
         isSortable: true,
         isResizable: true,
@@ -98,14 +98,7 @@ export const initialColumns = [
         align: 'left',
         skeletonType: 'name',
         cell: ({ row, getValue, column }) => {
-            if (column.cellType === 'editableText' && tableInteractionContext.onUpdateProductField) {
-                return (
-                    <div>
-                        <span className="font-medium text-neutral-800 dark:text-neutral-100">{getValue()}</span>
-                        {row.original.subtitle && <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{row.original.subtitle}</p>}
-                    </div>
-                );
-            }
+            // This structure allows EditableCell to be used, but also provides a non-editable display
             return (
                 <div>
                     <span className="font-medium text-neutral-800 dark:text-neutral-100">{getValue()}</span>
@@ -116,7 +109,7 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.SKU,
-        header: 'SKU',
+        header: scriptLines.tableConfig.headers.sku,
         accessorKey: 'sku',
         isSortable: true,
         isResizable: true,
@@ -128,7 +121,7 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.CATEGORY,
-        header: 'Category',
+        header: scriptLines.tableConfig.headers.category,
         accessorFn: (row) => row.category_details,
         isSortable: true,
         isResizable: true,
@@ -136,14 +129,11 @@ export const initialColumns = [
         size: 180,
         align: 'left',
         skeletonType: 'text_short',
-        cell: ({ getValue }) => {
-            const category = getValue();
-            return <CategoryLabel category={category} />;
-        },
+        cell: ({ getValue }) => <CategoryLabel category={getValue()} />,
     },
     {
         id: COLUMN_KEYS.TYPE,
-        header: 'Type',
+        header: scriptLines.tableConfig.headers.type,
         accessorKey: 'product_type',
         isSortable: true,
         isResizable: true,
@@ -154,16 +144,18 @@ export const initialColumns = [
         cell: ({ getValue }) => {
             const type = getValue();
             if (!type) return null;
+            // Map backend value to the display text from scriptLines for i18n
+            const typeText = scriptLines.tableConfig.productTypes[type] || type.replace(/_/g, ' ');
             return (
                 <span className={`px-2 py-1 font-montserrat py-0.5 text-xs rounded-full ${type === 'made_in_house' ? 'bg-sky-100 text-sky-700 dark:bg-sky-700 dark:text-sky-100' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-700 dark:text-emerald-100'}`}>
-                    {type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    {typeText}
                 </span>
             );
         }
     },
     {
         id: COLUMN_KEYS.PRICE,
-        header: 'Price',
+        header: scriptLines.tableConfig.headers.price,
         accessorKey: 'selling_price_excl_tax',
         isSortable: true,
         isResizable: true,
@@ -175,7 +167,7 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.COST,
-        header: 'Cost',
+        header: scriptLines.tableConfig.headers.cost,
         accessorKey: 'labor_overhead_cost',
         isSortable: true,
         isResizable: true,
@@ -187,7 +179,7 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.STOCK,
-        header: 'Stock Level',
+        header: scriptLines.tableConfig.headers.stock,
         accessorKey: 'stock_quantity',
         isSortable: true,
         isResizable: true,
@@ -195,16 +187,13 @@ export const initialColumns = [
         size: 180,
         align: 'left',
         skeletonType: 'text_short',
-        cell: ({ getValue }) => {
-            const quantity = getValue();
-            return <StockLevelDisplay quantity={quantity} lowStockThreshold={10} />;
-        },
+        cell: ({ getValue }) => <StockLevelDisplay quantity={getValue()} lowStockThreshold={10} />,
     },
     {
         id: COLUMN_KEYS.SALES,
-        header: 'Sales (7d)',
+        header: scriptLines.tableConfig.headers.sales,
         accessorKey: 'sales_data',
-        isSortable: false, // Sales data might be complex to sort on client
+        isSortable: false,
         isResizable: true,
         minWidth: 100,
         size: 120,
@@ -214,10 +203,10 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.STATUS,
-        header: 'Status',
+        header: scriptLines.tableConfig.headers.status,
         accessorKey: 'is_active',
         isSortable: true,
-        isResizable: false, // Toggle usually doesn't need resize
+        isResizable: false,
         minWidth: 80,
         size: 80,
         align: 'center',
@@ -235,7 +224,7 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.TAGS,
-        header: 'Tags',
+        header: scriptLines.tableConfig.headers.tags,
         accessorFn: (row) => (row.product_tags_details || []),
         isSortable: false,
         isResizable: true,
@@ -243,15 +232,11 @@ export const initialColumns = [
         size: 220,
         align: 'left',
         skeletonType: 'tags',
-        cell: ({ getValue }) => {
-            const tagsDetails = getValue();
-            if (!tagsDetails || tagsDetails.length === 0) return null;
-            return <TagPills tags={tagsDetails} maxVisibleTags={2} />;
-        }
+        cell: ({ getValue }) => <TagPills tags={getValue() || []} maxVisibleTags={2} />,
     },
     {
         id: COLUMN_KEYS.BARCODE,
-        header: 'Barcode',
+        header: scriptLines.tableConfig.headers.barcode,
         accessorKey: 'barcode',
         isSortable: true,
         isResizable: true,
@@ -263,7 +248,7 @@ export const initialColumns = [
     },
     {
         id: COLUMN_KEYS.LAST_UPDATED,
-        header: 'Last Updated',
+        header: scriptLines.tableConfig.headers.lastUpdated,
         accessorKey: 'updated_at',
         isSortable: true,
         isResizable: true,
@@ -277,51 +262,34 @@ export const initialColumns = [
             try {
                 return new Date(dateValue).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
             } catch (e) {
-                return 'Invalid Date';
+                return scriptLines.tableConfig.errors.invalidDate;
             }
         }
     },
 ];
 
-// ... (defaultColumnVisibility, defaultColumnOrder, filterOptions, sortOptions remain the same) ...
-// Default visibility: Hide COST, SALES, BARCODE, LAST_UPDATED, TAGS by default
-// Adjusted STOCK to be visible by default as it's commonly needed.
-export const defaultColumnVisibility = initialColumns.reduce((acc, col) => {
-    if ([COLUMN_KEYS.COST, COLUMN_KEYS.SALES, COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED].includes(col.id)) {
-        acc[col.id] = false;
-    } else {
-        acc[col.id] = true;
-    }
-    if (col.isVisibilityToggleable === false) {
-        acc[col.id] = true;
-    }
-    return acc;
-}, {});
-
-export const defaultColumnOrder = initialColumns.map(col => col.id);
-
 export const filterOptions = {
     category: [],
     product_type: [
-        { value: '', label: 'All Types' },
-        { value: 'made_in_house', label: 'Made In-House' },
-        { value: 'resold_item', label: 'Resold Item' },
+        { value: '', label: scriptLines.tableConfig.filters.allTypes },
+        { value: 'made_in_house', label: scriptLines.tableConfig.productTypes.made_in_house },
+        { value: 'resold_item', label: scriptLines.tableConfig.productTypes.resold_item },
     ],
     is_active: [
-        { value: '', label: 'All Statuses' },
-        { value: 'active', label: 'Active' },
-        { value: 'inactive', label: 'Inactive' },
+        { value: '', label: scriptLines.tableConfig.filters.allStatuses },
+        { value: 'active', label: scriptLines.tableConfig.filters.active },
+        { value: 'inactive', label: scriptLines.tableConfig.filters.inactive },
     ],
 };
 
 export const sortOptions = [
-    { value: '', label: 'Default Sort' },
-    { value: 'name', label: 'Name (A-Z)' },
-    { value: '-name', label: 'Name (Z-A)' },
-    { value: 'selling_price_excl_tax', label: 'Price (Low-High)' },
-    { value: '-selling_price_excl_tax', label: 'Price (High-Low)' },
-    { value: 'updated_at', label: 'Last Updated (Oldest)' },
-    { value: '-updated_at', label: 'Last Updated (Newest)' },
-    { value: COLUMN_KEYS.STOCK, label: 'Stock (Low-High)' },
-    { value: `-${COLUMN_KEYS.STOCK}`, label: 'Stock (High-Low)' },
+    { value: '', label: scriptLines.tableConfig.sort.default },
+    { value: 'name', label: scriptLines.tableConfig.sort.nameAsc },
+    { value: '-name', label: scriptLines.tableConfig.sort.nameDesc },
+    { value: 'selling_price_excl_tax', label: scriptLines.tableConfig.sort.priceAsc },
+    { value: '-selling_price_excl_tax', label: scriptLines.tableConfig.sort.priceDesc },
+    { value: 'updated_at', label: scriptLines.tableConfig.sort.updatedAsc },
+    { value: '-updated_at', label: scriptLines.tableConfig.sort.updatedDesc },
+    { value: COLUMN_KEYS.STOCK, label: scriptLines.tableConfig.sort.stockAsc },
+    { value: `-${COLUMN_KEYS.STOCK}`, label: scriptLines.tableConfig.sort.stockDesc },
 ];

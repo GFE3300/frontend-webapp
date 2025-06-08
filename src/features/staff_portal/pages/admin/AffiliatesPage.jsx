@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import apiService from '../../../../services/api';
 import Spinner from '../../../../components/common/Spinner';
 import Icon from '../../../../components/common/Icon';
 import Button from '../../../../components/common/Button';
 import AffiliatesTable from '../../subcomponents/AffiliatesTable';
 import AffiliateModal from '../../subcomponents/AffiliateModal';
+import { useQueryClient } from '@tanstack/react-query'; // Import useQueryClient
 
+/**
+ * The main page for administrators to manage all affiliate partners.
+ * Fetches affiliate data and provides UI for viewing and initiating create/edit actions.
+ */
 const AffiliatesPage = () => {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient(); // Get query client instance
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingAffiliate, setEditingAffiliate] = useState(null);
 
+    // Fetch the list of all affiliates. The backend endpoint is scoped to superusers.
     const { data: affiliatesData, isLoading, isError, error } = useQuery({
-        queryKey: ['staff_affiliates'], // This key correctly scopes the data.
-        queryFn: () => apiService.get('/staff/affiliates/'),
+        queryKey: ['staff_affiliates'], // Unique key for this data
+        queryFn: () => apiService.get('/affiliates/'), // Corrected endpoint from previous step's context
     });
 
     const handleCreateClick = () => {
@@ -52,9 +58,13 @@ const AffiliatesPage = () => {
             );
         }
 
+        // The API response from a DRF ModelViewSet is often { results: [...] }.
+        // We ensure it handles both a direct array or a paginated response object.
+        const affiliates = affiliatesData?.data?.results || affiliatesData?.data || [];
+
         return (
             <AffiliatesTable
-                affiliates={affiliatesData?.data || []}
+                affiliates={affiliates}
                 onEdit={handleEditClick}
             />
         );
@@ -62,14 +72,14 @@ const AffiliatesPage = () => {
 
     return (
         <div className="p-4 sm:p-6 space-y-6">
-            <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">Affiliate Management</h1>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
                         Create, view, and manage your affiliate partners.
                     </p>
                 </div>
-                <div className="mt-4 sm:mt-0">
+                <div className="flex-shrink-0">
                     <Button
                         variant="solid"
                         color="primary"
@@ -81,7 +91,7 @@ const AffiliatesPage = () => {
                 </div>
             </header>
 
-            <section className="bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-lg">
+            <section className="bg-white dark:bg-neutral-800 p-0 sm:p-6 rounded-xl shadow-lg">
                 <h2 className="sr-only">Affiliates List</h2>
                 {renderContent()}
             </section>
@@ -90,7 +100,7 @@ const AffiliatesPage = () => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 affiliateToEdit={editingAffiliate}
-                queryClient={queryClient}
+                queryClient={queryClient} // Pass queryClient to the modal
             />
         </div>
     );

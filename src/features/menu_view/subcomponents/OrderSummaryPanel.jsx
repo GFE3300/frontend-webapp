@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import OrderItem from "./OrderItem";
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
 import { useValidatePromoCode } from "../../../contexts/ProductDataContext";
+import { useCurrency  as useCurrency } from "../../../hooks/useCurrency"; // Import the hook
 
 const PANEL_BG_DRAWER = "";
 const PANEL_BG_SIDEBAR_LIGHT = "";
@@ -97,6 +98,7 @@ function OrderSummaryPanel({
     const [localPromoCodeInput, setLocalPromoCodeInput] = useState("");
     const [localOrderNotes, setLocalOrderNotes] = useState("");
     const [isConfirming, setIsConfirming] = useState(false);
+    const { formatCurrency } = useCurrency(); // Use the hook
 
     const shouldReduceMotion = useReducedMotion();
     const sectionEntryVariants = shouldReduceMotion
@@ -331,28 +333,28 @@ function OrderSummaryPanel({
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
                                     {isPromoAppliedAndValid && totalDiscountAmount > 0 && (appliedPromoUIDetails?.type === "ORDER_TOTAL_PERCENTAGE" || appliedPromoUIDetails?.type === "ORDER_TOTAL_FIXED_AMOUNT") ? (
-                                        <del className={NEUTRAL_TEXT_MUTED}>${subtotal.toFixed(2)}</del>
+                                        <del className={NEUTRAL_TEXT_MUTED}>{formatCurrency(subtotal)}</del>
                                     ) : (
-                                        <span>${subtotal.toFixed(2)}</span>
+                                        <span>{formatCurrency(subtotal)}</span>
                                     )}
                                 </div>
                                 <AnimatePresence>
                                     {isPromoAppliedAndValid && totalDiscountAmount > 0 && (
                                         <motion.div key="order-discount-line" variants={itemAppearVariants} initial="initial" animate="animate" exit="exit" className="flex justify-between">
                                             <span className="truncate pr-2">Discount ({appliedPromoUIDetails.public_display_name || appliedPromoUIDetails.codeName})</span>
-                                            <span className={SUCCESS_TEXT}>-${totalDiscountAmount.toFixed(2)}</span>
+                                            <span className={SUCCESS_TEXT}>-{formatCurrency(totalDiscountAmount)}</span>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
                                 {isPromoAppliedAndValid && totalDiscountAmount > 0 && (appliedPromoUIDetails?.type === "ORDER_TOTAL_PERCENTAGE" || appliedPromoUIDetails?.type === "ORDER_TOTAL_FIXED_AMOUNT") && (
                                     <motion.div key="new-subtotal-line" variants={itemAppearVariants} initial="initial" animate="animate" exit="exit" className={`flex justify-between ${NEUTRAL_TEXT_SECONDARY} font-medium`}>
                                         <span>New Subtotal</span>
-                                        <span>${(subtotal - totalDiscountAmount).toFixed(2)}</span>
+                                        <span>{formatCurrency(subtotal - totalDiscountAmount)}</span>
                                     </motion.div>
                                 )}
                                 <div className={`flex justify-between font-bold mt-2 pt-2 border-t ${BORDER_DIVIDER} ${headerTextColorClass}`}>
                                     <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_FONT_SIZE_LARGE}`}>Total</span>
-                                    <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_ACCENT_FONT_SIZE_LARGE} ${ROSE_ACCENT_TEXT}`}>${finalTotal.toFixed(2)}</span>
+                                    <span className={`${FONT_MONTSERRAT} ${TOTAL_PRICE_ACCENT_FONT_SIZE_LARGE} ${ROSE_ACCENT_TEXT}`}>{formatCurrency(finalTotal)}</span>
                                 </div>
                             </div>
                             {!isPreviewMode && (

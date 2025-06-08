@@ -9,7 +9,7 @@ import { useMenuDataAndFilters } from './hooks/useMenuDataAndFilters';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { useHeaderScrollAnimation } from './hooks/useHeaderScrollAnimation';
 import useWindowSize from '../../hooks/useWindowSize';
-import { ToastProvider, useToast } // Added useToast here
+import { ToastProvider, useToast }
     from '../../contexts/ToastContext';
 import ToastContainer from '../../components/common/ToastContainer';
 import { getEffectiveDisplayPrice } from "./utils/productUtils.js";
@@ -18,29 +18,28 @@ import { getEffectiveDisplayPrice } from "./utils/productUtils.js";
 import UserPageHeader from './user_page/UserPageHeader';
 import MenuContentArea from './user_page/MenuContentArea';
 import OrderInteractionController from './user_page/OrderInteractionController';
-import GuestProfileModal from './user_page/GuestProfileModal';
+import GuestSettingsModal from './user_page/GuestSettingsModal'; // MODIFIED: Import new settings modal
 
 // Common & SubComponents
 import Spinner from '../../components/common/Spinner.jsx';
 import Icon from '../../components/common/Icon.jsx';
-import Modal from '../../components/animated_alerts/Modal.jsx'; // Using the animated one
+import Modal from '../../components/animated_alerts/Modal.jsx';
 import ProductDetailModal from './subcomponents/ProductDetailModal.jsx';
 import FlyingItemAnimator from './subcomponents/FlyingItemAnimator';
-// BottomNav is removed from here, as OrderInteractionController handles mobile navigation/order peek
 import SetupStage from './subcomponents/SetupStage.jsx';
 
 // Utilities & Contexts
 import { useTheme } from '../../utils/ThemeProvider.jsx';
+import { VenueContext } from '../../contexts/VenueDataContext.jsx';
 import apiService from '../../services/api';
 
-// Styling Constants (as defined in the previous prompt)
+// --- Styling Constants ---
 const PAGE_BG_LIGHT = "bg-neutral-100";
 const PAGE_BG_DARK = "dark:bg-neutral-900";
 const FONT_INTER = "font-inter";
 const FONT_MONTSERRAT = "font-montserrat";
-const MAIN_CONTENT_MARGIN_TOP_MOBILE = "mt-1"; // Adjusted based on header changes
+const MAIN_CONTENT_MARGIN_TOP_MOBILE = "mt-1";
 const MAIN_CONTENT_MARGIN_TOP_DESKTOP = "lg:mt-2";
-
 const FULL_PAGE_STATE_BG_LIGHT = "bg-neutral-100";
 const FULL_PAGE_STATE_BG_DARK = "dark:bg-neutral-900";
 const FULL_PAGE_ERROR_ICON_COLOR = "text-red-500 dark:text-red-400";
@@ -50,7 +49,6 @@ const FULL_PAGE_TEXT_SECONDARY_LIGHT = "text-neutral-600";
 const FULL_PAGE_TEXT_SECONDARY_DARK = "dark:text-neutral-400";
 const FULL_PAGE_BUTTON_BG = "bg-rose-500 hover:bg-rose-600";
 const FULL_PAGE_BUTTON_TEXT = "text-white";
-
 const ORDER_PLACED_BG_LIGHT = "bg-green-50";
 const ORDER_PLACED_BG_DARK = "dark:bg-green-900/30";
 const ORDER_PLACED_ICON_COLOR_LIGHT = "text-green-500";
@@ -61,15 +59,14 @@ const ORDER_PLACED_SUBTEXT_COLOR_LIGHT = "text-green-600";
 const ORDER_PLACED_SUBTEXT_COLOR_DARK = "dark:text-green-300";
 const ORDER_PLACED_BUTTON_BG = "bg-green-600 hover:bg-green-700";
 
-const HEADER_SCROLL_THRESHOLD_PX = 80; // Example value
-const HEADER_ANIMATION_DURATION = 0.3; // Example value
+const HEADER_SCROLL_THRESHOLD_PX = 80;
+const HEADER_ANIMATION_DURATION = 0.3;
 
 const useIsDesktop = () => {
     const { width } = useWindowSize();
     return width >= 1024; // Standard lg breakpoint
 };
 
-// --- Full Page State Components (Error, Spinner) ---
 const FullPageError = ({ message, iconName = "error_outline", onRetry }) => (
     <div className={`flex font-montserrat flex-col items-center justify-center min-h-screen ${FULL_PAGE_STATE_BG_LIGHT} ${FULL_PAGE_STATE_BG_DARK} p-8 text-center ${FONT_INTER}`}>
         <Icon name={iconName} className={`w-20 h-20 ${FULL_PAGE_ERROR_ICON_COLOR} mb-6`} style={{ fontSize: "4rem" }} />
@@ -85,26 +82,23 @@ const FullPageSpinner = ({ message }) => (
     </div>
 );
 
-
 function AppContent() {
     const { tableLayoutItemId } = useParams();
     const { theme } = useTheme();
     const isDesktop = useIsDesktop();
-    const shouldReduceMotion = useReducedMotion();
     const { addToast } = useToast();
 
-
-    const [appStage, setAppStage] = useState('loading'); // loading, setup, main, orderPlaced, error
+    const [appStage, setAppStage] = useState('loading');
 
     // Modals State
     const [isProductDetailModalOpen, setIsProductDetailModalOpen] = useState(false);
     const [currentProductForDetailModal, setCurrentProductForDetailModal] = useState(null);
-    const [isGuestProfileModalOpen, setIsGuestProfileModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false); // MODIFIED: New state for settings modal
     const [userInteractionModal, setUserInteractionModal] = useState({ isOpen: false, title: '', message: '', type: 'info', isLoading: false });
 
     // Refs
-    const orderInteractionAreaRef = useRef(null); // For OrderInteractionController (drawer)
-    const mainContentScrollRef = useRef(null);   // For MenuContentArea scroll container
+    const orderInteractionAreaRef = useRef(null);
+    const mainContentScrollRef = useRef(null);
 
     // --- Custom Hooks ---
     const {
@@ -114,9 +108,8 @@ function AppContent() {
 
     const menu = useMenuDataAndFilters(venueContext?.businessIdentifierForAPI, appStage);
 
-    // NEW: Manage promoValidationResult state here
     const [promoValidationResult, setPromoValidationResult] = useState(null);
-    const order = useOrderManagement(promoValidationResult); // useOrderManagement now takes promoValidationResult from this component
+    const order = useOrderManagement(promoValidationResult);
 
     const { headerTargetY, headerTransition } = useHeaderScrollAnimation(
         HEADER_SCROLL_THRESHOLD_PX,
@@ -129,7 +122,7 @@ function AppContent() {
             setAppStage('error'); return;
         }
         if (isLoadingVenueContext) {
-            if (!['main', 'orderPlaced', 'error', 'setup'].includes(appStage)) { // Don't revert to loading if already in a stable/error state
+            if (!['main', 'orderPlaced', 'error', 'setup'].includes(appStage)) {
                 setAppStage('loading');
             }
             return;
@@ -137,28 +130,30 @@ function AppContent() {
         if (isVenueContextError) {
             setAppStage('error'); return;
         }
-        if (venueContext) { // If venue context is successfully loaded
-            if (appStage === 'loading') { // Transition from initial loading to setup
+        if (venueContext) {
+            if (appStage === 'loading') {
                 setAppStage('setup');
             }
-            // If already in 'main' or 'orderPlaced', stay there. Setup stage will transition to 'main'.
-        } else { // Should not happen if no error and not loading, but as a fallback
-            if (appStage !== 'error') setAppStage('loading'); // Or error if appropriate
+        } else {
+            if (appStage !== 'error') setAppStage('loading');
         }
     }, [tableLayoutItemId, venueContext, isLoadingVenueContext, isVenueContextError, appStage]);
 
-
     // --- Callbacks ---
     const handleSetupComplete = useCallback((setupData) => {
+        // useVenueContextManager now handles localStorage persistence
         updateVenueUserDetails({ newUserName: setupData.userName, newNumberOfPeople: setupData.numberOfPeople });
         setAppStage('main');
         addToast(`Welcome, ${setupData.userName}! Ready to order.`, "success", 3000);
     }, [updateVenueUserDetails, addToast]);
 
-    const handleProfileUpdate = useCallback((profileData) => {
-        updateVenueUserDetails({ newUserName: profileData.newUserName, newNumberOfPeople: profileData.newNumberOfPeople });
-        setIsGuestProfileModalOpen(false);
-        addToast("Your info has been updated!", "success", 2500);
+    // MODIFIED: Callbacks for the new GuestSettingsModal
+    const handleOpenSettingsModal = useCallback(() => setIsSettingsModalOpen(true), []);
+    const handleCloseSettingsModal = useCallback(() => setIsSettingsModalOpen(false), []);
+    const handleSaveSettings = useCallback((newSettings) => {
+        updateVenueUserDetails(newSettings);
+        setIsSettingsModalOpen(false);
+        addToast("Your settings have been saved!", "success", 2500);
     }, [updateVenueUserDetails, addToast]);
 
     const showUserModal = useCallback((title, message, type = 'info', isLoading = false) => {
@@ -168,85 +163,60 @@ function AppContent() {
         setUserInteractionModal({ isOpen: false, title: '', message: '', type: 'info', isLoading: false });
     }, []);
 
-    // NEW: Callback for OrderSummaryPanel to update promoValidationResult here
     const handlePromoValidationChange = useCallback((validationResult) => {
         setPromoValidationResult(validationResult);
     }, []);
 
-
     const handleOpenProductDetailModal = useCallback((product, imageRect, quickAddIfNoOptions = false) => {
         const hasOptions = product.editable_attribute_groups && product.editable_attribute_groups.length > 0;
-
-        if (quickAddIfNoOptions && !hasOptions && product.is_active !== false) { // is_active check
+        if (quickAddIfNoOptions && !hasOptions && product.is_active !== false) {
             const { displayPrice } = getEffectiveDisplayPrice(product);
             const flyingImageTarget = orderInteractionAreaRef.current;
-
             order.addToOrder({
-                id: product.id, // Base product ID for simple items
-                originalId: product.id,
-                name: product.name,
-                imageUrl: product.image_url,
-                price: displayPrice,
-                quantity: 1,
-                selectedOptionsSummary: null,
-                detailedSelectedOptions: []
+                id: product.id, originalId: product.id, name: product.name, imageUrl: product.image_url,
+                price: displayPrice, quantity: 1, selectedOptionsSummary: null, detailedSelectedOptions: []
             }, imageRect, flyingImageTarget);
-            // Toast for quick add is handled inside order.addToOrder (useOrderManagement hook)
         } else {
             setCurrentProductForDetailModal(product);
             setIsProductDetailModalOpen(true);
         }
-    }, [order.addToOrder]); // order.addToOrder is stable due to useCallback in useOrderManagement
+    }, [order.addToOrder]);
 
     const handleConfirmProductDetailModal = useCallback((originalProduct, configuredItemDetails) => {
         const flyingImageTarget = orderInteractionAreaRef.current;
         const uniqueItemId = `${originalProduct.id}-${(configuredItemDetails.selectedOptions.map(o => o.id).sort().join('-')) || 'base'}`;
-
         order.addToOrder({
-            id: uniqueItemId, // Unique ID based on options
-            originalId: originalProduct.id,
-            name: originalProduct.name,
-            imageUrl: originalProduct.image_url,
-            price: configuredItemDetails.finalPricePerItem, // This is price per unit with options
-            quantity: configuredItemDetails.quantity,
+            id: uniqueItemId, originalId: originalProduct.id, name: originalProduct.name, imageUrl: originalProduct.image_url,
+            price: configuredItemDetails.finalPricePerItem, quantity: configuredItemDetails.quantity,
             selectedOptionsSummary: configuredItemDetails.selectedOptions.map(opt => opt.name).join(', ') || null,
-            detailedSelectedOptions: configuredItemDetails.selectedOptions // Full option details
-        }, null, flyingImageTarget); // imageRect is null as animation starts from modal center
+            detailedSelectedOptions: configuredItemDetails.selectedOptions
+        }, null, flyingImageTarget);
         setIsProductDetailModalOpen(false);
         setCurrentProductForDetailModal(null);
-        // Toast for adding with options is handled inside order.addToOrder
     }, [order.addToOrder]);
 
     const handleConfirmOrderAction = useCallback(async (payloadFromSummaryPanel) => {
         showUserModal("Placing Order...", "Please wait while we submit your order.", "loading", true);
         try {
             const response = await apiService.post('orders/create/', payloadFromSummaryPanel);
-            // Modal will be closed by the AppContent logic once appStage changes
             order.clearOrder();
-            setPromoValidationResult(null); // Clear promo after successful order
-            setAppStage('orderPlaced'); // This will trigger re-render to OrderPlaced view
-
-            // Success toast AFTER stage change ensures modal is gone
-            // Using a slight delay for the toast if needed for visual timing with stage change
+            setPromoValidationResult(null);
+            setAppStage('orderPlaced');
             setTimeout(() => {
                 addToast(
                     `Order #${String(response.data.id).substring(0, 6)}... Placed! Pickup: ${response.data.pickup_code || 'N/A'}`,
-                    "success",
-                    5000 // Longer duration for important info
+                    "success", 5000
                 );
             }, 100);
-
         } catch (error) {
             let errorMsg = "Failed to place order. Please try again or alert staff.";
             if (error.response?.data?.message) errorMsg = error.response.data.message;
             else if (error.response?.data?.detail) errorMsg = error.response.data.detail;
             else if (error.message) errorMsg = error.message;
             console.error("[Userpage] Order placement error:", error.response || error);
-            showUserModal("Order Failed", errorMsg, "error"); // Keep user on the order page
+            showUserModal("Order Failed", errorMsg, "error");
         }
-        // No finally block to hide modal here, stage change handles it
     }, [showUserModal, order.clearOrder, addToast]);
-
 
     const scrollToProductCard = useCallback((productId) => {
         const cardElement = document.getElementById(`product-card-${productId}`);
@@ -254,16 +224,9 @@ function AppContent() {
             const scrollContainer = mainContentScrollRef.current;
             const cardRect = cardElement.getBoundingClientRect();
             const containerRect = scrollContainer.getBoundingClientRect();
-
-            // Approx header height: UserPageHeader structure might make this complex.
-            // Consider fixed header height or measure dynamically if very precise scroll needed.
-            // For now, using a generous approximation.
-            const headerApproxHeight = 150; // px, adjust based on actual header elements
+            const headerApproxHeight = 150;
             const scrollTop = scrollContainer.scrollTop + (cardRect.top - containerRect.top) - headerApproxHeight;
-
             scrollContainer.scrollTo({ top: scrollTop, behavior: 'smooth' });
-
-            // Visual feedback for scrolled item
             cardElement.classList.add('ring-2', 'ring-offset-2', 'ring-rose-500', 'dark:ring-rose-400', 'transition-all', 'duration-300', 'rounded-2xl');
             setTimeout(() => cardElement.classList.remove('ring-2', 'ring-offset-2', 'ring-rose-500', 'dark:ring-rose-400'), 2500);
         } else {
@@ -271,8 +234,7 @@ function AppContent() {
         }
     }, []);
 
-
-    // --- Conditional Renders for App Stages ---
+    // --- Conditional Renders ---
     if (appStage === 'loading') return <FullPageSpinner message={!tableLayoutItemId ? "Invalid link..." : "Loading Restaurant Info..."} />;
     if (appStage === 'error') return <FullPageError message={venueContextError?.message || "This link is invalid or the restaurant is not found."} onRetry={refetchVenueContext} />;
     if (appStage === 'setup') return <SetupStage tableNumber={venueContext?.tableNumber || "N/A"} onSetupComplete={handleSetupComplete} theme={theme} />;
@@ -282,144 +244,130 @@ function AppContent() {
                 <Icon name="check_circle" className={`w-24 h-24 ${ORDER_PLACED_ICON_COLOR_LIGHT} ${ORDER_PLACED_ICON_COLOR_DARK} mb-6`} style={{ fontSize: '4rem' }} />
                 <h2 className={`text-3xl font-bold ${ORDER_PLACED_TITLE_COLOR_LIGHT} ${ORDER_PLACED_TITLE_COLOR_DARK} mb-4 ${FONT_MONTSERRAT}`}>Order Confirmed!</h2>
                 <p className={`${ORDER_PLACED_SUBTEXT_COLOR_LIGHT} ${ORDER_PLACED_SUBTEXT_COLOR_DARK} max-w-md mb-8`}>Thank you! Your order has been placed. Our team is on it.</p>
-                <button
-                    onClick={() => {
-                        order.clearOrder(); // Should already be cleared, but good measure
-                        setPromoValidationResult(null); // Clear promo state for new order
-                        setAppStage('main'); // Go back to main menu
-                    }}
-                    className={`${ORDER_PLACED_BUTTON_BG} ${FULL_PAGE_BUTTON_TEXT} font-semibold font-montserrat py-3 px-6 rounded-full shadow-md transition-colors`}
-                >
+                <button onClick={() => { order.clearOrder(); setPromoValidationResult(null); setAppStage('main'); }} className={`${ORDER_PLACED_BUTTON_BG} ${FULL_PAGE_BUTTON_TEXT} font-semibold font-montserrat py-3 px-6 rounded-full shadow-md transition-colors`}>
                     Place Another Order
                 </button>
             </div>
         );
     }
 
+    const preventScrollOnMain = !isDesktop && order.orderItems.length > 0 && orderInteractionAreaRef.current?.getAttribute('data-drawer-state') === 'open';
+
     // --- Main App Content Render ---
-    // Determine if main content scroll should be prevented (mobile drawer open)
-    const preventScrollOnMain = !isDesktop &&
-        order.orderItems.length > 0 &&
-        orderInteractionAreaRef.current?.getAttribute('data-drawer-state') === 'open';
-
     return (
-        <div className={`min-h-screen ${PAGE_BG_LIGHT} ${PAGE_BG_DARK} ${FONT_INTER} flex flex-col`} role="document">
-            <UserPageHeader
-                venueContext={venueContext}
-                logoError={logoError} onLogoError={() => setLogoError(true)}
-                onEditGuestProfile={() => setIsGuestProfileModalOpen(true)}
-                searchProps={{
-                    onSearchSubmit: menu.handleSearchSubmit,
-                    onSuggestionSelect: menu.handleSuggestionSelect, // handleSuggestionSelect in useMenuDataAndFilters now needs scrollToProductCardFn
-                    businessIdentifier: venueContext?.businessIdentifierForAPI,
-                }}
-                categoryFilterProps={{
-                    categoriesData: menu.categoriesData, activeCategoryId: menu.activeCategoryFilter,
-                    onSelectCategory: menu.handleSelectCategory, isLoading: menu.isLoadingCategories,
-                    isError: menu.isCategoriesError, error: menu.categoriesError,
-                }}
-                // tagFilterProps are passed to UserPageHeader to render TagFilterPills if needed
-                tagFilterProps={{
-                    tagsData: menu.displayedTagsData, activeTagIds: menu.activeTagFilters,
-                    onToggleTag: menu.handleToggleTag, isLoading: menu.isLoadingAllPublicTags,
-                    isError: menu.isAllPublicTagsError, error: menu.allPublicTagsError,
-                }}
-                animationProps={{ headerTargetY, headerTransition }}
-                scrollToProductCardFn={scrollToProductCard} // Pass the actual scroll function
-            />
-
-            <div className={`container mx-auto flex flex-1 flex-col lg:flex-row ${MAIN_CONTENT_MARGIN_TOP_MOBILE} ${MAIN_CONTENT_MARGIN_TOP_DESKTOP} min-h-0 pb-16 sm:pb-0`}>
-                {/* Spacer for Desktop Left Sidebar (if any planned, or just for centering main content) */}
-                {isDesktop && (
-                    <aside className="w-full lg:w-64 xl:w-72 p-4 pt-0 lg:pt-4 lg:pr-0 shrink-0 hidden lg:block" role="complementary" aria-label="Left sidebar spacer">
-                        {/* Content for a potential left sidebar could go here, or it remains a spacer */}
-                    </aside>
-                )}
-
-                <MenuContentArea
-                    menuDisplayProps={{
-                        categorizedProducts: menu.categorizedProducts,
-                        onOpenProductDetailModal: handleOpenProductDetailModal,
-                        isFiltered: !!menu.searchQuery || menu.activeCategoryFilter !== null || menu.activeTagFilters.length > 0,
-                        isFetchingWhileFiltered: menu.isFetchingProducts && !menu.isLoadingProductsInitial,
-                        isLoadingProductsInitial: menu.isLoadingProductsInitial,
-                        isError: menu.isProductsError, error: menu.productsError,
+        <VenueContext.Provider value={venueContext}>
+            <div className={`min-h-screen ${PAGE_BG_LIGHT} ${PAGE_BG_DARK} ${FONT_INTER} flex flex-col`} role="document">
+                <UserPageHeader
+                    venueContext={venueContext}
+                    logoError={logoError} onLogoError={() => setLogoError(true)}
+                    onOpenSettingsModal={handleOpenSettingsModal} // MODIFIED: Pass new handler
+                    searchProps={{
+                        onSearchSubmit: menu.handleSearchSubmit,
+                        onSuggestionSelect: menu.handleSuggestionSelect,
+                        businessIdentifier: venueContext?.businessIdentifierForAPI,
                     }}
-                    isDesktop={isDesktop}
-                    scrollContainerRef={mainContentScrollRef}
-                    preventScroll={preventScrollOnMain}
-                    clearAllFilters={menu.clearAllFilters}
+                    categoryFilterProps={{
+                        categoriesData: menu.categoriesData, activeCategoryId: menu.activeCategoryFilter,
+                        onSelectCategory: menu.handleSelectCategory, isLoading: menu.isLoadingCategories,
+                        isError: menu.isCategoriesError, error: menu.categoriesError,
+                    }}
+                    tagFilterProps={{
+                        tagsData: menu.displayedTagsData, activeTagIds: menu.activeTagFilters,
+                        onToggleTag: menu.handleToggleTag, isLoading: menu.isLoadingAllPublicTags,
+                        isError: menu.isAllPublicTagsError, error: menu.allPublicTagsError,
+                    }}
+                    animationProps={{ headerTargetY, headerTransition }}
+                    scrollToProductCardFn={scrollToProductCard}
                 />
 
-                <OrderInteractionController
-                    orderItems={order.orderItems}
-                    // Pass all financial details from useOrderManagement
-                    orderFinancials={{
-                        subtotal: order.subtotal,
-                        finalTotal: order.finalTotal,
-                        totalDiscountAmount: order.totalDiscountAmount,
-                        appliedPromoUIDetails: order.appliedPromoUIDetails, // This is crucial for OrderSummaryPanel's display
-                        itemLevelDiscountsMap: order.itemLevelDiscountsMap,
-                    }}
-                    // Pass promo validation result and setter callback
-                    // promoValidationResult={promoValidationResult} // NO LONGER NEEDED TO PASS DOWN. Panel manages input, Userpage manages result.
-                    // setPromoValidationResult={setPromoValidationResult} // NO LONGER NEEDED. Use onPromoValidationChange.
-                    onPromoValidationChange={handlePromoValidationChange} // NEW: Pass this down
+                <div className={`container mx-auto flex flex-1 flex-col lg:flex-row ${MAIN_CONTENT_MARGIN_TOP_MOBILE} ${MAIN_CONTENT_MARGIN_TOP_DESKTOP} min-h-0 pb-16 sm:pb-0`}>
+                    {isDesktop && <aside className="w-full lg:w-64 xl:w-72 p-4 pt-0 lg:pt-4 lg:pr-0 shrink-0 hidden lg:block" role="complementary" aria-label="Left sidebar spacer" />}
 
-                    venueContext={venueContext}
-                    isDesktop={isDesktop}
-                    onUpdateQuantity={order.handleUpdateQuantity}
-                    onConfirmOrderAction={handleConfirmOrderAction}
-                    navigateToMenu={menu.clearAllFilters} // For empty state button in drawer
-                    interactionAreaRef={orderInteractionAreaRef} // Ref for the drawer main element
+                    <MenuContentArea
+                        menuDisplayProps={{
+                            categorizedProducts: menu.categorizedProducts,
+                            onOpenProductDetailModal: handleOpenProductDetailModal,
+                            isFiltered: !!menu.searchQuery || menu.activeCategoryFilter !== null || menu.activeTagFilters.length > 0,
+                            isFetchingWhileFiltered: menu.isFetchingProducts && !menu.isLoadingProductsInitial,
+                            isLoadingProductsInitial: menu.isLoadingProductsInitial,
+                            isError: menu.isProductsError, error: menu.productsError,
+                        }}
+                        isDesktop={isDesktop}
+                        scrollContainerRef={mainContentScrollRef}
+                        preventScroll={preventScrollOnMain}
+                        clearAllFilters={menu.clearAllFilters}
+                    />
+
+                    <OrderInteractionController
+                        orderItems={order.orderItems}
+                        orderFinancials={{
+                            subtotal: order.subtotal, finalTotal: order.finalTotal,
+                            totalDiscountAmount: order.totalDiscountAmount, appliedPromoUIDetails: order.appliedPromoUIDetails,
+                            itemLevelDiscountsMap: order.itemLevelDiscountsMap,
+                        }}
+                        onPromoValidationChange={handlePromoValidationChange}
+                        venueContext={venueContext}
+                        isDesktop={isDesktop}
+                        onUpdateQuantity={order.handleUpdateQuantity}
+                        onConfirmOrderAction={handleConfirmOrderAction}
+                        navigateToMenu={menu.clearAllFilters}
+                        interactionAreaRef={orderInteractionAreaRef}
+                    />
+                </div>
+
+                {/* Modals & Global Elements */}
+                <ProductDetailModal
+                    isOpen={isProductDetailModalOpen}
+                    onClose={() => { setIsProductDetailModalOpen(false); setCurrentProductForDetailModal(null); }}
+                    product={currentProductForDetailModal}
+                    onConfirmWithOptions={handleConfirmProductDetailModal}
+                />
+                <AnimatePresence>
+                    {order.flyingItem && (
+                        <FlyingItemAnimator
+                            key={order.flyingItem.id}
+                            imageUrl={order.flyingItem.imageUrl}
+                            startRect={order.flyingItem.startRect}
+                            endRect={order.flyingItem.endRect}
+                            onAnimationComplete={() => order.setFlyingItem(null)}
+                        />
+                    )}
+                </AnimatePresence>
+                <Modal
+                    isOpen={userInteractionModal.isOpen}
+                    onClose={hideUserModal}
+                    title={userInteractionModal.title}
+                    type={userInteractionModal.type}
+                    isLoading={userInteractionModal.isLoading}
+                >
+                    <p>{userInteractionModal.message}</p>
+                </Modal>
+                {/* MODIFIED: Render the new GuestSettingsModal */}
+                <GuestSettingsModal
+                    isOpen={isSettingsModalOpen}
+                    onClose={handleCloseSettingsModal}
+                    currentSettings={{
+                        name: venueContext?.userName,
+                        email: venueContext?.userEmail,
+                        people: venueContext?.numberOfPeople,
+                    }}
+                    onSave={handleSaveSettings}
                 />
             </div>
-
-            {/* Modals & Global Elements */}
-            <ProductDetailModal
-                isOpen={isProductDetailModalOpen}
-                onClose={() => { setIsProductDetailModalOpen(false); setCurrentProductForDetailModal(null); }}
-                product={currentProductForDetailModal}
-                onConfirmWithOptions={handleConfirmProductDetailModal}
-            />
-            <AnimatePresence>
-                {order.flyingItem && (
-                    <FlyingItemAnimator
-                        key={order.flyingItem.id}
-                        imageUrl={order.flyingItem.imageUrl}
-                        startRect={order.flyingItem.startRect}
-                        endRect={order.flyingItem.endRect}
-                        onAnimationComplete={() => order.setFlyingItem(null)}
-                    />
-                )}
-            </AnimatePresence>
-            <Modal // Using animated Modal
-                isOpen={userInteractionModal.isOpen}
-                onClose={hideUserModal}
-                title={userInteractionModal.title}
-                type={userInteractionModal.type} // 'info', 'success', 'error', 'loading'
-                isLoading={userInteractionModal.isLoading}
-            >
-                <p>{userInteractionModal.message}</p>
-            </Modal>
-            <GuestProfileModal
-                isOpen={isGuestProfileModalOpen}
-                onClose={() => setIsGuestProfileModalOpen(false)}
-                currentUserName={venueContext?.userName}
-                currentNumberOfPeople={venueContext?.numberOfPeople}
-                onProfileUpdate={handleProfileUpdate}
-            />
-            {/* ToastContainer is already rendered by UserpageWrapper's ToastProvider */}
-        </div>
+        </VenueContext.Provider>
     );
 }
 
-// Wrapper remains the same, ensuring ToastProvider wraps AppContent
 export default function UserpageWrapper() {
+    const { venueContext, isLoadingVenueContext, isVenueContextError, venueContextError, refetchVenueContext, updateVenueUserDetails, logoError, setLogoError } = useVenueContextManager(useParams().tableLayoutItemId);
+    const venueContextValue = { venueContext, isLoadingVenueContext, isVenueContextError, venueContextError, refetchVenueContext, updateVenueUserDetails, logoError, setLogoError };
+
     return (
         <ToastProvider>
-            <AppContent />
-            <ToastContainer />
+            <VenueContext.Provider value={venueContextValue}>
+                <AppContent />
+                <ToastContainer />
+            </VenueContext.Provider>
         </ToastProvider>
     );
 }

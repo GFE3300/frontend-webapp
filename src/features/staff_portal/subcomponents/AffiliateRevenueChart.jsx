@@ -10,10 +10,16 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useTheme } from '../../../utils/ThemeProvider'; // Using theme context for colors
+import { useTheme } from '../../../utils/ThemeProvider';
 
+// Register the necessary components for Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+/**
+ * A responsive bar chart that visualizes an affiliate's monthly commission earnings.
+ * It processes raw commission data, aggregates it by month, and displays it
+ * with theme-aware styling for light and dark modes.
+ */
 const AffiliateRevenueChart = ({ commissions }) => {
     const { theme } = useTheme();
 
@@ -22,47 +28,52 @@ const AffiliateRevenueChart = ({ commissions }) => {
 
         if (commissions && commissions.length > 0) {
             commissions.forEach(commission => {
-                // Assuming `created_at` or similar field exists on commission records from analytics
-                const date = new Date(commission.calculation_date || commission.created_at);
+                // Use `created_at` as the reliable date source from the API.
+                const date = new Date(commission.created_at);
                 const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
                 if (!monthlyData[monthKey]) {
                     monthlyData[monthKey] = 0;
                 }
-                monthlyData[monthKey] += parseFloat(commission.commission_earned);
+                // Add the commission amount, ensuring it's a number.
+                monthlyData[monthKey] += parseFloat(commission.amount || 0);
             });
         }
 
         const sortedMonths = Object.keys(monthlyData).sort();
 
         return {
-            labels: sortedMonths.map(month => new Date(month + '-02').toLocaleString('default', { month: 'long', year: 'numeric' })),
+            labels: sortedMonths.map(month => new Date(month + '-02').toLocaleString('default', { month: 'short', year: 'numeric' })),
             datasets: [
                 {
-                    label: 'Commission Earned (€)',
+                    label: 'Commission Earned',
                     data: sortedMonths.map(month => monthlyData[month].toFixed(2)),
-                    backgroundColor: 'rgba(244, 63, 94, 0.6)', // Tailwind 'rose-500' with opacity
-                    borderColor: 'rgba(244, 63, 94, 1)', // Solid 'rose-500'
+                    backgroundColor: theme === 'dark' ? 'rgba(34, 197, 94, 0.5)' : 'rgba(22, 163, 74, 0.6)', // Tailwind green-500/600
+                    borderColor: theme === 'dark' ? 'rgba(34, 197, 94, 1)' : 'rgba(22, 163, 74, 1)',
                     borderWidth: 1,
                     borderRadius: 4,
+                    hoverBackgroundColor: theme === 'dark' ? 'rgba(34, 197, 94, 0.7)' : 'rgba(22, 163, 74, 0.8)',
                 },
             ],
         };
-    }, [commissions]);
+    }, [commissions, theme]);
 
     const options = useMemo(() => ({
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'top',
-                labels: {
-                    color: theme === 'dark' ? '#d4d4d4' : '#404040', // neutral-400 or neutral-700
-                }
+                display: false, // The dataset label is clear enough
             },
             title: {
-                display: false, // Title is handled by the parent page component
+                display: false, // Title is handled by the parent component
             },
             tooltip: {
+                backgroundColor: theme === 'dark' ? '#262626' : '#ffffff',
+                titleColor: theme === 'dark' ? '#f5f5f5' : '#404040',
+                bodyColor: theme === 'dark' ? '#d4d4d4' : '#525252',
+                borderColor: theme === 'dark' ? '#525252' : '#e5e5e5',
+                borderWidth: 1,
                 callbacks: {
                     label: function (context) {
                         let label = context.dataset.label || '';
@@ -70,7 +81,7 @@ const AffiliateRevenueChart = ({ commissions }) => {
                             label += ': ';
                         }
                         if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(context.parsed.y);
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
                         }
                         return label;
                     }
@@ -80,8 +91,8 @@ const AffiliateRevenueChart = ({ commissions }) => {
         scales: {
             y: {
                 beginAtZero: true,
-                ticks: { color: theme === 'dark' ? '#a3a3a3' : '#737373' }, // neutral-500 or neutral-400
-                grid: { color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                ticks: { color: theme === 'dark' ? '#a3a3a3' : '#737373' }, // neutral-400 / neutral-500
+                grid: { color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)' },
             },
             x: {
                 ticks: { color: theme === 'dark' ? '#a3a3a3' : '#737373' },
@@ -98,10 +109,12 @@ const AffiliateRevenueChart = ({ commissions }) => {
 };
 
 AffiliateRevenueChart.propTypes = {
+    /**
+     * An array of commission objects, each expected to have `created_at` and `amount`.
+     */
     commissions: PropTypes.arrayOf(PropTypes.shape({
-        calculation_date: PropTypes.string, // Assuming this field from analytics
-        created_at: PropTypes.string, // Fallback field
-        commission_earned: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        created_at: PropTypes.string.isRequired,
+        amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     })),
 };
 

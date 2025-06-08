@@ -1,7 +1,10 @@
+import { createContext } from 'react'; // Import createContext
 import { useQuery } from '@tanstack/react-query';
 import apiService from '../services/api'; // Ensure this path is correct
 import { queryKeys } from '../services/queryKeys'; // Ensure this path is correct
 import { useParams } from 'react-router-dom'; // To potentially get tableLayoutItemId if hook is used directly in a routed component
+
+export const VenueContext = createContext(null); // Add export
 
 // No actual React Context Provider is needed here if we are just exporting custom hooks
 // that use TanStack Query's global QueryClientProvider.
@@ -37,7 +40,7 @@ export const usePublicTableInfo = (tableLayoutItemId, options = {}) => {
             console.log(`[usePublicTableInfo] Fetching public table info for ID: ${idToFetch}`);
             try {
                 const response = await apiService.get(`venue/public/table-info/${idToFetch}/`);
-                // Backend returns: { table_display_number, business_uuid, business_slug, business_name }
+                // Backend returns: { table_display_number, business_uuid, business_slug, business_name, business_currency, business_logo_url }
                 console.log('[usePublicTableInfo] Successfully fetched table info:', response.data);
                 return response.data;
             } catch (error) {

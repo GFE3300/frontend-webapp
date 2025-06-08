@@ -20,7 +20,7 @@ const buildDefaultBackendLayout = () => ({
     items: [],
 });
 
-const useLayoutData = (openAlertModal) => {
+export const useLayoutData = (openAlertModal) => {
     const [layoutData, setLayoutData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);

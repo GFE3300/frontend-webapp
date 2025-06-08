@@ -198,12 +198,18 @@ python scripts/i18n/manager.py clean --yes
 
 ---
 
-## **A Note on Data Formatting (Currencies, Numbers, Dates)**
+## **A Note on Data Formatting (Currencies, Numbers, Dates, Icons and Data)**
 
 This i18n system is exclusively for **translatable text**. It should not be used for data formatting concerns.
 
 -   **DO NOT** put currency symbols (`$`, `€`), number formats, or date formats in `script_lines.js`.
 -   **DO** use the native `Intl` API in JavaScript for this purpose. It is locale-aware and the correct tool for the job.
+
+-   **DO NOT** write the placeholders for dynamic values like this: {value}
+-   **DO** Placeholders for dynamic values **must** use double curly braces `{{variable}}`.
+
+-   **DO NOT** add the Icons name into your script_lines file, Icons are based on Material Symbol
+-   **DO** keep the name of the Icons no matter what
 
 **Correct Way to Format Currency:**
 A helper function, `formatCurrency`, is provided in `src/features/venue_management/utils/script_lines.js` for this. It uses `Intl.NumberFormat`.
