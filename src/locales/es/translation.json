@@ -340,6 +340,243 @@
     },
     "warnCannotSetSelection": "No se ha podido establecer el rango de selección en la entrada:"
   },
+  "menu_view": {
+    "menu_view": {
+      "bottomNav": {
+        "menuLabel": "Menú",
+        "myInfoLabel": "Mi información"
+      },
+      "categoryFilterBar": {
+        "allCategoryName": "Todos",
+        "categoryFiltersAriaLabel": "Filtros de categoría",
+        "errorLoading": "No se han podido cargar las categorías.",
+        "loadingAriaLabel": "Carga de filtros de categoría",
+        "loadingCategoriesAriaLabel": "Cargando categorías...",
+        "noCategoriesAvailable": "No hay categorías disponibles."
+      },
+      "guestSettingsModal": {
+        "closeAriaLabel": "Cerrar ajustes",
+        "emailLabel": "Correo electrónico para la recepción (opcional)",
+        "guestCountLabel": "Número de invitados",
+        "languageLabel": "Idioma",
+        "nameLabel": "Nombre para esta Orden",
+        "nameRequiredError": "Introduzca un nombre para el pedido.",
+        "orderInfoLegend": "Información sobre pedidos",
+        "themeLabel": "Tema",
+        "title": "Configuración de invitados",
+        "uiPrefsLegend": "Preferencias de interfaz de usuario"
+      },
+      "menuDisplayLayout": {
+        "clearFiltersButton": "Borrar filtros y buscar",
+        "errorMessageDefault": "Hubo un problema al buscar los elementos del menú.",
+        "errorSuggestion": "Por favor, inténtelo de nuevo en un momento, o póngase en contacto con el personal si el problema persiste.",
+        "errorTitle": "¡Uy! No se ha podido cargar el menú.",
+        "loadingCuisine": "Cargando Cocina...",
+        "menuEmptyMessage": "El menú está actualmente vacío.",
+        "menuEmptySuggestion": "Vuelva a comprobarlo más tarde o pida ayuda a nuestro personal.",
+        "menuEmptyTitle": "Menú Vacío",
+        "noResultsMessage": "Ningún elemento del menú coincide con su selección actual.",
+        "noResultsSuggestion": "Prueba a ajustar la búsqueda o los filtros.",
+        "noResultsTitle": "No se han encontrado resultados",
+        "otherItemsCategory": "Otros artículos",
+        "refreshingMenu": "Actualizando menú...",
+        "uncategorized": "Sin categoría"
+      },
+      "menuItemCard": {
+        "ariaLabel": {
+          "base": "{{name}}, precio {{price}}.",
+          "hasOptions": "Pulse para ver los detalles y configurar las opciones.",
+          "noOptions": "Pulse para añadir al pedido.",
+          "unavailable": "Este artículo no está disponible actualmente."
+        },
+        "ariaLabelPrice": {
+          "discounted": "Precio con descuento {{price}}",
+          "original": "Precio original {{price}}",
+          "standard": "Precio {{price}}"
+        },
+        "moreTagsAriaLabel": "y {{count}} más etiquetas",
+        "moreTagsTitle": "+{{count}} más etiquetas",
+        "tagsAriaLabel": "Etiquetas del producto",
+        "unavailable": "No disponible",
+        "unnamedProduct": "Producto sin nombre"
+      },
+      "menuSearchBar": {
+        "clearInputAriaLabel": "Borrar entrada de búsqueda",
+        "errorLoading": "Error al cargar sugerencias.",
+        "inputAriaLabel": "Buscar elementos de menú, categorías o etiquetas",
+        "loadingSuggestions": "Buscando...",
+        "noSuggestions": "No hay sugerencias para \"{{term}}\".",
+        "placeholder": "Menú de búsqueda...",
+        "searchAllPrompt": "Buscar todos los artículos por \"{{term}}\"",
+        "searchAriaLabel": "Buscar en el menú",
+        "suggestionTypeFallback": "{{type}}",
+        "suggestionTypeProduct": "En: {{categoryName}}",
+        "suggestionsAriaLabel": "Resultados de la búsqueda"
+      },
+      "orderInteractionController": {
+        "closeDrawerAriaLabel": "Resumen de la orden de cierre",
+        "desktopEmptyMessage": "El resumen de su pedido aparecerá aquí una vez que añada artículos.",
+        "peekBar": {
+          "item_one": "({{count}} elemento)",
+          "item_other": "({{count}} items)",
+          "title": "Ver su pedido"
+        }
+      },
+      "orderItem": {
+        "ariaLabel": {
+          "base": "{{itemName}}, cantidad {{quantity}}, precio final {{finalPrice}}",
+          "discounted": " (descontado de {{originalPrice}}, {{discountDescription}})"
+        },
+        "ariaLabelPrice": {
+          "final": "Precio total actual {{price}}"
+        },
+        "decreaseQuantityAriaLabel": "Disminuya la cantidad de {{itemName}}",
+        "increaseQuantityAriaLabel": "Aumentar la cantidad de {{itemName}}",
+        "unitPrice": "/ unidad",
+        "unnamedItem": "Artículo sin nombre"
+      },
+      "orderManagement": {
+        "itemAddedToast": "\"{{itemName}}\" ¡añadido al pedido!",
+        "itemDiscountFixed": "{{value}} apagado",
+        "itemDiscountPercentage": "{{value}}% de descuento",
+        "itemDiscountsApplied": "Artículo Descuentos aplicados",
+        "orderDiscountFixed": "{{value}} Fuera de servicio",
+        "orderDiscountPercentage": "{{value}}% de descuento en pedidos"
+      },
+      "orderSummaryPanel": {
+        "applyPromoButton": "Solicitar",
+        "browseMenuButton": "Examinar el menú",
+        "discountLabel": "Descuento ({{promoCode}})",
+        "emptyOrderDefaultMessage": "Añade elementos para empezar.",
+        "emptyOrderMessageDrawer": "Pulse \"Menú\" para explorar.",
+        "emptyOrderMessageSidebar": "Añade elementos del menú.",
+        "emptyOrderTitle": "Su pedido está vacío",
+        "forLabel": "Para: { \"{userName}\".}",
+        "guestCountLabel": " ({{count}} {{plural}})",
+        "guestFallback": "Invitado",
+        "guestPlural": "invitados",
+        "guestSingular": "invitado",
+        "orderNotesLabel": "Notas de pedido",
+        "orderNotesPlaceholder": "por ejemplo, sin cebolla, extra picante...",
+        "orderNotesPreviewLabel": "(Vista previa)",
+        "placeOrderButton": "Realizar pedido",
+        "promoCodeLabel": "Código promocional",
+        "promoCodePlaceholder": "Enter promo code",
+        "promoFeedback": {
+          "applied": "Descuento aplicado",
+          "inputEmpty": "Please enter a promo code.",
+          "missingBusinessContext": "Falta información empresarial.",
+          "noApplicableDiscount": "El código es válido, pero no hay descuento aplicable para el pedido actual."
+        },
+        "subtotalLabel": "Subtotal",
+        "tableLabel": "Mesa: {{tableNumber}}",
+        "titlePreview": "Vista previa del pedido",
+        "titleYourOrder": "Su pedido"
+      },
+      "orderTracker": {
+        "backToMenuButton": "Volver al menú",
+        "cancelledByBusinessMessage": "Ha habido un problema con el pedido. Consulte al personal para obtener más información.",
+        "cancelledByBusinessTitle": "Pedido cancelado",
+        "cancelledByCustomerMessage": "Su pedido se ha cancelado correctamente.",
+        "completedMessage": "Gracias por su pedido. Que lo disfrute.",
+        "completedTitle": "Pedido completo",
+        "confirmedMessage": "Hemos recibido su pedido y empezaremos a prepararlo en breve.",
+        "confirmedTitle": "Pedido confirmado",
+        "defaultMessage": "Estamos actualizando el estado del pedido.",
+        "defaultTitle": "Estado del pedido Desconocido",
+        "errorMessageDefault": "Se ha producido un error desconocido. Por favor, muestre esta pantalla a un miembro del personal.",
+        "errorTitle": "No se ha podido cargar el pedido",
+        "loadingMessage": "Cargando el estado de su pedido...",
+        "pendingConfirmationMessage": "La cocina le confirmará su pedido en breve.",
+        "pendingConfirmationTitle": "A la espera de la confirmación",
+        "pickupCodeLabel": "Código de recogida",
+        "placeAnotherOrderButton": "Hacer otro pedido",
+        "preparingMessage": "Nuestros chefs están haciendo su magia. No tardará mucho.",
+        "preparingTitle": "Su pedido se está preparando",
+        "readyForPickupMessage": "Por favor, muestre su código de recogida en el mostrador.",
+        "readyForPickupTitle": "¡Listo para recoger!",
+        "servedMessage": "Busque a nuestro personal para que le traiga sus artículos.",
+        "servedTitle": "Su pedido está en camino",
+        "timerLabel": "Tiempo en el estado actual: "
+      },
+      "orderTracking": {
+        "errorMissingId": "El ID de pedido es necesario para hacer un seguimiento del estado."
+      },
+      "productDetailModal": {
+        "addToOrderButton": "Añadir {{quantity}} al pedido",
+        "closeAriaLabel": "Cerrar opciones de productos",
+        "configureItemTitle": "Configurar elemento",
+        "quantityLabel": "Cantidad de artículos",
+        "requiredLabel": "(Obligatorio)",
+        "selectionNeededError": "Por favor, haga una selección para {{groupName}}.",
+        "totalLabel": "Total:"
+      },
+      "productUtils": {
+        "discountFallbackName": "Descuento"
+      },
+      "setupStage": {
+        "atTableLabel": "Usted está en la Mesa",
+        "footerMessage": "Disfrute de su comida. Si necesita ayuda, avise a nuestro personal.",
+        "nameRequiredError": "Introduzca su nombre para continuar.",
+        "peopleLabel": "Número de personas que hacen el pedido",
+        "setupPrompt": "Vamos a prepararte.",
+        "startOrderingButton": "Iniciar pedido",
+        "startingButton": "Empezando...",
+        "welcomeTitle": "Bienvenido.",
+        "yourNameLabel": "Su nombre",
+        "yourNamePlaceholder": "por ejemplo, Alex Smith"
+      },
+      "snakesGame": {
+        "gameOver": {
+          "continueHint": "(Pulse en cualquier lugar para continuar)",
+          "finalScoreLabel": "Su puntuación final: ",
+          "highScoreBeaten": "🏆 ¡Has batido la puntuación más alta! 🏆",
+          "title": "Se acabó el juego"
+        },
+        "highScoreLabel": "Máxima puntuación: ",
+        "newGameHint": "Haz clic en cualquier lugar para empezar",
+        "pauseHint": "PAUSA:",
+        "pauseHintInstructions": "Haga clic en cualquier lugar o pulse",
+        "paused": {
+          "title": "En pausa"
+        },
+        "scoreLabel": "Puntuación",
+        "title": "Juego de la serpiente"
+      },
+      "tagFilterPills": {
+        "errorLoading": "No se han podido cargar las etiquetas.",
+        "filterByTagsAriaLabel": "Filtrar por etiquetas",
+        "loadingAriaLabel": "Carga de filtros de etiquetas",
+        "loadingTagsAriaLabel": "Cargando etiquetas...",
+        "tagFiltersAriaLabel": "Filtros de etiquetas"
+      },
+      "userPageHeader": {
+        "defaultBusinessName": "Menú de restaurante",
+        "guestLabel": "Para:",
+        "logoAlt": "{{businessName}} logotipo",
+        "logoPlaceholderAriaLabel": "{{businessName}} logotipo marcador de posición",
+        "settingsAriaLabel": "Abrir la configuración de invitados",
+        "tableLabel": "Mesa:"
+      },
+      "userpage": {
+        "errorInvalidLinkOrNotFound": "Este enlace no es válido o el restaurante no se encuentra.",
+        "errorMessageFallback": "Nos encontramos con un problema.",
+        "errorOrderFailed": "No se ha podido realizar el pedido. Inténtelo de nuevo o avise al personal.",
+        "loadingActiveOrder": "Comprobación de pedidos activos...",
+        "loadingInvalidLink": "Enlace no válido...",
+        "loadingVenueInfo": "Cargando información del restaurante...",
+        "modalOrderFailedTitle": "Pedido fallido",
+        "modalPlacingOrderMessage": "Espere mientras enviamos su pedido.",
+        "modalPlacingOrderTitle": "Hacer un pedido...",
+        "toastOrderPlaced": "Pedido #{{orderId}}... ¡Colocado!",
+        "toastSettingsSaved": "Tus ajustes se han guardado.",
+        "toastWelcome": "¡Bienvenido, {{userName}}! Listo para pedir."
+      },
+      "venueContextManager": {
+        "updateWarning": "updateVenueUserDetails se ha ejecutado antes de inicializar el contexto."
+      }
+    }
+  },
   "payments": {
     "components": {
       "paymentCancelPage": {
@@ -525,6 +762,16 @@
   },
   "products_table": {
     "productsTable": {
+      "animatedSearchBar": {
+        "status": {
+          "loading": "Cargando sugerencias...",
+          "noSuggestions": "No se han encontrado sugerencias."
+        },
+        "tooltips": {
+          "clearSearch": "Búsqueda clara",
+          "openSearch": "Búsqueda abierta"
+        }
+      },
       "customColumnDropdown": {
         "headerSubtitle": "Alterne la visibilidad o arrastre para reordenar las columnas no fijas.",
         "headerTitle": "Personalizar las columnas de la tabla",
@@ -560,6 +807,29 @@
           "nameCannotBeEmpty": "El nombre no puede estar vacío.",
           "negativeValue": "El valor no puede ser negativo.",
           "saveFailed": "Guardar falló."
+        }
+      },
+      "productsTable": {
+        "deleteModal": {
+          "message": "¿Estás seguro de que quieres borrar '{{productName}}'? Esta acción no se puede deshacer.",
+          "title": "Confirmar borrado"
+        },
+        "pagination": {
+          "ariaLabel": "Paginación",
+          "nextAriaLabel": "Página siguiente",
+          "pageOf": "Página {{currentPage}} de {{totalPages}}",
+          "previous": "Anterior",
+          "previousAriaLabel": "Página anterior",
+          "showingResults": "Mostrando {{start}} a {{end}} de {{total}} resultados"
+        },
+        "toasts": {
+          "deleteError": "Error al borrar '{{productName}}'.",
+          "deleteSuccess": "Producto '{{productName}}' eliminado con éxito.",
+          "fieldUpdateError": "Error al actualizar {{fieldKey}}.",
+          "fieldUpdateSuccess": "Campo de producto '{{fieldKey}}' actualizado.",
+          "filtersCleared": "Filtros eliminados",
+          "statusUpdateError": "No se ha podido actualizar el estado.",
+          "statusUpdateSuccess": "Estado del producto actualizado a {{status}}."
         }
       },
       "productsTableBody": {
@@ -600,9 +870,38 @@
           "placeholder": "Ordenar por"
         }
       },
+      "salesSparkline": {
+        "noData": "No sales data",
+        "tooltip": "Tendencia de ventas: {{data}}"
+      },
+      "stockLevelDisplay": {
+        "inStock": "{{quantity}} (En stock)",
+        "inStockStatus": "En stock",
+        "lowStock": "{{quantity}} (Bajo Stock)",
+        "lowStockStatus": "Bajo Stock",
+        "outOfStock": "Agotado"
+      },
       "tableConfig": {
         "errors": {
           "invalidDate": "Fecha no válida"
+        },
+        "filterOptions": {
+          "is_active": {
+            "1": {
+              "value": "activo"
+            },
+            "2": {
+              "value": "inactivo"
+            }
+          },
+          "product_type": {
+            "1": {
+              "value": "made_in_house"
+            },
+            "2": {
+              "value": "artículo_revendido"
+            }
+          }
         },
         "filters": {
           "allStatuses": "Todos los estados",
@@ -638,10 +937,39 @@
           "updatedAsc": "Última actualización (más antigua)",
           "updatedDesc": "Última actualización (más reciente)"
         },
+        "sortOptions": {
+          "1": {
+            "value": "nombre"
+          },
+          "2": {
+            "value": "-nombre"
+          },
+          "3": {
+            "value": "precio_venta_impuestos_excl"
+          },
+          "4": {
+            "value": "-precio_de_venta_sin_impuestos"
+          },
+          "5": {
+            "value": "actualizado_a"
+          },
+          "6": {
+            "value": "-actualizado"
+          },
+          "7": {
+            "value": "stock_cantidad"
+          },
+          "8": {
+            "value": "-cantidad_de_stock"
+          }
+        },
         "tooltips": {
           "deleteProduct": "Borrar producto",
           "editProduct": "Editar producto"
         }
+      },
+      "tagPills": {
+        "more": "+{{count}} más"
       },
       "toolbarDropdown": {
         "errors": {

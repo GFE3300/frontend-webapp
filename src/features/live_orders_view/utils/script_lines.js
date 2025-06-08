@@ -1,11 +1,4 @@
-// This file centralizes all user-facing text for the Live Orders View feature.
-// It is ready for the i18n sync script.
-// By centralizing text here, we ensure consistency and easy translation.
-
 import { t as i18n_t } from '../../../i18n'; // Assuming i18n setup exists
-
-// Note: This file will be automatically processed and rewritten by `scripts/i18n/manager.py sync`.
-// We define simple key-value pairs; the script will convert them to `i18n.t()` calls.
 
 export const scriptLines_liveOrders = {
     // --- Page-level Text ---

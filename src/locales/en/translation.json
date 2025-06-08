@@ -340,6 +340,243 @@
     },
     "warnCannotSetSelection": "Could not set selection range on input: "
   },
+  "menu_view": {
+    "menu_view": {
+      "bottomNav": {
+        "menuLabel": "Menu",
+        "myInfoLabel": "My Info"
+      },
+      "categoryFilterBar": {
+        "allCategoryName": "All",
+        "categoryFiltersAriaLabel": "Category filters",
+        "errorLoading": "Could not load categories.",
+        "loadingAriaLabel": "Loading category filters",
+        "loadingCategoriesAriaLabel": "Loading categories...",
+        "noCategoriesAvailable": "No categories available."
+      },
+      "guestSettingsModal": {
+        "closeAriaLabel": "Close settings",
+        "emailLabel": "Email for Receipt (Optional)",
+        "guestCountLabel": "Number of guests",
+        "languageLabel": "Language",
+        "nameLabel": "Name for this Order",
+        "nameRequiredError": "Please enter a name for the order.",
+        "orderInfoLegend": "Order Information",
+        "themeLabel": "Theme",
+        "title": "Guest Settings",
+        "uiPrefsLegend": "UI Preferences"
+      },
+      "menuDisplayLayout": {
+        "clearFiltersButton": "Clear Filters & Search",
+        "errorMessageDefault": "There was a problem fetching the menu items.",
+        "errorSuggestion": "Please try again in a moment, or contact staff if the issue persists.",
+        "errorTitle": "Oops! Could not load menu.",
+        "loadingCuisine": "Loading Cuisine...",
+        "menuEmptyMessage": "The menu is currently empty.",
+        "menuEmptySuggestion": "Please check back later or ask our staff for assistance.",
+        "menuEmptyTitle": "Menu Empty",
+        "noResultsMessage": "No menu items match your current selection.",
+        "noResultsSuggestion": "Try adjusting your search or filters.",
+        "noResultsTitle": "No Results Found",
+        "otherItemsCategory": "Other Items",
+        "refreshingMenu": "Refreshing menu...",
+        "uncategorized": "Uncategorized"
+      },
+      "menuItemCard": {
+        "ariaLabel": {
+          "base": "{{name}}, price {{price}}.",
+          "hasOptions": "Tap to view details and configure options.",
+          "noOptions": "Tap to add to order.",
+          "unavailable": "This item is currently unavailable."
+        },
+        "ariaLabelPrice": {
+          "discounted": "Discounted price {{price}}",
+          "original": "Original price {{price}}",
+          "standard": "Price {{price}}"
+        },
+        "moreTagsAriaLabel": "and {{count}} more tags",
+        "moreTagsTitle": "+{{count}} more tags",
+        "tagsAriaLabel": "Product tags",
+        "unavailable": "Unavailable",
+        "unnamedProduct": "Unnamed Product"
+      },
+      "menuSearchBar": {
+        "clearInputAriaLabel": "Clear search input",
+        "errorLoading": "Error loading suggestions.",
+        "inputAriaLabel": "Search menu items, categories, or tags",
+        "loadingSuggestions": "Searching...",
+        "noSuggestions": "No suggestions for \"{{term}}\".",
+        "placeholder": "Search menu...",
+        "searchAllPrompt": "Search all items for \"{{term}}\"",
+        "searchAriaLabel": "Menu search",
+        "suggestionTypeFallback": "{{type}}",
+        "suggestionTypeProduct": "In: {{categoryName}}",
+        "suggestionsAriaLabel": "Search results"
+      },
+      "orderInteractionController": {
+        "closeDrawerAriaLabel": "Close order summary",
+        "desktopEmptyMessage": "Your order summary will appear here once you add items.",
+        "peekBar": {
+          "item_one": "({{count}} item)",
+          "item_other": "({{count}} items)",
+          "title": "View Your Order"
+        }
+      },
+      "orderItem": {
+        "ariaLabel": {
+          "base": "{{itemName}}, quantity {{quantity}}, final price {{finalPrice}}",
+          "discounted": " (discounted from {{originalPrice}}, {{discountDescription}})"
+        },
+        "ariaLabelPrice": {
+          "final": "Current total price {{price}}"
+        },
+        "decreaseQuantityAriaLabel": "Decrease quantity of {{itemName}}",
+        "increaseQuantityAriaLabel": "Increase quantity of {{itemName}}",
+        "unitPrice": "/ unit",
+        "unnamedItem": "Unnamed Item"
+      },
+      "orderManagement": {
+        "itemAddedToast": "\"{{itemName}}\" added to order!",
+        "itemDiscountFixed": "{{value}} off",
+        "itemDiscountPercentage": "{{value}}% off",
+        "itemDiscountsApplied": "Item Discounts Applied",
+        "orderDiscountFixed": "{{value}} Off Order",
+        "orderDiscountPercentage": "{{value}}% Off Order"
+      },
+      "orderSummaryPanel": {
+        "applyPromoButton": "Apply",
+        "browseMenuButton": "Browse Menu",
+        "discountLabel": "Discount ({{promoCode}})",
+        "emptyOrderDefaultMessage": "Add items to get started.",
+        "emptyOrderMessageDrawer": "Tap 'Menu' to explore!",
+        "emptyOrderMessageSidebar": "Add items from the menu.",
+        "emptyOrderTitle": "Your Order is Empty",
+        "forLabel": "For: {{userName}}",
+        "guestCountLabel": " ({{count}} {{plural}})",
+        "guestFallback": "Guest",
+        "guestPlural": "guests",
+        "guestSingular": "guest",
+        "orderNotesLabel": "Order Notes",
+        "orderNotesPlaceholder": "e.g., no onions, extra spicy...",
+        "orderNotesPreviewLabel": "(Preview)",
+        "placeOrderButton": "Place Order",
+        "promoCodeLabel": "Promo Code",
+        "promoCodePlaceholder": "Enter promo code",
+        "promoFeedback": {
+          "applied": "Discount applied!",
+          "inputEmpty": "Please enter a promo code.",
+          "missingBusinessContext": "Business information is missing.",
+          "noApplicableDiscount": "Code is valid, but no applicable discount for current order."
+        },
+        "subtotalLabel": "Subtotal",
+        "tableLabel": "Table: {{tableNumber}}",
+        "titlePreview": "Order Preview",
+        "titleYourOrder": "Your Order"
+      },
+      "orderTracker": {
+        "backToMenuButton": "Back to Menu",
+        "cancelledByBusinessMessage": "There was an issue with the order. Please see staff for details.",
+        "cancelledByBusinessTitle": "Order Cancelled",
+        "cancelledByCustomerMessage": "Your order has been successfully cancelled.",
+        "completedMessage": "Thank you for your order. Enjoy!",
+        "completedTitle": "Order Complete!",
+        "confirmedMessage": "We've received your order and will start preparing it soon.",
+        "confirmedTitle": "Order Confirmed!",
+        "defaultMessage": "We're currently updating the order status.",
+        "defaultTitle": "Order Status Unknown",
+        "errorMessageDefault": "An unknown error occurred. Please show this screen to a staff member.",
+        "errorTitle": "Could Not Load Order",
+        "loadingMessage": "Loading your order status...",
+        "pendingConfirmationMessage": "The kitchen will confirm your order shortly.",
+        "pendingConfirmationTitle": "Waiting for Confirmation",
+        "pickupCodeLabel": "Pickup Code",
+        "placeAnotherOrderButton": "Place Another Order",
+        "preparingMessage": "Our chefs are working their magic. It won't be long!",
+        "preparingTitle": "Your Order is Being Prepared",
+        "readyForPickupMessage": "Please show your pickup code at the counter.",
+        "readyForPickupTitle": "Ready for Pickup!",
+        "servedMessage": "Look out for our staff bringing your items.",
+        "servedTitle": "Your Order is on its Way!",
+        "timerLabel": "Time in current state: "
+      },
+      "orderTracking": {
+        "errorMissingId": "Order ID is required to track status."
+      },
+      "productDetailModal": {
+        "addToOrderButton": "Add {{quantity}} to Order",
+        "closeAriaLabel": "Close product options",
+        "configureItemTitle": "Configure Item",
+        "quantityLabel": "Item quantity",
+        "requiredLabel": "(Required)",
+        "selectionNeededError": "Please make a selection for {{groupName}}.",
+        "totalLabel": "Total:"
+      },
+      "productUtils": {
+        "discountFallbackName": "Discount"
+      },
+      "setupStage": {
+        "atTableLabel": "You are at Table",
+        "footerMessage": "Enjoy your meal! If you need assistance, please alert our staff.",
+        "nameRequiredError": "Please enter your name to continue.",
+        "peopleLabel": "Number of people ordering",
+        "setupPrompt": "Let's get you set up!",
+        "startOrderingButton": "Start Ordering",
+        "startingButton": "Starting...",
+        "welcomeTitle": "Welcome!",
+        "yourNameLabel": "Your Name",
+        "yourNamePlaceholder": "e.g., Alex Smith"
+      },
+      "snakesGame": {
+        "gameOver": {
+          "continueHint": "(Click anywhere to continue)",
+          "finalScoreLabel": "Your Final Score: ",
+          "highScoreBeaten": "🏆 You beat the high score! 🏆",
+          "title": "Game Over"
+        },
+        "highScoreLabel": "High Score: ",
+        "newGameHint": "Click anywhere to start",
+        "pauseHint": "PAUSE:",
+        "pauseHintInstructions": "Click Anywhere or Press",
+        "paused": {
+          "title": "Paused"
+        },
+        "scoreLabel": "Score",
+        "title": "Snake Game"
+      },
+      "tagFilterPills": {
+        "errorLoading": "Could not load tags.",
+        "filterByTagsAriaLabel": "Filter by tags",
+        "loadingAriaLabel": "Loading tag filters",
+        "loadingTagsAriaLabel": "Loading tags...",
+        "tagFiltersAriaLabel": "Tag filters"
+      },
+      "userPageHeader": {
+        "defaultBusinessName": "Restaurant Menu",
+        "guestLabel": "For:",
+        "logoAlt": "{{businessName}} logo",
+        "logoPlaceholderAriaLabel": "{{businessName}} logo placeholder",
+        "settingsAriaLabel": "Open guest settings",
+        "tableLabel": "Table:"
+      },
+      "userpage": {
+        "errorInvalidLinkOrNotFound": "This link is invalid or the restaurant is not found.",
+        "errorMessageFallback": "We encountered an issue.",
+        "errorOrderFailed": "Failed to place order. Please try again or alert staff.",
+        "loadingActiveOrder": "Checking for active orders...",
+        "loadingInvalidLink": "Invalid link...",
+        "loadingVenueInfo": "Loading Restaurant Info...",
+        "modalOrderFailedTitle": "Order Failed",
+        "modalPlacingOrderMessage": "Please wait while we submit your order.",
+        "modalPlacingOrderTitle": "Placing Order...",
+        "toastOrderPlaced": "Order #{{orderId}}... Placed!",
+        "toastSettingsSaved": "Your settings have been saved!",
+        "toastWelcome": "Welcome, {{userName}}! Ready to order."
+      },
+      "venueContextManager": {
+        "updateWarning": "updateVenueUserDetails called before context was initialized."
+      }
+    }
+  },
   "payments": {
     "components": {
       "paymentCancelPage": {
@@ -525,6 +762,16 @@
   },
   "products_table": {
     "productsTable": {
+      "animatedSearchBar": {
+        "status": {
+          "loading": "Loading suggestions...",
+          "noSuggestions": "No suggestions found."
+        },
+        "tooltips": {
+          "clearSearch": "Clear search",
+          "openSearch": "Open search"
+        }
+      },
       "customColumnDropdown": {
         "headerSubtitle": "Toggle visibility or drag to reorder non-fixed columns.",
         "headerTitle": "Customize Table Columns",
@@ -560,6 +807,29 @@
           "nameCannotBeEmpty": "Name cannot be empty.",
           "negativeValue": "Value cannot be negative.",
           "saveFailed": "Save failed."
+        }
+      },
+      "productsTable": {
+        "deleteModal": {
+          "message": "Are you sure you want to delete '{{productName}}'? This action cannot be undone.",
+          "title": "Confirm Deletion"
+        },
+        "pagination": {
+          "ariaLabel": "Pagination",
+          "nextAriaLabel": "Next page",
+          "pageOf": "Page {{currentPage}} of {{totalPages}}",
+          "previous": "Previous",
+          "previousAriaLabel": "Previous page",
+          "showingResults": "Showing {{start}} to {{end}} of {{total}} results"
+        },
+        "toasts": {
+          "deleteError": "Failed to delete '{{productName}}'.",
+          "deleteSuccess": "Product '{{productName}}' deleted successfully.",
+          "fieldUpdateError": "Failed to update {{fieldKey}}.",
+          "fieldUpdateSuccess": "Product field '{{fieldKey}}' updated.",
+          "filtersCleared": "Filters cleared",
+          "statusUpdateError": "Failed to update status.",
+          "statusUpdateSuccess": "Product status updated to {{status}}."
         }
       },
       "productsTableBody": {
@@ -600,9 +870,38 @@
           "placeholder": "Sort By"
         }
       },
+      "salesSparkline": {
+        "noData": "No sales data",
+        "tooltip": "Sales trend: {{data}}"
+      },
+      "stockLevelDisplay": {
+        "inStock": "{{quantity}} (In Stock)",
+        "inStockStatus": "In Stock",
+        "lowStock": "{{quantity}} (Low Stock)",
+        "lowStockStatus": "Low Stock",
+        "outOfStock": "Out of Stock"
+      },
       "tableConfig": {
         "errors": {
           "invalidDate": "Invalid Date"
+        },
+        "filterOptions": {
+          "is_active": {
+            "1": {
+              "value": "active"
+            },
+            "2": {
+              "value": "inactive"
+            }
+          },
+          "product_type": {
+            "1": {
+              "value": "made_in_house"
+            },
+            "2": {
+              "value": "resold_item"
+            }
+          }
         },
         "filters": {
           "allStatuses": "All Statuses",
@@ -638,10 +937,39 @@
           "updatedAsc": "Last Updated (Oldest)",
           "updatedDesc": "Last Updated (Newest)"
         },
+        "sortOptions": {
+          "1": {
+            "value": "name"
+          },
+          "2": {
+            "value": "-name"
+          },
+          "3": {
+            "value": "selling_price_excl_tax"
+          },
+          "4": {
+            "value": "-selling_price_excl_tax"
+          },
+          "5": {
+            "value": "updated_at"
+          },
+          "6": {
+            "value": "-updated_at"
+          },
+          "7": {
+            "value": "stock_quantity"
+          },
+          "8": {
+            "value": "-stock_quantity"
+          }
+        },
         "tooltips": {
           "deleteProduct": "Delete Product",
           "editProduct": "Edit Product"
         }
+      },
+      "tagPills": {
+        "more": "+{{count}} more"
       },
       "toolbarDropdown": {
         "errors": {

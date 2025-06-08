@@ -1,7 +1,9 @@
 {
-  "features\\add_product_modal\\utils\\script_lines.js": "219db24c17c5a7a9d2fc25871d5aaa7818bd4d3485b1784b6a2728a791c4c6e4",
-  "features\\payments\\utils\\script_lines.js": "770e38d506c3e9f1fe7afcb53aba49cdccf18f0e447a835ac9e76d4997bbb465",
-  "features\\products_table\\utils\\script_lines.js": "a86321451895e731abd4038902e45f8d82133d3bd44c8e8d7b41db9789346037",
-  "features\\register\\utils\\script_lines.js": "e9d1173fd296300bf55ac2c557f85414ffef8e73068003fc13ccf61c5235a96f",
-  "features\\venue_management\\utils\\script_lines.js": "ab7a52e94b71d17cfce52eee56571b32fed2250ea779a4b999b149d09943f2a9"
+  "features\\add_product_modal\\utils\\script_lines.js": "9221acd97acc33a4a2321485bdcdb0d481a5d1bd9e9d1d93f45c6c30c7e014a8",
+  "features\\live_orders_view\\utils\\script_lines.js": "3448c129ede0427c4d4e3d33a18cd44d8b705d10ffa30ff45fc34b2b935f4d15",
+  "features\\menu_view\\utils\\script_lines.js": "aa262d7ca88e4d3f73669d794ac3f1750a57e94984949ea97ea3024c2eeac6e1",
+  "features\\payments\\utils\\script_lines.js": "62d878bc2c75acb529296899d12d12e0d298469d6eb8f71c87687d2f59b8b594",
+  "features\\products_table\\utils\\script_lines.js": "94452c078e53f4ba39f7c07e9f99bbebba1101a344121549f09bb7ed38785da7",
+  "features\\register\\utils\\script_lines.js": "7fd054ff507550256b39d097a307f599c64f4157774350d811ea1cb77485d2ae",
+  "features\\venue_management\\utils\\script_lines.js": "1e3975eec8ef80ee703ff421b0f8c16d5c4108d8d574475d928fbc386db03d9f"
 }

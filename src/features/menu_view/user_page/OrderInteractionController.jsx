@@ -5,7 +5,7 @@ import OrderSummaryPanel from '../subcomponents/OrderSummaryPanel';
 import Icon from '../../../components/common/Icon.jsx';
 import useWindowSize from '../../../hooks/useWindowSize.js';
 import { useCurrency } from '../../../hooks/useCurrency';
-import i18n from '../../../i18n.js'; // LOCALIZATION: Import i18n for pluralization
+import i18n from '../../../i18n.js';
 import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 const PEEK_BAR_HEIGHT_VALUE_PX = 72;
@@ -124,8 +124,9 @@ const OrderInteractionController = ({
     };
 
     const peekBarTotalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-    const peekBarItemsText = i18n.t('orderInteractionController.peekBar.item', { count: peekBarTotalItems }); // LOCALIZATION: Pluralization
-    
+    // CORRECTED: Pass the script line object to i18n.t
+    const peekBarItemsText = i18n.t(sl.orderInteractionController.peekBar.item, { count: peekBarTotalItems });
+
     const peekBarAriaLabel = `${sl.orderInteractionController.peekBar.title || 'View your order'}. ${peekBarItemsText}. Total ${formatCurrency(orderFinancials?.finalTotal || 0)}. ${hasOrderItems ? "Tap or drag to expand." : ""}`;
 
     if (isDesktop) {

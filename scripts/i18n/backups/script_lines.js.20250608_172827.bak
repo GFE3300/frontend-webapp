@@ -64,68 +64,68 @@ export const scriptLines_ProductsTable = {
             product_type: [
                 {
                     value: '',
-                    label: i18n.t('products_table.productsTable.tableConfig.filters.allTypes')
+                    label: "All Types"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.product_type.1.value'),
-                    label: i18n.t('products_table.productsTable.tableConfig.productTypes.made_in_house')
+                    value: 'made_in_house',
+                    label: "Made In-House"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.product_type.2.value'),
-                    label: i18n.t('products_table.productsTable.tableConfig.productTypes.resold_item')
+                    value: 'resold_item',
+                    label: "Resold Item"
                 },
             ],
             is_active: [
                 {
                     value: '',
-                    label: i18n.t('products_table.productsTable.tableConfig.filters.allStatuses')
+                    label: "All Statuses"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.is_active.1.value'),
-                    label: i18n.t('venue_management.venueManagement.liveOrderDashboard.activeStatus')
+                    value: 'active',
+                    label: "Active"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.is_active.2.value'),
-                    label: i18n.t('products_table.productsTable.tableConfig.filters.inactive')
+                    value: 'inactive',
+                    label: "Inactive"
                 },
             ],
         },
         sortOptions: [
             {
                 value: '',
-                label: i18n.t('products_table.productsTable.tableConfig.sort.default')
+                label: "Default Sort"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.1.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.nameAsc')
+                value: 'name',
+                label: "Name (A-Z)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.2.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.nameDesc')
+                value: '-name',
+                label: "Name (Z-A)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.3.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.priceAsc')
+                value: 'selling_price_excl_tax',
+                label: "Price (Low-High)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.4.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.priceDesc')
+                value: '-selling_price_excl_tax',
+                label: "Price (High-Low)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.5.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.updatedAsc')
+                value: 'updated_at',
+                label: "Last Updated (Oldest)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.6.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.updatedDesc')
+                value: '-updated_at',
+                label: "Last Updated (Newest)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.7.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.stockAsc')
+                value: "stock_quantity",
+                label: "Stock (Low-High)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.8.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.stockDesc')
+                value: "-stock_quantity",
+                label: "Stock (High-Low)"
             },
         ],
     },
@@ -218,56 +218,56 @@ export const scriptLines_ProductsTable = {
     },
     animatedSearchBar: {
         tooltips: {
-            clearSearch: i18n.t('products_table.productsTable.animatedSearchBar.tooltips.clearSearch'),
-            search: i18n.t('venue_management.search'),
-            openSearch: i18n.t('products_table.productsTable.animatedSearchBar.tooltips.openSearch'),
+            clearSearch: "Clear search",
+            search: "Search",
+            openSearch: "Open search",
         },
         status: {
-            loading: i18n.t('products_table.productsTable.animatedSearchBar.status.loading'),
-            noSuggestions: i18n.t('products_table.productsTable.animatedSearchBar.status.noSuggestions'),
+            loading: "Loading suggestions...",
+            noSuggestions: "No suggestions found.",
         }
     },
     stockLevelDisplay: {
-        outOfStock: i18n.t('products_table.productsTable.stockLevelDisplay.outOfStock'),
-        lowStock: i18n.t('products_table.productsTable.stockLevelDisplay.lowStock'),
-        inStock: i18n.t('products_table.productsTable.stockLevelDisplay.inStock'),
+        outOfStock: "Out of Stock",
+        lowStock: "{{quantity}} (Low Stock)",
+        inStock: "{{quantity}} (In Stock)",
         // Separate status text for potential reuse or different phrasing
-        lowStockStatus: i18n.t('products_table.productsTable.stockLevelDisplay.lowStockStatus'),
-        inStockStatus: i18n.t('products_table.productsTable.stockLevelDisplay.inStockStatus')
+        lowStockStatus: "Low Stock",
+        inStockStatus: "In Stock"
     },
     tagPills: {
-        more: i18n.t('products_table.productsTable.tagPills.more')
+        more: "+{{count}} more"
     },
     productsTable: {
         toasts: {
-            fieldUpdateSuccess: i18n.t('products_table.productsTable.productsTable.toasts.fieldUpdateSuccess'),
-            fieldUpdateError: i18n.t('products_table.productsTable.productsTable.toasts.fieldUpdateError'),
-            statusUpdateSuccess: i18n.t('products_table.productsTable.productsTable.toasts.statusUpdateSuccess'),
-            statusUpdateError: i18n.t('products_table.productsTable.productsTable.toasts.statusUpdateError'),
-            deleteSuccess: i18n.t('products_table.productsTable.productsTable.toasts.deleteSuccess'),
-            deleteError: i18n.t('products_table.productsTable.productsTable.toasts.deleteError'),
-            filtersCleared: i18n.t('products_table.productsTable.productsTable.toasts.filtersCleared'),
+            fieldUpdateSuccess: "Product field '{{fieldKey}}' updated.",
+            fieldUpdateError: "Failed to update {{fieldKey}}.",
+            statusUpdateSuccess: "Product status updated to {{status}}.",
+            statusUpdateError: "Failed to update status.",
+            deleteSuccess: "Product '{{productName}}' deleted successfully.",
+            deleteError: "Failed to delete '{{productName}}'.",
+            filtersCleared: "Filters cleared",
         },
         deleteModal: {
-            title: i18n.t('products_table.productsTable.productsTable.deleteModal.title'),
-            message: i18n.t('products_table.productsTable.productsTable.deleteModal.message'),
+            title: "Confirm Deletion",
+            message: "Are you sure you want to delete '{{productName}}'? This action cannot be undone.",
         },
         pagination: {
-            previous: i18n.t('products_table.productsTable.productsTable.pagination.previous'),
-            next: i18n.t('venue_management.next'),
-            showingResults: i18n.t('products_table.productsTable.productsTable.pagination.showingResults'),
-            pageOf: i18n.t('products_table.productsTable.productsTable.pagination.pageOf'),
-            ariaLabel: i18n.t('products_table.productsTable.productsTable.pagination.ariaLabel'),
-            previousAriaLabel: i18n.t('products_table.productsTable.productsTable.pagination.previousAriaLabel'),
-            nextAriaLabel: i18n.t('products_table.productsTable.productsTable.pagination.nextAriaLabel'),
+            previous: "Previous",
+            next: "Next",
+            showingResults: "Showing {{start}} to {{end}} of {{total}} results",
+            pageOf: "Page {{currentPage}} of {{totalPages}}",
+            ariaLabel: "Pagination",
+            previousAriaLabel: "Previous page",
+            nextAriaLabel: "Next page",
         },
         status: { // for toast messages
-            active: i18n.t('venue_management.venueManagement.liveOrderDashboard.activeStatus'),
-            inactive: i18n.t('products_table.productsTable.tableConfig.filters.inactive'),
+            active: "Active",
+            inactive: "Inactive",
         }
     },
     salesSparkline: {
-        noData: i18n.t('products_table.productsTable.salesSparkline.noData'),
-        tooltip: i18n.t('products_table.productsTable.salesSparkline.tooltip')
+        noData: "No sales data",
+        tooltip: "Sales trend: {{data}}"
     },
 };
