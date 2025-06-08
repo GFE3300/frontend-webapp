@@ -136,7 +136,7 @@ const PaymentSuccessPage = () => {
                     <Icon
                         name="check_circle"
                         className="w-15 h-15 sm:w-20 sm:h-20 text-green-500 dark:text-green-400 mx-auto mb-6"
-                        variations={{ fill: 1, weight: 500 }}
+                        variations={{ fill: 1, weight: 500, opsz: 48, grade: 0 }}
                         style={{ fontSize: '4rem' }}
                     />
                 </motion.div>

@@ -311,16 +311,16 @@ const apiService = {
 
     /**
      * Fetches the real-time status of all tables for the live orders dashboard.
-     * @returns {Promise<AxiosResponse<object>>} The Axios response containing an array of table statuses.
+     * @returns {Promise<AxiosResponse<Array<object>>>} The Axios response containing an array of table statuses.
      */
     getLiveOrdersView: () => {
         return apiInstance.get('orders/live-view/');
     },
 
     /**
-     * Updates the status of a specific order.
+     * Updates the status or payment status of a specific order.
      * @param {string} orderId - The UUID of the order to update.
-     * @param {{status: string}} data - The payload containing the new status.
+     * @param {{status?: string, payment_status?: string}} data - The payload containing the new status or payment status.
      * @returns {Promise<AxiosResponse<object>>} The Axios response.
      */
     updateOrderStatus: (orderId, data) => {

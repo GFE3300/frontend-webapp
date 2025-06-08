@@ -28,20 +28,17 @@ import AffiliateDetailPage from './features/staff_portal/pages/admin/AffiliateDe
 import PayoutsPage from './features/staff_portal/pages/admin/PayoutsPage.jsx';
 import StaffDashboardPage from './features/staff_portal/pages/StaffDashboardPage.jsx';
 
+// Import Dashboard Pages
 import DashboardLayout from './features/dashboard/DashboardLayout.jsx';
 import OverviewPage from './features/dashboard/pages/OverviewPage.jsx';
-import OrdersPage from './features/dashboard/pages/OrdersPage.jsx';
 import ProductsPage from './features/dashboard/pages/ProductsPage.jsx';
 import InventoryPage from './features/dashboard/pages/InventoryPage.jsx';
 import VenuePage from './features/dashboard/pages/VenuePage.jsx';
-import LiveOrdersPage from './features/live_orders_view/LiveOrdersPage.jsx';
+import LiveOrdersPage from './features/live_orders_view/LiveOrdersPage.jsx'; // This is our new page
 import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
-
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSettingsPage.jsx';
 import SubscriptionBillingPage from './features/dashboard/pages/settings/SubscriptionBillingPage.jsx';
-
-// Venue Layout Management (Existing)
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
 
 // Components
@@ -63,19 +60,15 @@ import { MultiBackend } from 'dnd-multi-backend';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 
-
 // DEVELOPMENT
 import LanguageSwitcher from './components/common/LanguageSwitcher.jsx';
 
-// Initialize Stripe (outside of the component to avoid re-creating on re-renders)
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 if (!stripePublishableKey) {
     console.error("Stripe publishable key is not set. Please set VITE_STRIPE_PUBLISHABLE_KEY in your .env file.");
 }
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
-
-// TanStack Query Client Configuration
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -86,7 +79,6 @@ const queryClient = new QueryClient({
     },
 });
 
-// DND Multi-Backend Configuration
 const DNDBackendsConfig = {
     backends: [
         { id: 'html5', backend: HTML5Backend },
@@ -100,8 +92,6 @@ const DNDBackendsConfig = {
     ],
 };
 
-
-// Router Configuration
 const router = createBrowserRouter([
     {
         path: "/",
@@ -125,7 +115,6 @@ const router = createBrowserRouter([
     },
     {
         path: "/logout",
-        // Placeholder for logout logic, usually handled within AuthContext/components
     },
     {
         path: "/register",
@@ -151,7 +140,6 @@ const router = createBrowserRouter([
         errorElement: <NotFoundPage />,
         children: [
             { index: true, element: <Navigate to="dashboard" replace /> },
-            // This path now correctly uses the imported, intelligent component
             { path: "dashboard", element: <StaffDashboardPage /> },
 
             {
@@ -179,7 +167,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="overview" replace /> },
             { path: "overview", element: <OverviewPage /> },
-            { path: "orders", element: <LiveOrdersPage /> },
+            { path: "orders", element: <LiveOrdersPage /> }, // This is the activated route
             { path: "products", element: <ProductsPage /> },
             { path: "inventory", element: <InventoryPage /> },
             { path: "venue", element: <VenuePage /> },
