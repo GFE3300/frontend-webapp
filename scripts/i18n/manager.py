@@ -96,6 +96,92 @@ def _prompt_for_confirmation(message: str) -> bool:
 
 # --- Command Handlers ---
 
+def handle_repair(args):
+    """
+    Finds keys used in code but missing from translation files, and interactively
+    prompts the user to provide the source text to repair the translations.
+    """
+    logging.info("--- Starting I18N Repair Process ---")
+    config = load_app_config()
+    if not config:
+        logging.error("Configuration not found. Please run 'init' first.")
+        return
+
+    # 1. Find all keys used in the codebase
+    code_keys = set()
+    script_files = [p for p in SRC_DIR.rglob("script_lines.js")]
+    logging.info(f"Scanning {len(script_files)} script file(s) for all translation keys...")
+    for file_path in script_files:
+        code_keys.update(find_translation_keys(read_file(file_path)))
+    logging.info(f"Found {len(code_keys)} unique keys used in the codebase.")
+
+    # 2. Find all keys defined in the source translation file
+    source_lang = config.get('source_language', DEFAULT_SOURCE_LANG)
+    source_file = get_translation_file_path(source_lang)
+    source_translations_flat = flatten_dict(load_json(source_file))
+    source_keys = set(source_translations_flat.keys())
+
+    # 3. Identify the missing keys
+    missing_keys = sorted(list(code_keys - source_keys))
+
+    if not missing_keys:
+        logging.info("✅ All keys used in the code are present in the source translation file. Nothing to repair!")
+        return
+
+    logging.warning(f"Found {len(missing_keys)} keys used in the code but missing from '{source_file.name}'.")
+
+    # 4. Interactively get the source text for each missing key
+    new_strings_to_add = {}
+    for key in missing_keys:
+        try:
+            text = input(f"  ➡️ Please provide the English text for key '{key}': ")
+            if text.strip():
+                new_strings_to_add[key] = text.strip()
+            else:
+                logging.warning(f"  Skipping key '{key}' due to empty input.")
+        except (KeyboardInterrupt, EOFError):
+            logging.warning("\nRepair process cancelled by user.")
+            return
+
+    if not new_strings_to_add:
+        logging.info("No new text was provided. Exiting repair process.")
+        return
+
+    # 5. Update the source translation file
+    logging.info(f"\nAdding {len(new_strings_to_add)} new key(s) to '{source_file.name}'...")
+    source_translations_flat.update(new_strings_to_add)
+    if not args.dry_run:
+        save_json(source_file, unflatten_dict(source_translations_flat))
+
+    # 6. Translate the new strings for all target languages
+    target_languages = [lang for lang in config['languages'] if lang != source_lang]
+    if target_languages:
+        api_key = os.getenv("DEEPL_API_KEY")
+        translator = initialize_translator(api_key)
+        if not translator:
+            logging.error("Translation step skipped due to translator initialization failure.")
+        else:
+            texts_to_translate = list(new_strings_to_add.values())
+            keys_for_texts = list(new_strings_to_add.keys())
+            for lang_code in target_languages:
+                logging.info(f"\n--- Translating to {lang_code.upper()} ---")
+                target_file = get_translation_file_path(lang_code)
+                target_translations_flat = flatten_dict(load_json(target_file))
+                translated_texts = translate_texts(translator, texts_to_translate, lang_code)
+                if translated_texts:
+                    for i, key in enumerate(keys_for_texts):
+                        target_translations_flat[key] = translated_texts[i]
+                    if not args.dry_run:
+                        save_json(target_file, unflatten_dict(target_translations_flat))
+                else:
+                    logging.warning(f"Skipping save for '{lang_code}' due to translation failure.")
+    
+    if args.dry_run:
+        logging.warning("DRY RUN finished. No files were modified.")
+    else:
+        logging.info("\n--- ✅ Repair process complete! All translation files have been updated. ---")
+
+
 def handle_init(args):
     """Initializes a new language in the project configuration."""
     lang_code = args.lang_code.lower()
@@ -398,6 +484,11 @@ def main():
     parser_format = subparsers.add_parser("format", help="Adds/updates comments and sorts JSON files.")
     parser_format.add_argument("--dry-run", action="store_true", help="Show proposed changes without writing to files.")
     parser_format.set_defaults(func=handle_format)
+
+    # repair
+    parser_repair = subparsers.add_parser("repair", help="Interactively add missing keys found in the code to translation files.")
+    parser_repair.add_argument("--dry-run", action="store_true", help="Simulate the process without writing any files.")
+    parser_repair.set_defaults(func=handle_repair)
 
     # check
     parser_check = subparsers.add_parser("check", help="Lints I18N files for issues (orphaned/missing keys, etc.).")

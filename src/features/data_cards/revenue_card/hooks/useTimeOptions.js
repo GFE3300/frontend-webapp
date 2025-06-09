@@ -31,7 +31,10 @@ const OPTION_COUNTS = {
  *   - setSelectedOption: Function to update selected index
  */
 export const useTimeOptions = (mode, referenceDate = new Date()) => {
-    const [selectedOption, setSelectedOption] = useState(0);
+    // --- REFINED: Initialize selectedOption to the index representing the current date. ---
+    // The options array is generated with the current date at the center (index `count`),
+    // so we initialize the state to that index.
+    const [selectedOption, setSelectedOption] = useState(OPTION_COUNTS[mode]);
 
     /**
      * Generates time options based on current mode and reference date

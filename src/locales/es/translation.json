@@ -382,6 +382,7 @@
       },
       "errorBody": "Se ha producido un problema al obtener los datos del pedido en tiempo real. Vuelva a intentarlo más tarde.",
       "errorTitle": "No se puede cargar live view",
+      "guestsSummary": "{{count}} invitado",
       "guestsSummary_one": "{{count}} invitado",
       "guestsSummary_other": "{{count}} invitados",
       "layoutErrorBody": "Se ha producido un problema al recuperar el diseño estático de la sede.",
@@ -411,6 +412,7 @@
         "PREPARING": "Preparación",
         "READY_FOR_PICKUP": "Listo para recoger"
       },
+      "ordersSummary": "{{count}} pedidos",
       "ordersSummary_one": "{{count}} pedido",
       "ordersSummary_other": "{{count}} pedidos",
       "pageSubtitle": "Una visión general en tiempo real de la actividad de las mesas de su local.",
@@ -429,6 +431,7 @@
         "SERVED": "Servido",
         "WAITING": "En espera"
       },
+      "tableLabel": "Tabla {{tableNumber}}",
       "tableLabel_one": "Tabla {{tableNumber}}"
     }
   },
@@ -727,12 +730,105 @@
         },
         "footerNote": "Todos los planes se facturan mensual o anualmente. Puedes ampliar, reducir o cancelar tu plan en cualquier momento desde la configuración de tu cuenta.",
         "messages": {
+          "alreadySubscribedError": "Ya está suscrito a este plan. Para realizar cambios, utilice \"Gestionar suscripción\".",
           "loadingSubscription": "Cargando tus datos de suscripción...",
-          "subscriptionLoadError": "No se ha podido cargar el estado actual de su suscripción. Vuelva a intentarlo o póngase en contacto con el servicio de asistencia."
+          "subscriptionErrorTitle": "Error al cargar la suscripción",
+          "subscriptionLoadError": "No hemos podido cargar tus datos de suscripción. Actualiza la página o ponte en contacto con el servicio de asistencia si el problema persiste."
+        },
+        "plans": {
+          "0": {
+            "features": {
+              "0": {
+                "text": "3 Usuarios profesionales"
+              },
+              "1": {
+                "text": "Gestión completa del producto"
+              },
+              "2": {
+                "text": "Menú digital y códigos QR"
+              },
+              "4": {
+                "text": "Diseñador de espacios"
+              },
+              "5": {
+                "text": "Inventario básico (entrada manual)"
+              },
+              "6": {
+                "text": "Análisis básicos (hoy)"
+              },
+              "7": {
+                "text": "Asistencia por correo electrónico"
+              }
+            },
+            "name": "Lo esencial para empezar",
+            "whyThisPlan": "Deja el papel y digitalízate. Rápido. Este plan le ofrece todo lo necesario para llevar a cabo sus operaciones diarias sin problemas, desde menús digitales hasta seguimiento de pedidos en directo."
+          },
+          "1": {
+            "discount": {
+              "displayPrice": "16.00",
+              "originalPriceText": "39,99 euros al mes"
+            },
+            "features": {
+              "0": {
+                "text": "Todo en Starter, además:"
+              },
+              "1": {
+                "text": "10 usuarios empresariales"
+              },
+              "2": {
+                "text": "Inventario automatizado (mediante recetas)"
+              },
+              "3": {
+                "text": "Alertas por falta de existencias"
+              },
+              "4": {
+                "text": "Análisis del historial completo"
+              },
+              "5": {
+                "text": "10 códigos promocionales activos"
+              },
+              "6": {
+                "text": "Eliminar la marca \"Powered by"
+              },
+              "7": {
+                "text": "Asistencia prioritaria por correo electrónico"
+              }
+            },
+            "name": "Acelerador del crecimiento",
+            "whyThisPlan": "Automatice sus operaciones y comprenda su crecimiento. El inventario automatizado ahorra horas y el historial analítico completo le ayuda a tomar decisiones más inteligentes."
+          },
+          "2": {
+            "features": {
+              "0": {
+                "text": "Todo en Crecimiento, además:"
+              },
+              "1": {
+                "text": "Asientos ilimitados para usuarios"
+              },
+              "2": {
+                "text": "Página de análisis avanzados"
+              },
+              "3": {
+                "text": "Exportación de datos (CSV)"
+              },
+              "4": {
+                "text": "Códigos promocionales Unlimited"
+              },
+              "5": {
+                "text": "Personalización avanzada de menús"
+              },
+              "6": {
+                "text": "Especialista en incorporación"
+              }
+            },
+            "name": "Premium Pro Suite",
+            "whyThisPlan": "Libere todo el poder de sus datos y su marca. Este es el paquete definitivo, sin concesiones, con análisis en profundidad y un servicio impecable."
+          }
         },
         "subtitle": "¡Estás a un paso! Elige el plan que se ajuste a tu ambición y empecemos a hornear juntos el éxito.",
         "themeColorDefault": "rosa",
-        "title": "Libera tu potencial"
+        "title": "Libera tu potencial",
+        "whyThisPlanTemplate": "¿Por qué {{planName}}?"
       }
     }
   },

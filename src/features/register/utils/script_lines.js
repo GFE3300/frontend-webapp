@@ -375,11 +375,34 @@ export const scriptLines_Steps = {
          * These are provided as an array for direct use. For more granular translation or
          * if tags need to be contextually different, each tag could be its own key.
          */
+        // Replace the entire 'defaultBusinessTags' array with this:
         defaultBusinessTags: [
             // General Types
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.0'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.1'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.2'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.3'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.4'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.5'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.6'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.7'),
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.8'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.9'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.10'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.11'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.12'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.13'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.14'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.15'),
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.16'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.17'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.18'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.19'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.20'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.21'), i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.22')
+            "Restaurant",
+            "Cafe",
+            "Retail",
+            "Service",
+            "Bakery",
+            "Bar",
+            "Grocery",
+            "Catering",
+            // Food Specific
+            "Vegan",
+            "Gluten-Free",
+            "Organic",
+            "Local Sourcing",
+            "Coffee Shop",
+            "Juice Bar",
+            "Food Truck",
+            "Pizzeria",
+            // Attributes
+            "Family-Owned",
+            "Online Only",
+            "Appointment Only",
+            "Sustainable",
+            "Luxury",
+            "Budget-Friendly",
+            "Pet-Friendly"
         ]
     },
 
@@ -471,55 +494,178 @@ export const scriptLines_Steps = {
             termsOfService: i18n.t('register.steps.step4Preferences.linkText.termsOfService'), // "Terms of Service"
             privacyPolicy: i18n.t('register.steps.step4Preferences.linkText.privacyPolicy'), // "Privacy Policy"
         },
-        options: {
-            timezones: [ // These labels are user-facing and should be translated.
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.0.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.0.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.1.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.1.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.2.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.2.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.3.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.3.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.4.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.4.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.5.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.5.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.6.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.6.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.7.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.7.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.8.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.8.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.9.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.9.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.10.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.10.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.11.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.11.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.12.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.12.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.13.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.13.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.14.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.14.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.15.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.15.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.16.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.16.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.timezones.17.value'), label: i18n.t('register.steps.step4Preferences.options.timezones.17.label') },
+        // Replace the entire 'options' object within 'step4Preferences' with this:
+        options: { // [AI-REPAIRED]
+            timezones: [
+                {
+                    value: 'America/New_York',
+                    label: 'America/New York (EST/EDT)'
+                },
+                {
+                    value: 'America/Chicago',
+                    label: 'America/Chicago (CST/CDT)'
+                },
+                {
+                    value: 'America/Denver',
+                    label: 'America/Denver (MST/MDT)'
+                },
+                {
+                    value: 'America/Los_Angeles',
+                    label: 'America/Los Angeles (PST/PDT)'
+                },
+                {
+                    value: 'America/Sao_Paulo',
+                    label: 'America/Sao Paulo (BRT/BRST)'
+                },
+                {
+                    value: 'Europe/London',
+                    label: 'Europe/London (GMT/BST)'
+                },
+                {
+                    value: 'Europe/Paris',
+                    label: 'Europe/Paris (CET/CEST)'
+                },
+                {
+                    value: 'Europe/Berlin',
+                    label: 'Europe/Berlin (CET/CEST)'
+                },
+                {
+                    value: 'Europe/Moscow',
+                    label: 'Europe/Moscow (MSK)'
+                },
+                {
+                    value: 'Asia/Tokyo',
+                    label: 'Asia/Tokyo (JST)'
+                },
+                {
+                    value: 'Asia/Dubai',
+                    label: 'Asia/Dubai (GST)'
+                },
+                {
+                    value: 'Asia/Kolkata',
+                    label: 'Asia/Kolkata (IST)'
+                },
+                {
+                    value: 'Asia/Shanghai',
+                    label: 'Asia/Shanghai (CST)'
+                },
+                {
+                    value: 'Australia/Sydney',
+                    label: 'Australia/Sydney (AEST/AEDT)'
+                },
+                {
+                    value: 'Australia/Perth',
+                    label: 'Australia/Perth (AWST)'
+                },
+                {
+                    value: 'Africa/Cairo',
+                    label: 'Africa/Cairo (EET)'
+                },
+                {
+                    value: 'Africa/Johannesburg',
+                    label: 'Africa/Johannesburg (SAST)'
+                },
+                {
+                    value: 'UTC',
+                    label: 'Coordinated Universal Time (UTC)'
+                },
             ],
             notificationMethods: [
-                { value: i18n.t('register.steps.step4Preferences.options.notificationMethods.0.value'), label: i18n.t('register.steps.step4Preferences.options.notificationMethods.0.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.notificationMethods.1.value'), label: i18n.t('register.steps.step4Preferences.options.notificationMethods.1.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.notificationMethods.2.value'), label: i18n.t('register.steps.step4Preferences.options.notificationMethods.2.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.notificationMethods.3.value'), label: i18n.t('register.steps.step4Preferences.options.notificationMethods.3.label') }
+                {
+                    value: 'email',
+                    label: 'Email'
+                },
+                {
+                    value: 'sms',
+                    label: 'SMS (Text Message)'
+                },
+                {
+                    value: 'push',
+                    label: 'Push Notification'
+                },
+                {
+                    value: 'none',
+                    label: 'None'
+                }
             ],
             currencies: [
-                { value: i18n.t('register.steps.step4Preferences.options.currencies.0.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.0.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.currencies.1.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.1.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.currencies.2.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.2.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.currencies.3.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.3.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.currencies.4.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.4.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.currencies.5.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.5.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.currencies.6.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.6.label') },
+                {
+                    value: 'USD',
+                    label: 'USD - United States Dollar'
+                },
+                {
+                    value: 'EUR', label: 'EUR - Euro'
+                },
+                {
+                    value: 'GBP',
+                    label: 'GBP - British Pound Sterling'
+                },
+                {
+                    value: 'JPY',
+                    label: 'JPY - Japanese Yen'
+                },
+                {
+                    value: 'CAD',
+                    label: 'CAD - Canadian Dollar'
+                },
+                {
+                    value: 'AUD',
+                    label: 'AUD - Australian Dollar'
+                },
+                {
+                    value: 'CHF',
+                    label: 'CHF - Swiss Franc'
+                },
             ],
             languages: [
-                { value: i18n.t('register.steps.step4Preferences.options.languages.0.value'), label: i18n.t('register.steps.step4Preferences.options.languages.0.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.1.value'), label: i18n.t('register.steps.step4Preferences.options.languages.1.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.2.value'), label: i18n.t('register.steps.step4Preferences.options.languages.2.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.3.value'), label: i18n.t('register.steps.step4Preferences.options.languages.3.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.4.value'), label: i18n.t('register.steps.step4Preferences.options.languages.4.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.5.value'), label: i18n.t('register.steps.step4Preferences.options.languages.5.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.6.value'), label: i18n.t('register.steps.step4Preferences.options.languages.6.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.7.value'), label: i18n.t('register.steps.step4Preferences.options.languages.7.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.8.value'), label: i18n.t('register.steps.step4Preferences.options.languages.8.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.9.value'), label: i18n.t('register.steps.step4Preferences.options.languages.9.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.10.value'), label: i18n.t('register.steps.step4Preferences.options.languages.10.label') },
-                { value: i18n.t('register.steps.step4Preferences.options.languages.11.value'), label: i18n.t('register.steps.step4Preferences.options.languages.11.label') },
+                {
+                    value: 'en',
+                    label: 'English'
+                },
+                {
+                    value: 'es',
+                    label: 'Español (Spanish)'
+                },
+                {
+                    value: 'fr',
+                    label: 'Français (French)'
+                },
+                {
+                    value: 'de',
+                    label: 'Deutsch (German)'
+                },
+                {
+                    value: 'it',
+                    label: 'Italiano (Italian)'
+                },
+                {
+                    value: 'pt',
+                    label: 'Português (Portuguese)'
+                },
+                {
+                    value: 'zh-CN',
+                    label: '简体中文 (Simplified Chinese)'
+                },
+                {
+                    value: 'ja',
+                    label: '日本語 (Japanese)'
+                },
+                {
+                    value: 'ko',
+                    label: '한국어 (Korean)'
+                },
+                {
+                    value: 'ru',
+                    label: 'Русский (Russian)'
+                },
+                {
+                    value: 'ar',
+                    label: 'العربية (Arabic)'
+                },
+                {
+                    value: 'hi',
+                    label: 'हिन्दी (Hindi)'
+                },
             ],
         },
         errors: {
@@ -550,101 +696,6 @@ export const scriptLines_Steps = {
 };
 
 export const scriptLines_Components = {
-
-    planSelection: {
-        title: i18n.t('payments.components.planSelection.title'), // "Unlock Your Potential"
-        subtitle: i18n.t('payments.components.planSelection.subtitle'), // "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together."
-        footerNote: i18n.t('payments.components.planSelection.footerNote'), // "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings."
-        buttons: {
-            chooseThisPlan: i18n.t('payments.components.planSelection.buttons.chooseThisPlan'), // "Choose This Plan"
-            processing: i18n.t('payments.components.planSelection.buttons.processing'), // "Processing..."
-            planSelected: i18n.t('payments.components.planSelection.buttons.planSelected'), // "Plan Selected!"
-        },
-        badges: {
-            mostPopular: i18n.t('payments.components.planSelection.badges.mostPopular'), // "Most Popular"
-            recommended: i18n.t('payments.components.planSelection.badges.recommended'), // "Recommended"
-            specialOffer: i18n.t('payments.components.planSelection.badges.specialOffer'), // "SPECIAL OFFER"
-        },
-        errors: {
-            functionalityUnavailable: i18n.t('payments.components.planSelection.errors.functionalityUnavailable'), // "Error: Plan selection functionality is unavailable."
-        },
-        console: {
-            invalidOnPlanSelectProp: i18n.t('payments.components.planSelection.console.invalidOnPlanSelectProp'), // "PlanSelection: Invalid `onPlanSelect` prop. Expected a function."
-        },
-        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'), // "rose"
-
-        // Plan Data - This is the most complex part for i18n.
-        // Each plan's name, description, features, whyThisPlan, etc., needs to be localizable.
-        // The structure below mirrors PLANS_DATA from the component.
-        plans: [
-            {
-                id: i18n.t('register.components.planSelection.plans.0.id'),
-                name: i18n.t('register.components.planSelection.plans.0.name'),
-                price: i18n.t('payments.components.planSelection.plans.0.price'),
-                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
-                description: [i18n.t('payments.components.planSelection.plans.0.description.0'), i18n.t('payments.components.planSelection.plans.0.description.1')],
-                features: [
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.0.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.1.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.2.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.3.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.4.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.5.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.6.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.7.text') }
-                ],
-                iconName: i18n.t('payments.components.planSelection.plans.0.iconName'),
-                whyThisPlan: i18n.t('register.components.planSelection.plans.0.whyThisPlan'),
-                // highlight and discount.isActive are also logic.
-            },
-            {
-                id: i18n.t('register.components.planSelection.plans.1.id'),
-                name: i18n.t('register.components.planSelection.plans.1.name'),
-                price: i18n.t('register.components.planSelection.plans.1.price'),
-                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
-                description: [i18n.t('payments.components.planSelection.plans.1.description.0'), i18n.t('payments.components.planSelection.plans.1.description.1')],
-                features: [
-                    { text: i18n.t('register.components.planSelection.plans.1.features.0.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.1.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.2.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.3.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.4.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.5.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.7.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.7.text') }
-                ],
-                iconName: i18n.t('payments.components.planSelection.plans.1.iconName'),
-                whyThisPlan: i18n.t('register.components.planSelection.plans.1.whyThisPlan'),
-                badgeText: i18n.t('payments.components.planSelection.badges.mostPopular'), // "Most Popular"
-                discount: {
-                    offerTitle: i18n.t('register.components.planSelection.plans.1.discount.offerTitle'),
-                    displayPrice: i18n.t('register.components.planSelection.plans.1.discount.displayPrice'),
-                    priceSuffix: i18n.t('payments.components.planSelection.plans.1.discount.priceSuffix'),
-                    originalPriceText: i18n.t('register.components.planSelection.plans.1.discount.originalPriceText'),
-                    details: i18n.t('register.components.planSelection.plans.1.discount.details'),
-                    badgeText: i18n.t('payments.components.planSelection.badges.specialOffer'), // "SPECIAL OFFER"
-                }
-            },
-            {
-                id: i18n.t('register.components.planSelection.plans.2.id'),
-                name: i18n.t('register.components.planSelection.plans.2.name'),
-                price: i18n.t('register.components.planSelection.plans.2.price'),
-                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
-                description: [i18n.t('payments.components.planSelection.plans.2.description.0'), i18n.t('payments.components.planSelection.plans.2.description.1')],
-                features: [
-                    { text: i18n.t('register.components.planSelection.plans.2.features.0.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.1.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.2.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.3.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.4.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.5.text') },
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.6.text') }
-                ],
-                iconName: i18n.t('payments.components.planSelection.plans.2.iconName'),
-                whyThisPlan: i18n.t('register.components.planSelection.plans.2.whyThisPlan'),
-            }
-        ]
-    },
 
     Dropdown: {
         line1: i18n.t('register.components.Dropdown.line1'), // "No options available."

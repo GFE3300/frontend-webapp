@@ -63,7 +63,7 @@ def _process_string_literal(
     if not string_value or not string_value.strip() or 'i18n.t(' in string_value:
         return
 
-    single_brace_match = re.search(r"\{(\w+)\}", string_value)
+    single_brace_match = re.search(r"(?<!\{)\{(\w+)\}(?!\})", string_value)
     if single_brace_match:
         placeholder = single_brace_match.group(0)
         message = (
@@ -140,7 +140,7 @@ def _traverse_and_extract(
             string_value = prop.value.value
             
             # Check for incorrect placeholder format
-            single_brace_match = re.search(r"\{(\w+)\}", string_value)
+            single_brace_match = re.search(r"(?<!\{)\{(\w+)\}(?!\})", string_value)
             if single_brace_match and not confirmation_prompt(f"Warning: Plural string '{string_value}' in {file_path.name} uses single braces. Our convention is double braces '{{{{variable}}}}'. Is this intentional?"):
                 logging.warning(f"Skipping plural string '{string_value}' due to incorrect format. Please fix and re-run.")
                 continue
@@ -216,6 +216,10 @@ def extract_and_rewrite(
     rewritten_code = rewriter.apply()
     return rewritten_code, new_strings
 
+# scripts/i18n/core/ast_parser.py
+
+# ... (keep existing code until line 226)
+
 def find_translation_keys(source_code: str) -> Set[str]:
     """
     Parses JS source and returns a set of all translation keys used.
@@ -247,6 +251,11 @@ def find_translation_keys(source_code: str) -> Set[str]:
                         prop_key = getattr(prop.key, 'name', None) or getattr(prop.key, 'value', None)
                         if prop_key is not None:
                             _find_keys_recursive(prop.value, key_path_parts + [str(prop_key)])
+            
+            elif node.type == 'ArrayExpression':
+                for i, element in enumerate(getattr(node, 'elements', [])):
+                    _find_keys_recursive(element, key_path_parts + [str(i)])
+
             elif node.type == 'ExportNamedDeclaration':
                  _find_keys_recursive(node.declaration, key_path_parts)
             elif node.type == 'VariableDeclaration':

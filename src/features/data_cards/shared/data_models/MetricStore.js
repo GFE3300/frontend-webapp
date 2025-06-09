@@ -10,7 +10,7 @@ import apiService from '../../../../services/api';
  *
  * @class MetricStore
  *
- * @property {Map} raw - Primary metric data storage (ISO date → metrics)
+ * @property {Map} raw - Primary metric data storage (epoch time → metrics)
  * @property {Map} cache - TimePeriod instance cache (keyObject → TimePeriod)
  */
 class MetricStore {
@@ -18,7 +18,7 @@ class MetricStore {
      * Initializes data stores.
      */
     constructor() {
-        // Primary data storage using ISO date strings as keys
+        // --- REFINED: Use epoch time (number) as key for timezone-agnostic lookups. ---
         this.raw = new Map();
 
         // Cache for TimePeriod instances to prevent redundant calculations
@@ -48,13 +48,14 @@ class MetricStore {
             const analyticsData = response.data;
 
             analyticsData.forEach(entry => {
-                const timestampKey = entry.timestamp;
+                const timestamp = new Date(entry.timestamp);
+                const timestampKey = timestamp.getTime(); // Use epoch time as the key
 
                 const metricData = {
                     revenue: parseFloat(entry.total_revenue) || 0,
                     customers: entry.total_customers || 0,
                     conversions: entry.order_count || 0,
-                    timestamp: new Date(entry.timestamp),
+                    timestamp: timestamp,
                 };
 
                 this.raw.set(timestampKey, metricData);
@@ -127,8 +128,8 @@ class MetricStore {
     _createTimePeriod(type, timestamp) {
         return new TimePeriod(type, timestamp, {
             get: (targetDate) => {
-                const isoDate = targetDate.toISOString();
-                return this.raw.get(isoDate) || this.generateFallbackData(targetDate);
+                const key = targetDate.getTime();
+                return this.raw.get(key) || this.generateFallbackData(targetDate);
             }
         });
     }

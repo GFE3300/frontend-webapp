@@ -171,6 +171,12 @@ A code polisher that adds/updates helpful comments next to each `i18n.t()` call 
 python scripts/i18n/manager.py format
 ```
 
+### `repair`
+An interactive tool to fix missing keys. If you manually add an `i18n.t('new.key')` to your code, this command will detect that `new.key` is missing from your `translation.json` files and prompt you to provide the source text for it. It then translates and updates all language files automatically.
+```bash
+# Interactively find and fix missing keys
+python scripts/i18n/manager.py repair
+
 ### `check`
 A full I18N linter that runs multiple checks:
 1.  **File Sync:** Reports if any `script_lines.js` files have been modified since the last sync.

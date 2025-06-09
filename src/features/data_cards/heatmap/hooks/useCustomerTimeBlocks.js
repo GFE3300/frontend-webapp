@@ -89,7 +89,7 @@ export const useCustomerTimeBlocks = (settings) => {
             setState({ status: 'success', blocks: [], error: null });
             return;
         }
-
+        
         try {
             setState(prev => ({ ...prev, status: 'loading' }));
 
@@ -104,8 +104,9 @@ export const useCustomerTimeBlocks = (settings) => {
 
             // Aggregate customers per block
             const hydratedBlocks = timeBlockDefinitions.map(block => {
+                // --- REFINED: Use getTime() for timezone-agnostic lookup. ---
                 const customers = block.hours.reduce((sum, hour) => {
-                    const data = metricStore.raw.get(hour.toISOString());
+                    const data = metricStore.raw.get(hour.getTime());
                     return sum + (data?.customers || 0);
                 }, 0);
 
@@ -114,7 +115,7 @@ export const useCustomerTimeBlocks = (settings) => {
 
             // Validate data coverage
             const missingDataBlocks = hydratedBlocks.filter(b =>
-                b.hours.some(h => !metricStore.raw.has(h.toISOString()))
+                b.hours.some(h => !metricStore.raw.has(h.getTime()))
             );
 
             if (missingDataBlocks.length > 0) {

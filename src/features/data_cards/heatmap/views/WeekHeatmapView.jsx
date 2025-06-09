@@ -94,6 +94,11 @@ export default function WeekHeatmapView({
     if (status === 'loading') {
         return <div className="flex items-center justify-center h-full">Loading...</div>;
     }
+    
+    // --- REFINED: Add guard clause to prevent rendering with empty data, avoiding NaN errors. ---
+    if (status === 'success' && (!heatmapData || heatmapData.length === 0 || colLabels.length === 0)) {
+        return <div className="flex items-center justify-center h-full text-sm text-gray-500">No activity data for this period.</div>;
+    }
 
     return (
         <GridContainer ref={containerRef} size={size}>
@@ -109,4 +114,4 @@ export default function WeekHeatmapView({
             />
         </GridContainer>
     );
-}   
+}

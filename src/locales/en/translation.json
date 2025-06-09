@@ -382,6 +382,7 @@
       },
       "errorBody": "There was an issue fetching the live order data. Please try again later.",
       "errorTitle": "Could not load live view",
+      "guestsSummary": "{{count}} guest",
       "guestsSummary_one": "{{count}} guest",
       "guestsSummary_other": "{{count}} guests",
       "layoutErrorBody": "There was a problem fetching the static venue design.",
@@ -411,6 +412,7 @@
         "PREPARING": "Preparing",
         "READY_FOR_PICKUP": "Ready for Pickup"
       },
+      "ordersSummary": "{{count}} orders",
       "ordersSummary_one": "{{count}} order",
       "ordersSummary_other": "{{count}} orders",
       "pageSubtitle": "A real-time overview of your venue's table activity.",
@@ -429,6 +431,7 @@
         "SERVED": "Served",
         "WAITING": "Waiting"
       },
+      "tableLabel": "Table {{tableNumber}}",
       "tableLabel_one": "Table {{tableNumber}}"
     }
   },
@@ -727,12 +730,105 @@
         },
         "footerNote": "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings.",
         "messages": {
+          "alreadySubscribedError": "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'.",
           "loadingSubscription": "Loading your subscription details...",
-          "subscriptionLoadError": "Could not load your current subscription status. Please try again or contact support."
+          "subscriptionErrorTitle": "Error Loading Subscription",
+          "subscriptionLoadError": "We couldn't load your subscription details. Please refresh the page or contact support if the problem persists."
+        },
+        "plans": {
+          "0": {
+            "features": {
+              "0": {
+                "text": "3 Business Users"
+              },
+              "1": {
+                "text": "Full Product Management"
+              },
+              "2": {
+                "text": "Digital Menu & QR Codes"
+              },
+              "4": {
+                "text": "Venue Layout Designer"
+              },
+              "5": {
+                "text": "Basic Inventory (Manual Entry)"
+              },
+              "6": {
+                "text": "Basic (Today) Analytics"
+              },
+              "7": {
+                "text": "Email Support"
+              }
+            },
+            "name": "Starter Essentials",
+            "whyThisPlan": "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking."
+          },
+          "1": {
+            "discount": {
+              "displayPrice": "16.00",
+              "originalPriceText": "€39.99/month"
+            },
+            "features": {
+              "0": {
+                "text": "Everything in Starter, plus:"
+              },
+              "1": {
+                "text": "10 Business Users"
+              },
+              "2": {
+                "text": "Automated Inventory (via Recipes)"
+              },
+              "3": {
+                "text": "Low Stock Alerts"
+              },
+              "4": {
+                "text": "Full History Analytics"
+              },
+              "5": {
+                "text": "10 Active Promo Codes"
+              },
+              "6": {
+                "text": "Remove 'Powered by' Branding"
+              },
+              "7": {
+                "text": "Priority Email Support"
+              }
+            },
+            "name": "Growth Accelerator",
+            "whyThisPlan": "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions."
+          },
+          "2": {
+            "features": {
+              "0": {
+                "text": "Everything in Growth, plus:"
+              },
+              "1": {
+                "text": "Unlimited User Seats"
+              },
+              "2": {
+                "text": "Advanced Analytics Page"
+              },
+              "3": {
+                "text": "Data Export (CSV)"
+              },
+              "4": {
+                "text": "Unlimited Promo Codes"
+              },
+              "5": {
+                "text": "Advanced Menu Customization"
+              },
+              "6": {
+                "text": "Dedicated Onboarding Specialist"
+              }
+            },
+            "name": "Premium Pro Suite",
+            "whyThisPlan": "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service."
+          }
         },
         "subtitle": "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together.",
         "themeColorDefault": "rose",
-        "title": "Unlock Your Potential"
+        "title": "Unlock Your Potential",
+        "whyThisPlanTemplate": "Why {{planName}}?"
       }
     }
   },

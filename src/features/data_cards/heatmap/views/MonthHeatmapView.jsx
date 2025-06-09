@@ -74,6 +74,10 @@ export default function MonthHeatmapView({
     if (status === 'loading') {
         return <div className="flex items-center justify-center h-full">Loading...</div>;
     }
+    
+    if (status === 'success' && (!heatmapData || heatmapData.length === 0 || weekStarts.length === 0)) {
+        return <div className="flex items-center justify-center h-full text-sm text-gray-500">No activity data for this period.</div>;
+    }
 
     return (
         <GridContainer ref={containerRef} size={size}>

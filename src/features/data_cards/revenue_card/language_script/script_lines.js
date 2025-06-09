@@ -11,35 +11,35 @@
 import i18n from '../../../../i18n';
 
 export const MONTHS = {
-    Jan: i18n.t('data_cards.MONTHS.Jan'),
-    Feb: i18n.t('data_cards.MONTHS.Feb'),
-    Mar: i18n.t('data_cards.MONTHS.Mar'),
-    Apr: i18n.t('data_cards.MONTHS.Apr'),
-    May: i18n.t('data_cards.MONTHS.May'),
-    Jun: i18n.t('data_cards.MONTHS.Jun'),
-    Jul: i18n.t('data_cards.MONTHS.Jul'),
-    Aug: i18n.t('data_cards.MONTHS.Aug'),
-    Sep: i18n.t('data_cards.MONTHS.Sep'),
-    Oct: i18n.t('data_cards.MONTHS.Oct'),
-    Nov: i18n.t('data_cards.MONTHS.Nov'),
-    Dec: i18n.t('data_cards.MONTHS.Dec'),
+    Jan: i18n.t('data_cards.MONTHS.Jan'), // "Ene"
+    Feb: i18n.t('data_cards.MONTHS.Feb'), // "Feb"
+    Mar: i18n.t('data_cards.MONTHS.Mar'), // "Mar"
+    Apr: i18n.t('data_cards.MONTHS.Apr'), // "Apr"
+    May: i18n.t('data_cards.MONTHS.May'), // "May"
+    Jun: i18n.t('data_cards.MONTHS.Jun'), // "Jun"
+    Jul: i18n.t('data_cards.MONTHS.Jul'), // "Jul"
+    Aug: i18n.t('data_cards.MONTHS.Aug'), // "Aug"
+    Sep: i18n.t('data_cards.MONTHS.Sep'), // "Sep"
+    Oct: i18n.t('data_cards.MONTHS.Oct'), // "Oct"
+    Nov: i18n.t('data_cards.MONTHS.Nov'), // "Nov"
+    Dec: i18n.t('data_cards.MONTHS.Dec'), // "Dec"
 }
 
 export const DAYS = {
-    Sun: i18n.t('data_cards.DAYS.Sun'),
-    Mon: i18n.t('data_cards.DAYS.Mon'),
-    Tue: i18n.t('data_cards.DAYS.Tue'),
-    Wed: i18n.t('data_cards.DAYS.Wed'),
-    Thu: i18n.t('data_cards.DAYS.Thu'),
-    Fri: i18n.t('data_cards.DAYS.Fri'),
-    Sat: i18n.t('data_cards.DAYS.Sat'),
+    Sun: i18n.t('data_cards.DAYS.Sun'), // "Sun"
+    Mon: i18n.t('data_cards.DAYS.Mon'), // "Mon"
+    Tue: i18n.t('data_cards.DAYS.Tue'), // "Tue"
+    Wed: i18n.t('data_cards.DAYS.Wed'), // "Wed"
+    Thu: i18n.t('data_cards.DAYS.Thu'), // "Thu"
+    Fri: i18n.t('data_cards.DAYS.Fri'), // "Fri"
+    Sat: i18n.t('data_cards.DAYS.Sat'), // "Sat"
 }
 
 export const WORDS = {
-    Day: i18n.t('data_cards.WORDS.Day'),
-    Week: i18n.t('data_cards.WORDS.Week'),
-    Month: i18n.t('data_cards.WORDS.Month'),
-    Wk: i18n.t('data_cards.WORDS.Wk'),
-    Average: i18n.t('data_cards.WORDS.Average'),
-    Peak: i18n.t('data_cards.WORDS.Peak'),
+    Day: i18n.t('data_cards.WORDS.Day'), // "Day"
+    Week: i18n.t('data_cards.WORDS.Week'), // "Week"
+    Month: i18n.t('data_cards.WORDS.Month'), // "Month"
+    Wk: i18n.t('data_cards.WORDS.Wk'), // "Wk"
+    Average: i18n.t('data_cards.WORDS.Average'), // "Average"
+    Peak: i18n.t('data_cards.WORDS.Peak'), // "Peak"
 }

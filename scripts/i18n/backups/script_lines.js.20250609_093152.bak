@@ -81,9 +81,18 @@ export const scriptLines_liveOrders = {
         totalSales: i18n.t('live_orders_view.liveOrders.stats.totalSales'), // "Live Sales"
     },
 
-    tableLabel: i18n.t('live_orders_view.liveOrders.tableLabel'), // "Table {{tableNumber}}"
+    tableLabel: {
+        one: 'Table {{tableNumber}}',
+        other: 'Table {{tableNumber}}',
+    },
 
-    guestsSummary: i18n.t('live_orders_view.liveOrders.guestsSummary'), // "{{count}} guest"
+    guestsSummary: {
+        one: '{{count}} guest',
+        other: '{{count}} guests',
+    },
     
-    ordersSummary: i18n.t('live_orders_view.liveOrders.ordersSummary'), // "{{count}} orders"
+    ordersSummary: {
+        one: '{{count}} order',
+        other: '{{count}} orders',
+    },
 };

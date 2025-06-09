@@ -20,22 +20,22 @@ export const scriptLines_Components = {
             chooseThisPlan: i18n.t('payments.components.planSelection.buttons.chooseThisPlan'), // "Choose This Plan"
             processing: i18n.t('payments.components.planSelection.buttons.processing'), // "Processing..."
             planSelected: i18n.t('payments.components.planSelection.buttons.planSelected'), // "Plan Selected!"
-            manageSubscription: i18n.t('payments.components.planSelection.buttons.manageSubscription'), // "Manage Subscription"
-            upgradePlan: i18n.t('payments.components.planSelection.buttons.upgradePlan'), // "Upgrade Plan"
-            downgradePlan: i18n.t('payments.components.planSelection.buttons.downgradePlan'), // "Downgrade Plan"
-            switchPlan: i18n.t('payments.components.planSelection.buttons.switchPlan'), // "Switch Plan"
+            manageSubscription: "Manage Subscription", // [AI-REPAIRED]
+            upgradePlan: "Upgrade Plan", // [AI-REPAIRED]
+            downgradePlan: "Downgrade Plan", // [AI-REPAIRED]
+            switchPlan: "Switch Plan", // [AI-REPAIRED]
         },
         badges: {
             mostPopular: i18n.t('payments.components.planSelection.badges.mostPopular'), // "Most Popular"
             recommended: i18n.t('payments.components.planSelection.badges.recommended'), // "Recommended"
             specialOffer: i18n.t('payments.components.planSelection.badges.specialOffer'), // "SPECIAL OFFER"
-            currentPlan: i18n.t('payments.components.planSelection.badges.currentPlan'), // "Current Plan"
+            currentPlan: "Current Plan", // [AI-REPAIRED]
         },
         messages: {
-            loadingSubscription: i18n.t('payments.components.planSelection.messages.loadingSubscription'), // "Loading your subscription details..."
-            subscriptionErrorTitle: i18n.t('payments.components.planSelection.messages.subscriptionErrorTitle'), // "Error Loading Subscription"
-            subscriptionLoadError: i18n.t('payments.components.planSelection.messages.subscriptionLoadError'), // "We couldn't load your subscription details. Please refresh the page or contact support if the problem persists."
-            alreadySubscribedError: i18n.t('payments.components.planSelection.messages.alreadySubscribedError'), // "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'."
+            loadingSubscription: "Loading your subscription details...", // [AI-REPAIRED]
+            subscriptionErrorTitle: "Error Loading Subscription", // [AI-REPAIRED]
+            subscriptionLoadError: "We couldn't load your subscription details. Please refresh the page or contact support if the problem persists.", // [AI-REPAIRED]
+            alreadySubscribedError: "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'.", // [AI-REPAIRED]
         },
         errors: {
             functionalityUnavailable: i18n.t('payments.components.planSelection.errors.functionalityUnavailable'), // "Error: Plan selection functionality is unavailable."
@@ -44,12 +44,12 @@ export const scriptLines_Components = {
             invalidOnPlanSelectProp: i18n.t('payments.components.planSelection.console.invalidOnPlanSelectProp'), // "PlanSelection: Invalid `onPlanSelect` prop. Expected a function."
         },
         themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'), // "rose"
-        whyThisPlanTemplate: i18n.t('payments.components.planSelection.whyThisPlanTemplate'), // "Why {{planName}}?"
+        whyThisPlanTemplate: "Why {{planName}}?", // [AI-REPAIRED]
 
         plans: [
             {
                 id: i18n.t('register.components.planSelection.plans.0.id'),
-                name: i18n.t('payments.components.planSelection.plans.0.name'), // "Starter Essentials"
+                name: "Starter Essentials", // [AI-REPAIRED]
                 price: i18n.t('payments.components.planSelection.plans.0.price'),
                 frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
                 description: [
@@ -58,36 +58,36 @@ export const scriptLines_Components = {
                 ],
                 features: [
                     {
-                        text: i18n.t('payments.components.planSelection.plans.0.features.0.text') // "3 Business Users"
+                        text: "3 Business Users" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.0.features.1.text') // "Full Product Management"
+                        text: "Full Product Management" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.0.features.2.text') // "Digital Menu & QR Codes"
+                        text: "Digital Menu & QR Codes" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('live_orders_view.liveOrders.pageTitle') // "Live Orders View"
+                        text: "Live Orders View" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.0.features.4.text') // "Venue Layout Designer"
+                        text: "Venue Layout Designer" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.0.features.5.text') // "Basic Inventory (Manual Entry)"
+                        text: "Basic Inventory (Manual Entry)" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.0.features.6.text') // "Basic (Today) Analytics"
+                        text: "Basic (Today) Analytics" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.0.features.7.text') // "Email Support"
+                        text: "Email Support" // [AI-REPAIRED]
                     }
                 ],
                 iconName: i18n.t('payments.components.planSelection.plans.0.iconName'),
-                whyThisPlan: i18n.t('payments.components.planSelection.plans.0.whyThisPlan'), // "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking."
+                whyThisPlan: "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking.", // [AI-REPAIRED]
             },
             {
                 id: i18n.t('register.components.planSelection.plans.1.id'),
-                name: i18n.t('payments.components.planSelection.plans.1.name'), // "Growth Accelerator"
+                name: "Growth Accelerator", // [AI-REPAIRED]
                 price: i18n.t('register.components.planSelection.plans.1.price'),
                 frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
                 description: [
@@ -96,45 +96,45 @@ export const scriptLines_Components = {
                 ],
                 features: [
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.0.text') // "Everything in Starter, plus:"
+                        text: "Everything in Starter, plus:" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.1.text') // "10 Business Users"
+                        text: "10 Business Users" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.2.text') // "Automated Inventory (via Recipes)"
+                        text: "Automated Inventory (via Recipes)" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.3.text') // "Low Stock Alerts"
+                        text: "Low Stock Alerts" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.4.text') // "Full History Analytics"
+                        text: "Full History Analytics" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.5.text') // "10 Active Promo Codes"
+                        text: "10 Active Promo Codes" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.6.text') // "Remove 'Powered by' Branding"
+                        text: "Remove 'Powered by' Branding" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.1.features.7.text') // "Priority Email Support"
+                        text: "Priority Email Support"
                     }
                 ],
                 iconName: i18n.t('payments.components.planSelection.plans.1.iconName'),
-                whyThisPlan: i18n.t('payments.components.planSelection.plans.1.whyThisPlan'), // "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions."
+                whyThisPlan: "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions.", // [AI-REPAIRED]
                 badgeText: i18n.t('payments.components.planSelection.badges.mostPopular'), // "Most Popular"
                 discount: {
                     offerTitle: i18n.t('register.components.planSelection.plans.1.discount.offerTitle'),
-                    displayPrice: i18n.t('payments.components.planSelection.plans.1.discount.displayPrice'), // "16.00"
+                    displayPrice: "16.00", // [AI-REPAIRED]
                     priceSuffix: i18n.t('payments.components.planSelection.plans.1.discount.priceSuffix'),
-                    originalPriceText: i18n.t('payments.components.planSelection.plans.1.discount.originalPriceText'), // "\u20ac39.99/month"
+                    originalPriceText: "€39.99/month", // [AI-REPAIRED]
                     details: i18n.t('register.components.planSelection.plans.1.discount.details'),
                     badgeText: i18n.t('payments.components.planSelection.badges.specialOffer'), // "SPECIAL OFFER"
                 }
             },
             {
                 id: i18n.t('register.components.planSelection.plans.2.id'),
-                name: i18n.t('payments.components.planSelection.plans.2.name'), // "Premium Pro Suite"
+                name: "Premium Pro Suite", // [AI-REPAIRED]
                 price: i18n.t('register.components.planSelection.plans.2.price'),
                 frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
                 description: [
@@ -143,29 +143,29 @@ export const scriptLines_Components = {
                 ],
                 features: [
                     {
-                        text: i18n.t('payments.components.planSelection.plans.2.features.0.text') // "Everything in Growth, plus:"
+                        text: "Everything in Growth, plus:" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.2.features.1.text') // "Unlimited User Seats"
+                        text: "Unlimited User Seats" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.2.features.2.text') // "Advanced Analytics Page"
+                        text: "Advanced Analytics Page" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.2.features.3.text') // "Data Export (CSV)"
+                        text: "Data Export (CSV)" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.2.features.4.text') // "Unlimited Promo Codes"
+                        text: "Unlimited Promo Codes" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.2.features.5.text') // "Advanced Menu Customization"
+                        text: "Advanced Menu Customization" // [AI-REPAIRED]
                     },
                     {
-                        text: i18n.t('payments.components.planSelection.plans.2.features.6.text') // "Dedicated Onboarding Specialist"
+                        text: "Dedicated Onboarding Specialist" // [AI-REPAIRED]
                     }
                 ],
                 iconName: i18n.t('payments.components.planSelection.plans.2.iconName'),
-                whyThisPlan: i18n.t('payments.components.planSelection.plans.2.whyThisPlan'), // "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service."
+                whyThisPlan: "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service.", // [AI-REPAIRED]
             }
         ]
     },

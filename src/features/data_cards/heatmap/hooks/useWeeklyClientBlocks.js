@@ -77,8 +77,9 @@ export const useWeeklyClientBlocks = ({
 
                     for (let hour = startHour; hour <= endHour; hour++) {
                         const date = new Date(day);
-                        date.setUTCHours(hour, 0, 0, 0); // Use UTC to match your data format
-                        const key = date.toISOString();
+                        date.setUTCHours(hour, 0, 0, 0); 
+                        // --- REFINED: Use getTime() for timezone-agnostic lookup. ---
+                        const key = date.getTime();
                         const entry = metricStore.raw.get(key);
                         sum += entry?.customers || 0;
                     }
