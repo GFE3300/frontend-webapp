@@ -213,6 +213,7 @@ const PlanSelection = ({
         >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl w-full">
                 {PLANS_DATA.map((plan) => {
+                    console.log(`[PlanSelection] Rendering plan card for: ${plan}`);
                     const isCurrentActivePlan = isAuthenticated && currentSubscription?.is_active && currentSubscription?.plan_name === plan.id;
                     const discountActive = plan.discount?.isActive;
                     const discountTextColor = plan.discount?.textColor || (plan.discountLogic?.textColor || 'text-green-600 dark:text-green-400');

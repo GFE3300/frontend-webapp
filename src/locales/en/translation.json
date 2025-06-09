@@ -1254,6 +1254,31 @@
           "invalidFormDataProp": "Step0BusinessInfo: Invalid `formData` prop. Expected an object.",
           "invalidUpdateFieldProp": "Step0BusinessInfo: Invalid `updateField` prop. Expected a function."
         },
+        "defaultBusinessTags": {
+          "0": "Restaurant",
+          "1": "Cafe",
+          "10": "Organic",
+          "11": "Local Sourcing",
+          "12": "Coffee Shop",
+          "13": "Juice Bar",
+          "14": "Food Truck",
+          "15": "Pizzeria",
+          "16": "Family-Owned",
+          "17": "Online Only",
+          "18": "Appointment Only",
+          "19": "Sustainable",
+          "2": "Retail",
+          "20": "Luxury",
+          "21": "Budget-Friendly",
+          "22": "Pet-Friendly",
+          "3": "Service",
+          "4": "Bakery",
+          "5": "Bar",
+          "6": "Grocery",
+          "7": "Catering",
+          "8": "Vegan",
+          "9": "Gluten-Free"
+        },
         "errors": {
           "formDataMissing": "Error: Form data is missing for this step.",
           "updateFieldMissing": "Error: Form update mechanism is missing."
@@ -1356,7 +1381,174 @@
         "options": {
           "currencies": {
             "0": {
+              "label": "USD - United States Dollar",
               "value": "USD"
+            },
+            "1": {
+              "label": "EUR - Euro",
+              "value": "EUR"
+            },
+            "2": {
+              "label": "GBP - British Pound Sterling",
+              "value": "GBP"
+            },
+            "3": {
+              "label": "JPY - Japanese Yen",
+              "value": "JPY"
+            },
+            "4": {
+              "label": "CAD - Canadian Dollar",
+              "value": "CAD"
+            },
+            "5": {
+              "label": "AUD - Australian Dollar",
+              "value": "AUD"
+            },
+            "6": {
+              "label": "CHF - Swiss Franc",
+              "value": "CHF"
+            }
+          },
+          "languages": {
+            "0": {
+              "label": "English",
+              "value": "en"
+            },
+            "1": {
+              "label": "Español (Spanish)",
+              "value": "es"
+            },
+            "10": {
+              "label": "العربية (Arabic)",
+              "value": "ar"
+            },
+            "11": {
+              "label": "हिन्दी (Hindi)",
+              "value": "hi"
+            },
+            "2": {
+              "label": "Français (French)",
+              "value": "fr"
+            },
+            "3": {
+              "label": "Deutsch (German)",
+              "value": "de"
+            },
+            "4": {
+              "label": "Italiano (Italian)",
+              "value": "it"
+            },
+            "5": {
+              "label": "Português (Portuguese)",
+              "value": "pt"
+            },
+            "6": {
+              "label": "简体中文 (Simplified Chinese)",
+              "value": "zh-CN"
+            },
+            "7": {
+              "label": "日本語 (Japanese)",
+              "value": "ja"
+            },
+            "8": {
+              "label": "한국어 (Korean)",
+              "value": "ko"
+            },
+            "9": {
+              "label": "Русский (Russian)",
+              "value": "ru"
+            }
+          },
+          "notificationMethods": {
+            "0": {
+              "label": "Email",
+              "value": "email"
+            },
+            "1": {
+              "label": "SMS (Text Message)",
+              "value": "sms"
+            },
+            "2": {
+              "label": "Push Notification",
+              "value": "push"
+            },
+            "3": {
+              "label": "None",
+              "value": "none"
+            }
+          },
+          "timezones": {
+            "0": {
+              "label": "America/New York (EST/EDT)",
+              "value": "America/New_York"
+            },
+            "1": {
+              "label": "America/Chicago (CST/CDT)",
+              "value": "America/Chicago"
+            },
+            "10": {
+              "label": "Asia/Dubai (GST)",
+              "value": "Asia/Dubai"
+            },
+            "11": {
+              "label": "Asia/Kolkata (IST)",
+              "value": "Asia/Kolkata"
+            },
+            "12": {
+              "label": "Asia/Shanghai (CST)",
+              "value": "Asia/Shanghai"
+            },
+            "13": {
+              "label": "Australia/Sydney (AEST/AEDT)",
+              "value": "Australia/Sydney"
+            },
+            "14": {
+              "label": "Australia/Perth (AWST)",
+              "value": "Australia/Perth"
+            },
+            "15": {
+              "label": "Africa/Cairo (EET)",
+              "value": "Africa/Cairo"
+            },
+            "16": {
+              "label": "Africa/Johannesburg (SAST)",
+              "value": "Africa/Johannesburg"
+            },
+            "17": {
+              "label": "Coordinated Universal Time (UTC)",
+              "value": "UTC"
+            },
+            "2": {
+              "label": "America/Denver (MST/MDT)",
+              "value": "America/Denver"
+            },
+            "3": {
+              "label": "America/Los Angeles (PST/PDT)",
+              "value": "America/Los_Angeles"
+            },
+            "4": {
+              "label": "America/Sao Paulo (BRT/BRST)",
+              "value": "America/Sao_Paulo"
+            },
+            "5": {
+              "label": "Europe/London (GMT/BST)",
+              "value": "Europe/London"
+            },
+            "6": {
+              "label": "Europe/Paris (CET/CEST)",
+              "value": "Europe/Paris"
+            },
+            "7": {
+              "label": "Europe/Berlin (CET/CEST)",
+              "value": "Europe/Berlin"
+            },
+            "8": {
+              "label": "Europe/Moscow (MSK)",
+              "value": "Europe/Moscow"
+            },
+            "9": {
+              "label": "Asia/Tokyo (JST)",
+              "value": "Asia/Tokyo"
             }
           }
         },

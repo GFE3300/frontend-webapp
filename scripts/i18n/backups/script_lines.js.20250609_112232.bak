@@ -378,29 +378,31 @@ export const scriptLines_Steps = {
         // Replace the entire 'defaultBusinessTags' array with this:
         defaultBusinessTags: [
             // General Types
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.0'), // "Restaurant"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.1'), // "Cafe"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.2'), // "Retail"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.3'), // "Service"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.4'), // "Bakery"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.5'), // "Bar"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.6'), // "Grocery"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.7'), // "Catering"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.8'), // "Vegan"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.9'), // "Gluten-Free"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.10'), // "Organic"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.11'), // "Local Sourcing"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.12'), // "Coffee Shop"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.13'), // "Juice Bar"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.14'), // "Food Truck"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.15'), // "Pizzeria"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.16'), // "Family-Owned"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.17'), // "Online Only"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.18'), // "Appointment Only"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.19'), // "Sustainable"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.20'), // "Luxury"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.21'), // "Budget-Friendly"
-            i18n.t('register.steps.step0BusinessInfo.defaultBusinessTags.22') // "Pet-Friendly"
+            "Restaurant",
+            "Cafe",
+            "Retail",
+            "Service",
+            "Bakery",
+            "Bar",
+            "Grocery",
+            "Catering",
+            // Food Specific
+            "Vegan",
+            "Gluten-Free",
+            "Organic",
+            "Local Sourcing",
+            "Coffee Shop",
+            "Juice Bar",
+            "Food Truck",
+            "Pizzeria",
+            // Attributes
+            "Family-Owned",
+            "Online Only",
+            "Appointment Only",
+            "Sustainable",
+            "Luxury",
+            "Budget-Friendly",
+            "Pet-Friendly"
         ]
     },
 
@@ -496,173 +498,173 @@ export const scriptLines_Steps = {
         options: { // [AI-REPAIRED]
             timezones: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.0.value'), // "America/New_York"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.0.label') // "America/New York (EST/EDT)"
+                    value: 'America/New_York',
+                    label: 'America/New York (EST/EDT)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.1.value'), // "America/Chicago"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.1.label') // "America/Chicago (CST/CDT)"
+                    value: 'America/Chicago',
+                    label: 'America/Chicago (CST/CDT)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.2.value'), // "America/Denver"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.2.label') // "America/Denver (MST/MDT)"
+                    value: 'America/Denver',
+                    label: 'America/Denver (MST/MDT)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.3.value'), // "America/Los_Angeles"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.3.label') // "America/Los Angeles (PST/PDT)"
+                    value: 'America/Los_Angeles',
+                    label: 'America/Los Angeles (PST/PDT)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.4.value'), // "America/Sao_Paulo"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.4.label') // "America/Sao Paulo (BRT/BRST)"
+                    value: 'America/Sao_Paulo',
+                    label: 'America/Sao Paulo (BRT/BRST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.5.value'), // "Europe/London"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.5.label') // "Europe/London (GMT/BST)"
+                    value: 'Europe/London',
+                    label: 'Europe/London (GMT/BST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.6.value'), // "Europe/Paris"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.6.label') // "Europe/Paris (CET/CEST)"
+                    value: 'Europe/Paris',
+                    label: 'Europe/Paris (CET/CEST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.7.value'), // "Europe/Berlin"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.7.label') // "Europe/Berlin (CET/CEST)"
+                    value: 'Europe/Berlin',
+                    label: 'Europe/Berlin (CET/CEST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.8.value'), // "Europe/Moscow"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.8.label') // "Europe/Moscow (MSK)"
+                    value: 'Europe/Moscow',
+                    label: 'Europe/Moscow (MSK)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.9.value'), // "Asia/Tokyo"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.9.label') // "Asia/Tokyo (JST)"
+                    value: 'Asia/Tokyo',
+                    label: 'Asia/Tokyo (JST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.10.value'), // "Asia/Dubai"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.10.label') // "Asia/Dubai (GST)"
+                    value: 'Asia/Dubai',
+                    label: 'Asia/Dubai (GST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.11.value'), // "Asia/Kolkata"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.11.label') // "Asia/Kolkata (IST)"
+                    value: 'Asia/Kolkata',
+                    label: 'Asia/Kolkata (IST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.12.value'), // "Asia/Shanghai"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.12.label') // "Asia/Shanghai (CST)"
+                    value: 'Asia/Shanghai',
+                    label: 'Asia/Shanghai (CST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.13.value'), // "Australia/Sydney"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.13.label') // "Australia/Sydney (AEST/AEDT)"
+                    value: 'Australia/Sydney',
+                    label: 'Australia/Sydney (AEST/AEDT)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.14.value'), // "Australia/Perth"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.14.label') // "Australia/Perth (AWST)"
+                    value: 'Australia/Perth',
+                    label: 'Australia/Perth (AWST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.15.value'), // "Africa/Cairo"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.15.label') // "Africa/Cairo (EET)"
+                    value: 'Africa/Cairo',
+                    label: 'Africa/Cairo (EET)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.16.value'), // "Africa/Johannesburg"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.16.label') // "Africa/Johannesburg (SAST)"
+                    value: 'Africa/Johannesburg',
+                    label: 'Africa/Johannesburg (SAST)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.17.value'), // "UTC"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.17.label') // "Coordinated Universal Time (UTC)"
+                    value: 'UTC',
+                    label: 'Coordinated Universal Time (UTC)'
                 },
             ],
             notificationMethods: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.0.value'), // "email"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.0.label') // "Email"
+                    value: 'email',
+                    label: 'Email'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.1.value'), // "sms"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.1.label') // "SMS (Text Message)"
+                    value: 'sms',
+                    label: 'SMS (Text Message)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.2.value'), // "push"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.2.label') // "Push Notification"
+                    value: 'push',
+                    label: 'Push Notification'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.3.value'), // "none"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.3.label') // "None"
+                    value: 'none',
+                    label: 'None'
                 }
             ],
             currencies: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.0.value'), // "USD"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.0.label') // "USD - United States Dollar"
+                    value: 'USD',
+                    label: 'USD - United States Dollar'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.1.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.1.label') // "EUR - Euro"
+                    value: 'EUR', label: 'EUR - Euro'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.2.value'), // "GBP"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.2.label') // "GBP - British Pound Sterling"
+                    value: 'GBP',
+                    label: 'GBP - British Pound Sterling'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.3.value'), // "JPY"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.3.label') // "JPY - Japanese Yen"
+                    value: 'JPY',
+                    label: 'JPY - Japanese Yen'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.4.value'), // "CAD"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.4.label') // "CAD - Canadian Dollar"
+                    value: 'CAD',
+                    label: 'CAD - Canadian Dollar'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.5.value'), // "AUD"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.5.label') // "AUD - Australian Dollar"
+                    value: 'AUD',
+                    label: 'AUD - Australian Dollar'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.6.value'), // "CHF"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.6.label') // "CHF - Swiss Franc"
+                    value: 'CHF',
+                    label: 'CHF - Swiss Franc'
                 },
             ],
             languages: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.0.value'), // "en"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.0.label') // "English"
+                    value: 'en',
+                    label: 'English'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.1.value'), // "es"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.1.label') // "Espa\u00f1ol (Spanish)"
+                    value: 'es',
+                    label: 'Español (Spanish)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.2.value'), // "fr"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.2.label') // "Fran\u00e7ais (French)"
+                    value: 'fr',
+                    label: 'Français (French)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.3.value'), // "de"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.3.label') // "Deutsch (German)"
+                    value: 'de',
+                    label: 'Deutsch (German)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.4.value'), // "it"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.4.label') // "Italiano (Italian)"
+                    value: 'it',
+                    label: 'Italiano (Italian)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.5.value'), // "pt"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.5.label') // "Portugu\u00eas (Portuguese)"
+                    value: 'pt',
+                    label: 'Português (Portuguese)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.6.value'), // "zh-CN"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.6.label') // "\u7b80\u4f53\u4e2d\u6587 (Simplified Chinese)"
+                    value: 'zh-CN',
+                    label: '简体中文 (Simplified Chinese)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.7.value'), // "ja"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.7.label') // "\u65e5\u672c\u8a9e (Japanese)"
+                    value: 'ja',
+                    label: '日本語 (Japanese)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.8.value'), // "ko"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.8.label') // "\ud55c\uad6d\uc5b4 (Korean)"
+                    value: 'ko',
+                    label: '한국어 (Korean)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.9.value'), // "ru"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.9.label') // "\u0420\u0443\u0441\u0441\u043a\u0438\u0439 (Russian)"
+                    value: 'ru',
+                    label: 'Русский (Russian)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.10.value'), // "ar"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.10.label') // "\u0627\u0644\u0639\u0631\u0628\u064a\u0629 (Arabic)"
+                    value: 'ar',
+                    label: 'العربية (Arabic)'
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.11.value'), // "hi"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.11.label') // "\u0939\u093f\u0928\u094d\u0926\u0940 (Hindi)"
+                    value: 'hi',
+                    label: 'हिन्दी (Hindi)'
                 },
             ],
         },
