@@ -3,6 +3,7 @@ export const VENUE_BASE_KEY = 'venue';
 export const PAYMENTS_BASE_KEY = 'payments';
 export const SUBSCRIPTIONS_BASE_KEY = 'subscriptions';
 export const ORDERS_BASE_KEY = 'orders';
+export const DASHBOARD_BASE_KEY = 'dashboard';
 
 export const queryKeys = {
     // Product related data
@@ -36,6 +37,12 @@ export const queryKeys = {
 
     // --- Orders ---
     liveOrdersView: [ORDERS_BASE_KEY, 'live-view'],
-    order: (orderId) => [ORDERS_BASE_KEY, 'detail', orderId], 
+    order: (orderId) => [ORDERS_BASE_KEY, 'detail', orderId],
     kitchenActiveOrders: [ORDERS_BASE_KEY, 'kitchen-view', 'active'],
+
+   
+    // --- Dashboard / Overview ---
+    commandBarSummary: [DASHBOARD_BASE_KEY, 'commandBarSummary'],
+    actionItems: [DASHBOARD_BASE_KEY, 'actionItems'],
+    productMovers: (period) => [DASHBOARD_BASE_KEY, 'productMovers', period],
 };

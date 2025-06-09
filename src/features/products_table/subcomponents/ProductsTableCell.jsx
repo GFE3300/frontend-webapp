@@ -12,11 +12,11 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
         cell: customCellRenderer,
         cellType,
         currentWidth,
-        minWidth, 
+        minWidth,
         sticky,
         align = 'left',
     } = column;
-    
+
     const isEditable = cellType === 'editableCurrency' || cellType === 'editableText';
 
     const rawValue = useMemo(() => {
@@ -30,7 +30,7 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
         cellContent = (
             <EditableCell
                 initialValue={rawValue === null || rawValue === undefined ? '' : rawValue}
-                onSave={onUpdateProductField} 
+                onSave={onUpdateProductField}
                 cellType={cellType}
                 productId={product.id}
                 fieldKey={accessorKey || columnId}
@@ -50,7 +50,20 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
             const num = parseFloat(rawValue);
             cellContent = isNaN(num)
                 ? <span className="italic text-red-500 dark:text-red-400">Invalid</span>
-                : `${formatCurrency(num.toFixed(2))}`;
+                : `${formatCurrency(num)}`; // Use toFixed inside formatCurrency
+        } else if (columnId === 'profit_margin') {
+            const num = parseFloat(rawValue);
+            if (isNaN(num)) {
+                cellContent = <span className="italic text-neutral-400 dark:text-neutral-500">N/A</span>;
+            } else {
+                let marginColorClass = 'text-neutral-600 dark:text-neutral-300';
+                if (num >= 0.5) marginColorClass = 'text-green-500 dark:text-green-400';
+                else if (num >= 0.2) marginColorClass = 'text-yellow-500 dark:text-yellow-400';
+                else if (num >= 0) marginColorClass = 'text-orange-500 dark:text-orange-400';
+                else marginColorClass = 'text-red-500 dark:text-red-400';
+
+                cellContent = <span className={`font-semibold ${marginColorClass}`}>{(num * 100).toFixed(1)}%</span>;
+            }
         } else {
             cellContent = String(rawValue);
         }
@@ -59,7 +72,8 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
 
     const alignmentClass = useMemo(() => {
         let effectiveAlign = align;
-        if (align === 'left' && (cellType === 'currency' || cellType === 'editableCurrency' || typeof rawValue === 'number')) {
+        // Align numbers and currency to the right by default
+        if (align === 'left' && (cellType === 'currency' || cellType === 'editableCurrency' || typeof rawValue === 'number' || columnId === 'profit_margin')) {
             effectiveAlign = 'right';
         }
         switch (effectiveAlign) {
@@ -67,7 +81,7 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
             case 'right': return 'text-right justify-end';
             default: return 'text-left justify-start';
         }
-    }, [align, cellType, rawValue]);
+    }, [align, cellType, rawValue, columnId]);
 
     const cellPaddingClass = isEditable ? 'py-0.5 px-1' : 'px-4 py-3';
 

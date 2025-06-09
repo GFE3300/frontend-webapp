@@ -64,8 +64,9 @@ const PlanSelection = ({
     const PLANS_DATA = useMemo(() => {
         const staticPlanData = [
             {
-                id: 'starter_essentials', // Non-translatable identifier
-                iconName: 'bolt',         // Non-translatable icon name
+                id: 'starter_essentials',
+                iconName: 'bolt',
+                price: '29.99',
                 featuresLogic: [true, true, true, true, true, false, false, false],
                 theme: {
                     borderColor: 'border-purple-500 dark:border-purple-400',
@@ -77,8 +78,9 @@ const PlanSelection = ({
                 highlight: false,
             },
             {
-                id: 'growth_accelerator', // Non-translatable identifier
-                iconName: 'mode_heat',     // Non-translatable icon name
+                id: 'growth_accelerator',
+                iconName: 'mode_heat',
+                price: '39.99',
                 featuresLogic: [true, true, true, true, true, true, true, true],
                 theme: {
                     borderColor: themeColor === "rose" ? 'border-rose-500 dark:border-rose-400' : 'border-blue-500 dark:border-blue-400',
@@ -90,13 +92,15 @@ const PlanSelection = ({
                 highlight: true,
                 discountLogic: {
                     isActive: true,
+                    displayPrice: '16.00',
                     badgeColor: 'bg-green-500',
                     textColor: 'text-green-600 dark:text-green-400',
                 }
             },
             {
-                id: 'premium_pro_suite', // Non-translatable identifier
-                iconName: 'verified',    // Non-translatable icon name
+                id: 'premium_pro_suite',
+                iconName: 'verified',
+                price: '89.99',
                 featuresLogic: [true, true, true, true, true, true, true, true],
                 theme: {
                     borderColor: 'border-yellow-500 dark:border-yellow-400',
@@ -109,26 +113,31 @@ const PlanSelection = ({
             }
         ];
 
-        // Merge static logic with localized text from scriptLines
-        return staticPlanData.map((staticData) => {
-            const localizedPlan = scriptLines.planSelection.plans.find(p => p.id === staticData.id);
+        // Merge the two arrays by their index
+        return staticPlanData.map((staticData, index) => {
+            const localizedPlan = scriptLines.planSelection.plans[index];
+
             if (!localizedPlan) {
-                console.warn(`[PlanSelection] No localized text found for plan ID: ${staticData.id}.`);
-                return { ...staticData }; // Return static data as a fallback
+                console.warn(`[PlanSelection] No localized text found for plan at index: ${index}.`);
+                return { ...staticData, features: [] }; // Safe fallback
             }
 
+            // THIS IS THE FIX: Fallback to an empty array if features are missing in translation
+            const features = (localizedPlan.features || []).map((feature, fIndex) => ({
+                text: feature.text,
+                check: staticData.featuresLogic?.[fIndex] ?? false,
+            }));
+
+            const discount = (staticData.discountLogic && localizedPlan.discount) ? {
+                ...staticData.discountLogic,
+                ...localizedPlan.discount
+            } : null;
+
             return {
-                ...staticData, // Start with non-translatable data (id, iconName, theme, etc.)
-                ...localizedPlan, // Overwrite with translatable text (name, description, etc.)
-                features: localizedPlan.features.map((feature, fIndex) => ({
-                    text: feature.text,
-                    check: staticData.featuresLogic?.[fIndex] ?? false
-                })),
-                discount: localizedPlan.discount ? {
-                    ...staticData.discountLogic,
-                    ...localizedPlan.discount
-                } : null,
-                badgeText: staticData.highlight ? (localizedPlan.badgeText || scriptLines.planSelection.badges.mostPopular) : null,
+                ...staticData,
+                ...localizedPlan,
+                features,
+                discount,
             };
         });
     }, [themeColor]);
@@ -213,6 +222,7 @@ const PlanSelection = ({
         >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl w-full">
                 {PLANS_DATA.map((plan) => {
+                    console.log(`[PlanSelection] Rendering plan card for: ${plan}`);
                     const isCurrentActivePlan = isAuthenticated && currentSubscription?.is_active && currentSubscription?.plan_name === plan.id;
                     const discountActive = plan.discount?.isActive;
                     const discountTextColor = plan.discount?.textColor || (plan.discountLogic?.textColor || 'text-green-600 dark:text-green-400');
@@ -312,7 +322,7 @@ const PlanSelection = ({
                                         </>
                                     )}
                                     <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
-                                        {plan.description.join(' ')}
+                                        {plan.description}
                                     </p>
                                 </div>
 

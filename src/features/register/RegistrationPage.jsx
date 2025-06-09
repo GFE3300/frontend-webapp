@@ -285,14 +285,14 @@ const RegistrationPage = () => {
             baseHue={1000}
             backgroundColor="rgba(255, 255, 255, 0)"
         >
-            <div className="registration-page-wrapper min-h-screen flex flex-col font-montserrat">
+            <div className="registration-page-wrapper min-h-[150vh] flex flex-col font-montserrat">
                 <AnimatePresence mode="wait">
                     {formFlowStatus === 'filling_form' && (
                         <motion.div
                             key="form-layout"
                             variants={ANIMATION_CONFIG.pageTransition}
                             initial="initial" animate="animate" exit="exit"
-                            className="flex-grow flex flex-col h-screen"
+                            className="flex-grow flex flex-col h-full"
                         >
                             <ResponsiveLayout formState={formState}>
                                 <AnimatePresence mode="wait">
@@ -343,7 +343,7 @@ const ResponsiveLayout = memo(({ children, formState }) => (
                     visitedSteps={formState.visitedSteps}
                 />
             </aside>
-            <main className="form-section flex flex-col justify-center items-center py-6 h-screen">
+            <main className="form-section flex flex-col justify-center items-center py-6 h-full sm:h-auto">
                 {children}
             </main>
         </div>

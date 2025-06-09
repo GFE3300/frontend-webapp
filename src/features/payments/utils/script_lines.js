@@ -5,142 +5,181 @@
  * overwritten during the next synchronization. To add or modify text, please
  * update the original string in this file and then run the 'sync' command.
  *
- * @last-synced 2025-06-07 11:26:40 UTC
+ * @last-synced 2025-06-09 12:00:00 UTC
  */
 
 import i18n from '../../../i18n';
 
 export const scriptLines_Components = {
-
-    planSelection: { 
-        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'), // "rose"
-        messages: {
-            loadingSubscription: i18n.t('payments.components.planSelection.messages.loadingSubscription'), // "Loading your subscription details..."
-            subscriptionErrorTitle: i18n.t('payments.components.planSelection.messages.subscriptionErrorTitle'),
-            subscriptionLoadError: i18n.t('payments.components.planSelection.messages.subscriptionLoadError') // "Could not load your current subscription status. Please try again or contact support."
-        },
+    planSelection: {
+        title: i18n.t('payments.components.planSelection.title'), // "Unlock Your Potential"
+        subtitle: i18n.t('payments.components.planSelection.subtitle'), // "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together."
+        footerNote: i18n.t('payments.components.planSelection.footerNote'), // "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings."
         buttons: {
             chooseThisPlan: i18n.t('payments.components.planSelection.buttons.chooseThisPlan'), // "Choose This Plan"
+            processing: i18n.t('payments.components.planSelection.buttons.processing'), // "Processing..."
+            planSelected: i18n.t('payments.components.planSelection.buttons.planSelected'), // "Plan Selected!"
             manageSubscription: i18n.t('payments.components.planSelection.buttons.manageSubscription'), // "Manage Subscription"
             upgradePlan: i18n.t('payments.components.planSelection.buttons.upgradePlan'), // "Upgrade Plan"
             downgradePlan: i18n.t('payments.components.planSelection.buttons.downgradePlan'), // "Downgrade Plan"
             switchPlan: i18n.t('payments.components.planSelection.buttons.switchPlan'), // "Switch Plan"
-            processing: i18n.t('payments.components.planSelection.buttons.processing'), // "Processing..."
-            planSelected: i18n.t('payments.components.planSelection.buttons.planSelected'), // "Plan Selected!"
         },
         badges: {
             mostPopular: i18n.t('payments.components.planSelection.badges.mostPopular'), // "Most Popular"
             recommended: i18n.t('payments.components.planSelection.badges.recommended'), // "Recommended"
             specialOffer: i18n.t('payments.components.planSelection.badges.specialOffer'), // "SPECIAL OFFER"
-            currentPlan: i18n.t('payments.components.planSelection.badges.currentPlan') // "Current Plan"
+            currentPlan: i18n.t('payments.components.planSelection.badges.currentPlan'), // "Current Plan"
         },
-        whyThisPlanTemplate: i18n.t('payments.components.planSelection.whyThisPlanTemplate'),
+        messages: {
+            loadingSubscription: i18n.t('payments.components.planSelection.messages.loadingSubscription'), // "Loading your subscription details..."
+            subscriptionErrorTitle: i18n.t('payments.components.planSelection.messages.subscriptionErrorTitle'), // "Error Loading Subscription"
+            subscriptionLoadError: i18n.t('payments.components.planSelection.messages.subscriptionLoadError'), // "We couldn't load your subscription details. Please refresh the page or contact support if the problem persists."
+            alreadySubscribedError: i18n.t('payments.components.planSelection.messages.alreadySubscribedError'), // "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'."
+        },
+        errors: {
+            functionalityUnavailable: i18n.t('payments.components.planSelection.errors.functionalityUnavailable'), // "Error: Plan selection functionality is unavailable."
+        },
+        console: {
+            invalidOnPlanSelectProp: i18n.t('payments.components.planSelection.console.invalidOnPlanSelectProp'), // "PlanSelection: Invalid `onPlanSelect` prop. Expected a function."
+        },
+        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'), // "rose"
+        whyThisPlanTemplate: i18n.t('payments.components.planSelection.whyThisPlanTemplate'), // "Why {{planName}}?"
         plans: [
-            {
-                id: i18n.t('payments.components.planSelection.plans.0.id'), // Non-translatable identifier // "starter_essentials"
-                name: i18n.t('register.components.planSelection.plans.0.name'), // "The First Batch"
-                price: i18n.t('payments.components.planSelection.plans.0.price'), // "29.99"
+            { // Corresponds to starter_essentials
+                name: i18n.t('payments.components.planSelection.plans.0.name'), // "Starter Essentials"
                 frequency: i18n.t('payments.components.planSelection.plans.0.frequency'), // "/month"
-                description: [
-                    i18n.t('payments.components.planSelection.plans.0.description.0'), // "Perfect for solo and micro-shops."
-                    i18n.t('payments.components.planSelection.plans.0.description.1') // "Get up and running fast with essential order & inventory tools."
-                ],
+                description: i18n.t('payments.components.planSelection.plans.0.description'), // "Perfect for solo and micro-shops. Get up and running fast with essential order & inventory tools."
                 features: [
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.0.text') }, // "Unlimited Orders"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.1.text') }, // "Menu-Style Order Entry"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.2.text') }, // "Live Low-Stock Alerts"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.3.text') }, // "Basic Consumption Charts"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.4.text') }, // "Email Support (48 hr response)"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.5.text') }, // "Advanced Forecasting"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.6.text') }, // "Custom Feature Requests"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.7.text') } // "Dedicated Account Manager"
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.0.features.0.text') // "3 Business Users"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.0.features.1.text') // "Full Product Management"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.0.features.2.text') // "Digital Menu & QR Codes"
+                    },
+                    {
+                        text: i18n.t('live_orders_view.liveOrders.pageTitle') // "Live Orders View"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.0.features.4.text') // "Venue Layout Designer"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.0.features.5.text') // "Basic Inventory (Manual Entry)"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.0.features.6.text') // "Basic (Today) Analytics"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.0.features.7.text') // "Email Support"
+                    }
                 ],
-                whyThisPlan: i18n.t('register.components.planSelection.plans.0.whyThisPlan') // "Lightweight, powerful, and cost-effective\u2014First Batch gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you\u2019re just starting or run a very small operation."
+                whyThisPlan: i18n.t('payments.components.planSelection.plans.0.whyThisPlan'), // "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking."
             },
-            {
-                id: i18n.t('payments.components.planSelection.plans.1.id'), // Non-translatable identifier // "growth_accelerator"
-                name: i18n.t('register.components.planSelection.plans.1.name'), // "The Artisan Oven"
-                price: i18n.t('register.components.planSelection.plans.1.price'), // "49.99"
+            { // Corresponds to growth_accelerator
+                name: i18n.t('payments.components.planSelection.plans.1.name'), // "Growth Accelerator"
                 frequency: i18n.t('payments.components.planSelection.plans.0.frequency'), // "/month"
-                description: [
-                    i18n.t('payments.components.planSelection.plans.1.description.0'), // "For growing businesses ready to scale."
-                    i18n.t('payments.components.planSelection.plans.1.description.1') // "All-in-one order management + deep insights to optimize and grow."
-                ],
+                description: i18n.t('payments.components.planSelection.plans.1.description'), // "For growing businesses ready to scale. All-in-one order management + deep insights to optimize and grow."
                 features: [
-                    { text: i18n.t('register.components.planSelection.plans.1.features.0.text') }, // "Everything in First Batch"
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.1.text') }, // "Advanced Cost & Consumption Forecasts"
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.2.text') }, // "Monthly Performance Reports"
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.3.text') }, // "Multi-Location Support (2 shops)"
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.4.text') }, // "Priority Email & Chat Support"
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.5.text') }, // "Access to Beta Features"
-                    { text: i18n.t('payments.components.planSelection.plans.0.features.7.text') }, // "Dedicated Account Manager"
-                    { text: i18n.t('payments.components.planSelection.plans.1.features.7.text') } // "Custom Integrations"
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.0.text') // "Everything in Starter, plus:"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.1.text') // "10 Business Users"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.2.text') // "Automated Inventory (via Recipes)"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.3.text') // "Low Stock Alerts"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.4.text') // "Full History Analytics"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.5.text') // "10 Active Promo Codes"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.6.text') // "Remove 'Powered by' Branding"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.1.features.7.text') // "Priority Email Support"
+                    }
                 ],
-                whyThisPlan: i18n.t('register.components.planSelection.plans.1.whyThisPlan'), // "You\u2019re beyond the basics\u2014now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Artisan Oven brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently."
+                whyThisPlan: i18n.t('payments.components.planSelection.plans.1.whyThisPlan'), // "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions."
                 badgeText: i18n.t('payments.components.planSelection.badges.mostPopular'), // "Most Popular"
                 discount: {
-                    offerTitle: i18n.t('register.components.planSelection.plans.1.discount.offerTitle'), // "First Month FREE!"
-                    displayPrice: i18n.t('register.components.planSelection.plans.1.discount.displayPrice'), // "0.00"
+                    offerTitle: i18n.t('payments.components.planSelection.plans.1.discount.offerTitle'), // "First Month 60% Off!"
                     priceSuffix: i18n.t('payments.components.planSelection.plans.1.discount.priceSuffix'), // "/first month"
-                    originalPriceText: i18n.t('register.components.planSelection.plans.1.discount.originalPriceText'), // "$49.99/month"
-                    details: i18n.t('register.components.planSelection.plans.1.discount.details'), // "Then $49.99/month. Renews automatically, cancel anytime."
-                    badgeText: i18n.t('payments.components.planSelection.badges.specialOffer') // "SPECIAL OFFER"
+                    originalPriceText: i18n.t('payments.components.planSelection.plans.1.discount.originalPriceText'), // "\u20ac39.99/month"
+                    details: i18n.t('payments.components.planSelection.plans.1.discount.details'), // "Then \u20ac39.99/month. Renews automatically, cancel anytime."
+                    badgeText: i18n.t('payments.components.planSelection.badges.specialOffer'), // "SPECIAL OFFER"
                 }
             },
-            {
-                id: i18n.t('payments.components.planSelection.plans.2.id'), // Non-translatable identifier // "premium_pro_suite"
-                name: i18n.t('register.components.planSelection.plans.2.name'), // "Master Baker Suite"
-                price: i18n.t('register.components.planSelection.plans.2.price'), // "99.99"
+            { // Corresponds to premium_pro_suite
+                name: i18n.t('payments.components.planSelection.plans.2.name'), // "Premium Pro Suite"
                 frequency: i18n.t('payments.components.planSelection.plans.0.frequency'), // "/month"
-                description: [
-                    i18n.t('payments.components.planSelection.plans.2.description.0'), // "For established bakeries that demand excellence."
-                    i18n.t('payments.components.planSelection.plans.2.description.1') // "Full-featured, white-glove service, and limitless scalability."
-                ],
+                description: i18n.t('payments.components.planSelection.plans.2.description'), // "For established bakeries that demand excellence. Full-featured, white-glove service, and limitless scalability."
                 features: [
-                    { text: i18n.t('register.components.planSelection.plans.2.features.0.text') }, // "Everything in Artisan Oven, plus:"
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.1.text') }, // "Unlimited Locations & Team Users"
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.2.text') }, // "Personalized Onboarding & Training"
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.3.text') }, // "Custom Feature Roadmap Input"
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.4.text') }, // "24/7 Priority Phone & Emergency Support"
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.5.text') }, // "Bespoke API & System Integrations"
-                    { text: i18n.t('payments.components.planSelection.plans.2.features.6.text') } // "SLA-backed Uptime & Performance"
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.2.features.0.text') // "Everything in Growth, plus:"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.2.features.1.text') // "Unlimited User Seats"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.2.features.2.text') // "Advanced Analytics Page"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.2.features.3.text') // "Data Export (CSV)"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.2.features.4.text') // "Unlimited Promo Codes"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.2.features.5.text') // "Advanced Menu Customization"
+                    },
+                    {
+                        text: i18n.t('payments.components.planSelection.plans.2.features.6.text') // "Dedicated Onboarding Specialist"
+                    }
                 ],
-                whyThisPlan: i18n.t('register.components.planSelection.plans.2.whyThisPlan') // "If you\u2019re running multiple sites, handling high order volume, or need bespoke workflows\u2014Master Baker is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
+                whyThisPlan: i18n.t('payments.components.planSelection.plans.2.whyThisPlan'), // "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service."
             }
         ]
     },
 
     paymentSuccessPage: {
-        title: i18n.t('payments.components.paymentSuccessPage.title'), // "Payment Successful!" // "Payment Successful!"
-        titleSubscriptionActivated: i18n.t('payments.components.paymentSuccessPage.titleSubscriptionActivated'), // "Subscription Activated!" // "Subscription Activated!"
-        thankYouMessage: i18n.t('payments.components.paymentSuccessPage.thankYouMessage'), // "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated." // "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated."
-        thankYouGeneric: i18n.t('payments.components.paymentSuccessPage.thankYouGeneric'), // "Thank you! Your payment was successful and your subscription is now active." // "Thank you! Your payment was successful and your subscription is now active."
-        accessMessage: i18n.t('payments.components.paymentSuccessPage.accessMessage'), // "You can now access all the premium features." // "You can now access all the premium features."
-        transactionIdLabel: i18n.t('payments.components.paymentSuccessPage.transactionIdLabel'), // "Transaction ID:" // "Transaction ID:"
+        title: i18n.t('payments.components.paymentSuccessPage.title'), // "Payment Successful!"
+        titleSubscriptionActivated: i18n.t('payments.components.paymentSuccessPage.titleSubscriptionActivated'), // "Subscription Activated!"
+        thankYouMessage: i18n.t('payments.components.paymentSuccessPage.thankYouMessage'), // "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated."
+        thankYouGeneric: i18n.t('payments.components.paymentSuccessPage.thankYouGeneric'), // "Thank you! Your payment was successful and your subscription is now active."
+        accessMessage: i18n.t('payments.components.paymentSuccessPage.accessMessage'), // "You can now access all the premium features."
+        transactionIdLabel: i18n.t('payments.components.paymentSuccessPage.transactionIdLabel'), // "Transaction ID:"
         buttons: {
-            goToDashboard: i18n.t('payments.components.paymentSuccessPage.buttons.goToDashboard'), // "Go to Dashboard" // "Go to Dashboard"
-            viewBilling: i18n.t('payments.components.paymentSuccessPage.buttons.viewBilling'), // "View Billing Details" // "View Billing Details"
+            goToDashboard: i18n.t('payments.components.paymentSuccessPage.buttons.goToDashboard'), // "Go to Dashboard"
+            viewBilling: i18n.t('payments.components.paymentSuccessPage.buttons.viewBilling'), // "View Billing Details"
         },
         links: {
-            contactSupport: i18n.t('payments.components.paymentSuccessPage.links.contactSupport'), // "contact our support team" // "contact our support team"
+            contactSupport: i18n.t('payments.components.paymentSuccessPage.links.contactSupport'), // "contact our support team"
         },
         loading: {
-            finalizingSubscription: i18n.t('payments.components.paymentSuccessPage.loading.finalizingSubscription'), // "Finalizing your subscription..." // "Finalizing your subscription..."
-            checkingDetails: i18n.t('payments.components.paymentSuccessPage.loading.checkingDetails'), // "Checking payment details..." // "Checking payment details..."
+            finalizingSubscription: i18n.t('payments.components.paymentSuccessPage.loading.finalizingSubscription'), // "Finalizing your subscription..."
+            checkingDetails: i18n.t('payments.components.paymentSuccessPage.loading.checkingDetails'), // "Checking payment details..."
         },
         errors: {
-            missingSessionId: i18n.t('payments.components.paymentSuccessPage.errors.missingSessionId'), // "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support." // "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support."
-            subscriptionUpdateFailed: i18n.t('payments.components.paymentSuccessPage.errors.subscriptionUpdateFailed'), // "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support." // "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support."
+            missingSessionId: i18n.t('payments.components.paymentSuccessPage.errors.missingSessionId'), // "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support."
+            subscriptionUpdateFailed: i18n.t('payments.components.paymentSuccessPage.errors.subscriptionUpdateFailed'), // "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support."
         }
     },
 
     paymentCancelPage: {
-        title: i18n.t('payments.components.paymentCancelPage.title'), // "Payment Not Completed" // "Payment Not Completed"
-        message: i18n.t('payments.components.paymentCancelPage.message'), // "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated." // "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated."
+        title: i18n.t('payments.components.paymentCancelPage.title'), // "Payment Not Completed"
+        message: i18n.t('payments.components.paymentCancelPage.message'), // "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated."
         buttons: {
-            tryAgain: i18n.t('payments.components.paymentCancelPage.buttons.tryAgain'), // "Try Again" // "Try Again"
-            contactSupport: i18n.t('payments.components.paymentCancelPage.buttons.contactSupport'), // "Contact Support" // "Contact Support"
+            tryAgain: i18n.t('payments.components.paymentCancelPage.buttons.tryAgain'), // "Try Again"
+            contactSupport: i18n.t('payments.components.paymentCancelPage.buttons.contactSupport'), // "Contact Support"
         },
-        footerNote: i18n.t('payments.components.paymentCancelPage.footerNote') // "If you believe this is an error or need assistance, please don't hesitate to reach out." // "If you believe this is an error or need assistance, please don't hesitate to reach out."
+        footerNote: i18n.t('payments.components.paymentCancelPage.footerNote') // "If you believe this is an error or need assistance, please don't hesitate to reach out."
     }
 };

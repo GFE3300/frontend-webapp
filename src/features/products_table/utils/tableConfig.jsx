@@ -50,24 +50,11 @@ export const initialColumns = [
         sticky: 'left',
         align: 'center',
         skeletonType: 'actions',
-        cell: ({ row }) => (
-            <div className="flex space-x-2 items-center justify-center">
-                <button
-                    onClick={() => tableInteractionContext.onEdit(row.original)}
-                    title={scriptLines.tableConfig.tooltips.editProduct}
-                    className="p-1 w-7 h-7 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-                >
-                    <Icon name="edit" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
-                </button>
-                <button
-                    onClick={() => tableInteractionContext.onDeleteRequest(row.original.id, row.original.name)}
-                    title={scriptLines.tableConfig.tooltips.deleteProduct}
-                    className="p-1 w-7 h-7 text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 transition-colors"
-                >
-                    <Icon name="delete" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
-                </button>
-            </div>
-        ),
+        cell: ({ row }) => {
+            const salesHistory = tableInteractionContext.salesData?.[row.original.id];
+            const salesNumbers = salesHistory ? salesHistory.map(d => d.units_sold) : [];
+            return <SalesSparkline data={salesNumbers} />;
+        },
     },
     {
         id: COLUMN_KEYS.IMAGE,

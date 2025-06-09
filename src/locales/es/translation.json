@@ -340,6 +340,39 @@
     },
     "warnCannotSetSelection": "No se ha podido establecer el rango de selección en la entrada:"
   },
+  "data_cards": {
+    "DAYS": {
+      "Fri": "Vie",
+      "Mon": "Lun",
+      "Sat": "Sáb",
+      "Sun": "Sol",
+      "Thu": "Jue",
+      "Tue": "Mar",
+      "Wed": "Mie"
+    },
+    "MONTHS": {
+      "Apr": "Abr",
+      "Aug": "Agosto",
+      "Dec": "Diciembre",
+      "Feb": "Febrero",
+      "Jan": "Ene",
+      "Jul": "Julio",
+      "Jun": "Jun",
+      "Mar": "Mar",
+      "May": "Mayo",
+      "Nov": "Nov",
+      "Oct": "Octubre",
+      "Sep": "Sep"
+    },
+    "WORDS": {
+      "Average": "Media",
+      "Day": "Día",
+      "Month": "Mes",
+      "Peak": "Pico",
+      "Week": "Semana",
+      "Wk": "Semana"
+    }
+  },
   "live_orders_view": {
     "liveOrders": {
       "actions": {
@@ -349,6 +382,7 @@
       },
       "errorBody": "Se ha producido un problema al obtener los datos del pedido en tiempo real. Vuelva a intentarlo más tarde.",
       "errorTitle": "No se puede cargar live view",
+      "guestsSummary": "{{count}} invitado",
       "guestsSummary_one": "{{count}} invitado",
       "guestsSummary_other": "{{count}} invitados",
       "layoutErrorBody": "Se ha producido un problema al recuperar el diseño estático de la sede.",
@@ -378,6 +412,7 @@
         "PREPARING": "Preparación",
         "READY_FOR_PICKUP": "Listo para recoger"
       },
+      "ordersSummary": "{{count}} pedidos",
       "ordersSummary_one": "{{count}} pedido",
       "ordersSummary_other": "{{count}} pedidos",
       "pageSubtitle": "Una visión general en tiempo real de la actividad de las mesas de su local.",
@@ -396,6 +431,7 @@
         "SERVED": "Servido",
         "WAITING": "En espera"
       },
+      "tableLabel": "Tabla {{tableNumber}}",
       "tableLabel_one": "Tabla {{tableNumber}}"
     }
   },
@@ -696,52 +732,43 @@
         "messages": {
           "alreadySubscribedError": "Ya está suscrito a este plan. Para realizar cambios, utilice \"Gestionar suscripción\".",
           "loadingSubscription": "Cargando tus datos de suscripción...",
-          "subscriptionLoadError": "No se ha podido cargar el estado actual de su suscripción. Vuelva a intentarlo o póngase en contacto con el servicio de asistencia."
+          "subscriptionErrorTitle": "Error al cargar la suscripción",
+          "subscriptionLoadError": "No hemos podido cargar tus datos de suscripción. Actualiza la página o ponte en contacto con el servicio de asistencia si el problema persiste."
         },
         "plans": {
           "0": {
-            "description": {
-              "0": "Perfecto para tiendas en solitario y microtiendas.",
-              "1": "Póngase en marcha rápidamente con las herramientas esenciales de pedidos e inventario."
-            },
+            "description": "Perfecto para tiendas individuales y microtiendas. Póngase en marcha rápidamente con herramientas esenciales de pedidos e inventario.",
             "features": {
               "0": {
-                "text": "Pedidos ilimitados"
+                "text": "3 Usuarios profesionales"
               },
               "1": {
-                "text": "Entrada de pedidos tipo menú"
+                "text": "Gestión completa del producto"
               },
               "2": {
-                "text": "Alertas en directo de falta de existencias"
-              },
-              "3": {
-                "text": "Gráficos de consumo básico"
+                "text": "Menú digital y códigos QR"
               },
               "4": {
-                "text": "Asistencia por correo electrónico (respuesta en 48 horas)"
+                "text": "Diseñador de espacios"
               },
               "5": {
-                "text": "Previsión avanzada"
+                "text": "Inventario básico (entrada manual)"
               },
               "6": {
-                "text": "Peticiones de funciones personalizadas"
+                "text": "Análisis básicos (hoy)"
               },
               "7": {
-                "text": "Gestor de cuentas dedicado"
+                "text": "Asistencia por correo electrónico"
               }
             },
             "frequency": "/mes",
-            "iconName": "perno",
             "id": "artículos_de_arranque",
-            "name": "CrumbData - Conceptos básicos",
+            "name": "Lo esencial para empezar",
             "price": "29.99",
-            "whyThisPlan": "Ligero, potente y rentable: Starter Essentials ofrece a los panaderos independientes las herramientas básicas para gestionar pedidos, realizar un seguimiento de los ingredientes clave y ver las tendencias de uso básicas. Ideal si acaba de empezar o tiene un negocio muy pequeño."
+            "whyThisPlan": "Deja el papel y digitalízate. Rápido. Este plan le ofrece todo lo necesario para llevar a cabo sus operaciones diarias sin problemas, desde menús digitales hasta seguimiento de pedidos en directo."
           },
           "1": {
-            "description": {
-              "0": "Para empresas en crecimiento listas para escalar.",
-              "1": "Gestión de pedidos todo en uno + información detallada para optimizar y crecer."
-            },
+            "description": "Para empresas en crecimiento listas para crecer. Gestión de pedidos todo en uno + información detallada para optimizar y crecer.",
             "discount": {
               "details": "Después, 39,99 euros al mes. Se renueva automáticamente, puedes cancelarlo cuando quieras.",
               "displayPrice": "16.00",
@@ -751,71 +778,70 @@
             },
             "features": {
               "0": {
-                "text": "Todo en Starter Essentials"
+                "text": "Todo en Starter, además:"
               },
               "1": {
-                "text": "Previsiones avanzadas de costes y consumo"
+                "text": "10 usuarios empresariales"
               },
               "2": {
-                "text": "Informes mensuales de resultados"
+                "text": "Inventario automatizado (mediante recetas)"
               },
               "3": {
-                "text": "Soporte multiemplazamiento (2 tiendas)"
+                "text": "Alertas por falta de existencias"
               },
               "4": {
-                "text": "Asistencia prioritaria por correo electrónico y chat"
+                "text": "Análisis del historial completo"
               },
               "5": {
-                "text": "Acceso a funciones beta"
-              },
-              "7": {
-                "text": "Integraciones personalizadas"
-              }
-            },
-            "iconName": "modo_calor",
-            "id": "acelerador_de_crecimiento",
-            "name": "CrumbData - Acelerador de crecimiento",
-            "price": "39.99",
-            "whyThisPlan": "Ya ha superado lo básico: ahora necesita datos reales para planificar compras, optimizar recetas, pedidos y detectar tendencias de ventas. Growth Accelerator le ofrece previsiones, informes detallados y una asistencia más rápida para que pueda obtener mayores beneficios y expandirse con eficacia."
-          },
-          "2": {
-            "description": {
-              "0": "Para panaderías establecidas que exigen excelencia.",
-              "1": "Todas las funciones, servicio personalizado y escalabilidad ilimitada."
-            },
-            "features": {
-              "0": {
-                "text": "Todo en Acelerador de Crecimiento, más:"
-              },
-              "1": {
-                "text": "Ubicaciones y usuarios de equipo ilimitados"
-              },
-              "2": {
-                "text": "Incorporación y formación personalizadas"
-              },
-              "3": {
-                "text": "Hoja de ruta de funciones personalizadas"
-              },
-              "4": {
-                "text": "Asistencia telefónica prioritaria y de emergencia 24 horas al día, 7 días a la semana"
-              },
-              "5": {
-                "text": "API a medida e integraciones de sistemas"
+                "text": "10 códigos promocionales activos"
               },
               "6": {
-                "text": "Tiempo de actividad y rendimiento respaldados por acuerdos de nivel de servicio"
+                "text": "Eliminar la marca \"Powered by"
+              },
+              "7": {
+                "text": "Asistencia prioritaria por correo electrónico"
               }
             },
-            "iconName": "verificado",
+            "id": "acelerador_de_crecimiento",
+            "name": "Acelerador del crecimiento",
+            "price": "39.99",
+            "whyThisPlan": "Automatice sus operaciones y comprenda su crecimiento. El inventario automatizado ahorra horas y el historial analítico completo le ayuda a tomar decisiones más inteligentes."
+          },
+          "2": {
+            "description": "Para panaderías establecidas que exigen excelencia. Todas las funciones, servicio personalizado y escalabilidad ilimitada.",
+            "features": {
+              "0": {
+                "text": "Todo en Crecimiento, además:"
+              },
+              "1": {
+                "text": "Asientos ilimitados para usuarios"
+              },
+              "2": {
+                "text": "Página de análisis avanzados"
+              },
+              "3": {
+                "text": "Exportación de datos (CSV)"
+              },
+              "4": {
+                "text": "Códigos promocionales Unlimited"
+              },
+              "5": {
+                "text": "Personalización avanzada de menús"
+              },
+              "6": {
+                "text": "Especialista en incorporación"
+              }
+            },
             "id": "premium_pro_suite",
-            "name": "CrumbData - Suite Premium Pro",
+            "name": "Premium Pro Suite",
             "price": "89.99",
-            "whyThisPlan": "Si tiene varios sitios, gestiona un gran volumen de pedidos o necesita flujos de trabajo personalizados, Premium Pro Suite es su paquete completo, con acuerdos de nivel de servicio en tiempo real, formación práctica y un equipo especializado que desarrolla la aplicación en función de sus necesidades concretas."
+            "whyThisPlan": "Libere todo el poder de sus datos y su marca. Este es el paquete definitivo, sin concesiones, con análisis en profundidad y un servicio impecable."
           }
         },
         "subtitle": "¡Estás a un paso! Elige el plan que se ajuste a tu ambición y empecemos a hornear juntos el éxito.",
         "themeColorDefault": "rosa",
-        "title": "Libera tu potencial"
+        "title": "Libera tu potencial",
+        "whyThisPlanTemplate": "¿Por qué {{planName}}?"
       }
     }
   },
@@ -944,24 +970,6 @@
         "errors": {
           "invalidDate": "Fecha no válida"
         },
-        "filterOptions": {
-          "is_active": {
-            "1": {
-              "value": "activo"
-            },
-            "2": {
-              "value": "inactivo"
-            }
-          },
-          "product_type": {
-            "1": {
-              "value": "made_in_house"
-            },
-            "2": {
-              "value": "artículo_revendido"
-            }
-          }
-        },
         "filters": {
           "allStatuses": "Todos los estados",
           "allTypes": "Todos los tipos",
@@ -995,32 +1003,6 @@
           "stockDesc": "Acción (alta-baja)",
           "updatedAsc": "Última actualización (más antigua)",
           "updatedDesc": "Última actualización (más reciente)"
-        },
-        "sortOptions": {
-          "1": {
-            "value": "nombre"
-          },
-          "2": {
-            "value": "-nombre"
-          },
-          "3": {
-            "value": "precio_venta_impuestos_excl"
-          },
-          "4": {
-            "value": "-precio_de_venta_sin_impuestos"
-          },
-          "5": {
-            "value": "actualizado_a"
-          },
-          "6": {
-            "value": "-actualizado"
-          },
-          "7": {
-            "value": "stock_cantidad"
-          },
-          "8": {
-            "value": "-cantidad_de_stock"
-          }
         },
         "tooltips": {
           "deleteProduct": "Borrar producto",
@@ -1138,43 +1120,6 @@
           "uploadNew": "¿Subir una nueva imagen?"
         }
       },
-      "planSelection": {
-        "plans": {
-          "0": {
-            "id": "básico",
-            "name": "El primer lote",
-            "whyThisPlan": "Ligero, potente y rentable: First Batch ofrece a los panaderos independientes las herramientas básicas para gestionar pedidos, realizar un seguimiento de los ingredientes clave y ver las tendencias básicas de uso. Ideal si acaba de empezar o tiene un negocio muy pequeño."
-          },
-          "1": {
-            "discount": {
-              "details": "Después 49,99 $/mes. Se renueva automáticamente, puedes cancelarlo cuando quieras.",
-              "displayPrice": "0.00",
-              "offerTitle": "Primer mes GRATIS",
-              "originalPriceText": "49,99 $/mes"
-            },
-            "features": {
-              "0": {
-                "text": "Todo en el primer lote"
-              }
-            },
-            "id": "estándar",
-            "name": "El horno artesano",
-            "price": "49.99",
-            "whyThisPlan": "Ya ha superado lo básico: ahora necesita datos reales para planificar compras, optimizar recetas, pedidos y detectar tendencias de ventas. Artisan Oven le ofrece previsiones, informes detallados y una asistencia más rápida para que pueda obtener mayores beneficios y expandirse de forma eficiente."
-          },
-          "2": {
-            "features": {
-              "0": {
-                "text": "Todo en el Horno Artesano, además:"
-              }
-            },
-            "id": "premium",
-            "name": "Suite Master Baker",
-            "price": "99.99",
-            "whyThisPlan": "Si tiene varios centros, gestiona un gran volumen de pedidos o necesita flujos de trabajo personalizados, Master Baker es su suite integral, con SLA en tiempo real, formación práctica y un equipo especializado que desarrolla la aplicación en función de sus necesidades específicas."
-          }
-        }
-      },
       "trustFooter": {
         "copyright": "© {año} {companyName}. Todos los derechos reservados.",
         "links": {
@@ -1286,7 +1231,7 @@
           "unknownError": "Se ha producido un error desconocido durante el registro."
         },
         "stageTrackerLabels": {
-          "0": "Empresas",
+          "0": "Información comercial",
           "2": "Logotipo",
           "3": "Perfil",
           "4": "Preferencias"

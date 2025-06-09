@@ -37,7 +37,7 @@ export const useFormState = (initialFormStateData = {}) => {
     const TOTAL_STEPS = 6; // 0:Info, 1:Location, 2:Logo, 3:Profile, 4:Preferences, 5:ProfileImage
     const SESSION_STORAGE_KEY = 'formRegistrationState'; // More specific key (Internal, not typically localized)
 
-    const defaultInitialData = {
+    const defaultInitialData = useMemo(() => ({
         businessName: '',
         businessEmail: '',
         businessUsername: '',
@@ -68,8 +68,7 @@ export const useFormState = (initialFormStateData = {}) => {
         acceptTerms: false,
         profileImageFile: null,
         existingProfileImageUrl: '',
-        ...initialFormStateData // Allows override from component prop
-    };
+    }), []);
 
     const STEP_VALIDATIONS = useMemo(() => ({
         0: yup.object().shape({ // Step 0: Business Information
@@ -150,7 +149,7 @@ export const useFormState = (initialFormStateData = {}) => {
         }
         return {
             currentStep: persistedState.currentStep || 0,
-            formData: { ...defaultInitialData, ...persistedState.formData }, // Use defaultInitialData
+            formData: { ...defaultInitialData, ...persistedState.formData, ...initialFormStateData }, // BUGFIX: Merge initialFormStateData
             errors: {},
             generalError: null,
             visitedSteps: new Set(
@@ -203,7 +202,7 @@ export const useFormState = (initialFormStateData = {}) => {
         try {
             // Perform the validation. `abortEarly: false` collects all errors.
             await schema.validate(state.formData, { abortEarly: false });
-            
+
             // If validation succeeds, clear errors for this step and mark as valid.
             setState(prev => ({
                 ...prev,
@@ -381,7 +380,7 @@ export const useFormState = (initialFormStateData = {}) => {
         }
         setState({
             currentStep: 0,
-            formData: initialFormStateData,
+            formData: defaultInitialData, // BUGFIX: Reset to base defaults, not initial props.
             errors: {},
             generalError: null,
             visitedSteps: new Set([0]),
@@ -390,7 +389,7 @@ export const useFormState = (initialFormStateData = {}) => {
             navigationHistory: [0],
             navigationDirection: undefined,
         });
-    }, [initialFormStateData]);
+    }, [defaultInitialData]); // BUGFIX: Depend on stable defaultInitialData.
 
     // ===========================================================================
     // Memoized Values for Export

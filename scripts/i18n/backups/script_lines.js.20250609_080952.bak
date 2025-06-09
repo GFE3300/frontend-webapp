@@ -1,0 +1,33 @@
+export const MONTHS = {
+    Jan: 'Ene',
+    Feb: 'Feb',
+    Mar: 'Mar',
+    Apr: 'Apr',
+    May: 'May',
+    Jun: 'Jun',
+    Jul: 'Jul',
+    Aug: 'Aug',
+    Sep: 'Sep',
+    Oct: 'Oct',
+    Nov: 'Nov',
+    Dec: 'Dec',
+}
+
+export const DAYS = {
+    Sun: 'Sun',
+    Mon: 'Mon',
+    Tue: 'Tue',
+    Wed: 'Wed',
+    Thu: 'Thu',
+    Fri: 'Fri',
+    Sat: 'Sat',
+}
+
+export const WORDS = {
+    Day: 'Day',
+    Week: 'Week',
+    Month: 'Month',
+    Wk: 'Wk',
+    Average: 'Average',
+    Peak: 'Peak',
+}

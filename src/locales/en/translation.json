@@ -340,6 +340,39 @@
     },
     "warnCannotSetSelection": "Could not set selection range on input: "
   },
+  "data_cards": {
+    "DAYS": {
+      "Fri": "Fri",
+      "Mon": "Mon",
+      "Sat": "Sat",
+      "Sun": "Sun",
+      "Thu": "Thu",
+      "Tue": "Tue",
+      "Wed": "Wed"
+    },
+    "MONTHS": {
+      "Apr": "Apr",
+      "Aug": "Aug",
+      "Dec": "Dec",
+      "Feb": "Feb",
+      "Jan": "Ene",
+      "Jul": "Jul",
+      "Jun": "Jun",
+      "Mar": "Mar",
+      "May": "May",
+      "Nov": "Nov",
+      "Oct": "Oct",
+      "Sep": "Sep"
+    },
+    "WORDS": {
+      "Average": "Average",
+      "Day": "Day",
+      "Month": "Month",
+      "Peak": "Peak",
+      "Week": "Week",
+      "Wk": "Wk"
+    }
+  },
   "live_orders_view": {
     "liveOrders": {
       "actions": {
@@ -349,6 +382,7 @@
       },
       "errorBody": "There was an issue fetching the live order data. Please try again later.",
       "errorTitle": "Could not load live view",
+      "guestsSummary": "{{count}} guest",
       "guestsSummary_one": "{{count}} guest",
       "guestsSummary_other": "{{count}} guests",
       "layoutErrorBody": "There was a problem fetching the static venue design.",
@@ -378,6 +412,7 @@
         "PREPARING": "Preparing",
         "READY_FOR_PICKUP": "Ready for Pickup"
       },
+      "ordersSummary": "{{count}} orders",
       "ordersSummary_one": "{{count}} order",
       "ordersSummary_other": "{{count}} orders",
       "pageSubtitle": "A real-time overview of your venue's table activity.",
@@ -396,6 +431,7 @@
         "SERVED": "Served",
         "WAITING": "Waiting"
       },
+      "tableLabel": "Table {{tableNumber}}",
       "tableLabel_one": "Table {{tableNumber}}"
     }
   },
@@ -696,52 +732,43 @@
         "messages": {
           "alreadySubscribedError": "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'.",
           "loadingSubscription": "Loading your subscription details...",
-          "subscriptionLoadError": "Could not load your current subscription status. Please try again or contact support."
+          "subscriptionErrorTitle": "Error Loading Subscription",
+          "subscriptionLoadError": "We couldn't load your subscription details. Please refresh the page or contact support if the problem persists."
         },
         "plans": {
           "0": {
-            "description": {
-              "0": "Perfect for solo and micro-shops.",
-              "1": "Get up and running fast with essential order & inventory tools."
-            },
+            "description": "Perfect for solo and micro-shops. Get up and running fast with essential order & inventory tools.",
             "features": {
               "0": {
-                "text": "Unlimited Orders"
+                "text": "3 Business Users"
               },
               "1": {
-                "text": "Menu-Style Order Entry"
+                "text": "Full Product Management"
               },
               "2": {
-                "text": "Live Low-Stock Alerts"
-              },
-              "3": {
-                "text": "Basic Consumption Charts"
+                "text": "Digital Menu & QR Codes"
               },
               "4": {
-                "text": "Email Support (48 hr response)"
+                "text": "Venue Layout Designer"
               },
               "5": {
-                "text": "Advanced Forecasting"
+                "text": "Basic Inventory (Manual Entry)"
               },
               "6": {
-                "text": "Custom Feature Requests"
+                "text": "Basic (Today) Analytics"
               },
               "7": {
-                "text": "Dedicated Account Manager"
+                "text": "Email Support"
               }
             },
             "frequency": "/month",
-            "iconName": "bolt",
             "id": "starter_essentials",
-            "name": "CrumbData - Starter Essentials",
+            "name": "Starter Essentials",
             "price": "29.99",
-            "whyThisPlan": "Lightweight, powerful, and cost-effective—Starter Essentials gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation."
+            "whyThisPlan": "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking."
           },
           "1": {
-            "description": {
-              "0": "For growing businesses ready to scale.",
-              "1": "All-in-one order management + deep insights to optimize and grow."
-            },
+            "description": "For growing businesses ready to scale. All-in-one order management + deep insights to optimize and grow.",
             "discount": {
               "details": "Then €39.99/month. Renews automatically, cancel anytime.",
               "displayPrice": "16.00",
@@ -751,71 +778,70 @@
             },
             "features": {
               "0": {
-                "text": "Everything in Starter Essentials"
+                "text": "Everything in Starter, plus:"
               },
               "1": {
-                "text": "Advanced Cost & Consumption Forecasts"
+                "text": "10 Business Users"
               },
               "2": {
-                "text": "Monthly Performance Reports"
+                "text": "Automated Inventory (via Recipes)"
               },
               "3": {
-                "text": "Multi-Location Support (2 shops)"
+                "text": "Low Stock Alerts"
               },
               "4": {
-                "text": "Priority Email & Chat Support"
+                "text": "Full History Analytics"
               },
               "5": {
-                "text": "Access to Beta Features"
-              },
-              "7": {
-                "text": "Custom Integrations"
-              }
-            },
-            "iconName": "mode_heat",
-            "id": "growth_accelerator",
-            "name": "CrumbData - Growth Accelerator",
-            "price": "39.99",
-            "whyThisPlan": "You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Growth Accelerator brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently."
-          },
-          "2": {
-            "description": {
-              "0": "For established bakeries that demand excellence.",
-              "1": "Full-featured, white-glove service, and limitless scalability."
-            },
-            "features": {
-              "0": {
-                "text": "Everything in Growth Accelerator, plus:"
-              },
-              "1": {
-                "text": "Unlimited Locations & Team Users"
-              },
-              "2": {
-                "text": "Personalized Onboarding & Training"
-              },
-              "3": {
-                "text": "Custom Feature Roadmap Input"
-              },
-              "4": {
-                "text": "24/7 Priority Phone & Emergency Support"
-              },
-              "5": {
-                "text": "Bespoke API & System Integrations"
+                "text": "10 Active Promo Codes"
               },
               "6": {
-                "text": "SLA-backed Uptime & Performance"
+                "text": "Remove 'Powered by' Branding"
+              },
+              "7": {
+                "text": "Priority Email Support"
               }
             },
-            "iconName": "verified",
+            "id": "growth_accelerator",
+            "name": "Growth Accelerator",
+            "price": "39.99",
+            "whyThisPlan": "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions."
+          },
+          "2": {
+            "description": "For established bakeries that demand excellence. Full-featured, white-glove service, and limitless scalability.",
+            "features": {
+              "0": {
+                "text": "Everything in Growth, plus:"
+              },
+              "1": {
+                "text": "Unlimited User Seats"
+              },
+              "2": {
+                "text": "Advanced Analytics Page"
+              },
+              "3": {
+                "text": "Data Export (CSV)"
+              },
+              "4": {
+                "text": "Unlimited Promo Codes"
+              },
+              "5": {
+                "text": "Advanced Menu Customization"
+              },
+              "6": {
+                "text": "Dedicated Onboarding Specialist"
+              }
+            },
             "id": "premium_pro_suite",
-            "name": "CrumbData - Premium Pro Suite",
+            "name": "Premium Pro Suite",
             "price": "89.99",
-            "whyThisPlan": "If you’re running multiple sites, handling high order volume, or need bespoke workflows—Premium Pro Suite is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
+            "whyThisPlan": "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service."
           }
         },
         "subtitle": "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together.",
         "themeColorDefault": "rose",
-        "title": "Unlock Your Potential"
+        "title": "Unlock Your Potential",
+        "whyThisPlanTemplate": "Why {{planName}}?"
       }
     }
   },
@@ -944,24 +970,6 @@
         "errors": {
           "invalidDate": "Invalid Date"
         },
-        "filterOptions": {
-          "is_active": {
-            "1": {
-              "value": "active"
-            },
-            "2": {
-              "value": "inactive"
-            }
-          },
-          "product_type": {
-            "1": {
-              "value": "made_in_house"
-            },
-            "2": {
-              "value": "resold_item"
-            }
-          }
-        },
         "filters": {
           "allStatuses": "All Statuses",
           "allTypes": "All Types",
@@ -995,32 +1003,6 @@
           "stockDesc": "Stock (High-Low)",
           "updatedAsc": "Last Updated (Oldest)",
           "updatedDesc": "Last Updated (Newest)"
-        },
-        "sortOptions": {
-          "1": {
-            "value": "name"
-          },
-          "2": {
-            "value": "-name"
-          },
-          "3": {
-            "value": "selling_price_excl_tax"
-          },
-          "4": {
-            "value": "-selling_price_excl_tax"
-          },
-          "5": {
-            "value": "updated_at"
-          },
-          "6": {
-            "value": "-updated_at"
-          },
-          "7": {
-            "value": "stock_quantity"
-          },
-          "8": {
-            "value": "-stock_quantity"
-          }
         },
         "tooltips": {
           "deleteProduct": "Delete Product",
@@ -1138,43 +1120,6 @@
           "uploadNew": "Upload new image?"
         }
       },
-      "planSelection": {
-        "plans": {
-          "0": {
-            "id": "basic",
-            "name": "The First Batch",
-            "whyThisPlan": "Lightweight, powerful, and cost-effective—First Batch gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation."
-          },
-          "1": {
-            "discount": {
-              "details": "Then $49.99/month. Renews automatically, cancel anytime.",
-              "displayPrice": "0.00",
-              "offerTitle": "First Month FREE!",
-              "originalPriceText": "$49.99/month"
-            },
-            "features": {
-              "0": {
-                "text": "Everything in First Batch"
-              }
-            },
-            "id": "standard",
-            "name": "The Artisan Oven",
-            "price": "49.99",
-            "whyThisPlan": "You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Artisan Oven brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently."
-          },
-          "2": {
-            "features": {
-              "0": {
-                "text": "Everything in Artisan Oven, plus:"
-              }
-            },
-            "id": "premium",
-            "name": "Master Baker Suite",
-            "price": "99.99",
-            "whyThisPlan": "If you’re running multiple sites, handling high order volume, or need bespoke workflows—Master Baker is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
-          }
-        }
-      },
       "trustFooter": {
         "copyright": "© {year} {companyName}. All rights reserved.",
         "links": {
@@ -1286,7 +1231,7 @@
           "unknownError": "An unknown error occurred during registration."
         },
         "stageTrackerLabels": {
-          "0": "Business",
+          "0": "Business Information",
           "2": "Logo",
           "3": "Profile",
           "4": "Preferences"

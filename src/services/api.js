@@ -116,7 +116,7 @@ apiInstance.interceptors.response.use(
 
 
 const apiService = {
-    get: (url, params, config = {}) => apiInstance.get(url, { ...config, params }),
+    get: (url, config) => apiInstance.get(url, config),
     post: (url, data, config) => apiInstance.post(url, data, config),
     put: (url, data, config) => apiInstance.put(url, data, config),
     patch: (url, data, config) => apiInstance.patch(url, data, config),
@@ -325,6 +325,18 @@ const apiService = {
      */
     updateOrderStatus: (orderId, data) => {
         return apiInstance.patch(`orders/${orderId}/`, data);
+    },
+
+    getCommandBarSummary: () => {
+        return apiInstance.get('analytics/command-bar-summary/');
+    },
+
+    getActionItems: () => {
+        return apiInstance.get('analytics/action-items/');
+    },
+
+    getProductMovers: (period = 'today') => {
+        return apiInstance.get('analytics/product-movers/', { params: { period } });
     },
 
 };
