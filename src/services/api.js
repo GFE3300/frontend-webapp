@@ -327,6 +327,18 @@ const apiService = {
         return apiInstance.patch(`orders/${orderId}/`, data);
     },
 
+    getCommandBarSummary: () => {
+        return apiInstance.get('analytics/command-bar-summary/');
+    },
+
+    getActionItems: () => {
+        return apiInstance.get('analytics/action-items/');
+    },
+
+    getProductMovers: (period = 'today') => {
+        return apiInstance.get('analytics/product-movers/', { params: { period } });
+    },
+
 };
 
 export default apiService;

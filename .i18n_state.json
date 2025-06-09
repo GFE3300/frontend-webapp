@@ -3,8 +3,8 @@
   "features\\data_cards\\revenue_card\\language_script\\script_lines.js": "fa4e82040c733f9c04c75d1c1cd3d64ca10bf3393fa3ce3929c4d496b7293166",
   "features\\live_orders_view\\utils\\script_lines.js": "e6a1dd18cdbebfd02d030285941a2e1218f2f68c382a275f55bc9e471028b6de",
   "features\\menu_view\\utils\\script_lines.js": "e8325f5f41c6915a33935903935f6b6f6aac7fc81c1f9ddd80488fccf34c029f",
-  "features\\payments\\utils\\script_lines.js": "2d70f30ebd89c48f0362883ed71e9b7ace292aa18824a2665d90460e5cb0e213",
+  "features\\payments\\utils\\script_lines.js": "f7ec812329410762a9c4a00fa93d06cf471e4ca094cf4a7d4afb139896ff77b2",
   "features\\products_table\\utils\\script_lines.js": "11db10cfa03efd49e96ab9f09e61225c3cda41f9c20582b0a28baf45cb534655",
-  "features\\register\\utils\\script_lines.js": "89dbc38c6f8f023e16144847321682827ab18607d2c2c940af8b9b0e471c2b58",
+  "features\\register\\utils\\script_lines.js": "d40afcc5e1759694535f4b6b7a581833da522ceba13237f8445d0f2626540e97",
   "features\\venue_management\\utils\\script_lines.js": "2c810dbfc7d36a7d045a1e28bae8c718a31aae24530cc03de9282cd9e649e434"
 }

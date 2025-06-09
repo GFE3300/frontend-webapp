@@ -8,7 +8,7 @@ export const useResponsiveGraph = (containerRef) => {
     // 1. Use library's optimized observer
     useResizeObserver(containerEl, (entry) => {
         const newWidth = Math.min(entry.contentRect.width, 1152);
-        const newHeight = Math.min(newWidth * 0.6, 200);
+        const newHeight = Math.min(newWidth * 0.6, 226);
         setSize(s => (
             (s.width === newWidth && s.height === newHeight)
                 ? s
@@ -21,8 +21,8 @@ export const useResponsiveGraph = (containerRef) => {
         if (!containerEl) return;
         const { width } = containerEl.getBoundingClientRect();
         const initialWidth = Math.min(width, 1152);
-        setSize({ width: initialWidth, height: Math.min(initialWidth * 0.6, 200) });
-    }, [containerEl]); 
+        setSize({ width: initialWidth, height: Math.min(initialWidth * 0.6, 226) });
+    }, [containerEl]);
 
     return size;
 };

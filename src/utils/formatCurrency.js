@@ -32,3 +32,20 @@ export const formatCurrency = (amount, currencyCode = 'USD', locale = navigator.
         return `$${numericAmount.toFixed(2)}`;
     }
 };
+
+/**
+ * Formats a duration in seconds into a human-readable string (e.g., 95 -> "1m 35s").
+ * @param {number} totalSeconds - The duration in seconds.
+ * @returns {string} The formatted duration string.
+ */
+export const formatDuration = (totalSeconds) => {
+    if (totalSeconds < 0 || totalSeconds === null || totalSeconds === undefined) {
+        return 'N/A';
+    }
+    if (totalSeconds < 60) {
+        return `${Math.round(totalSeconds)}s`;
+    }
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = Math.round(totalSeconds % 60);
+    return `${minutes}m ${seconds}s`;
+};

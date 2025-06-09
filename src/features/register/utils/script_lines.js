@@ -184,7 +184,12 @@ export const scriptLines_Registration = {
             yourProfileImage: i18n.t('register.registration.registrationPage.stepTitles.yourProfileImage'), // "Your Profile Image"
         },
         stageTrackerLabels: [ // Shortened names for the StageTracker component
-            i18n.t('register.registration.registrationPage.stageTrackerLabels.0'), i18n.t('register.steps.locationStage.label.mapLocation'), i18n.t('register.registration.registrationPage.stageTrackerLabels.2'), i18n.t('register.registration.registrationPage.stageTrackerLabels.3'), i18n.t('register.registration.registrationPage.stageTrackerLabels.4'), i18n.t('products_table.productsTable.tableConfig.headers.image') // "Image"
+            i18n.t('register.registration.registrationPage.stageTrackerLabels.0'),
+            i18n.t('register.steps.locationStage.label.mapLocation'),
+            i18n.t('register.registration.registrationPage.stageTrackerLabels.2'),
+            i18n.t('register.registration.registrationPage.stageTrackerLabels.3'),
+            i18n.t('register.registration.registrationPage.stageTrackerLabels.4'),
+            i18n.t('products_table.productsTable.tableConfig.headers.image') // "Image"
         ],
         success: {
             registrationComplete: i18n.t('register.registration.registrationPage.success.registrationComplete'), // "Registration successful! Please choose a plan to activate your account."
@@ -340,34 +345,34 @@ export const scriptLines_Steps = {
 
     step0BusinessInfo: {
         errors: {
-            formDataMissing: i18n.t('register.steps.step0BusinessInfo.errors.formDataMissing'), // "Error: Form data is missing for this step."
-            updateFieldMissing: i18n.t('register.steps.step0BusinessInfo.errors.updateFieldMissing'), // "Error: Form update mechanism is missing."
+            formDataMissing: "Error: Form data is missing for this step.",
+            updateFieldMissing: "Error: Form update mechanism is missing.",
         },
         console: {
-            invalidFormDataProp: i18n.t('register.steps.step0BusinessInfo.console.invalidFormDataProp'), // "Step0BusinessInfo: Invalid `formData` prop. Expected an object."
-            invalidUpdateFieldProp: i18n.t('register.steps.step0BusinessInfo.console.invalidUpdateFieldProp'), // "Step0BusinessInfo: Invalid `updateField` prop. Expected a function."
-            invalidErrorsProp: i18n.t('register.steps.step0BusinessInfo.console.invalidErrorsProp'), // "Step0BusinessInfo: Invalid `errors` prop. Expected an object or undefined."
+            invalidFormDataProp: "Step0BusinessInfo: Invalid `formData` prop. Expected an object.",
+            invalidUpdateFieldProp: "Step0BusinessInfo: Invalid `updateField` prop. Expected a function.",
+            invalidErrorsProp: "Step0BusinessInfo: Invalid `errors` prop. Expected an object or undefined.",
         },
         label: {
-            businessName: i18n.t('register.steps.step0BusinessInfo.label.businessName'), // "Business Name"
-            businessUsername: i18n.t('register.steps.step0BusinessInfo.label.businessUsername'), // "Business Username"
-            businessEmail: i18n.t('register.steps.step0BusinessInfo.label.businessEmail'), // "Business Email"
-            businessPhone: i18n.t('register.steps.step0BusinessInfo.label.businessPhone'), // "Business Phone"
-            businessWebsiteOptional: i18n.t('register.steps.step0BusinessInfo.label.businessWebsiteOptional'), // "Business Website (Optional)"
-            businessTags: i18n.t('register.steps.step0BusinessInfo.label.businessTags'), // "Business Tags (Describe your business)"
-            referralCodeOptional: i18n.t('register.steps.step0BusinessInfo.label.referralCodeOptional'), // "Referral Code (Optional)"
+            businessName: "Business Name",
+            businessUsername: "Business Username",
+            businessEmail: "Business Email",
+            businessPhone: "Business Phone",
+            businessWebsiteOptional: "Business Website (Optional)",
+            businessTags: "Business Tags (Describe your business)",
+            referralCodeOptional: "Discount Code (Optional)",
         },
         placeholder: {
-            businessName: i18n.t('register.steps.step0BusinessInfo.placeholder.businessName'), // "e.g. The Artisan Corner"
-            businessUsername: i18n.t('register.steps.step0BusinessInfo.placeholder.businessUsername'), // "e.g. @artisancorner"
-            businessEmail: i18n.t('register.steps.step0BusinessInfo.placeholder.businessEmail'), // "e.g. contact@artisancorner.com"
-            businessPhone: i18n.t('register.steps.step0BusinessInfo.placeholder.businessPhone'), // "e.g. +1 (555) 123-4567"
-            businessWebsite: i18n.t('register.steps.step0BusinessInfo.placeholder.businessWebsite'), // "e.g. https://artisancorner.com"
-            businessTags: i18n.t('register.steps.step0BusinessInfo.placeholder.businessTags'), // "Type and press Enter (e.g., Cafe, Handmade)"
-            referralCode: i18n.t('register.steps.step0BusinessInfo.placeholder.referralCode'), // "Enter code if you have one"
+            businessName: "e.g. The Artisan Corner",
+            businessUsername: "e.g. @artisancorner",
+            businessEmail: "e.g. contact@artisancorner.com",
+            businessPhone: "e.g. +1 (555) 123-4567",
+            businessWebsite: "e.g. https://artisancorner.com",
+            businessTags: "Type and press Enter (e.g., Cafe, Handmade)",
+            referralCode: "Enter discount code, if you have one",
         },
         helptext: {
-            businessTags: i18n.t('register.steps.step0BusinessInfo.helptext.businessTags'), // "Select up to 7 tags that best describe your business."
+            businessTags: "Select up to 7 tags that best describe your business.",
         },
         /**
          * @constant {string[]} defaultBusinessTags
@@ -406,61 +411,61 @@ export const scriptLines_Steps = {
 
     locationStage: {
         label: {
-            mapLocation: i18n.t('register.steps.locationStage.label.mapLocation'), // "Location"
+            mapLocation: "Location", // Label for the map section
         },
         // No other direct text strings were found in LocationStage.jsx.
         // AutocompleteInput, GeolocationButton, and AddressForm have their own localized strings.
     },
 
     step2BusinessLogo: {
-        title: i18n.t('register.steps.step2BusinessLogo.title'), // "Upload Your Business Logo"
-        description: i18n.t('register.steps.step2BusinessLogo.description'), // "Your logo is key to your brand identity. Please upload a clear image. We recommend a square logo or one that crops well into a square."
+        title: "Upload Your Business Logo",
+        description: "Your logo is key to your brand identity. Please upload a clear image. We recommend a square logo or one that crops well into a square.",
         errors: {
-            formDataUnavailable: i18n.t('register.steps.step2BusinessLogo.errors.formDataUnavailable'), // "Error: Form data is unavailable for the business logo step."
-            updateMechanismImproperlyConfigured: i18n.t('register.steps.step2BusinessLogo.errors.updateMechanismImproperlyConfigured'), // "Error: Form update mechanism is improperly configured."
+            formDataUnavailable: "Error: Form data is unavailable for the business logo step.",
+            updateMechanismImproperlyConfigured: "Error: Form update mechanism is improperly configured.",
         },
         console: {
-            invalidFormDataProp: i18n.t('register.steps.step2BusinessLogo.console.invalidFormDataProp'), // "Step2BusinessLogo: Invalid `formData` prop. Expected an object."
-            invalidUpdateFieldProp: i18n.t('register.steps.step2BusinessLogo.console.invalidUpdateFieldProp'), // "Step2BusinessLogo: Invalid `updateField` prop. Expected a function."
-            invalidErrorsProp: i18n.t('register.steps.step2BusinessLogo.console.invalidErrorsProp'), // "Step2BusinessLogo: Invalid `errors` prop. Expected an object or undefined. Error display might be affected."
+            invalidFormDataProp: "Step2BusinessLogo: Invalid `formData` prop. Expected an object.",
+            invalidUpdateFieldProp: "Step2BusinessLogo: Invalid `updateField` prop. Expected a function.",
+            invalidErrorsProp: "Step2BusinessLogo: Invalid `errors` prop. Expected an object or undefined. Error display might be affected.",
         },
-        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault') // "rose"
+        themeColorDefault: "rose"
     },
 
     step3Profile: {
         label: {
-            fullName: i18n.t('register.steps.step3Profile.label.fullName'), // "Your Full Name"
-            lastName: i18n.t('register.steps.step3Profile.label.lastName'), // "Your Full Last Name"
-            roleAtBusiness: i18n.t('register.steps.step3Profile.label.roleAtBusiness'), // "Your Role/Title at Business"
-            contactEmail: i18n.t('register.steps.step3Profile.label.contactEmail'), // "Contact Email"
-            contactPhone: i18n.t('register.steps.step3Profile.label.contactPhone'), // "Contact Phone Number"
-            createPassword: i18n.t('register.steps.step3Profile.label.createPassword'), // "Create Password"
-            confirmPassword: i18n.t('register.steps.step3Profile.label.confirmPassword'), // "Confirm Password"
+            fullName: "Your Full Name",
+            lastName: "Your Full Last Name",
+            roleAtBusiness: "Your Role/Title at Business",
+            contactEmail: "Contact Email",
+            contactPhone: "Contact Phone Number",
+            createPassword: "Create Password",
+            confirmPassword: "Confirm Password",
         },
         placeholder: {
-            firstName: i18n.t('register.steps.step3Profile.placeholder.firstName'), // "e.g. Alex"
-            lastName: i18n.t('register.steps.step3Profile.placeholder.lastName'), // "e.g. Johnson"
-            role: i18n.t('register.steps.step3Profile.placeholder.role'), // "e.g. Owner, Manager, Chef"
-            contactEmail: i18n.t('register.steps.step3Profile.placeholder.contactEmail'), // "e.g. alex.johnson@example.com"
-            contactPhone: i18n.t('register.steps.step3Profile.placeholder.contactPhone'), // "(555) 123-4567"
-            passwordMinChars: i18n.t('register.steps.step3Profile.placeholder.passwordMinChars'), // "Minimum 8 characters"
-            confirmPassword: i18n.t('register.steps.step3Profile.placeholder.confirmPassword'), // "Re-enter your password"
+            firstName: "e.g. Alex", // Assuming "Your Full Name" is for first name
+            lastName: "e.g. Johnson",
+            role: "e.g. Owner, Manager, Chef",
+            contactEmail: "e.g. alex.johnson@example.com",
+            contactPhone: "(555) 123-4567",
+            passwordMinChars: "Minimum 8 characters",
+            confirmPassword: "Re-enter your password",
         },
         aria: {
-            hidePassword: i18n.t('register.steps.step3Profile.aria.hidePassword'), // "Hide password"
-            showPassword: i18n.t('register.steps.step3Profile.aria.showPassword'), // "Show password"
+            hidePassword: "Hide password",
+            showPassword: "Show password",
         },
         errors: {
-            formDataMissing: i18n.t('register.steps.step0BusinessInfo.errors.formDataMissing'), // "Error: Form data is missing for this step."
-            updateMechanismMissing: i18n.t('register.steps.step0BusinessInfo.errors.updateFieldMissing'), // "Error: Form update mechanism is missing."
-            passwordStrengthMissing: i18n.t('register.steps.step3Profile.errors.passwordStrengthMissing'), // "Error: Password strength information is missing."
-            passwordVisibilityControlMissing: i18n.t('register.steps.step3Profile.errors.passwordVisibilityControlMissing'), // "Error: Password visibility control is missing."
+            formDataMissing: "Error: Form data is missing for this step.",
+            updateMechanismMissing: "Error: Form update mechanism is missing.",
+            passwordStrengthMissing: "Error: Password strength information is missing.",
+            passwordVisibilityControlMissing: "Error: Password visibility control is missing.",
         },
         console: {
-            invalidFormDataProp: i18n.t('register.steps.step3Profile.console.invalidFormDataProp'), // "Step3Profile: Invalid `formData` prop. Expected an object."
-            invalidUpdateFieldProp: i18n.t('register.steps.step3Profile.console.invalidUpdateFieldProp'), // "Step3Profile: Invalid `updateField` prop. Expected a function."
-            invalidPasswordStrengthProp: i18n.t('register.steps.step3Profile.console.invalidPasswordStrengthProp'), // "Step3Profile: Invalid or missing `passwordStrength` prop. Expected a string."
-            invalidPasswordVisibilityProps: i18n.t('register.steps.step3Profile.console.invalidPasswordVisibilityProps'), // "Step3Profile: Invalid or missing password visibility props (`showPassword`, `setShowPassword`)."
+            invalidFormDataProp: "Step3Profile: Invalid `formData` prop. Expected an object.", // Note: Original log used Step2Profile
+            invalidUpdateFieldProp: "Step3Profile: Invalid `updateField` prop. Expected a function.",
+            invalidPasswordStrengthProp: "Step3Profile: Invalid or missing `passwordStrength` prop. Expected a string.",
+            invalidPasswordVisibilityProps: "Step3Profile: Invalid or missing password visibility props (`showPassword`, `setShowPassword`).",
         },
         // Note: The password strength indicator ('weak', 'fair', 'strong') itself
         // is likely localized in the PasswordStrength subcomponent or useFormState.
@@ -470,263 +475,357 @@ export const scriptLines_Steps = {
 
     step4Preferences: {
         label: {
-            timezone: i18n.t('register.steps.step4Preferences.label.timezone'), // "Timezone"
-            preferredNotificationMethod: i18n.t('register.steps.step4Preferences.label.preferredNotificationMethod'), // "Preferred Notification Method"
-            primaryCurrency: i18n.t('register.steps.step4Preferences.label.primaryCurrency'), // "Primary Currency"
-            preferredDailySummaryTimeOptional: i18n.t('register.steps.step4Preferences.label.preferredDailySummaryTimeOptional'), // "Preferred Daily Summary Time (Optional)"
-            preferredLanguage: i18n.t('register.steps.step4Preferences.label.preferredLanguage'), // "Preferred Language"
-            referralSourcesOptional: i18n.t('register.steps.step4Preferences.label.referralSourcesOptional'), // "How did you hear about us? (Optional)"
-            acceptTerms: i18n.t('register.steps.step4Preferences.label.acceptTerms'), // "I acknowledge and agree to the {termsLink} and the {privacyLink}."
+            timezone: "Timezone",
+            preferredNotificationMethod: "Preferred Notification Method",
+            primaryCurrency: "Primary Currency",
+            preferredDailySummaryTimeOptional: "Preferred Daily Summary Time (Optional)",
+            preferredLanguage: "Preferred Language",
+            referralSourcesOptional: "How did you hear about us? (Optional)",
+            acceptTerms: "I acknowledge and agree to the {termsLink} and the {privacyLink}.", // Placeholders for links
         },
         placeholder: {
-            selectTimezone: i18n.t('register.steps.step4Preferences.placeholder.selectTimezone'), // "Select your timezone"
-            selectNotificationChannel: i18n.t('register.steps.step4Preferences.placeholder.selectNotificationChannel'), // "Select notification channel"
-            selectCurrency: i18n.t('register.steps.step4Preferences.placeholder.selectCurrency'), // "Select your currency"
-            referralSources: i18n.t('register.steps.step4Preferences.placeholder.referralSources'), // "e.g., Friend, Social Media, Advertisement"
+            selectTimezone: "Select your timezone",
+            selectNotificationChannel: "Select notification channel",
+            selectCurrency: "Select your currency",
+            referralSources: "e.g., Friend, Social Media, Advertisement",
         },
         helptext: {
-            dailySummaryTime: i18n.t('register.steps.step4Preferences.helptext.dailySummaryTime'), // "Set a time to receive daily summaries, if applicable."
-            referralSources: i18n.t('register.steps.step4Preferences.helptext.referralSources'), // "Let us know how you found us!"
+            dailySummaryTime: "Set a time to receive daily summaries, if applicable.",
+            referralSources: "Let us know how you found us!",
         },
         linkText: {
-            termsOfService: i18n.t('register.steps.step4Preferences.linkText.termsOfService'), // "Terms of Service"
-            privacyPolicy: i18n.t('register.steps.step4Preferences.linkText.privacyPolicy'), // "Privacy Policy"
+            termsOfService: "Terms of Service",
+            privacyPolicy: "Privacy Policy",
         },
         // Replace the entire 'options' object within 'step4Preferences' with this:
         options: { // [AI-REPAIRED]
             timezones: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.0.value'), // "America/New_York"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.0.label') // "America/New York (EST/EDT)"
+                    value: "America/New_York",
+                    label: "America/New York (EST/EDT)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.1.value'), // "America/Chicago"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.1.label') // "America/Chicago (CST/CDT)"
+                    value: "America/Chicago",
+                    label: "America/Chicago (CST/CDT)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.2.value'), // "America/Denver"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.2.label') // "America/Denver (MST/MDT)"
+                    value: "America/Denver",
+                    label: "America/Denver (MST/MDT)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.3.value'), // "America/Los_Angeles"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.3.label') // "America/Los Angeles (PST/PDT)"
+                    value: "America/Los_Angeles",
+                    label: "America/Los Angeles (PST/PDT)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.4.value'), // "America/Sao_Paulo"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.4.label') // "America/Sao Paulo (BRT/BRST)"
+                    value: "America/Sao_Paulo",
+                    label: "America/Sao Paulo (BRT/BRST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.5.value'), // "Europe/London"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.5.label') // "Europe/London (GMT/BST)"
+                    value: "Europe/London",
+                    label: "Europe/London (GMT/BST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.6.value'), // "Europe/Paris"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.6.label') // "Europe/Paris (CET/CEST)"
+                    value: "Europe/Paris",
+                    label: "Europe/Paris (CET/CEST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.7.value'), // "Europe/Berlin"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.7.label') // "Europe/Berlin (CET/CEST)"
+                    value: "Europe/Berlin",
+                    label: "Europe/Berlin (CET/CEST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.8.value'), // "Europe/Moscow"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.8.label') // "Europe/Moscow (MSK)"
+                    value: "Europe/Moscow",
+                    label: "Europe/Moscow (MSK)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.9.value'), // "Asia/Tokyo"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.9.label') // "Asia/Tokyo (JST)"
+                    value: "Asia/Tokyo",
+                    label: "Asia/Tokyo (JST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.10.value'), // "Asia/Dubai"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.10.label') // "Asia/Dubai (GST)"
+                    value: "Asia/Dubai",
+                    label: "Asia/Dubai (GST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.11.value'), // "Asia/Kolkata"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.11.label') // "Asia/Kolkata (IST)"
+                    value: "Asia/Kolkata",
+                    label: "Asia/Kolkata (IST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.12.value'), // "Asia/Shanghai"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.12.label') // "Asia/Shanghai (CST)"
+                    value: "Asia/Shanghai",
+                    label: "Asia/Shanghai (CST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.13.value'), // "Australia/Sydney"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.13.label') // "Australia/Sydney (AEST/AEDT)"
+                    value: "Australia/Sydney",
+                    label: "Australia/Sydney (AEST/AEDT)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.14.value'), // "Australia/Perth"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.14.label') // "Australia/Perth (AWST)"
+                    value: "Australia/Perth",
+                    label: "Australia/Perth (AWST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.15.value'), // "Africa/Cairo"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.15.label') // "Africa/Cairo (EET)"
+                    value: "Africa/Cairo",
+                    label: "Africa/Cairo (EET)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.16.value'), // "Africa/Johannesburg"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.16.label') // "Africa/Johannesburg (SAST)"
+                    value: "Africa/Johannesburg",
+                    label: "Africa/Johannesburg (SAST)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.timezones.17.value'), // "UTC"
-                    label: i18n.t('register.steps.step4Preferences.options.timezones.17.label') // "Coordinated Universal Time (UTC)"
+                    value: "UTC",
+                    label: "Coordinated Universal Time (UTC)"
                 },
             ],
             notificationMethods: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.0.value'), // "email"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.0.label') // "Email"
+                    value: "email",
+                    label: "Email"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.1.value'), // "sms"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.1.label') // "SMS (Text Message)"
+                    value: "sms",
+                    label: "SMS (Text Message)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.2.value'), // "push"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.2.label') // "Push Notification"
+                    value: "push",
+                    label: "Push Notification"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.notificationMethods.3.value'), // "none"
-                    label: i18n.t('register.steps.step4Preferences.options.notificationMethods.3.label') // "None"
+                    value: "none",
+                    label: "None"
                 }
             ],
             currencies: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.0.value'), // "USD"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.0.label') // "USD - United States Dollar"
+                    value: "USD",
+                    label: "USD - United States Dollar"
+                },
+                { value: "EUR", label: "EUR - Euro" },
+                {
+                    value: "GBP",
+                    label: "GBP - British Pound Sterling"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.1.value'), label: i18n.t('register.steps.step4Preferences.options.currencies.1.label') // "EUR - Euro"
+                    value: "JPY",
+                    label: "JPY - Japanese Yen"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.2.value'), // "GBP"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.2.label') // "GBP - British Pound Sterling"
+                    value: "CAD",
+                    label: "CAD - Canadian Dollar"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.3.value'), // "JPY"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.3.label') // "JPY - Japanese Yen"
+                    value: "AUD",
+                    label: "AUD - Australian Dollar"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.4.value'), // "CAD"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.4.label') // "CAD - Canadian Dollar"
-                },
-                {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.5.value'), // "AUD"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.5.label') // "AUD - Australian Dollar"
-                },
-                {
-                    value: i18n.t('register.steps.step4Preferences.options.currencies.6.value'), // "CHF"
-                    label: i18n.t('register.steps.step4Preferences.options.currencies.6.label') // "CHF - Swiss Franc"
+                    value: "CHF",
+                    label: "CHF - Swiss Franc"
                 },
             ],
             languages: [
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.0.value'), // "en"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.0.label') // "English"
+                    value: "en",
+                    label: "English"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.1.value'), // "es"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.1.label') // "Espa\u00f1ol (Spanish)"
+                    value: "es",
+                    label: "Español (Spanish)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.2.value'), // "fr"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.2.label') // "Fran\u00e7ais (French)"
+                    value: "fr",
+                    label: "Français (French)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.3.value'), // "de"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.3.label') // "Deutsch (German)"
+                    value: "de",
+                    label: "Deutsch (German)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.4.value'), // "it"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.4.label') // "Italiano (Italian)"
+                    value: "it",
+                    label: "Italiano (Italian)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.5.value'), // "pt"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.5.label') // "Portugu\u00eas (Portuguese)"
+                    value: "pt",
+                    label: "Português (Portuguese)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.6.value'), // "zh-CN"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.6.label') // "\u7b80\u4f53\u4e2d\u6587 (Simplified Chinese)"
+                    value: "zh-CN",
+                    label: "简体中文 (Simplified Chinese)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.7.value'), // "ja"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.7.label') // "\u65e5\u672c\u8a9e (Japanese)"
+                    value: "ja",
+                    label: "日本語 (Japanese)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.8.value'), // "ko"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.8.label') // "\ud55c\uad6d\uc5b4 (Korean)"
+                    value: "ko",
+                    label: "한국어 (Korean)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.9.value'), // "ru"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.9.label') // "\u0420\u0443\u0441\u0441\u043a\u0438\u0439 (Russian)"
+                    value: "ru",
+                    label: "Русский (Russian)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.10.value'), // "ar"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.10.label') // "\u0627\u0644\u0639\u0631\u0628\u064a\u0629 (Arabic)"
+                    value: "ar",
+                    label: "العربية (Arabic)"
                 },
                 {
-                    value: i18n.t('register.steps.step4Preferences.options.languages.11.value'), // "hi"
-                    label: i18n.t('register.steps.step4Preferences.options.languages.11.label') // "\u0939\u093f\u0928\u094d\u0926\u0940 (Hindi)"
+                    value: "hi",
+                    label: "हिन्दी (Hindi)"
                 },
             ],
         },
         errors: {
-            formDataMissing: i18n.t('register.steps.step4Preferences.errors.formDataMissing'), // "Error: Form data is missing for preferences."
-            updateMechanismMissing: i18n.t('register.steps.step0BusinessInfo.errors.updateFieldMissing'), // "Error: Form update mechanism is missing."
+            formDataMissing: "Error: Form data is missing for preferences.",
+            updateMechanismMissing: "Error: Form update mechanism is missing.",
         },
         console: {
-            invalidFormDataProp: i18n.t('register.steps.step4Preferences.console.invalidFormDataProp'), // "Step4Preferences: Invalid `formData` prop. Expected an object."
-            invalidUpdateFieldProp: i18n.t('register.steps.step4Preferences.console.invalidUpdateFieldProp'), // "Step4Preferences: Invalid `updateField` prop. Expected a function."
-            invalidErrorsProp: i18n.t('register.steps.step4Preferences.console.invalidErrorsProp'), // "Step4Preferences: Invalid `errors` prop. Expected an object or undefined."
+            invalidFormDataProp: "Step4Preferences: Invalid `formData` prop. Expected an object.",
+            invalidUpdateFieldProp: "Step4Preferences: Invalid `updateField` prop. Expected a function.",
+            invalidErrorsProp: "Step4Preferences: Invalid `errors` prop. Expected an object or undefined.",
         }
     },
 
     step5ProfileImage: {
-        title: i18n.t('register.steps.step5ProfileImage.title'), // "Set Your Profile Picture"
-        description: i18n.t('register.steps.step5ProfileImage.description'), // "A clear and friendly profile picture helps build trust and recognition. Choose an image that represents your personality and is visually appealing."
+        title: "Set Your Profile Picture",
+        description: "A clear and friendly profile picture helps build trust and recognition. Choose an image that represents your personality and is visually appealing.",
         errors: { // User-facing error messages for prop validation failures
-            formDataUnavailable: i18n.t('register.steps.step5ProfileImage.errors.formDataUnavailable'), // "Error: Form data is unavailable for the profile image step."
-            updateMechanismImproperlyConfigured: i18n.t('register.steps.step2BusinessLogo.errors.updateMechanismImproperlyConfigured'), // "Error: Form update mechanism is improperly configured."
+            formDataUnavailable: "Error: Form data is unavailable for the profile image step.",
+            updateMechanismImproperlyConfigured: "Error: Form update mechanism is improperly configured.",
         },
         console: { // Internal console messages for developers
-            invalidFormDataProp: i18n.t('register.steps.step5ProfileImage.console.invalidFormDataProp'), // "Step5ProfileImage: Invalid `formData` prop. Expected an object."
-            invalidUpdateFieldProp: i18n.t('register.steps.step5ProfileImage.console.invalidUpdateFieldProp'), // "Step5ProfileImage: Invalid `updateField` prop. Expected a function."
-            invalidErrorsProp: i18n.t('register.steps.step5ProfileImage.console.invalidErrorsProp'), // "Step5ProfileImage: Invalid `errors` prop. Expected an object or undefined. Error display might be affected."
+            invalidFormDataProp: "Step5ProfileImage: Invalid `formData` prop. Expected an object.",
+            invalidUpdateFieldProp: "Step5ProfileImage: Invalid `updateField` prop. Expected a function.",
+            invalidErrorsProp: "Step5ProfileImage: Invalid `errors` prop. Expected an object or undefined. Error display might be affected.",
         },
-        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault') // "rose"
+        themeColorDefault: "rose" // Default theme color, can be localized if needed for specific themes per language
     },
 };
 
 export const scriptLines_Components = {
 
+    planSelection: {
+        title: "Unlock Your Potential",
+        subtitle: "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together.",
+        footerNote: "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings.",
+        buttons: {
+            chooseThisPlan: "Choose This Plan",
+            processing: "Processing...",
+            planSelected: "Plan Selected!",
+        },
+        badges: {
+            mostPopular: "Most Popular",
+            recommended: "Recommended", // Fallback if plan.badgeText is not set for a highlighted plan
+            specialOffer: "SPECIAL OFFER", // Default for discount badge if not specified in plan data
+        },
+        errors: {
+            functionalityUnavailable: "Error: Plan selection functionality is unavailable.",
+        },
+        console: {
+            invalidOnPlanSelectProp: "PlanSelection: Invalid `onPlanSelect` prop. Expected a function.",
+        },
+        themeColorDefault: "rose", // Default theme color if not provided
+
+        // Plan Data - This is the most complex part for i18n.
+        // Each plan's name, description, features, whyThisPlan, etc., needs to be localizable.
+        // The structure below mirrors PLANS_DATA from the component.
+        plans: [
+            {
+                id: 'basic', // Keep ID static for logic
+                name: 'The First Batch',
+                price: '29.99', // Price might be handled differently if currency formatting is complex
+                frequency: '/month',
+                description: ['Perfect for solo and micro-shops.', 'Get up and running fast with essential order & inventory tools.'],
+                features: [
+                    { text: 'Unlimited Orders' }, // `check` boolean is logic, not text
+                    { text: 'Menu-Style Order Entry' },
+                    { text: 'Live Low-Stock Alerts' },
+                    { text: 'Basic Consumption Charts' },
+                    { text: 'Email Support (48 hr response)' }, // Note: "48 hr" might need specific localization
+                    { text: 'Advanced Forecasting' },
+                    { text: 'Custom Feature Requests' },
+                    { text: 'Dedicated Account Manager' }
+                ],
+                iconName: 'bolt', // Icon name is usually not localized
+                whyThisPlan: 'Lightweight, powerful, and cost-effective—First Batch gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation.',
+                // Theme related properties are typically not part of i18n text strings.
+                // highlight and discount.isActive are also logic.
+            },
+            {
+                id: 'standard',
+                name: 'The Artisan Oven',
+                price: '49.99',
+                frequency: '/month',
+                description: ['For growing businesses ready to scale.', 'All-in-one order management + deep insights to optimize and grow.'],
+                features: [
+                    { text: 'Everything in First Batch' },
+                    { text: 'Advanced Cost & Consumption Forecasts' },
+                    { text: 'Monthly Performance Reports' },
+                    { text: 'Multi-Location Support (2 shops)' }, // "2 shops" might need localization
+                    { text: 'Priority Email & Chat Support' },
+                    { text: 'Access to Beta Features' },
+                    { text: 'Dedicated Account Manager' },
+                    { text: 'Custom Integrations' }
+                ],
+                iconName: 'mode_heat',
+                whyThisPlan: 'You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Artisan Oven brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently.',
+                badgeText: "Most Popular", // This specific badge text can be localized here
+                discount: {
+                    offerTitle: 'First Month FREE!',
+                    displayPrice: '0.00', // Could be part of plan data or dynamically generated
+                    priceSuffix: '/first month',
+                    originalPriceText: '$49.99/month', // Strikethrough text
+                    details: 'Then $49.99/month. Renews automatically, cancel anytime.',
+                    badgeText: 'SPECIAL OFFER', // Can override the default 'SPECIAL OFFER'
+                }
+            },
+            {
+                id: 'premium',
+                name: 'Master Baker Suite',
+                price: '99.99',
+                frequency: '/month',
+                description: ['For established bakeries that demand excellence.', 'Full-featured, white-glove service, and limitless scalability.'],
+                features: [
+                    { text: 'Everything in Artisan Oven, plus:' },
+                    { text: 'Unlimited Locations & Team Users' },
+                    { text: 'Personalized Onboarding & Training' },
+                    { text: 'Custom Feature Roadmap Input' },
+                    { text: '24/7 Priority Phone & Emergency Support' }, // "24/7" might need localization
+                    { text: 'Bespoke API & System Integrations' },
+                    { text: 'SLA-backed Uptime & Performance' }
+                ],
+                iconName: 'verified',
+                whyThisPlan: 'If you’re running multiple sites, handling high order volume, or need bespoke workflows—Master Baker is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs.',
+            }
+        ]
+    },
+
     Dropdown: {
-        line1: i18n.t('register.components.Dropdown.line1'), // "No options available."
+        line1: 'No options available.',
     },
 
     formStep: {
         progress: {
-            step: i18n.t('register.components.formStep.progress.step'), // "Step"
-            of: i18n.t('register.components.formStep.progress.of'), // "of"
+            step: "Step", // e.g., "Step 1"
+            of: "of",     // e.g., "of 6"
         },
         buttons: {
-            back: i18n.t('register.components.formStep.buttons.back'), // "Back"
-            continue: i18n.t('register.components.formStep.buttons.continue'), // "Continue"
-            submitting: i18n.t('register.components.formStep.buttons.submitting'), // "Submitting..."
-            completeRegistration: i18n.t('register.components.formStep.buttons.completeRegistration'), // "Complete Registration"
+            back: "Back",
+            continue: "Continue",
+            submitting: "Submitting...",
+            completeRegistration: "Complete Registration",
         },
         errors: { // User-facing error messages for prop validation failures
-            stepConfigurationInvalid: i18n.t('register.components.formStep.errors.stepConfigurationInvalid'), // "Error: Step configuration is invalid."
-            stepContentMissing: i18n.t('register.components.formStep.errors.stepContentMissing'), // "Error: Step content is missing."
-            formContextUnavailable: i18n.t('register.components.formStep.errors.formContextUnavailable'), // "Error: Form context is unavailable."
-            navigationHandlersMissing: i18n.t('register.components.formStep.errors.navigationHandlersMissing'), // "Error: Navigation handlers are missing."
-            unexpectedError: i18n.t('register.components.formStep.errors.unexpectedError'), // "An unexpected error occurred. Please try again."
+            stepConfigurationInvalid: "Error: Step configuration is invalid.",
+            stepContentMissing: "Error: Step content is missing.",
+            formContextUnavailable: "Error: Form context is unavailable.",
+            navigationHandlersMissing: "Error: Navigation handlers are missing.",
+            unexpectedError: "An unexpected error occurred. Please try again.", // Generic fallback error
         },
         console: { // Internal console messages for developers
-            invalidStepIndexProp: i18n.t('register.components.formStep.console.invalidStepIndexProp'), // "FormStep: Invalid `stepIndex` prop. Expected a non-negative number."
-            invalidTitleProp: i18n.t('register.components.formStep.console.invalidTitleProp'), // "FormStep: Invalid or missing `title` prop. Expected a string."
-            missingChildrenProp: i18n.t('register.components.formStep.console.missingChildrenProp'), // "FormStep: Missing `children` prop."
-            invalidFormStateProp: i18n.t('register.components.formStep.console.invalidFormStateProp'), // "FormStep: Invalid or missing `formState` prop or `formState.validateStep` function."
-            missingNavigationHandlers: i18n.t('register.components.formStep.console.missingNavigationHandlers'), // "FormStep: Missing `onProceed` or `onBack` prop. Expected functions."
-            invalidOnSubmitProp: i18n.t('register.components.formStep.console.invalidOnSubmitProp'), // "FormStep: `onSubmit` prop provided for final step but is not a function. `onProceed` will be used."
-            validationOrProceedError: i18n.t('register.components.formStep.console.validationOrProceedError'), // "FormStep: Error during step validation or proceeding:"
+            invalidStepIndexProp: "FormStep: Invalid `stepIndex` prop. Expected a non-negative number.",
+            invalidTitleProp: "FormStep: Invalid or missing `title` prop. Expected a string.",
+            missingChildrenProp: "FormStep: Missing `children` prop.",
+            invalidFormStateProp: "FormStep: Invalid or missing `formState` prop or `formState.validateStep` function.",
+            missingNavigationHandlers: "FormStep: Missing `onProceed` or `onBack` prop. Expected functions.",
+            invalidOnSubmitProp: "FormStep: `onSubmit` prop provided for final step but is not a function. `onProceed` will be used.",
+            validationOrProceedError: "FormStep: Error during step validation or proceeding:",
         },
-        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'), // "rose"
+        themeColorDefault: "rose",
         // TOTAL_FORM_STEPS might be better configured globally or passed as a prop if it's dynamic,
         // but if it's truly fixed for this form context, it can be a constant.
         // For i18n, if "Step X of Y" needs different phrasing per language, the whole string might need localization.
@@ -734,51 +833,50 @@ export const scriptLines_Components = {
 
     imageUploader: {
         dropzone: {
-            ctaActive: i18n.t('register.components.imageUploader.dropzone.ctaActive'), // "Drop image here!"
-            ctaDefault: i18n.t('register.components.imageUploader.dropzone.ctaDefault'), // "<span class='font-bold'>{clickToUpload}</span> or drag & drop"
-            clickToUploadText: i18n.t('register.components.imageUploader.dropzone.clickToUploadText'), // "Click to upload"
-            fileTypes: i18n.t('register.components.imageUploader.dropzone.fileTypes'), // "PNG, JPG, GIF, WEBP up to {maxFileSizeMB}MB"
+            ctaActive: "Drop image here!",
+            ctaDefault: "<span class='font-bold'>{clickToUpload}</span> or drag & drop", // Placeholder for clickable part
+            clickToUploadText: "Click to upload", // Text for the clickable part of ctaDefault
+            fileTypes: "PNG, JPG, GIF, WEBP up to {maxFileSizeMB}MB", // Placeholder for max size
         },
         cropper: {
-            title: i18n.t('register.components.imageUploader.cropper.title'), // "Adjust Your Image"
+            title: "Adjust Your Image",
             buttons: {
-                applyCrop: i18n.t('register.components.imageUploader.cropper.buttons.applyCrop'), // "Apply Crop"
-                processing: i18n.t('payments.components.planSelection.buttons.processing'), // "Processing..."
-                resetCrop: i18n.t('register.components.imageUploader.cropper.buttons.resetCrop'), // "Reset Crop"
-                changeImage: i18n.t('register.components.imageUploader.cropper.buttons.changeImage'), // "Change Image"
+                applyCrop: "Apply Crop",
+                processing: "Processing...",
+                resetCrop: "Reset Crop", // When initialSrc is being re-cropped
+                changeImage: "Change Image", // When a new file was uploaded
             },
         },
         preview: {
-            title: i18n.t('register.components.imageUploader.preview.title'), // "Current Profile Image:"
-            uploadNew: i18n.t('register.components.imageUploader.preview.uploadNew'), // "Upload new image?"
+            title: "Current Profile Image:", // Or "Current Logo:" if context known
+            uploadNew: "Upload new image?",
         },
         errors: {
-            fileTooLarge: i18n.t('register.components.imageUploader.errors.fileTooLarge'), // "File is too large. Max size: {maxFileSizeMB}MB."
-            invalidFileType: i18n.t('register.components.imageUploader.errors.invalidFileType'), // "Invalid file type. Please upload an image (JPEG, PNG, GIF, WebP)."
-            fileNotAccepted: i18n.t('register.components.imageUploader.errors.fileNotAccepted'), // "File could not be accepted. Please try again."
-            errorReadingFile: i18n.t('register.components.imageUploader.errors.errorReadingFile'), // "Error reading file."
-            cropSaveError: i18n.t('register.components.imageUploader.errors.cropSaveError'), // "Could not save crop. Please select a valid area."
-            canvasContextError: i18n.t('register.components.imageUploader.errors.canvasContextError'), // "Failed to process image. Canvas context not available."
-            blobCreationError: i18n.t('register.components.imageUploader.errors.blobCreationError'), // "Failed to create image blob. Please try again."
-            handlerMissing: i18n.t('register.components.imageUploader.errors.handlerMissing'), // "Error: Image upload handler is missing."
+            fileTooLarge: "File is too large. Max size: {maxFileSizeMB}MB.",
+            invalidFileType: "Invalid file type. Please upload an image (JPEG, PNG, GIF, WebP).",
+            fileNotAccepted: "File could not be accepted. Please try again.",
+            errorReadingFile: "Error reading file.",
+            cropSaveError: "Could not save crop. Please select a valid area.",
+            canvasContextError: "Failed to process image. Canvas context not available.",
+            blobCreationError: "Failed to create image blob. Please try again.",
+            handlerMissing: "Error: Image upload handler is missing.", // For prop validation
         },
         console: {
-            invalidOnImageUploadProp: i18n.t('register.components.imageUploader.console.invalidOnImageUploadProp'), // "ImageUploader: Invalid `onImageUpload` prop. Expected a function."
-            initialSrcWarning: i18n.t('register.components.imageUploader.console.initialSrcWarning'), // "ImageUploader: initialSrc prop does not appear to be a valid image URL or data URL."
+            invalidOnImageUploadProp: "ImageUploader: Invalid `onImageUpload` prop. Expected a function.",
+            initialSrcWarning: "ImageUploader: initialSrc prop does not appear to be a valid image URL or data URL.",
         },
-        themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'), // "rose"
+        themeColorDefault: "rose",
     },
 
     trustFooter: {
-        securityMessage: i18n.t('register.components.trustFooter.securityMessage'), // "Your information is secure. We prioritize your privacy and data protection."
+        securityMessage: "Your information is secure. We prioritize your privacy and data protection.",
         links: {
-            privacyPolicy: i18n.t('register.steps.step4Preferences.linkText.privacyPolicy'), // "Privacy Policy"
-            termsOfUse: i18n.t('register.components.trustFooter.links.termsOfUse'), // "Terms of Use"
+            privacyPolicy: "Privacy Policy",
+            termsOfUse: "Terms of Use", // Or "Terms of Service" depending on naming convention
         },
-        copyright: i18n.t('register.components.trustFooter.copyright'), // "\u00a9 {year} {companyName}. All rights reserved."
+        copyright: "© {year} {companyName}. All rights reserved.", // Placeholders for dynamic values
         // Default values, if needed for props, can also be here.
         // Example: themeColorDefault: "rose"
         // Default URLs are usually app config, not i18n, but could be if regional sites differ.
     },
 };
-

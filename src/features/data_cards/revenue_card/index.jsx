@@ -8,6 +8,7 @@ import { useCombinedData } from './hooks/useCombinedData';
 import { useTimeOptions } from './hooks/useTimeOptions';
 import TimeSelector from './time_selector/TimeSelector';
 import { MetricProvider } from '../shared/context/MetricProvider';
+import TitleBar from './subcomponents/TitleBar';
 
 /**
  * Interactive revenue analytics dashboard component
@@ -73,11 +74,12 @@ const InteractiveRevenuePage = () => {
         <div
             className="
                 flex flex-col justify-between items-end
-                w-full max-w-6xl rounded-b-4xl 
+                w-full max-w-6xl rounded-b-4xl h-90
                 bg-gradient-to-t from-fuchsia-200 from-10% to-neutral-0 to-70%
                 dark:bg-gradient-to-t dark:from-fuchsia-700 dark:from-10% dark:to-neutral-0 dark:to-50%"
-            style={{ height: size.height + 140 }}
+            style={{ height: size.height + 134 }}
         >
+            <TitleBar />
             <TimeSelector
                 mode={mode}
                 setMode={setMode}

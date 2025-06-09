@@ -737,6 +737,7 @@
         },
         "plans": {
           "0": {
+            "description": "Perfect for solo and micro-shops. Get up and running fast with essential order & inventory tools.",
             "features": {
               "0": {
                 "text": "3 Business Users"
@@ -760,13 +761,20 @@
                 "text": "Email Support"
               }
             },
+            "frequency": "/month",
+            "id": "starter_essentials",
             "name": "Starter Essentials",
+            "price": "29.99",
             "whyThisPlan": "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking."
           },
           "1": {
+            "description": "For growing businesses ready to scale. All-in-one order management + deep insights to optimize and grow.",
             "discount": {
+              "details": "Then €39.99/month. Renews automatically, cancel anytime.",
               "displayPrice": "16.00",
-              "originalPriceText": "€39.99/month"
+              "offerTitle": "First Month 60% Off!",
+              "originalPriceText": "€39.99/month",
+              "priceSuffix": "/first month"
             },
             "features": {
               "0": {
@@ -794,10 +802,13 @@
                 "text": "Priority Email Support"
               }
             },
+            "id": "growth_accelerator",
             "name": "Growth Accelerator",
+            "price": "39.99",
             "whyThisPlan": "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions."
           },
           "2": {
+            "description": "For established bakeries that demand excellence. Full-featured, white-glove service, and limitless scalability.",
             "features": {
               "0": {
                 "text": "Everything in Growth, plus:"
@@ -821,7 +832,9 @@
                 "text": "Dedicated Onboarding Specialist"
               }
             },
+            "id": "premium_pro_suite",
             "name": "Premium Pro Suite",
+            "price": "89.99",
             "whyThisPlan": "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service."
           }
         },
@@ -1216,6 +1229,12 @@
           "registrationFailed": "Registration failed. Please try again.",
           "serverError": "A server error occurred. Please try again later or contact support.",
           "unknownError": "An unknown error occurred during registration."
+        },
+        "stageTrackerLabels": {
+          "0": "Business Information",
+          "2": "Logo",
+          "3": "Profile",
+          "4": "Preferences"
         },
         "stepTitles": {
           "businessInfo": "Business Information",

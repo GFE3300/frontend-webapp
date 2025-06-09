@@ -62,11 +62,11 @@ function CustomerHeatmapCardContent() {
 
     return (
         <div
-            className="relative flex flex-col items-center justify-center w-full max-w-xl h-full"
+            className="relative flex flex-col items-center justify-center w-full h-90"
         >
             <TitleBar setIsMenuOpen={setIsMenuOpen} isMenuOpen={isMenuOpen} />
             <motion.div
-                className="relative py-8 px-6 w-full max-w-xl bg-white dark:bg-neutral-800 shadow-xl rounded-4xl overflow-hidden"
+                className="relative py-8 px-6 w-full bg-white dark:bg-neutral-800 shadow-xl rounded-4xl overflow-hidden"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -78,8 +78,7 @@ function CustomerHeatmapCardContent() {
                     colorRanges={colorRanges}
                 />
 
-                <div className='flex flex-col items-center justify-center
-                '>
+                <div className='flex flex-col items-center justify-center w-full max-h-[calc(100%-60px)]'>
                     <GridContainer size={size} ref={containerRef}>
                         {viewMode === 'week' ? (
                             <WeekHeatmapView
@@ -132,7 +131,7 @@ const TitleBar = ({ setIsMenuOpen, isMenuOpen }) => {
                 </motion.div>
                 <div className="flex h-full justify-center items-end">
                     <h2 className="text-xl font-montserrat font-semibold text-gray-800 dark:text-gray-200 tracking-tight">
-                        Customer Activity Heatmap
+                        Customer Activity
                     </h2>
                 </div>
             </div>
@@ -186,8 +185,6 @@ const TitleBar = ({ setIsMenuOpen, isMenuOpen }) => {
 
 export default function CustomerHeatmapCard() {
     return (
-        <MetricProvider>
-            <CustomerHeatmapCardContent />
-        </MetricProvider>
+        <CustomerHeatmapCardContent />
     );
 }

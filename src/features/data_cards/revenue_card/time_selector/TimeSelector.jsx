@@ -48,6 +48,7 @@ const TimeSelector = ({
     return (
         <div className="w-full flex flex-col space-y-2" role="region" aria-label="Time selection controls">
             {/* Control Header */}
+            {/* TODO: Revisit header and make sure it works with different modes
             <header className="flex flex-row items-center justify-between text-sm text-gray-500">
                 <h2 className="font-semibold font-montserrat tracking-wider text-xl uppercase">
                     {`This ${mode}`}
@@ -58,6 +59,7 @@ const TimeSelector = ({
                     aria-label="Temporal granularity selector"
                 />
             </header>
+            */}
 
             {/* Content Area */}
             <OptionBar

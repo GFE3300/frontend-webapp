@@ -104,7 +104,7 @@ const router = createBrowserRouter([
         errorElement: <NotFoundPage />,
     },
     {
-        path: "/login",
+        path: "/login/business",
         element: <BusinessLoginPage />,
         errorElement: <NotFoundPage />,
     },

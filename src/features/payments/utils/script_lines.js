@@ -5,13 +5,12 @@
  * overwritten during the next synchronization. To add or modify text, please
  * update the original string in this file and then run the 'sync' command.
  *
- * @last-synced 2025-06-09 09:48:00 UTC
+ * @last-synced 2025-06-09 12:00:00 UTC
  */
 
 import i18n from '../../../i18n';
 
 export const scriptLines_Components = {
-
     planSelection: {
         title: i18n.t('payments.components.planSelection.title'), // "Unlock Your Potential"
         subtitle: i18n.t('payments.components.planSelection.subtitle'), // "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together."
@@ -45,17 +44,11 @@ export const scriptLines_Components = {
         },
         themeColorDefault: i18n.t('payments.components.planSelection.themeColorDefault'), // "rose"
         whyThisPlanTemplate: i18n.t('payments.components.planSelection.whyThisPlanTemplate'), // "Why {{planName}}?"
-
         plans: [
-            {
-                id: i18n.t('register.components.planSelection.plans.0.id'),
+            { // Corresponds to starter_essentials
                 name: i18n.t('payments.components.planSelection.plans.0.name'), // "Starter Essentials"
-                price: i18n.t('payments.components.planSelection.plans.0.price'),
-                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
-                description: [
-                    i18n.t('payments.components.planSelection.plans.0.description.0'),
-                    i18n.t('payments.components.planSelection.plans.0.description.1')
-                ],
+                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'), // "/month"
+                description: i18n.t('payments.components.planSelection.plans.0.description'), // "Perfect for solo and micro-shops. Get up and running fast with essential order & inventory tools."
                 features: [
                     {
                         text: i18n.t('payments.components.planSelection.plans.0.features.0.text') // "3 Business Users"
@@ -82,18 +75,12 @@ export const scriptLines_Components = {
                         text: i18n.t('payments.components.planSelection.plans.0.features.7.text') // "Email Support"
                     }
                 ],
-                iconName: i18n.t('payments.components.planSelection.plans.0.iconName'),
                 whyThisPlan: i18n.t('payments.components.planSelection.plans.0.whyThisPlan'), // "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking."
             },
-            {
-                id: i18n.t('register.components.planSelection.plans.1.id'),
+            { // Corresponds to growth_accelerator
                 name: i18n.t('payments.components.planSelection.plans.1.name'), // "Growth Accelerator"
-                price: i18n.t('register.components.planSelection.plans.1.price'),
-                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
-                description: [
-                    i18n.t('payments.components.planSelection.plans.1.description.0'),
-                    i18n.t('payments.components.planSelection.plans.1.description.1')
-                ],
+                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'), // "/month"
+                description: i18n.t('payments.components.planSelection.plans.1.description'), // "For growing businesses ready to scale. All-in-one order management + deep insights to optimize and grow."
                 features: [
                     {
                         text: i18n.t('payments.components.planSelection.plans.1.features.0.text') // "Everything in Starter, plus:"
@@ -120,27 +107,20 @@ export const scriptLines_Components = {
                         text: i18n.t('payments.components.planSelection.plans.1.features.7.text') // "Priority Email Support"
                     }
                 ],
-                iconName: i18n.t('payments.components.planSelection.plans.1.iconName'),
                 whyThisPlan: i18n.t('payments.components.planSelection.plans.1.whyThisPlan'), // "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions."
                 badgeText: i18n.t('payments.components.planSelection.badges.mostPopular'), // "Most Popular"
                 discount: {
-                    offerTitle: i18n.t('register.components.planSelection.plans.1.discount.offerTitle'),
-                    displayPrice: i18n.t('payments.components.planSelection.plans.1.discount.displayPrice'), // "16.00"
-                    priceSuffix: i18n.t('payments.components.planSelection.plans.1.discount.priceSuffix'),
+                    offerTitle: i18n.t('payments.components.planSelection.plans.1.discount.offerTitle'), // "First Month 60% Off!"
+                    priceSuffix: i18n.t('payments.components.planSelection.plans.1.discount.priceSuffix'), // "/first month"
                     originalPriceText: i18n.t('payments.components.planSelection.plans.1.discount.originalPriceText'), // "\u20ac39.99/month"
-                    details: i18n.t('register.components.planSelection.plans.1.discount.details'),
+                    details: i18n.t('payments.components.planSelection.plans.1.discount.details'), // "Then \u20ac39.99/month. Renews automatically, cancel anytime."
                     badgeText: i18n.t('payments.components.planSelection.badges.specialOffer'), // "SPECIAL OFFER"
                 }
             },
-            {
-                id: i18n.t('register.components.planSelection.plans.2.id'),
+            { // Corresponds to premium_pro_suite
                 name: i18n.t('payments.components.planSelection.plans.2.name'), // "Premium Pro Suite"
-                price: i18n.t('register.components.planSelection.plans.2.price'),
-                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'),
-                description: [
-                    i18n.t('payments.components.planSelection.plans.2.description.0'),
-                    i18n.t('payments.components.planSelection.plans.2.description.1')
-                ],
+                frequency: i18n.t('payments.components.planSelection.plans.0.frequency'), // "/month"
+                description: i18n.t('payments.components.planSelection.plans.2.description'), // "For established bakeries that demand excellence. Full-featured, white-glove service, and limitless scalability."
                 features: [
                     {
                         text: i18n.t('payments.components.planSelection.plans.2.features.0.text') // "Everything in Growth, plus:"
@@ -164,7 +144,6 @@ export const scriptLines_Components = {
                         text: i18n.t('payments.components.planSelection.plans.2.features.6.text') // "Dedicated Onboarding Specialist"
                     }
                 ],
-                iconName: i18n.t('payments.components.planSelection.plans.2.iconName'),
                 whyThisPlan: i18n.t('payments.components.planSelection.plans.2.whyThisPlan'), // "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service."
             }
         ]

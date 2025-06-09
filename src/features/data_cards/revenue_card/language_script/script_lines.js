@@ -8,10 +8,11 @@
  * @last-synced 2025-06-09 06:09:52 UTC
  */
 
+import { t } from 'i18next';
 import i18n from '../../../../i18n';
 
 export const MONTHS = {
-    Jan: i18n.t('data_cards.MONTHS.Jan'), // "Ene"
+    Jan: 'Jan',
     Feb: i18n.t('data_cards.MONTHS.Feb'), // "Feb"
     Mar: i18n.t('data_cards.MONTHS.Mar'), // "Mar"
     Apr: i18n.t('data_cards.MONTHS.Apr'), // "Apr"
@@ -42,4 +43,8 @@ export const WORDS = {
     Wk: i18n.t('data_cards.WORDS.Wk'), // "Wk"
     Average: i18n.t('data_cards.WORDS.Average'), // "Average"
     Peak: i18n.t('data_cards.WORDS.Peak'), // "Peak"
+}
+
+export const TitleBar = {
+    title: 'Revenue Analytics',
 }

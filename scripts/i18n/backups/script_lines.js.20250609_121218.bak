@@ -1,0 +1,194 @@
+/**
+ * @auto-managed
+ *
+ * This file is managed by the I18N script. Any manual changes to this file will be
+ * overwritten during the next synchronization. To add or modify text, please
+ * update the original string in this file and then run the 'sync' command.
+ *
+ * @last-synced 2025-06-09 12:00:00 UTC
+ */
+
+import i18n from '../../../i18n';
+
+export const scriptLines_Components = {
+    planSelection: {
+        title: "Unlock Your Potential",
+        subtitle: "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together.",
+        footerNote: "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings.",
+        buttons: {
+            chooseThisPlan: "Choose This Plan",
+            processing: "Processing...",
+            planSelected: "Plan Selected!",
+            manageSubscription: "Manage Subscription",
+            upgradePlan: "Upgrade Plan",
+            downgradePlan: "Downgrade Plan",
+            switchPlan: "Switch Plan",
+        },
+        badges: {
+            mostPopular: "Most Popular",
+            recommended: "Recommended",
+            specialOffer: "SPECIAL OFFER",
+            currentPlan: "Current Plan",
+        },
+        messages: {
+            loadingSubscription: "Loading your subscription details...",
+            subscriptionErrorTitle: "Error Loading Subscription",
+            subscriptionLoadError: "We couldn't load your subscription details. Please refresh the page or contact support if the problem persists.",
+            alreadySubscribedError: "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'.",
+        },
+        errors: {
+            functionalityUnavailable: "Error: Plan selection functionality is unavailable.",
+        },
+        console: {
+            invalidOnPlanSelectProp: "PlanSelection: Invalid `onPlanSelect` prop. Expected a function.",
+        },
+        themeColorDefault: "rose",
+        whyThisPlanTemplate: "Why {{planName}}?",
+
+        // CORRECTED: Only translatable text is here. id, price, etc. are removed.
+        plans: [
+            {
+                id: 'starter_essentials',
+                name: "Starter Essentials",
+                price: "29.99",
+                frequency: "/month",
+                description: "Perfect for solo and micro-shops. Get up and running fast with essential order & inventory tools.",
+                features: [
+                    {
+                        text: "3 Business Users"
+                    },
+                    {
+                        text: "Full Product Management"
+                    },
+                    {
+                        text: "Digital Menu & QR Codes"
+                    },
+                    {
+                        text: "Live Orders View"
+                    },
+                    {
+                        text: "Venue Layout Designer"
+                    },
+                    {
+                        text: "Basic Inventory (Manual Entry)"
+                    },
+                    {
+                        text: "Basic (Today) Analytics"
+                    },
+                    {
+                        text: "Email Support"
+                    }
+                ],
+                whyThisPlan: "Get off paper and get digital. Fast. This plan gives you everything needed to run your daily operations smoothly, from digital menus to live order tracking.",
+            },
+            {
+                id: 'growth_accelerator',
+                name: "Growth Accelerator",
+                price: "39.99",
+                frequency: "/month",
+                description: "For growing businesses ready to scale. All-in-one order management + deep insights to optimize and grow.",
+                features: [
+                    {
+                        text: "Everything in Starter, plus:"
+                    },
+                    {
+                        text: "10 Business Users"
+                    },
+                    {
+                        text: "Automated Inventory (via Recipes)"
+                    },
+                    {
+                        text: "Low Stock Alerts"
+                    },
+                    {
+                        text: "Full History Analytics"
+                    },
+                    {
+                        text: "10 Active Promo Codes"
+                    },
+                    {
+                        text: "Remove 'Powered by' Branding"
+                    },
+                    {
+                        text: "Priority Email Support"
+                    }
+                ],
+                whyThisPlan: "Automate your operations and understand your growth. Automated inventory saves hours, and full analytics history helps you make smarter decisions.",
+                badgeText: "Most Popular",
+                discount: {
+                    offerTitle: "First Month 60% Off!",
+                    displayPrice: "16.00",
+                    priceSuffix: "/first month",
+                    originalPriceText: "€39.99/month",
+                    details: "Then €39.99/month. Renews automatically, cancel anytime.",
+                    badgeText: "SPECIAL OFFER",
+                }
+            },
+            {
+                id: 'premium_pro_suite',
+                name: "Premium Pro Suite",
+                price: "89.99",
+                frequency: "/month",
+                description: "For established bakeries that demand excellence. Full-featured, white-glove service, and limitless scalability.",
+                features: [
+                    {
+                        text: "Everything in Growth, plus:"
+                    },
+                    {
+                        text: "Unlimited User Seats"
+                    },
+                    {
+                        text: "Advanced Analytics Page"
+                    },
+                    {
+                        text: "Data Export (CSV)"
+                    },
+                    {
+                        text: "Unlimited Promo Codes"
+                    },
+                    {
+                        text: "Advanced Menu Customization"
+                    },
+                    {
+                        text: "Dedicated Onboarding Specialist"
+                    }
+                ],
+                whyThisPlan: "Unleash the full power of your data and brand. This is the ultimate, no-compromise package with deep-dive analytics and white-glove service.",
+            }
+        ]
+    },
+
+    paymentSuccessPage: {
+        title: "Payment Successful!",
+        titleSubscriptionActivated: "Subscription Activated!",
+        thankYouMessage: "Thank you, {userName}! Your subscription to the **{planName}** plan has been successfully activated.",
+        thankYouGeneric: "Thank you! Your payment was successful and your subscription is now active.",
+        accessMessage: "You can now access all the premium features.",
+        transactionIdLabel: "Transaction ID:",
+        buttons: {
+            goToDashboard: "Go to Dashboard",
+            viewBilling: "View Billing Details",
+        },
+        links: {
+            contactSupport: "contact our support team",
+        },
+        loading: {
+            finalizingSubscription: "Finalizing your subscription...",
+            checkingDetails: "Checking payment details...",
+        },
+        errors: {
+            missingSessionId: "Payment confirmation details are missing. If you've just subscribed, please check your dashboard or contact support.",
+            subscriptionUpdateFailed: "Your payment was successful, but we couldn't update your subscription details immediately. Please check your dashboard or contact support.",
+        }
+    },
+
+    paymentCancelPage: {
+        title: "Payment Not Completed",
+        message: "It looks like the payment process was not completed, or you chose to cancel. Your subscription has not been activated.",
+        buttons: {
+            tryAgain: "Try Again",
+            contactSupport: "Contact Support",
+        },
+        footerNote: "If you believe this is an error or need assistance, please don't hesitate to reach out."
+    }
+};

@@ -67,11 +67,11 @@ export const scriptLines_ProductsTable = {
                     label: i18n.t('products_table.productsTable.tableConfig.filters.allTypes') // "All Types"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.product_type.1.value'),
+                    value: '',
                     label: i18n.t('products_table.productsTable.tableConfig.productTypes.made_in_house') // "Made In-House"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.product_type.2.value'),
+                    value: '',
                     label: i18n.t('products_table.productsTable.tableConfig.productTypes.resold_item') // "Resold Item"
                 },
             ],
@@ -81,11 +81,11 @@ export const scriptLines_ProductsTable = {
                     label: i18n.t('products_table.productsTable.tableConfig.filters.allStatuses') // "All Statuses"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.is_active.1.value'),
+                    value: '',
                     label: i18n.t('venue_management.venueManagement.liveOrderDashboard.activeStatus') // "Active"
                 },
                 {
-                    value: i18n.t('products_table.productsTable.tableConfig.filterOptions.is_active.2.value'),
+                    value: '',
                     label: i18n.t('products_table.productsTable.tableConfig.filters.inactive') // "Inactive"
                 },
             ],
@@ -96,35 +96,35 @@ export const scriptLines_ProductsTable = {
                 label: i18n.t('products_table.productsTable.tableConfig.sort.default') // "Default Sort"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.1.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.nameAsc') // "Name (A-Z)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.2.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.nameDesc') // "Name (Z-A)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.3.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.priceAsc') // "Price (Low-High)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.4.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.priceDesc') // "Price (High-Low)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.5.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.updatedAsc') // "Last Updated (Oldest)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.6.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.updatedDesc') // "Last Updated (Newest)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.7.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.stockAsc') // "Stock (Low-High)"
             },
             {
-                value: i18n.t('products_table.productsTable.tableConfig.sortOptions.8.value'),
+                value: '',
                 label: i18n.t('products_table.productsTable.tableConfig.sort.stockDesc') // "Stock (High-Low)"
             },
         ],

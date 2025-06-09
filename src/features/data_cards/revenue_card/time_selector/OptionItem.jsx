@@ -35,7 +35,7 @@ const OptionItem = React.memo(({
                 transition-colors duration-200
                 ${isSelected
                     ? 'bg-purple-500 text-white dark:bg-purple-600 dark:text-white'
-                    : 'bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700'}`}
+                    : 'bg-white hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700'}`}
             onClick={onSelect}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -47,8 +47,8 @@ const OptionItem = React.memo(({
                 {granularity === 'month' ? format(utcDate, 'MM') : getDate(utcDate)}
             </span>
             {/* Small label */}
-            <span 
-            className={`
+            <span
+                className={`
                 text-xs text-neutral-600 dark:text-neutral-400
                 font-medium font-montserrat ${isSelected ? 'text-white' : ''}`}
             >

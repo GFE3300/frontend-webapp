@@ -737,6 +737,7 @@
         },
         "plans": {
           "0": {
+            "description": "Perfecto para tiendas individuales y microtiendas. Póngase en marcha rápidamente con herramientas esenciales de pedidos e inventario.",
             "features": {
               "0": {
                 "text": "3 Usuarios profesionales"
@@ -760,13 +761,20 @@
                 "text": "Asistencia por correo electrónico"
               }
             },
+            "frequency": "/mes",
+            "id": "artículos_de_arranque",
             "name": "Lo esencial para empezar",
+            "price": "29.99",
             "whyThisPlan": "Deja el papel y digitalízate. Rápido. Este plan le ofrece todo lo necesario para llevar a cabo sus operaciones diarias sin problemas, desde menús digitales hasta seguimiento de pedidos en directo."
           },
           "1": {
+            "description": "Para empresas en crecimiento listas para crecer. Gestión de pedidos todo en uno + información detallada para optimizar y crecer.",
             "discount": {
+              "details": "Después, 39,99 euros al mes. Se renueva automáticamente, puedes cancelarlo cuando quieras.",
               "displayPrice": "16.00",
-              "originalPriceText": "39,99 euros al mes"
+              "offerTitle": "Primer mes: ¡60% de descuento!",
+              "originalPriceText": "39,99 euros al mes",
+              "priceSuffix": "/primer mes"
             },
             "features": {
               "0": {
@@ -794,10 +802,13 @@
                 "text": "Asistencia prioritaria por correo electrónico"
               }
             },
+            "id": "acelerador_de_crecimiento",
             "name": "Acelerador del crecimiento",
+            "price": "39.99",
             "whyThisPlan": "Automatice sus operaciones y comprenda su crecimiento. El inventario automatizado ahorra horas y el historial analítico completo le ayuda a tomar decisiones más inteligentes."
           },
           "2": {
+            "description": "Para panaderías establecidas que exigen excelencia. Todas las funciones, servicio personalizado y escalabilidad ilimitada.",
             "features": {
               "0": {
                 "text": "Todo en Crecimiento, además:"
@@ -821,7 +832,9 @@
                 "text": "Especialista en incorporación"
               }
             },
+            "id": "premium_pro_suite",
             "name": "Premium Pro Suite",
+            "price": "89.99",
             "whyThisPlan": "Libere todo el poder de sus datos y su marca. Este es el paquete definitivo, sin concesiones, con análisis en profundidad y un servicio impecable."
           }
         },
@@ -1216,6 +1229,12 @@
           "registrationFailed": "Registro fallido. Por favor, inténtelo de nuevo.",
           "serverError": "Se ha producido un error en el servidor. Vuelva a intentarlo más tarde o póngase en contacto con el servicio de asistencia.",
           "unknownError": "Se ha producido un error desconocido durante el registro."
+        },
+        "stageTrackerLabels": {
+          "0": "Información comercial",
+          "2": "Logotipo",
+          "3": "Perfil",
+          "4": "Preferencias"
         },
         "stepTitles": {
           "businessInfo": "Información comercial",

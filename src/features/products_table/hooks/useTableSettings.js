@@ -6,7 +6,8 @@ const DEFAULT_PAGE_SIZE = 10;
 const createDefaultVisibilitySet = (cols) => {
     const defaultSet = new Set();
     cols.forEach(col => {
-        const hiddenByDefault = [COLUMN_KEYS.COST, COLUMN_KEYS.SALES, COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED];
+        // MODIFICATION: Removed 'sales' from the hiddenByDefault array
+        const hiddenByDefault = [COLUMN_KEYS.COST, COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED];
         if (col.isVisibilityToggleable === false) {
             defaultSet.add(col.id);
         } else if (!hiddenByDefault.includes(col.id)) {
@@ -16,6 +17,11 @@ const createDefaultVisibilitySet = (cols) => {
     return defaultSet;
 };
 
+// ... rest of the file remains unchanged ...
+// NOTE: The rest of the file from the dossier is assumed to be here.
+// Only the relevant changed function is shown for brevity.
+
+// The rest of the `useTableSettings.js` file content from the dossier follows...
 const defaultVisibilitySet = createDefaultVisibilitySet(initialColumns);
 const defaultColumnOrderKeys = initialColumns.map(col => col.id);
 
