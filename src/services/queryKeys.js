@@ -40,9 +40,12 @@ export const queryKeys = {
     order: (orderId) => [ORDERS_BASE_KEY, 'detail', orderId],
     kitchenActiveOrders: [ORDERS_BASE_KEY, 'kitchen-view', 'active'],
 
-   
+
     // --- Dashboard / Overview ---
     commandBarSummary: [DASHBOARD_BASE_KEY, 'commandBarSummary'],
     actionItems: [DASHBOARD_BASE_KEY, 'actionItems'],
     productMovers: (period) => [DASHBOARD_BASE_KEY, 'productMovers', period],
+    revenueSummary: [DASHBOARD_BASE_KEY, 'revenueSummary'],
+    occupancySummary: [DASHBOARD_BASE_KEY, 'occupancySummary'],
+    guestsSummary: [DASHBOARD_BASE_KEY, 'guestsSummary'],
 };

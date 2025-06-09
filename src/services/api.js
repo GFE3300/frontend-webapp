@@ -347,6 +347,24 @@ const apiService = {
         return apiInstance.get('orders/kitchen-view/');
     },
 
+    getLiveOrdersSummary: () => {
+        console.warn("API STUB: getLiveOrdersSummary called");
+        return Promise.resolve({
+            data: {
+                active_orders_count: 12,
+                needs_confirmation_count: 2,
+                manager_attention_count: 1,
+                funnel: {
+                    pending_confirmation: 2,
+                    confirmed: 4,
+                    preparing: 5,
+                    served: 1
+                },
+                avg_confirmation_time_seconds: 35
+            }
+        });
+    },
+
 };
 
 export default apiService;

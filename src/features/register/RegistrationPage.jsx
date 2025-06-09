@@ -10,6 +10,7 @@ import useWindowSize from '../../hooks/useWindowSize';
 import apiService from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import i18n from '../../i18n'; // Import i18n for language switching
 
 // Components & Stages
 import Icon from '../../components/common/Icon';
@@ -67,10 +68,28 @@ const RegistrationPage = () => {
     const navigate = useNavigate();
     const { width } = useWindowSize();
     const vortexRef = useRef(null);
-    const formState = useFormState({
-        address: { street: '', city: '', state: '', postalCode: '', country: '', formattedAddress: '' },
-        locationCoords: { lat: 0, lng: 0 },
+
+    // --- NEW: Task 2.1 & 2.2: Capture URL parameters and prepare initial data ---
+    // Using useState with an initializer function to parse URL only once on mount.
+    const [initialDataFromUrl] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        const discountCode = params.get('discount_code');
+        const lang = params.get('lang');
+        const initialData = {};
+
+        if (discountCode) {
+            // Map the `discount_code` URL param to the `referralCode` state key.
+            initialData.referralCode = discountCode;
+        }
+        if (lang) {
+            initialData.language = lang;
+        }
+        return initialData;
     });
+
+    // Pass the captured data to the form state hook.
+    const formState = useFormState(initialDataFromUrl);
+    // --- END NEW ---
 
     const [showPassword, setShowPassword] = useState(false);
     const [formFlowStatus, setFormFlowStatus] = useState('filling_form');
@@ -82,6 +101,16 @@ const RegistrationPage = () => {
     // ===========================================================================
     // Effects & Handlers
     // ===========================================================================
+
+    // --- NEW: Task 2.3: Set application language based on URL parameter ---
+    useEffect(() => {
+        const lang = initialDataFromUrl.language;
+        if (lang && i18n.language !== lang) {
+            i18n.changeLanguage(lang);
+        }
+    }, [initialDataFromUrl.language]);
+    // --- END NEW ---
+
     useEffect(() => {
         if (vortexRef.current && formState.formData) {
             vortexRef.current.addTurbulence(10000);

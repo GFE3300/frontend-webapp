@@ -2,6 +2,7 @@ import React, { useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { InputField, TagInput } from '../subcomponents'; // Assuming relative path to subcomponents
 import { scriptLines_Steps as scriptLines } from '../utils/script_lines'; // Import localization strings
+import Icon from '../../../components/common/Icon'; // Import Icon component
 
 /**
  * Business Information step (Step 0) of the registration form.
@@ -54,6 +55,8 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
     // ===========================================================================
     // Rendering
     // ===========================================================================
+    const isReferralCodeDisabled = !!formData.referralCode;
+
     return (
         <>
             {/* Business Name and Username Row */}
@@ -124,17 +127,23 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                 />
             </div>
 
-            {/* MODIFICATION: Added Referral Code InputField */}
-            <div className="mb-12">
+            {/* MODIFICATION: Added relative positioning and confirmation icon */}
+            <div className="relative mb-12">
                 <InputField
                     label={scriptLines.step0BusinessInfo.label.referralCodeOptional}
                     name="referralCode"
                     value={formData.referralCode || ''}
                     onChange={handleInputChange('referralCode')}
-                    placeholder={scriptLines.step0BusinessInfo.placeholder.referralCode || "e.g., FRIEND25"}
+                    placeholder={scriptLines.step0BusinessInfo.placeholder.referralCode}
                     error={errors?.referralCode}
                     autoComplete="off"
+                    disabled={isReferralCodeDisabled}
                 />
+                {isReferralCodeDisabled && (
+                    <div className="absolute top-1.5 right-2 flex items-center pointer-events-none" title="Discount code applied">
+                        <Icon name="check_circle" className="w-6 h-6 text-green-500" />
+                    </div>
+                )}
             </div>
 
             {/* Business Tags Input */}

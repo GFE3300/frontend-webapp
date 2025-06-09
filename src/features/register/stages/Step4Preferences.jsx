@@ -1,7 +1,7 @@
 import React, { useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, InputField, Checkbox, TagInput } from '../subcomponents';
-import {scriptLines_Steps as scriptLines} from '../utils/script_lines'; 
+import { scriptLines_Steps as scriptLines } from '../utils/script_lines';
 
 /**
  * Preferences step (Step 4) for the registration form.
@@ -116,6 +116,8 @@ const Step4Preferences = ({ formData, updateField, errors }) => {
 		// The component can still render, but error display might be compromised.
 	}
 
+	const isLanguageDisabled = !!formData.language;
+
 	return (
 		<div className="space-y-12" data-testid="step4-preferences"> {/* Corrected data-testid */}
 			{/* Timezone Dropdown */}
@@ -176,6 +178,7 @@ const Step4Preferences = ({ formData, updateField, errors }) => {
 				error={errors?.language}
 				placeholder={scriptLines.step4Preferences.placeholder.selectTimezone} // Re-use or create specific
 				required
+				disabled={isLanguageDisabled}
 			/>
 
 			{/* Referral Sources TagInput */}
