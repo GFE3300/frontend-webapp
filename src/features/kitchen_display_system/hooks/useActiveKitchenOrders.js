@@ -2,26 +2,28 @@ import { useQuery } from '@tanstack/react-query';
 import apiService from '../../../services/api';
 import { queryKeys } from '../../../services/queryKeys';
 
-// The statuses the kitchen cares about
-const ACTIVE_KITCHEN_STATUSES = 'PENDING_CONFIRMATION,CONFIRMED,PREPARING,READY_FOR_PICKUP,SERVED';
-
 /**
- * A hook to fetch active orders for the Kitchen Display System.
- * It polls every 15 seconds to keep the view live.
+ * A hook to fetch active orders specifically for the Kitchen Display System.
+ * It polls the dedicated KDS endpoint every 10 seconds.
+ *
+ * @param {{enabled: boolean}} options - Standard react-query options, e.g., to enable/disable the query.
+ * @returns {import('@tanstack/react-query').UseQueryResult<Array<object>, Error>} The result object.
  */
 export const useActiveKitchenOrders = (options = {}) => {
-    const queryResult = useQuery({
+    return useQuery({
         queryKey: queryKeys.kitchenActiveOrders,
-        queryFn: () => apiService.get('orders/', {
-            params: {
-                status__in: ACTIVE_KITCHEN_STATUSES,
-                ordering: '-order_timestamp' // Show newest orders first
-            }
-        }).then(res => res.data.results), // Extract the results array from paginated response
-        refetchInterval: 15000,
+        queryFn: () => apiService.getKitchenOrders().then(res => res.data),
+
+        // Polling configuration for a live KDS
+        refetchInterval: 10000, // Refetch every 10 seconds
         refetchOnWindowFocus: true,
-        staleTime: 10000,
-        ...options, // Allow passing options like `enabled`
+
+        // Data is fresh for 8 seconds. Prevents refetch spam on quick focus changes.
+        staleTime: 8000,
+
+        // Only run this query if enabled is explicitly true (or not false)
+        enabled: options.enabled,
+
+        retry: 1,
     });
-    return queryResult;
 };

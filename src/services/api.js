@@ -339,6 +339,14 @@ const apiService = {
         return apiInstance.get('analytics/product-movers/', { params: { period } });
     },
 
+    /**
+     * Fetches a lightweight list of active orders for the Kitchen Display System.
+     * @returns {Promise<AxiosResponse<Array<object>>>}
+     */
+    getKitchenOrders: () => {
+        return apiInstance.get('orders/kitchen-view/');
+    },
+
 };
 
 export default apiService;
