@@ -340,6 +340,39 @@
     },
     "warnCannotSetSelection": "Could not set selection range on input: "
   },
+  "data_cards": {
+    "DAYS": {
+      "Fri": "Fri",
+      "Mon": "Mon",
+      "Sat": "Sat",
+      "Sun": "Sun",
+      "Thu": "Thu",
+      "Tue": "Tue",
+      "Wed": "Wed"
+    },
+    "MONTHS": {
+      "Apr": "Apr",
+      "Aug": "Aug",
+      "Dec": "Dec",
+      "Feb": "Feb",
+      "Jan": "Ene",
+      "Jul": "Jul",
+      "Jun": "Jun",
+      "Mar": "Mar",
+      "May": "May",
+      "Nov": "Nov",
+      "Oct": "Oct",
+      "Sep": "Sep"
+    },
+    "WORDS": {
+      "Average": "Average",
+      "Day": "Day",
+      "Month": "Month",
+      "Peak": "Peak",
+      "Week": "Week",
+      "Wk": "Wk"
+    }
+  },
   "live_orders_view": {
     "liveOrders": {
       "actions": {
@@ -694,124 +727,8 @@
         },
         "footerNote": "All plans are billed monthly or annually. You can upgrade, downgrade, or cancel your plan at any time from your account settings.",
         "messages": {
-          "alreadySubscribedError": "You are already subscribed to this plan. To make changes, please use 'Manage Subscription'.",
           "loadingSubscription": "Loading your subscription details...",
           "subscriptionLoadError": "Could not load your current subscription status. Please try again or contact support."
-        },
-        "plans": {
-          "0": {
-            "description": {
-              "0": "Perfect for solo and micro-shops.",
-              "1": "Get up and running fast with essential order & inventory tools."
-            },
-            "features": {
-              "0": {
-                "text": "Unlimited Orders"
-              },
-              "1": {
-                "text": "Menu-Style Order Entry"
-              },
-              "2": {
-                "text": "Live Low-Stock Alerts"
-              },
-              "3": {
-                "text": "Basic Consumption Charts"
-              },
-              "4": {
-                "text": "Email Support (48 hr response)"
-              },
-              "5": {
-                "text": "Advanced Forecasting"
-              },
-              "6": {
-                "text": "Custom Feature Requests"
-              },
-              "7": {
-                "text": "Dedicated Account Manager"
-              }
-            },
-            "frequency": "/month",
-            "iconName": "bolt",
-            "id": "starter_essentials",
-            "name": "CrumbData - Starter Essentials",
-            "price": "29.99",
-            "whyThisPlan": "Lightweight, powerful, and cost-effective—Starter Essentials gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation."
-          },
-          "1": {
-            "description": {
-              "0": "For growing businesses ready to scale.",
-              "1": "All-in-one order management + deep insights to optimize and grow."
-            },
-            "discount": {
-              "details": "Then €39.99/month. Renews automatically, cancel anytime.",
-              "displayPrice": "16.00",
-              "offerTitle": "First Month 60% Off!",
-              "originalPriceText": "€39.99/month",
-              "priceSuffix": "/first month"
-            },
-            "features": {
-              "0": {
-                "text": "Everything in Starter Essentials"
-              },
-              "1": {
-                "text": "Advanced Cost & Consumption Forecasts"
-              },
-              "2": {
-                "text": "Monthly Performance Reports"
-              },
-              "3": {
-                "text": "Multi-Location Support (2 shops)"
-              },
-              "4": {
-                "text": "Priority Email & Chat Support"
-              },
-              "5": {
-                "text": "Access to Beta Features"
-              },
-              "7": {
-                "text": "Custom Integrations"
-              }
-            },
-            "iconName": "mode_heat",
-            "id": "growth_accelerator",
-            "name": "CrumbData - Growth Accelerator",
-            "price": "39.99",
-            "whyThisPlan": "You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Growth Accelerator brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently."
-          },
-          "2": {
-            "description": {
-              "0": "For established bakeries that demand excellence.",
-              "1": "Full-featured, white-glove service, and limitless scalability."
-            },
-            "features": {
-              "0": {
-                "text": "Everything in Growth Accelerator, plus:"
-              },
-              "1": {
-                "text": "Unlimited Locations & Team Users"
-              },
-              "2": {
-                "text": "Personalized Onboarding & Training"
-              },
-              "3": {
-                "text": "Custom Feature Roadmap Input"
-              },
-              "4": {
-                "text": "24/7 Priority Phone & Emergency Support"
-              },
-              "5": {
-                "text": "Bespoke API & System Integrations"
-              },
-              "6": {
-                "text": "SLA-backed Uptime & Performance"
-              }
-            },
-            "iconName": "verified",
-            "id": "premium_pro_suite",
-            "name": "CrumbData - Premium Pro Suite",
-            "price": "89.99",
-            "whyThisPlan": "If you’re running multiple sites, handling high order volume, or need bespoke workflows—Premium Pro Suite is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
-          }
         },
         "subtitle": "You're one step away! Choose the plan that aligns with your ambition and let's start baking success together.",
         "themeColorDefault": "rose",
@@ -944,24 +861,6 @@
         "errors": {
           "invalidDate": "Invalid Date"
         },
-        "filterOptions": {
-          "is_active": {
-            "1": {
-              "value": "active"
-            },
-            "2": {
-              "value": "inactive"
-            }
-          },
-          "product_type": {
-            "1": {
-              "value": "made_in_house"
-            },
-            "2": {
-              "value": "resold_item"
-            }
-          }
-        },
         "filters": {
           "allStatuses": "All Statuses",
           "allTypes": "All Types",
@@ -995,32 +894,6 @@
           "stockDesc": "Stock (High-Low)",
           "updatedAsc": "Last Updated (Oldest)",
           "updatedDesc": "Last Updated (Newest)"
-        },
-        "sortOptions": {
-          "1": {
-            "value": "name"
-          },
-          "2": {
-            "value": "-name"
-          },
-          "3": {
-            "value": "selling_price_excl_tax"
-          },
-          "4": {
-            "value": "-selling_price_excl_tax"
-          },
-          "5": {
-            "value": "updated_at"
-          },
-          "6": {
-            "value": "-updated_at"
-          },
-          "7": {
-            "value": "stock_quantity"
-          },
-          "8": {
-            "value": "-stock_quantity"
-          }
         },
         "tooltips": {
           "deleteProduct": "Delete Product",
@@ -1138,43 +1011,6 @@
           "uploadNew": "Upload new image?"
         }
       },
-      "planSelection": {
-        "plans": {
-          "0": {
-            "id": "basic",
-            "name": "The First Batch",
-            "whyThisPlan": "Lightweight, powerful, and cost-effective—First Batch gives independent bakers core tools to manage orders, track key ingredients, and see basic usage trends. Ideal if you’re just starting or run a very small operation."
-          },
-          "1": {
-            "discount": {
-              "details": "Then $49.99/month. Renews automatically, cancel anytime.",
-              "displayPrice": "0.00",
-              "offerTitle": "First Month FREE!",
-              "originalPriceText": "$49.99/month"
-            },
-            "features": {
-              "0": {
-                "text": "Everything in First Batch"
-              }
-            },
-            "id": "standard",
-            "name": "The Artisan Oven",
-            "price": "49.99",
-            "whyThisPlan": "You’re beyond the basics—now you need real data to plan purchases, optimize recipes, orders, and spot sales trends. Artisan Oven brings forecasting, polished reports, and faster support so you bake bigger profits and expand efficiently."
-          },
-          "2": {
-            "features": {
-              "0": {
-                "text": "Everything in Artisan Oven, plus:"
-              }
-            },
-            "id": "premium",
-            "name": "Master Baker Suite",
-            "price": "99.99",
-            "whyThisPlan": "If you’re running multiple sites, handling high order volume, or need bespoke workflows—Master Baker is your all-inclusive suite, complete with real-time SLAs, hands-on training, and a dedicated team that evolves the app around your unique needs."
-          }
-        }
-      },
       "trustFooter": {
         "copyright": "© {year} {companyName}. All rights reserved.",
         "links": {
@@ -1285,12 +1121,6 @@
           "serverError": "A server error occurred. Please try again later or contact support.",
           "unknownError": "An unknown error occurred during registration."
         },
-        "stageTrackerLabels": {
-          "0": "Business",
-          "2": "Logo",
-          "3": "Profile",
-          "4": "Preferences"
-        },
         "stepTitles": {
           "businessInfo": "Business Information",
           "businessLocation": "Business Location",
@@ -1327,31 +1157,6 @@
           "invalidErrorsProp": "Step0BusinessInfo: Invalid `errors` prop. Expected an object or undefined.",
           "invalidFormDataProp": "Step0BusinessInfo: Invalid `formData` prop. Expected an object.",
           "invalidUpdateFieldProp": "Step0BusinessInfo: Invalid `updateField` prop. Expected a function."
-        },
-        "defaultBusinessTags": {
-          "0": "Restaurant",
-          "1": "Cafe",
-          "10": "Organic",
-          "11": "Local Sourcing",
-          "12": "Coffee Shop",
-          "13": "Juice Bar",
-          "14": "Food Truck",
-          "15": "Pizzeria",
-          "16": "Family-Owned",
-          "17": "Online Only",
-          "18": "Appointment Only",
-          "19": "Sustainable",
-          "2": "Retail",
-          "20": "Luxury",
-          "21": "Budget-Friendly",
-          "22": "Pet-Friendly",
-          "3": "Service",
-          "4": "Bakery",
-          "5": "Bar",
-          "6": "Grocery",
-          "7": "Catering",
-          "8": "Vegan",
-          "9": "Gluten-Free"
         },
         "errors": {
           "formDataMissing": "Error: Form data is missing for this step.",
@@ -1455,174 +1260,7 @@
         "options": {
           "currencies": {
             "0": {
-              "label": "USD - United States Dollar",
               "value": "USD"
-            },
-            "1": {
-              "label": "EUR - Euro",
-              "value": "EUR"
-            },
-            "2": {
-              "label": "GBP - British Pound Sterling",
-              "value": "GBP"
-            },
-            "3": {
-              "label": "JPY - Japanese Yen",
-              "value": "JPY"
-            },
-            "4": {
-              "label": "CAD - Canadian Dollar",
-              "value": "CAD"
-            },
-            "5": {
-              "label": "AUD - Australian Dollar",
-              "value": "AUD"
-            },
-            "6": {
-              "label": "CHF - Swiss Franc",
-              "value": "CHF"
-            }
-          },
-          "languages": {
-            "0": {
-              "label": "English",
-              "value": "en"
-            },
-            "1": {
-              "label": "Español (Spanish)",
-              "value": "es"
-            },
-            "10": {
-              "label": "العربية (Arabic)",
-              "value": "ar"
-            },
-            "11": {
-              "label": "हिन्दी (Hindi)",
-              "value": "hi"
-            },
-            "2": {
-              "label": "Français (French)",
-              "value": "fr"
-            },
-            "3": {
-              "label": "Deutsch (German)",
-              "value": "de"
-            },
-            "4": {
-              "label": "Italiano (Italian)",
-              "value": "it"
-            },
-            "5": {
-              "label": "Português (Portuguese)",
-              "value": "pt"
-            },
-            "6": {
-              "label": "简体中文 (Simplified Chinese)",
-              "value": "zh-CN"
-            },
-            "7": {
-              "label": "日本語 (Japanese)",
-              "value": "ja"
-            },
-            "8": {
-              "label": "한국어 (Korean)",
-              "value": "ko"
-            },
-            "9": {
-              "label": "Русский (Russian)",
-              "value": "ru"
-            }
-          },
-          "notificationMethods": {
-            "0": {
-              "label": "Email",
-              "value": "email"
-            },
-            "1": {
-              "label": "SMS (Text Message)",
-              "value": "sms"
-            },
-            "2": {
-              "label": "Push Notification",
-              "value": "push"
-            },
-            "3": {
-              "label": "None",
-              "value": "none"
-            }
-          },
-          "timezones": {
-            "0": {
-              "label": "America/New York (EST/EDT)",
-              "value": "America/New_York"
-            },
-            "1": {
-              "label": "America/Chicago (CST/CDT)",
-              "value": "America/Chicago"
-            },
-            "10": {
-              "label": "Asia/Dubai (GST)",
-              "value": "Asia/Dubai"
-            },
-            "11": {
-              "label": "Asia/Kolkata (IST)",
-              "value": "Asia/Kolkata"
-            },
-            "12": {
-              "label": "Asia/Shanghai (CST)",
-              "value": "Asia/Shanghai"
-            },
-            "13": {
-              "label": "Australia/Sydney (AEST/AEDT)",
-              "value": "Australia/Sydney"
-            },
-            "14": {
-              "label": "Australia/Perth (AWST)",
-              "value": "Australia/Perth"
-            },
-            "15": {
-              "label": "Africa/Cairo (EET)",
-              "value": "Africa/Cairo"
-            },
-            "16": {
-              "label": "Africa/Johannesburg (SAST)",
-              "value": "Africa/Johannesburg"
-            },
-            "17": {
-              "label": "Coordinated Universal Time (UTC)",
-              "value": "UTC"
-            },
-            "2": {
-              "label": "America/Denver (MST/MDT)",
-              "value": "America/Denver"
-            },
-            "3": {
-              "label": "America/Los Angeles (PST/PDT)",
-              "value": "America/Los_Angeles"
-            },
-            "4": {
-              "label": "America/Sao Paulo (BRT/BRST)",
-              "value": "America/Sao_Paulo"
-            },
-            "5": {
-              "label": "Europe/London (GMT/BST)",
-              "value": "Europe/London"
-            },
-            "6": {
-              "label": "Europe/Paris (CET/CEST)",
-              "value": "Europe/Paris"
-            },
-            "7": {
-              "label": "Europe/Berlin (CET/CEST)",
-              "value": "Europe/Berlin"
-            },
-            "8": {
-              "label": "Europe/Moscow (MSK)",
-              "value": "Europe/Moscow"
-            },
-            "9": {
-              "label": "Asia/Tokyo (JST)",
-              "value": "Asia/Tokyo"
             }
           }
         },

@@ -64,68 +64,68 @@ export const scriptLines_ProductsTable = {
             product_type: [
                 {
                     value: '',
-                    label: i18n.t('products_table.productsTable.tableConfig.filters.allTypes')
+                    label: i18n.t('products_table.productsTable.tableConfig.filters.allTypes') // "All Types"
                 },
                 {
                     value: i18n.t('products_table.productsTable.tableConfig.filterOptions.product_type.1.value'),
-                    label: i18n.t('products_table.productsTable.tableConfig.productTypes.made_in_house')
+                    label: i18n.t('products_table.productsTable.tableConfig.productTypes.made_in_house') // "Made In-House"
                 },
                 {
                     value: i18n.t('products_table.productsTable.tableConfig.filterOptions.product_type.2.value'),
-                    label: i18n.t('products_table.productsTable.tableConfig.productTypes.resold_item')
+                    label: i18n.t('products_table.productsTable.tableConfig.productTypes.resold_item') // "Resold Item"
                 },
             ],
             is_active: [
                 {
                     value: '',
-                    label: i18n.t('products_table.productsTable.tableConfig.filters.allStatuses')
+                    label: i18n.t('products_table.productsTable.tableConfig.filters.allStatuses') // "All Statuses"
                 },
                 {
                     value: i18n.t('products_table.productsTable.tableConfig.filterOptions.is_active.1.value'),
-                    label: i18n.t('venue_management.venueManagement.liveOrderDashboard.activeStatus')
+                    label: i18n.t('venue_management.venueManagement.liveOrderDashboard.activeStatus') // "Active"
                 },
                 {
                     value: i18n.t('products_table.productsTable.tableConfig.filterOptions.is_active.2.value'),
-                    label: i18n.t('products_table.productsTable.tableConfig.filters.inactive')
+                    label: i18n.t('products_table.productsTable.tableConfig.filters.inactive') // "Inactive"
                 },
             ],
         },
         sortOptions: [
             {
                 value: '',
-                label: i18n.t('products_table.productsTable.tableConfig.sort.default')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.default') // "Default Sort"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.1.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.nameAsc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.nameAsc') // "Name (A-Z)"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.2.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.nameDesc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.nameDesc') // "Name (Z-A)"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.3.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.priceAsc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.priceAsc') // "Price (Low-High)"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.4.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.priceDesc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.priceDesc') // "Price (High-Low)"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.5.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.updatedAsc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.updatedAsc') // "Last Updated (Oldest)"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.6.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.updatedDesc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.updatedDesc') // "Last Updated (Newest)"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.7.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.stockAsc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.stockAsc') // "Stock (Low-High)"
             },
             {
                 value: i18n.t('products_table.productsTable.tableConfig.sortOptions.8.value'),
-                label: i18n.t('products_table.productsTable.tableConfig.sort.stockDesc')
+                label: i18n.t('products_table.productsTable.tableConfig.sort.stockDesc') // "Stock (High-Low)"
             },
         ],
     },
@@ -218,56 +218,55 @@ export const scriptLines_ProductsTable = {
     },
     animatedSearchBar: {
         tooltips: {
-            clearSearch: i18n.t('products_table.productsTable.animatedSearchBar.tooltips.clearSearch'),
-            search: i18n.t('venue_management.search'),
-            openSearch: i18n.t('products_table.productsTable.animatedSearchBar.tooltips.openSearch'),
+            clearSearch: i18n.t('products_table.productsTable.animatedSearchBar.tooltips.clearSearch'), // "Clear search"
+            search: i18n.t('venue_management.search'), // "Search"
+            openSearch: i18n.t('products_table.productsTable.animatedSearchBar.tooltips.openSearch'), // "Open search"
         },
         status: {
-            loading: i18n.t('products_table.productsTable.animatedSearchBar.status.loading'),
-            noSuggestions: i18n.t('products_table.productsTable.animatedSearchBar.status.noSuggestions'),
+            loading: i18n.t('products_table.productsTable.animatedSearchBar.status.loading'), // "Loading suggestions..."
+            noSuggestions: i18n.t('products_table.productsTable.animatedSearchBar.status.noSuggestions'), // "No suggestions found."
         }
     },
     stockLevelDisplay: {
-        outOfStock: i18n.t('products_table.productsTable.stockLevelDisplay.outOfStock'),
-        lowStock: i18n.t('products_table.productsTable.stockLevelDisplay.lowStock'),
-        inStock: i18n.t('products_table.productsTable.stockLevelDisplay.inStock'),
-        // Separate status text for potential reuse or different phrasing
-        lowStockStatus: i18n.t('products_table.productsTable.stockLevelDisplay.lowStockStatus'),
-        inStockStatus: i18n.t('products_table.productsTable.stockLevelDisplay.inStockStatus')
+        outOfStock: i18n.t('products_table.productsTable.stockLevelDisplay.outOfStock'), // "Out of Stock"
+        lowStock: i18n.t('products_table.productsTable.stockLevelDisplay.lowStock'), // "{{quantity}} (Low Stock)"
+        inStock: i18n.t('products_table.productsTable.stockLevelDisplay.inStock'), // "{{quantity}} (In Stock)"
+        lowStockStatus: i18n.t('products_table.productsTable.stockLevelDisplay.lowStockStatus'), // "Low Stock"
+        inStockStatus: i18n.t('products_table.productsTable.stockLevelDisplay.inStockStatus') // "In Stock"
     },
     tagPills: {
-        more: i18n.t('products_table.productsTable.tagPills.more')
+        more: i18n.t('products_table.productsTable.tagPills.more') // "+{{count}} more"
     },
     productsTable: {
         toasts: {
-            fieldUpdateSuccess: i18n.t('products_table.productsTable.productsTable.toasts.fieldUpdateSuccess'),
-            fieldUpdateError: i18n.t('products_table.productsTable.productsTable.toasts.fieldUpdateError'),
-            statusUpdateSuccess: i18n.t('products_table.productsTable.productsTable.toasts.statusUpdateSuccess'),
-            statusUpdateError: i18n.t('products_table.productsTable.productsTable.toasts.statusUpdateError'),
-            deleteSuccess: i18n.t('products_table.productsTable.productsTable.toasts.deleteSuccess'),
-            deleteError: i18n.t('products_table.productsTable.productsTable.toasts.deleteError'),
-            filtersCleared: i18n.t('products_table.productsTable.productsTable.toasts.filtersCleared'),
+            fieldUpdateSuccess: i18n.t('products_table.productsTable.productsTable.toasts.fieldUpdateSuccess'), // "Product field '{{fieldKey}}' updated."
+            fieldUpdateError: i18n.t('products_table.productsTable.productsTable.toasts.fieldUpdateError'), // "Failed to update {{fieldKey}}."
+            statusUpdateSuccess: i18n.t('products_table.productsTable.productsTable.toasts.statusUpdateSuccess'), // "Product status updated to {{status}}."
+            statusUpdateError: i18n.t('products_table.productsTable.productsTable.toasts.statusUpdateError'), // "Failed to update status."
+            deleteSuccess: i18n.t('products_table.productsTable.productsTable.toasts.deleteSuccess'), // "Product '{{productName}}' deleted successfully."
+            deleteError: i18n.t('products_table.productsTable.productsTable.toasts.deleteError'), // "Failed to delete '{{productName}}'."
+            filtersCleared: i18n.t('products_table.productsTable.productsTable.toasts.filtersCleared'), // "Filters cleared"
         },
         deleteModal: {
-            title: i18n.t('products_table.productsTable.productsTable.deleteModal.title'),
-            message: i18n.t('products_table.productsTable.productsTable.deleteModal.message'),
+            title: i18n.t('products_table.productsTable.productsTable.deleteModal.title'), // "Confirm Deletion"
+            message: i18n.t('products_table.productsTable.productsTable.deleteModal.message'), // "Are you sure you want to delete '{{productName}}'? This action cannot be undone."
         },
         pagination: {
-            previous: i18n.t('products_table.productsTable.productsTable.pagination.previous'),
-            next: i18n.t('venue_management.next'),
-            showingResults: i18n.t('products_table.productsTable.productsTable.pagination.showingResults'),
-            pageOf: i18n.t('products_table.productsTable.productsTable.pagination.pageOf'),
-            ariaLabel: i18n.t('products_table.productsTable.productsTable.pagination.ariaLabel'),
-            previousAriaLabel: i18n.t('products_table.productsTable.productsTable.pagination.previousAriaLabel'),
-            nextAriaLabel: i18n.t('products_table.productsTable.productsTable.pagination.nextAriaLabel'),
+            previous: i18n.t('products_table.productsTable.productsTable.pagination.previous'), // "Previous"
+            next: i18n.t('venue_management.next'), // "Next"
+            showingResults: i18n.t('products_table.productsTable.productsTable.pagination.showingResults'), // "Showing {{start}} to {{end}} of {{total}} results"
+            pageOf: i18n.t('products_table.productsTable.productsTable.pagination.pageOf'), // "Page {{currentPage}} of {{totalPages}}"
+            ariaLabel: i18n.t('products_table.productsTable.productsTable.pagination.ariaLabel'), // "Pagination"
+            previousAriaLabel: i18n.t('products_table.productsTable.productsTable.pagination.previousAriaLabel'), // "Previous page"
+            nextAriaLabel: i18n.t('products_table.productsTable.productsTable.pagination.nextAriaLabel'), // "Next page"
         },
         status: { // for toast messages
-            active: i18n.t('venue_management.venueManagement.liveOrderDashboard.activeStatus'),
-            inactive: i18n.t('products_table.productsTable.tableConfig.filters.inactive'),
+            active: i18n.t('venue_management.venueManagement.liveOrderDashboard.activeStatus'), // "Active"
+            inactive: i18n.t('products_table.productsTable.tableConfig.filters.inactive'), // "Inactive"
         }
     },
     salesSparkline: {
-        noData: i18n.t('products_table.productsTable.salesSparkline.noData'),
-        tooltip: i18n.t('products_table.productsTable.salesSparkline.tooltip')
+        noData: i18n.t('products_table.productsTable.salesSparkline.noData'), // "No sales data"
+        tooltip: i18n.t('products_table.productsTable.salesSparkline.tooltip') // "Sales trend: {{data}}"
     },
 };

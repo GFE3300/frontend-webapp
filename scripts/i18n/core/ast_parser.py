@@ -133,14 +133,27 @@ def _traverse_and_extract(
         base_key = ".".join(key_path_parts)
         logging.info(f"  Found pluralization block for base key: {base_key}")
         
+        # 1. Extract the plural variations for the translation.json file
         for prop in node.properties:
             prop_key_name = getattr(prop.key, 'name', None) or getattr(prop.key, 'value', None)
-            plural_key = f"{base_key}_{prop_key_name}"
+            plural_key = f"{base_key}_{prop_key_name}" # e.g., key.path_one
             string_value = prop.value.value
             
+            # Check for incorrect placeholder format
+            single_brace_match = re.search(r"\{(\w+)\}", string_value)
+            if single_brace_match and not confirmation_prompt(f"Warning: Plural string '{string_value}' in {file_path.name} uses single braces. Our convention is double braces '{{{{variable}}}}'. Is this intentional?"):
+                logging.warning(f"Skipping plural string '{string_value}' due to incorrect format. Please fix and re-run.")
+                continue
+
             if string_value not in value_to_key_map:
                 value_to_key_map[string_value] = plural_key
                 new_strings[plural_key] = string_value
+        
+        # 2. Rewrite the entire block to use the base key
+        # This makes the script_lines file consistent.
+        replacement_text = f"i18n.t('{base_key}')"
+        rewriter.add_replacement(node.range[0], node.range[1], replacement_text)
+        
         return
 
     if node_type == 'ObjectExpression':
@@ -253,75 +266,33 @@ def find_translation_keys(source_code: str) -> Set[str]:
 def format_comments(source_code: str, translations: Dict[str, str], file_path_for_logging: Path = None) -> str:
     """
     Parses JS source and adds/updates inline comments for `i18n.t()` calls using
-    a manual, robust AST walker and token information.
+    a robust regular expression to handle idempotency.
     """
-    file_name = file_path_for_logging.name if file_path_for_logging else "Unknown File"
-    rewriter = _Rewriter(source_code)
-    try:
-        ast = esprima.parseModule(
-            source_code,
-            {'range': True, 'loc': True, 'tokens': True, 'comment': True}
-        )
-    except Exception as e:
-        logging.error(f"Could not parse AST for formatting {file_name}. Error: {e}")
-        return source_code
+    # This regex captures the line content up to and including the i18n.t() call,
+    # and optionally consumes any existing line comment.
+    line_regex = re.compile(
+        # Group 1: Capture the entire line content up to the end of the i18n call
+        r"^(.*\bi18n\.t\('([^']+)'\).*?)"
+        # Optional non-capturing group for an existing comment to be replaced
+        r"(?:\s*\/\/.*)?$",
+        re.MULTILINE
+    )
 
-    token_end_map = {token.range[1]: i for i, token in enumerate(ast.tokens)}
-    replacements_queued = 0
+    def replacer(match):
+        # The content of the line before any comment
+        line_content = match.group(1).rstrip()
+        # The i18n key
+        key = match.group(2)
 
-    def robust_walk(node):
-        """A manual, robust AST walker that recursively visits all nodes."""
-        nonlocal replacements_queued
-        if not node or not hasattr(node, 'type'):
-            return
+        translation = translations.get(key)
+        
+        # If the key has a valid translation, reconstruct the line with the new, correct comment.
+        if translation:
+            escaped_comment = json.dumps(translation)
+            return f"{line_content} // {escaped_comment}"
+        else:
+            # If for some reason the key has no translation,
+            # just return the line content without any comment.
+            return line_content
 
-        if (node.type == 'CallExpression' and
-            getattr(node.callee, 'type', '') == 'MemberExpression' and
-            getattr(node.callee.object, 'name', '') == 'i18n' and
-            getattr(node.callee.property, 'name', '') == 't' and
-            node.arguments and node.arguments[0].type == 'Literal'):
-
-            key = node.arguments[0].value
-            translation = translations.get(key)
-
-            if translation:
-                new_comment = f'// {json.dumps(translation)}'
-                call_end_pos = node.range[1]
-
-                if call_end_pos in token_end_map:
-                    token_idx = token_end_map[call_end_pos]
-                    next_token = ast.tokens[token_idx + 1] if token_idx + 1 < len(ast.tokens) else None
-
-                    # Replace an existing comment on the same line
-                    if (next_token and
-                        next_token.type in ('LineComment', 'BlockComment') and
-                        next_token.loc.start.line == node.loc.end.line):
-                        rewriter.add_replacement(next_token.range[0], next_token.range[1], f' {new_comment}')
-                        replacements_queued += 1
-                    # Or insert a new comment at the end of the line
-                    else:
-                        line_end_pos = source_code.find('\n', call_end_pos)
-                        insertion_pos = len(source_code) if line_end_pos == -1 else line_end_pos
-                        rewriter.add_replacement(insertion_pos, insertion_pos, f' {new_comment}')
-                        replacements_queued += 1
-            return # We've processed the node, don't walk its children.
-
-        # Generic traversal for all other nodes
-        for key, value in node.__dict__.items():
-            if key.startswith('_') or value is None:
-                continue
-
-            if isinstance(value, list):
-                for child_node in value:
-                    if isinstance(child_node, esprima.nodes.Node):
-                        robust_walk(child_node)
-            elif isinstance(value, esprima.nodes.Node):
-                robust_walk(value)
-
-    robust_walk(ast)
-
-    if replacements_queued > 0:
-        logging.info(f"    Formatted {replacements_queued} comment(s) in {file_name}.")
-        return rewriter.apply()
-    else:
-        return source_code
+    return line_regex.sub(replacer, source_code)

@@ -2,6 +2,8 @@
 // MODIFIED: Implementing Analytics Page with a placeholder.
 import React from 'react';
 import Icon from '../../../components/common/Icon'; // Assuming Icon component exists
+import RevenueCard from '../../data_cards/revenue_card';
+import HeatmapCard from '../../data_cards/heatmap';
 
 const AnalyticsPage = () => {
     return (
@@ -25,6 +27,8 @@ const AnalyticsPage = () => {
                         (Further development required)
                     </p>
                 </div>
+                <RevenueCard />
+                <HeatmapCard />
             </section>
         </div>
     );
