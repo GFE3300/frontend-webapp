@@ -22,12 +22,13 @@ import { useMetricStore } from '../../shared/context/MetricProvider';
  * 3. Smart cache invalidation using block fingerprints
  * 4. Fallback handling for partial data scenarios
  */
-export const useCustomerTimeBlocks = ({
-    startDay,
-    blockStartHour,
-    blockDuration,
-    numberOfDays
-}) => {
+export const useCustomerTimeBlocks = (settings) => {
+    const {
+        startDay,
+        blockStartHour,
+        blockDuration,
+        numberOfDays
+    } = settings;
     const metricStore = useMetricStore();
     const [state, setState] = useState({
         status: 'idle',

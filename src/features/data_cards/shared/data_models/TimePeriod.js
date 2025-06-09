@@ -75,7 +75,7 @@ class TimePeriod {
      */
     buildHierarchy() {
         try {
-            console.debug(`Building ${this.type} hierarchy for`, this.timestamp);
+            // console.debug(`Building ${this.type} hierarchy for`, this.timestamp);
 
             // Configuration for different period types
             const intervalMap = {

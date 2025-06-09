@@ -38,28 +38,33 @@ class MetricStore {
     async loadRange(start, end) {
         try {
             const response = await apiService.get('analytics/timeseries/', {
-                start: start.toISOString(),
-                end: end.toISOString(),
-                granularity: 'hour',
+                params: {
+                    start: start.toISOString(),
+                    end: end.toISOString(),
+                    granularity: 'hour'
+                }
             });
 
             const analyticsData = response.data;
 
-            // Hydrate the raw data map with the fetched analytics data
             analyticsData.forEach(entry => {
-                this.raw.set(entry.timestamp, {
+                const timestampKey = entry.timestamp;
+
+                const metricData = {
                     revenue: parseFloat(entry.total_revenue) || 0,
                     customers: entry.total_customers || 0,
                     conversions: entry.order_count || 0,
                     timestamp: new Date(entry.timestamp),
-                });
+                };
+
+                this.raw.set(timestampKey, metricData);
             });
 
             return true;
         } catch (error) {
-            console.error('Data load operation failed:', {
-                range: { start, end },
-                error: error.response?.data || error.message || error
+            console.error('[MetricStore] API Call FAILED:', {
+                message: error.message,
+                responseData: error.response?.data,
             });
             return false;
         }
