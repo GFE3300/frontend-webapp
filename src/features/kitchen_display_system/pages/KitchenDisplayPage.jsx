@@ -1,17 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import KitchenHeader from '../components/KitchenHeader';
 import OrderCard from '../components/OrderCard';
-import useKitchenOrders from '../hooks/useKitchenOrders';
 import Icon from '../../../components/common/Icon';
-import { KITCHEN_VIEW_MODE, OrderStatus} from '../constants/kitchenConstants';
+import { KITCHEN_VIEW_MODE } from '../constants/kitchenConstants';
 
-
-import slRaw from '../../venue_management/utils/script_lines.js';
-const sl = slRaw.kitchenDisplaySystem;
-const slCommon = slRaw;
+import { kitchenDisplaySystem as sl } from '../utils/script_lines.js';
 
 const KDS_PAGE_STYLE = {
-    container: "h-screen w-full flex flex-col bg-neutral-100 dark:bg-neutral-900 antialiased font-montserrat",
+    container: "h-full w-full flex flex-col bg-neutral-100 dark:bg-neutral-900 antialiased font-montserrat",
     mainContent: "flex-1 overflow-y-auto p-4 md:p-6",
     orderGrid: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6",
     groupedTableContainer: "mb-8 p-4 bg-white dark:bg-neutral-800/50 rounded-xl shadow-md",
@@ -23,18 +19,12 @@ const KDS_PAGE_STYLE = {
     noOrdersIcon: "w-16 h-16 text-neutral-400 dark:text-neutral-500 mb-4",
 };
 
-const KitchenDisplayPage = () => {
+const KitchenDisplayPage = ({ orders, isLoading, error, onUpdateStatus }) => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [viewMode, setViewMode] = useState(KITCHEN_VIEW_MODE.INDIVIDUAL);
-    const { orders, isLoading, error, updateOrderStatus } = useKitchenOrders();
 
-    const handleUpdateStatus = async (orderId, newStatus) => {
-        const success = await updateOrderStatus(orderId, newStatus);
-        if (success) {
-            console.log(`Order ${orderId} status updated to ${newStatus}`);
-        } else {
-            console.error(`Failed to update order ${orderId} status`);
-        }
+    const handleUpdateStatus = (orderId, newStatus) => {
+        onUpdateStatus(orderId, newStatus);
     };
 
     const toggleGroupByTable = () => {
@@ -46,12 +36,26 @@ const KitchenDisplayPage = () => {
     const processedOrders = useMemo(() => {
         let tempOrders = [...orders];
 
-        // Apply status filter
+        // Adapt backend data structure to KDS component expectations
+        tempOrders = tempOrders.map(order => ({
+            id: order.id,
+            tableNumber: order.table_number || 'Takeaway',
+            status: order.status.toLowerCase(), // e.g., 'PENDING_CONFIRMATION' -> 'pending_confirmation'
+            items: order.items.map(item => ({
+                id: item.id,
+                name: item.product_name_snapshot,
+                quantity: item.quantity,
+                notes: (item.selected_options_snapshot || [])
+                    .map(opt => `${opt.group_name}: ${opt.option_name}`)
+                    .join(', '),
+            })),
+            orderTime: order.order_timestamp,
+        }));
+
         if (activeFilter !== 'all') {
             tempOrders = tempOrders.filter(order => order.status === activeFilter);
         }
 
-        // Sort: Newest first generally, but can be more complex
         tempOrders.sort((a, b) => new Date(b.orderTime) - new Date(a.orderTime));
         
         return tempOrders;
@@ -90,12 +94,12 @@ const KitchenDisplayPage = () => {
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}
                 orderCounts={{
-                    all: orders.length, // Total active orders before filtering
-                    new: orders.filter(o => o.status === 'new').length,
-                    preparing: orders.filter(o => o.status === 'preparing').length,
-                    ready: orders.filter(o => o.status === 'ready').length,
-                    served: orders.filter(o => o.status === 'served').length,
-                    paid: orders.filter(o => o.status === 'paid').length,
+                     all: orders.length,
+                     new: orders.filter(o => o.status === 'PENDING_CONFIRMATION').length,
+                     preparing: orders.filter(o => o.status === 'PREPARING').length,
+                     ready: orders.filter(o => o.status === 'READY_FOR_PICKUP').length,
+                     served: orders.filter(o => o.status === 'SERVED').length,
+                     paid: orders.filter(o => o.payment_status === 'PAID').length,
                 }}
                 groupByTable={viewMode === KITCHEN_VIEW_MODE.GROUP_BY_TABLE}
                 onToggleGroupByTable={toggleGroupByTable}
@@ -131,7 +135,6 @@ const KitchenDisplayPage = () => {
                 {viewMode === KITCHEN_VIEW_MODE.GROUP_BY_TABLE && groupedByTableOrders && Object.keys(groupedByTableOrders).length > 0 && (
                     <div>
                         {Object.entries(groupedByTableOrders)
-                            // Optional: Sort tables by table number if they are numeric/alphanumeric
                             .sort(([tableA], [tableB]) => String(tableA).localeCompare(String(tableB), undefined, { numeric: true }))
                             .map(([tableNumber, tableOrders]) => (
                             <div key={tableNumber} className={KDS_PAGE_STYLE.groupedTableContainer}>

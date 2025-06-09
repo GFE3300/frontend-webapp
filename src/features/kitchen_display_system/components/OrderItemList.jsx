@@ -1,8 +1,8 @@
 import React from 'react';
 import Icon from '../../../components/common/Icon'; // Assuming common Icon component path
 
-import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
-const sl = slRaw.kitchenDisplaySystem.orderCard; // Re-use some strings from orderCard
+import { kitchenDisplaySystem } from '../utils/script_lines.js'; // MODIFIED: Import from local file
+const sl = kitchenDisplaySystem.orderCard; // Re-use some strings from orderCard
 
 const OrderItemList = ({ items }) => {
     if (!items || items.length === 0) {

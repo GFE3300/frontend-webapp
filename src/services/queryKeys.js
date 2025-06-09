@@ -37,4 +37,5 @@ export const queryKeys = {
     // --- Orders ---
     liveOrdersView: [ORDERS_BASE_KEY, 'live-view'],
     order: (orderId) => [ORDERS_BASE_KEY, 'detail', orderId], 
+    kitchenActiveOrders: [ORDERS_BASE_KEY, 'kitchen-view', 'active'],
 };

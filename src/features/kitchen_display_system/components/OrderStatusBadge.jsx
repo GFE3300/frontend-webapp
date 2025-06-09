@@ -1,6 +1,6 @@
 import React from 'react';
-import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
-const sl = slRaw.kitchenDisplaySystem.orderCard;
+import { kitchenDisplaySystem } from '../utils/script_lines.js'; // MODIFIED: Import from local file
+const sl = kitchenDisplaySystem.orderCard;
 
 const OrderStatusBadge = ({ status }) => {
     let bgColor, textColor, text;

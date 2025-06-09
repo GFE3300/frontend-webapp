@@ -34,7 +34,7 @@ import OverviewPage from './features/dashboard/pages/OverviewPage.jsx';
 import ProductsPage from './features/dashboard/pages/ProductsPage.jsx';
 import InventoryPage from './features/dashboard/pages/InventoryPage.jsx';
 import VenuePage from './features/dashboard/pages/VenuePage.jsx';
-import LiveOrdersPage from './features/live_orders_view/LiveOrdersPage.jsx'; // This is our new page
+import OrdersDashboardPage from './features/live_orders_view/LiveOrdersPage.jsx'; // MODIFIED: Import renamed component
 import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSettingsPage.jsx';
@@ -167,7 +167,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="overview" replace /> },
             { path: "overview", element: <OverviewPage /> },
-            { path: "orders", element: <LiveOrdersPage /> }, // This is the activated route
+            { path: "orders", element: <OrdersDashboardPage /> }, // MODIFIED: Route uses the new dashboard page
             { path: "products", element: <ProductsPage /> },
             { path: "inventory", element: <InventoryPage /> },
             { path: "venue", element: <VenuePage /> },
