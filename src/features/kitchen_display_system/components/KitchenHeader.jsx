@@ -1,8 +1,8 @@
 import React from 'react';
 import Icon from '../../../components/common/Icon';
-import { kitchenDisplaySystem } from '../utils/script_lines.js'; // MODIFIED: Import from local file
-const sl = kitchenDisplaySystem.header;
-const slPage = kitchenDisplaySystem;
+import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
+const sl = slRaw.kitchenDisplaySystem.header;
+const slPage = slRaw.kitchenDisplaySystem;
 
 const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable, onToggleGroupByTable }) => {
     const filters = [

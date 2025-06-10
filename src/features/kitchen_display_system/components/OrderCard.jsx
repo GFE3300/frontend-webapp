@@ -4,8 +4,8 @@ import OrderItemList from './OrderItemList';
 import OrderStatusBadge from './OrderStatusBadge';
 import { formatDistanceToNowStrict } from 'date-fns'; // For time ago
 
-import { kitchenDisplaySystem } from '../utils/script_lines.js'; // MODIFIED: Import from local file
-const sl = kitchenDisplaySystem.orderCard;
+import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
+const sl = slRaw.kitchenDisplaySystem.orderCard;
 
 const OrderCard = ({ order, onUpdateStatus }) => {
     const timeAgo = order.orderTime ? formatDistanceToNowStrict(new Date(order.orderTime), { addSuffix: true }) : 'N/A';
