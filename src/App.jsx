@@ -28,6 +28,7 @@ import AffiliatesPage from './features/staff_portal/pages/admin/AffiliatesPage.j
 import AffiliateDetailPage from './features/staff_portal/pages/admin/AffiliateDetailPage.jsx';
 import PayoutsPage from './features/staff_portal/pages/admin/PayoutsPage.jsx';
 import StaffDashboardPage from './features/staff_portal/pages/StaffDashboardPage.jsx';
+import AcceptInvitePage from './pages/AcceptInvitePage.jsx';
 
 // Import Dashboard Pages
 import DashboardLayout from './features/dashboard/DashboardLayout.jsx';
@@ -153,6 +154,11 @@ const router = createBrowserRouter([
                 element: <AdminOnlyRoute><PayoutsPage /></AdminOnlyRoute>,
             },
         ]
+    },
+    {
+        path: "/accept-invite",
+        element: <AcceptInvitePage />,
+        errorElement: <NotFoundPage />,
     },
     {
         path: "/dashboard/business",

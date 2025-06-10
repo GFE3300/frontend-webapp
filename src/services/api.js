@@ -1,3 +1,5 @@
+// FILE: src/services/api.js
+
 import axios from 'axios';
 import i18n from '../i18n';
 
@@ -364,8 +366,6 @@ const apiService = {
         return apiInstance.get('orders/kitchen-view/');
     },
 
-    // --- NEW: Business & Team Management API Signatures ---
-
     /**
      * Switches the user's active business context.
      * @param {string} businessId - The UUID of the business to switch to.
@@ -421,6 +421,67 @@ const apiService = {
         return apiInstance.delete(`businesses/${businessId}/members/${membershipId}/`);
     },
 
+    /**
+     * Updates a team member's role in a business.
+     * @param {string} businessId - The UUID of the business.
+     * @param {string} membershipId - The UUID of the membership record to update.
+     * @param {{role: string}} roleData - The new role.
+     * @returns {Promise<AxiosResponse>}
+     */
+    updateMemberRole: (businessId, membershipId, roleData) => {
+        return apiInstance.patch(`businesses/${businessId}/members/${membershipId}/`, roleData);
+    },
+
+    /**
+     * Fetches pending invitations for a specific business.
+     * @param {string} businessId - The UUID of the business.
+     * @returns {Promise<AxiosResponse<Array<object>>>}
+     */
+    getPendingInvitations: (businessId) => {
+        return apiInstance.get(`businesses/${businessId}/invitations/`);
+    },
+
+    /**
+     * Resends a pending invitation.
+     * @param {string} businessId - The UUID of the business.
+     * @param {string} invitationId - The UUID of the invitation to resend.
+     * @returns {Promise<AxiosResponse>}
+     */
+    resendInvitation: (businessId, invitationId) => {
+        return apiInstance.post(`businesses/${businessId}/invitations/${invitationId}/resend/`);
+    },
+
+    /**
+     * Revokes (deletes) a pending invitation.
+     * @param {string} businessId - The UUID of the business.
+     * @param {string} invitationId - The UUID of the invitation to revoke.
+     * @returns {Promise<AxiosResponse>}
+     */
+    revokeInvitation: (businessId, invitationId) => {
+        return apiInstance.delete(`businesses/${businessId}/invitations/${invitationId}/`);
+    },
+
+    /**
+     * Accepts an invitation to join a business.
+     * @param {{token: string, password?: string}} payload - The invitation token and optional password for new users.
+     * @returns {Promise<AxiosResponse<object>>} The response, which may include auth tokens for new users.
+     */
+    acceptInvitation: (payload) => {
+        return apiInstance.post('auth/accept-invite/', payload, {
+            headers: { 'X-Bypass-Auth-Interceptor-Original': true }
+        });
+    },
+
+    /**
+     * Fetches information about an invitation using its token. (Assumed endpoint for pre-flight check)
+     * @param {string} token - The invitation token.
+     * @returns {Promise<AxiosResponse<object>>}
+     */
+    getInvitationInfoByToken: (token) => {
+        return apiInstance.get(`auth/invitation-info/${token}/`, {
+            headers: { 'X-Bypass-Auth-Interceptor-Original': true }
+        });
+    },
 };
 
 export default apiService;

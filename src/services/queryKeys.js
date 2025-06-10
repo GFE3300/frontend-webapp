@@ -4,12 +4,13 @@ export const PAYMENTS_BASE_KEY = 'payments';
 export const SUBSCRIPTIONS_BASE_KEY = 'subscriptions';
 export const ORDERS_BASE_KEY = 'orders';
 export const DASHBOARD_BASE_KEY = 'dashboard';
-export const BUSINESSES_BASE_KEY = 'businesses'; // NEW: Base key for business data
+export const BUSINESSES_BASE_KEY = 'businesses';
 
 export const queryKeys = {
     // --- Business Management ---
-    myBusinesses: [BUSINESSES_BASE_KEY, 'list'], // Key for the user's list of businesses
-    businessMembers: (businessId) => [BUSINESSES_BASE_KEY, 'members', businessId], // Key for a specific business's team members
+    myBusinesses: [BUSINESSES_BASE_KEY, 'list'],
+    businessMembers: (businessId) => [BUSINESSES_BASE_KEY, 'members', businessId],
+    pendingInvitations: (businessId) => [BUSINESSES_BASE_KEY, 'invitations', businessId], // NEW KEY
 
     // Product related data
     productAttributes: 'productAttributes',
