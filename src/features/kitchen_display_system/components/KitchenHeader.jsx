@@ -1,3 +1,4 @@
+// src/features/kitchen_display_system/components/KitchenHeader.jsx
 import React from 'react';
 import Icon from '../../../components/common/Icon';
 import { scriptLines_kitchenDisplaySystem } from '../utils/script_lines';
@@ -28,8 +29,9 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                     <button
                         key={filter.key}
                         onClick={() => onFilterChange(filter.key)}
+                        // MODIFIED: Added `justify-center` to center the content
                         className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors duration-150 ease-in-out
-                                    flex items-center space-x-1.5
+                                    flex items-center justify-center space-x-1.5
                                     ${activeFilter === filter.key
                                 ? 'bg-rose-500 text-white shadow-sm'
                                 : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'
@@ -51,7 +53,8 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                 {/* Group by Table Toggle */}
                 <button
                     onClick={onToggleGroupByTable}
-                    className={`p-2 rounded-full transition-colors duration-150 ease-in-out
+                    // MODIFIED: Added flexbox centering for consistency
+                    className={`p-2 rounded-full transition-colors duration-150 ease-in-out flex items-center justify-center
                                 ${groupByTable
                             ? 'bg-rose-500 text-white shadow-sm'
                             : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'

@@ -157,7 +157,7 @@ const OrdersDashboardPage = () => {
         if (viewMode === 'kitchen') {
             // MODIFIED: Simplify the rendering of KitchenDisplayPage.
             // It no longer receives data props, only the action handler.
-            return <KitchenDisplayPage onUpdateStatus={handleUpdateOrderStatus} />;
+            return <KitchenDisplayPage/>;
         }
 
         return null;
