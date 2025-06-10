@@ -4,7 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 // Hooks and services
 import { useLiveOrders } from './hooks/useLiveOrders';
 import { useLayoutData } from './hooks/useLayoutData';
-import { useKitchenOrders } from '../kitchen_display_system/hooks/useKitchenOrders';
+// MODIFIED: Remove useKitchenOrders import from this file
+// import { useKitchenOrders } from '../kitchen_display_system/hooks/useKitchenOrders';
 import { useToast } from '../../contexts/ToastContext';
 import { queryKeys } from '../../services/queryKeys';
 import apiService from '../../services/api';
@@ -39,16 +40,19 @@ const OrdersDashboardPage = () => {
     // --- Data Fetching ---
     const { data: liveTableData, isLoading: isLoadingLive, isError: isErrorLive, error: errorLive } = useLiveOrders({ enabled: viewMode === 'venue' });
     const { data: layoutData, isLoading: isLoadingLayout, isError: isErrorLayout, error: errorLayout } = useLayoutData({ enabled: viewMode === 'venue' });
-    const { data: kitchenOrders, isLoading: isLoadingKitchen, isError: isErrorKitchen, error: errorKitchen } = useKitchenOrders({ enabled: viewMode === 'kitchen' });
+    // MODIFIED: Removed the useKitchenOrders hook call.
+    // const { data: kitchenOrders, isLoading: isLoadingKitchen, isError: isErrorKitchen, error: errorKitchen } = useKitchenOrders({ enabled: viewMode === 'kitchen' });
 
     // --- Mutation for updating orders ---
     const orderUpdateMutation = useMutation({
-        mutationFn: (payload) => apiService.updateOrderStatus(payload.orderId, payload),
+        // MODIFIED: updateOrderStatus now expects a single payload object
+        mutationFn: (payload) => apiService.patch(`orders/${payload.orderId}/`, payload),
         onSuccess: (data, variables) => {
             addToast(`Order ${variables.orderId.substring(0, 8)} updated successfully!`, 'success');
             // Invalidate queries to refetch live data immediately after an update
             queryClient.invalidateQueries({ queryKey: queryKeys.liveOrdersView });
-            queryClient.invalidateQueries({ queryKey: queryKeys.kitchenActiveOrders });
+
+            queryClient.invalidateQueries({ queryKey: [queryKeys.ORDERS_BASE_KEY, 'kitchen-view'] });
         },
         onError: (err) => {
             const errorMessage = err.response?.data?.detail || 'Failed to update order status.';
@@ -151,36 +155,9 @@ const OrdersDashboardPage = () => {
         }
 
         if (viewMode === 'kitchen') {
-            if (isLoadingKitchen && !kitchenOrders) { // Show initial loader
-                return (
-                    <div className="flex items-center justify-center h-full">
-                        <Spinner size="lg" />
-                        <span className="ml-4 text-lg text-gray-600 dark:text-gray-300">Loading Kitchen View...</span>
-                    </div>
-                );
-            }
-
-            if (isErrorKitchen) {
-                 return (
-                    <div className="flex flex-col items-center justify-center h-full p-4 text-center bg-red-50 dark:bg-red-900/20 rounded-lg">
-                        <Icon name="error_outline" style={{ fontSize: '4rem' }} className="text-red-400" />
-                        <h2 className="mt-4 text-xl font-bold font-montserrat text-red-700 dark:text-red-400">Error Loading Kitchen Data</h2>
-                        <p className="mt-2 text-red-600 dark:text-red-300">Could not fetch the active orders for the kitchen.</p>
-                        {errorKitchen && (
-                            <pre className="mt-4 text-xs text-left text-red-500 bg-red-100 dark:bg-red-900/30 p-2 rounded w-full max-w-md overflow-auto">
-                                {errorKitchen.message}
-                            </pre>
-                        )}
-                    </div>
-                );
-            }
-
-            return <KitchenDisplayPage
-               orders={kitchenOrders || []}
-               isLoading={isLoadingKitchen} // Pass loading state for refetches
-               error={errorKitchen}
-               onUpdateStatus={(orderId, newStatus) => handleUpdateOrderStatus({ orderId, status: newStatus })}
-            />;
+            // MODIFIED: Simplify the rendering of KitchenDisplayPage.
+            // It no longer receives data props, only the action handler.
+            return <KitchenDisplayPage onUpdateStatus={handleUpdateOrderStatus} />;
         }
 
         return null;
@@ -196,7 +173,7 @@ const OrdersDashboardPage = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                     {i18n.t(scriptLines_liveOrders.pageSubtitle)}
                 </p>
-                 <div className="mt-2 mb-4">
+                <div className="mt-2 mb-4">
                     <SegmentedControl
                         name="orderViewMode"
                         options={[
@@ -218,7 +195,7 @@ const OrdersDashboardPage = () => {
                     <StatCard title={i18n.t(scriptLines_liveOrders.stats.totalSales)} value={formatCurrency(commanderStats.totalSales, currency)} icon="monitoring" />
                 </div>
             )}
-            
+
             <main className="flex-grow h-full overflow-hidden relative rounded-lg shadow-inner bg-gray-200 dark:bg-gray-800">
                 {renderContent()}
             </main>

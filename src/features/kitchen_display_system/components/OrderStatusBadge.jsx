@@ -1,45 +1,51 @@
 import React from 'react';
-import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
-const sl = slRaw.kitchenDisplaySystem.orderCard;
+import { scriptLines_kitchenDisplaySystem } from '../utils/script_lines';
+
+const sl = scriptLines_kitchenDisplaySystem.orderStatus;
 
 const OrderStatusBadge = ({ status }) => {
     let bgColor, textColor, text;
 
+    // Use the centralized status strings from the KDS script file
+    const statusText = sl[status] || sl.finalized;
+
     switch (status) {
-        case 'new':
+        case 'PENDING_CONFIRMATION':
             bgColor = 'bg-sky-100 dark:bg-sky-500/30';
             textColor = 'text-sky-700 dark:text-sky-300';
-            text = sl.newStatus || 'New';
+            text = statusText;
             break;
-        case 'preparing':
+        case 'CONFIRMED':
+            bgColor = 'bg-blue-100 dark:bg-blue-500/30';
+            textColor = 'text-blue-700 dark:text-blue-300';
+            text = statusText;
+            break;
+        case 'PREPARING':
             bgColor = 'bg-amber-100 dark:bg-amber-500/30';
             textColor = 'text-amber-700 dark:text-amber-300';
-            text = sl.preparingStatus || 'Preparing';
+            text = statusText;
             break;
-        case 'ready':
+        case 'READY_FOR_PICKUP':
             bgColor = 'bg-emerald-100 dark:bg-emerald-500/30';
             textColor = 'text-emerald-700 dark:text-emerald-300';
-            text = sl.readyStatus || 'Ready';
+            text = statusText;
             break;
-        case 'served':
+        case 'SERVED':
             bgColor = 'bg-neutral-200 dark:bg-neutral-600/30';
             textColor = 'text-neutral-600 dark:text-neutral-300';
-            text = sl.servedStatus || 'Served';
+            text = statusText;
             break;
-        case 'paid':
-            bgColor = 'bg-lime-100 dark:bg-lime-500/30';
-            textColor = 'text-lime-700 dark:text-lime-300';
-            text = sl.paidStatus || 'Paid';
-            break;
-        case 'completed': // This status will cause the card to be removed, but styled for safety.
+        case 'COMPLETED':
+        case 'CANCELLED_BY_BUSINESS':
+        case 'CANCELLED_BY_CUSTOMER':
             bgColor = 'bg-gray-200 dark:bg-gray-700/30';
             textColor = 'text-gray-500 dark:text-gray-400';
-            text = sl.completedStatus || 'Completed';
+            text = statusText;
             break;
         default:
             bgColor = 'bg-gray-100 dark:bg-gray-500/30';
             textColor = 'text-gray-700 dark:text-gray-300';
-            text = status;
+            text = status || sl.finalized;
     }
 
     return (

@@ -1,8 +1,9 @@
 import React from 'react';
 import Icon from '../../../components/common/Icon';
-import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
-const sl = slRaw.kitchenDisplaySystem.header;
-const slPage = slRaw.kitchenDisplaySystem;
+import { scriptLines_kitchenDisplaySystem } from '../utils/script_lines';
+
+const sl = scriptLines_kitchenDisplaySystem.header;
+const slPage = scriptLines_kitchenDisplaySystem.page;
 
 const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable, onToggleGroupByTable }) => {
     const filters = [
@@ -30,9 +31,9 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                         className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors duration-150 ease-in-out
                                     flex items-center space-x-1.5
                                     ${activeFilter === filter.key
-                                        ? 'bg-rose-500 text-white shadow-sm'
-                                        : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'
-                                    }`}
+                                ? 'bg-rose-500 text-white shadow-sm'
+                                : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'
+                            }`}
                         title={`${filter.label} (${orderCounts[filter.key] || 0})`}
                     >
                         <Icon name={filter.icon} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -43,7 +44,7 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                         </span>
                     </button>
                 ))}
-                
+
                 {/* Visual Separator */}
                 <div className="h-6 w-px bg-neutral-300 dark:bg-neutral-600/70 mx-1 sm:mx-2"></div>
 
@@ -52,9 +53,9 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                     onClick={onToggleGroupByTable}
                     className={`p-2 rounded-full transition-colors duration-150 ease-in-out
                                 ${groupByTable
-                                    ? 'bg-rose-500 text-white shadow-sm'
-                                    : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'
-                                }`}
+                            ? 'bg-rose-500 text-white shadow-sm'
+                            : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'
+                        }`}
                     title={sl.groupByTableToggle || "Group by Table"}
                 >
                     <Icon name="table_rows" className="w-4 h-4 sm:w-5 sm:h-5" />

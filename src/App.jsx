@@ -129,14 +129,6 @@ const router = createBrowserRouter([
         element: <StaffLoginPage />,
     },
     {
-        path: "/kitchen-display",
-        element: (
-            <PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
-                <KitchenDisplayPage />
-            </PrivateRoute>
-        ),
-    }, 
-    {
         path: "/staff",
         element: (
             <PrivateRoute staffOnly={true}>

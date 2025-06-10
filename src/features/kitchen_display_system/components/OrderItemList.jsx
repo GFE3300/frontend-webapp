@@ -1,8 +1,9 @@
 import React from 'react';
 import Icon from '../../../components/common/Icon'; // Assuming common Icon component path
+import { scriptLines_kitchenDisplaySystem } from '../utils/script_lines';
+import i18n from '../../../i18n';
 
-import slRaw from '../../venue_management/utils/script_lines.js'; // Adjust path
-const sl = slRaw.kitchenDisplaySystem.orderCard; // Re-use some strings from orderCard
+const sl = scriptLines_kitchenDisplaySystem.orderItemList;
 
 const OrderItemList = ({ items }) => {
     if (!items || items.length === 0) {
@@ -22,7 +23,7 @@ const OrderItemList = ({ items }) => {
                         )}
                     </div>
                     <span className="font-semibold text-neutral-700 dark:text-neutral-200 whitespace-nowrap pl-2">
-                        {sl.itemQuantity ? sl.itemQuantity.replace('{quantity}', item.quantity) : `x${item.quantity}`}
+                        {sl.itemQuantity ? i18n.t(sl.itemQuantity, { quantity: item.quantity }) : `x${item.quantity}`}
                     </span>
                 </div>
             ))}
