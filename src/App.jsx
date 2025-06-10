@@ -19,6 +19,7 @@ import UserpageWrapper from './features/menu_view/Userpage.jsx';
 import PlanAndPaymentPage from './features/payments/PlanAndPaymentPage.jsx';
 import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx';
 import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';
+import CreateBusinessPage from './features/dashboard/pages/CreateBusinessPage.jsx'; // NEW: Import
 
 // Import Staff Portal pages
 import StaffLoginPage from './features/staff_portal/pages/admin/StaffLoginPage.jsx';
@@ -34,11 +35,12 @@ import OverviewPage from './features/dashboard/pages/OverviewPage.jsx';
 import ProductsPage from './features/dashboard/pages/ProductsPage.jsx';
 import InventoryPage from './features/dashboard/pages/InventoryPage.jsx';
 import VenuePage from './features/dashboard/pages/VenuePage.jsx';
-import OrdersDashboardPage from './features/live_orders_view/LiveOrdersPage.jsx'; // MODIFIED: Import renamed component
+import OrdersDashboardPage from './features/live_orders_view/LiveOrdersPage.jsx';
 import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSettingsPage.jsx';
 import SubscriptionBillingPage from './features/dashboard/pages/settings/SubscriptionBillingPage.jsx';
+import TeamManagementPage from './features/dashboard/pages/settings/TeamManagementPage.jsx'; // NEW: Import
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
 
 // Components
@@ -162,7 +164,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="overview" replace /> },
             { path: "overview", element: <OverviewPage /> },
-            { path: "orders", element: <OrdersDashboardPage /> }, // MODIFIED: Route uses the new dashboard page
+            { path: "orders", element: <OrdersDashboardPage /> },
             { path: "products", element: <ProductsPage /> },
             { path: "inventory", element: <InventoryPage /> },
             { path: "venue", element: <VenuePage /> },
@@ -174,7 +176,16 @@ const router = createBrowserRouter([
                     { index: true, element: <Navigate to="profile" replace /> },
                     { path: "profile", element: <ProfileSettingsPage /> },
                     { path: "billing", element: <SubscriptionBillingPage /> },
+                    { path: "team", element: <TeamManagementPage /> }, // NEW: Route for team management
                 ]
+            },
+            { // NEW: Route for creating a new business
+                path: "create",
+                element: (
+                    <PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
+                        <CreateBusinessPage />
+                    </PrivateRoute>
+                )
             },
             {
                 path: "menu-preview",

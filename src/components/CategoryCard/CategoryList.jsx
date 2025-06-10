@@ -1,3 +1,5 @@
+// FILE: src/components/CategoryCard/CategoryList.jsx
+// MODIFIED: This component is now controlled, receiving selection state and callbacks via props to enable table filtering.
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';

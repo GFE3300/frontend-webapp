@@ -4,7 +4,6 @@ import MenuItemCard from './MenuItemCard';
 import HorizontalScroll from './HorizontalScroll';
 import Icon from '../../../components/common/Icon.jsx';
 import Spinner from '../../../components/common/Spinner.jsx';
-import SkeletonProductCard from '../../../components/loaders/SkeletonProductCard.jsx';
 import { scriptLines_menu_view as sl } from '../utils/script_lines.js'; // LOCALIZATION
 
 const DESKTOP_VERTICAL_SPACING_BETWEEN_PAIRED_ITEMS = 'space-y-5';
@@ -311,3 +310,5 @@ function MenuDisplayLayout({
 }
 
 export default MenuDisplayLayout;
+
+const SkeletonProductCard = () => <div />;

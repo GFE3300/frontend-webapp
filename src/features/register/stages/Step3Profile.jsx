@@ -1,16 +1,56 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
+import { useDebouncedCallback } from 'use-debounce';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from "../../../components/common/Icon";
 import { InputField, PasswordStrength } from '../subcomponents';
 import { scriptLines_Steps as scriptLines } from '../utils/script_lines';
+import apiService from '../../../services/api';
 
 /**
- * Profile Setup step (Step 3) for the registration form.
- * Collects user's personal contact information and credentials (password).
- * @component
+ * A hook to manage asynchronous validation for a form field.
+ * @param {string} fieldName - The name of the field in the API (e.g., 'email').
+ * @param {string} value - The current value of the field from formData.
+ * @returns {{status: string, errorMessage: string}} - The validation status and error message.
  */
+const useAsyncValidation = (fieldName, value) => {
+    const [status, setStatus] = useState('idle'); // 'idle', 'validating', 'valid', 'invalid'
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const debouncedValidate = useDebouncedCallback(async (val) => {
+        if (!val) {
+            setStatus('idle');
+            return;
+        }
+        // Basic email format check before hitting API
+        if (fieldName === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+            setStatus('idle'); // Don't show error if it's just an invalid format, Yup will handle that.
+            return;
+        }
+        setStatus('validating');
+        try {
+            const response = await apiService.validateRegistrationField(fieldName, val);
+            if (response.data.is_unique) {
+                setStatus('valid');
+                setErrorMessage('');
+            } else {
+                setStatus('invalid');
+                setErrorMessage(response.data.message || 'This value is already taken.');
+            }
+        } catch (error) {
+            setStatus('invalid');
+            setErrorMessage('Could not validate. Please check your connection.');
+            console.error(`Validation error for ${fieldName}:`, error);
+        }
+    }, 500);
+
+    useEffect(() => {
+        debouncedValidate(value);
+    }, [value, debouncedValidate]);
+
+    return { status, errorMessage };
+};
+
 const Step3Profile = ({
     formData,
     updateField,
@@ -20,7 +60,7 @@ const Step3Profile = ({
     setShowPassword,
 }) => {
     // ===========================================================================
-    // Configuration
+    // Configuration & State
     // ===========================================================================
     const PHONE_FORMAT_REGEX = useMemo(() => /(\d{0,3})(\d{0,3})(\d{0,4})/, []);
     const PASSWORD_VISIBILITY_ANIMATION = {
@@ -29,6 +69,9 @@ const Step3Profile = ({
         exit: { opacity: 0.6, scale: 0.8 },
         transition: { duration: 0.15 }
     };
+
+    // --- Asynchronous Validation State ---
+    const { status: emailStatus, errorMessage: emailError } = useAsyncValidation('email', formData.email);
 
     // ===========================================================================
     // Handlers
@@ -57,10 +100,8 @@ const Step3Profile = ({
         setShowPassword(prevShow => !prevShow);
     }, [setShowPassword]);
 
-    // console.log(passwordStrength); // Kept original console.log if needed for debugging
-
     // ===========================================================================
-    // Validation (Prop Validation)
+    // Prop Validation
     // ===========================================================================
     if (typeof formData !== 'object' || formData === null) {
         console.error(scriptLines.step3Profile.console.invalidFormDataProp);
@@ -83,18 +124,17 @@ const Step3Profile = ({
     // Rendering
     // ===========================================================================
     return (
-        <div className="space-y-12" data-testid="step3-profile"> {/* Corrected data-testid */}
-            {/* Name & Role Section */}
+        <div className="space-y-12" data-testid="step3-profile">
             <div className='relative w-full flex md:flex-row flex-col items-start gap-x-8 gap-y-12'>
                 <InputField
                     className='w-full'
                     label={scriptLines.step3Profile.label.fullName}
-                    name="name" // Assuming 'name' corresponds to first name based on placeholder
+                    name="name"
                     value={formData.name || ''}
                     onChange={handleInputChange('name')}
                     placeholder={scriptLines.step3Profile.placeholder.firstName}
                     error={errors?.name}
-                    autoComplete="given-name" // More specific autocomplete for first name
+                    autoComplete="given-name"
                     required
                 />
                 <InputField
@@ -132,6 +172,8 @@ const Step3Profile = ({
                     placeholder={scriptLines.step3Profile.placeholder.contactEmail}
                     error={errors?.email}
                     autoComplete="email"
+                    asyncValidationStatus={emailStatus}
+                    asyncErrorMessage={emailError}
                     required
                 />
                 <InputField
@@ -148,7 +190,6 @@ const Step3Profile = ({
                 />
             </div>
 
-            {/* Password Section */}
             <div className="relative">
                 <InputField
                     label={scriptLines.step3Profile.label.createPassword}
@@ -167,7 +208,7 @@ const Step3Profile = ({
                         type="button"
                         onClick={togglePasswordVisibility}
                         className={`
-                            absolute z-10 top-0.5 w-8 h-8
+                            absolute z-10 top-1/2 -translate-y-7 w-8 h-8 flex items-center justify-center
                             text-neutral-500 dark:text-neutral-400 
                             hover:text-rose-500 dark:hover:text-rose-400 
                             focus:outline-none focus:ring-2 focus:ring-rose-100 rounded-full p-1
@@ -183,8 +224,6 @@ const Step3Profile = ({
                     <PasswordStrength
                         strength={passwordStrength}
                         className="mt-2"
-                    // Assuming PasswordStrength component handles its own internal text localization
-                    // or accepts localized texts as props if needed.
                     />
                 )}
             </div>

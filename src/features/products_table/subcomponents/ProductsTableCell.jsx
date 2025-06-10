@@ -4,7 +4,15 @@ import EditableCell from './EditableCell';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
-const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStatusProductId }) => {
+const ProductsTableCell = ({
+    product,
+    column,
+    onUpdateProductField,
+    updatingStatusProductId,
+    isSelected,
+    onToggleRow
+}) => {
+
     const {
         id: columnId,
         accessorKey,
@@ -26,6 +34,8 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
     }, [product, accessorKey, accessorFn]);
 
     let cellContent;
+    let customCellClasses = ''; // For custom styling like profit margin
+
     if (isEditable) {
         cellContent = (
             <EditableCell
@@ -41,7 +51,9 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
             row: { original: product },
             getValue: () => rawValue,
             column,
-            updatingStatusProductId: updatingStatusProductId,
+            updatingStatusProductId,
+            isSelected,
+            onToggleRow,
         });
     } else {
         if (rawValue === undefined || rawValue === null || String(rawValue).trim() === '') {
@@ -50,21 +62,28 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
             const num = parseFloat(rawValue);
             cellContent = isNaN(num)
                 ? <span className="italic text-red-500 dark:text-red-400">Invalid</span>
-                : `${formatCurrency(num)}`; // Use toFixed inside formatCurrency
-        } else if (columnId === 'profit_margin') {
+                : `${formatCurrency(num.toFixed(2))}`;
+        } else if (cellType === 'percentage') {
             const num = parseFloat(rawValue);
             if (isNaN(num)) {
-                cellContent = <span className="italic text-neutral-400 dark:text-neutral-500">N/A</span>;
+                cellContent = <span className="italic text-neutral-400 dark:text-neutral-500">—</span>;
             } else {
-                let marginColorClass = 'text-neutral-600 dark:text-neutral-300';
-                if (num >= 0.5) marginColorClass = 'text-green-500 dark:text-green-400';
-                else if (num >= 0.2) marginColorClass = 'text-yellow-500 dark:text-yellow-400';
-                else if (num >= 0) marginColorClass = 'text-orange-500 dark:text-orange-400';
-                else marginColorClass = 'text-red-500 dark:text-red-400';
+                // 1. Format the value as a percentage string
+                cellContent = `${(num * 100).toFixed(1)}%`;
 
-                cellContent = <span className={`font-semibold ${marginColorClass}`}>{(num * 100).toFixed(1)}%</span>;
+                // 2. Apply conditional styling based on the raw value
+                if (num >= 0.50) {
+                    customCellClasses = 'text-green-500 font-semibold';
+                } else if (num >= 0.20) {
+                    customCellClasses = 'text-yellow-500 font-medium';
+                } else if (num >= 0) {
+                    customCellClasses = 'text-orange-500';
+                } else { // Negative margin
+                    customCellClasses = 'text-red-500';
+                }
             }
-        } else {
+        }
+        else {
             cellContent = String(rawValue);
         }
     }
@@ -72,8 +91,8 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
 
     const alignmentClass = useMemo(() => {
         let effectiveAlign = align;
-        // Align numbers and currency to the right by default
-        if (align === 'left' && (cellType === 'currency' || cellType === 'editableCurrency' || typeof rawValue === 'number' || columnId === 'profit_margin')) {
+        // Automatically right-align numeric/currency/percentage columns if a specific alignment isn't forced
+        if (align === 'left' && (cellType === 'currency' || cellType === 'editableCurrency' || cellType === 'percentage' || typeof rawValue === 'number')) {
             effectiveAlign = 'right';
         }
         switch (effectiveAlign) {
@@ -81,7 +100,7 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
             case 'right': return 'text-right justify-end';
             default: return 'text-left justify-start';
         }
-    }, [align, cellType, rawValue, columnId]);
+    }, [align, cellType, rawValue]);
 
     const cellPaddingClass = isEditable ? 'py-0.5 px-1' : 'px-4 py-3';
 
@@ -89,7 +108,7 @@ const ProductsTableCell = ({ product, column, onUpdateProductField, updatingStat
         const stringContent = typeof children === 'string' || typeof children === 'number' ? String(children) : '';
         return (
             <div
-                className={`w-full flex items-center ${alignmentClass} ${isEditable ? '' : 'truncate'}`}
+                className={`w-full flex items-center ${alignmentClass} ${isEditable ? '' : 'truncate'} ${customCellClasses}`}
                 title={stringContent.length > 20 || typeof children !== 'string' ? stringContent : undefined}
             >
                 {children}
@@ -143,6 +162,8 @@ ProductsTableCell.propTypes = {
     }).isRequired,
     onUpdateProductField: PropTypes.func.isRequired,
     updatingStatusProductId: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
+    isSelected: PropTypes.bool,
+    onToggleRow: PropTypes.func,
 };
 
 export default ProductsTableCell;

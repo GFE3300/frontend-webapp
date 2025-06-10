@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+// FILE: src/features/products_table/subcomponents/ProductsToolbar.jsx
+// MODIFIED: Implemented the conditional Bulk Actions dropdown based on row selection.
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
 import CustomColumnDropdown from './CustomColumnDropdown';
 import AnimatedSearchBar from './AnimatedSearchBar';
@@ -21,9 +24,13 @@ const ProductsToolbar = ({
     onAddProduct,
     onRefresh,
     onResetTableSettings,
+    selectedProductIds,
+    clearSelection,
+    onBulkAction,
 }) => {
     const { data: categoriesData } = useCategories();
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const selectionCount = selectedProductIds.size;
 
     useEffect(() => {
         const categoryOpts = categoriesData?.length
@@ -35,6 +42,18 @@ const ProductsToolbar = ({
 
         setCategoryOptions(categoryOpts);
     }, [categoriesData]);
+
+    const handleBulkAction = (action) => {
+        // Placeholder for now. This will be implemented fully later.
+        console.log(`Performing bulk action: ${action} on ${selectionCount} items.`);
+        // Example: onBulkAction(action, [...selectedProductIds]);
+    };
+
+    const bulkActionOptions = useMemo(() => [
+        { value: 'activate', label: scriptLines.productsToolbar.bulkActions.activateSelected },
+        { value: 'deactivate', label: scriptLines.productsToolbar.bulkActions.deactivateSelected },
+        { value: 'delete', label: scriptLines.productsToolbar.bulkActions.deleteSelected, isDestructive: true },
+    ], []);
 
     const handleActualSearchSubmit = (term) => {
         onFilterChange({ search: term });
@@ -53,7 +72,7 @@ const ProductsToolbar = ({
             onSortChange({ id, desc: isDesc });
         }
     };
-    
+
     const filterKeyMap = {
         [COLUMN_KEYS.NAME]: 'search',
         [COLUMN_KEYS.SKU]: 'search',
@@ -63,77 +82,110 @@ const ProductsToolbar = ({
     };
     const activeFilterKeyForSortedColumn = sort.id ? filterKeyMap[sort.id] : null;
 
+
     return (
         <div className="p-4 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex flex-wrap items-center gap-x-3 gap-y-2">
-            <AnimatedSearchBar
-                initialSearchTerm={filters.search || ''}
-                onSearchSubmit={handleActualSearchSubmit}
-                placeholder={scriptLines.productsToolbar.searchPlaceholder}
-                isSortActiveTarget={activeFilterKeyForSortedColumn === 'search'}
-            />
 
-            <ToolbarDropdown
-                ariaLabel={scriptLines.productsToolbar.filters.categoryAriaLabel}
-                options={categoryOptions}
-                value={filters.category || ''}
-                onChange={(newValue) => handleDropdownFilterChange('category', newValue)}
-                placeholder={scriptLines.productsToolbar.filters.categoryPlaceholder}
-                className="min-w-[150px]"
-                isSortActiveTarget={activeFilterKeyForSortedColumn === 'category'}
-            />
-            <ToolbarDropdown
-                ariaLabel={scriptLines.productsToolbar.filters.typeAriaLabel}
-                options={scriptLines.tableConfig.filterOptions.product_type}
-                value={filters.product_type || ''}
-                onChange={(newValue) => handleDropdownFilterChange('product_type', newValue)}
-                placeholder={scriptLines.productsToolbar.filters.typePlaceholder}
-                className="min-w-[150px]"
-                isSortActiveTarget={activeFilterKeyForSortedColumn === 'product_type'}
-            />
-            <ToolbarDropdown
-                ariaLabel={scriptLines.productsToolbar.filters.statusAriaLabel}
-                options={scriptLines.tableConfig.filterOptions.is_active}
-                value={filters.is_active || ''}
-                onChange={(newValue) => handleDropdownFilterChange('is_active', newValue)}
-                placeholder={scriptLines.productsToolbar.filters.statusPlaceholder}
-                className="min-w-[150px]"
-                isSortActiveTarget={activeFilterKeyForSortedColumn === 'is_active'}
-            />
-            <ToolbarDropdown
-                ariaLabel={scriptLines.productsToolbar.sort.ariaLabel}
-                iconName="sort"
-                options={scriptLines.tableConfig.sortOptions}
-                value={sort.id ? (sort.desc ? `-${sort.id}` : sort.id) : ''}
-                onChange={handleSortDropdownChange}
-                placeholder={scriptLines.productsToolbar.sort.placeholder}
-                className="min-w-[160px]"
-            />
+            <AnimatePresence mode="wait">
+                {selectionCount > 0 ? (
+                    <motion.div
+                        key="bulk-actions-view"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        className="flex items-center gap-x-3"
+                    >
+                        <button
+                            onClick={clearSelection}
+                            className="p-1.5 h-9 w-9 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 rounded-full flex items-center justify-center"
+                            title={scriptLines.productsToolbar.selection.clearSelectionTooltip}
+                        >
+                            <Icon name="close" className="w-5 h-5" />
+                        </button>
+                        <ToolbarDropdown
+                            ariaLabel={scriptLines.productsToolbar.bulkActions.ariaLabel}
+                            options={bulkActionOptions}
+                            value={null}
+                            onChange={onBulkAction}
+                            placeholder={scriptLines.productsToolbar.bulkActions.placeholder.replace('{count}', selectionCount)}
+                            className="min-w-[180px]"
+                        />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="filter-view"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        className="flex items-center gap-x-3 flex-wrap gap-y-2"
+                    >
+                        <AnimatedSearchBar
+                            initialSearchTerm={filters.search || ''}
+                            onSearchSubmit={handleActualSearchSubmit}
+                            placeholder={scriptLines.productsToolbar.searchPlaceholder}
+                            isSortActiveTarget={activeFilterKeyForSortedColumn === 'search'}
+                        />
+                        <ToolbarDropdown
+                            ariaLabel={scriptLines.productsToolbar.filters.categoryAriaLabel}
+                            options={categoryOptions}
+                            value={filters.category || ''}
+                            onChange={(newValue) => handleDropdownFilterChange('category', newValue)}
+                            placeholder={scriptLines.productsToolbar.filters.categoryPlaceholder}
+                            className="min-w-[150px]"
+                            isSortActiveTarget={activeFilterKeyForSortedColumn === 'category'}
+                        />
+                        <ToolbarDropdown
+                            ariaLabel={scriptLines.productsToolbar.filters.typeAriaLabel}
+                            options={scriptLines.tableConfig.filterOptions.product_type}
+                            value={filters.product_type || ''}
+                            onChange={(newValue) => handleDropdownFilterChange('product_type', newValue)}
+                            placeholder={scriptLines.productsToolbar.filters.typePlaceholder}
+                            className="min-w-[150px]"
+                            isSortActiveTarget={activeFilterKeyForSortedColumn === 'product_type'}
+                        />
+                        <ToolbarDropdown
+                            ariaLabel={scriptLines.productsToolbar.filters.statusAriaLabel}
+                            options={scriptLines.tableConfig.filterOptions.is_active}
+                            value={filters.is_active || ''}
+                            onChange={(newValue) => handleDropdownFilterChange('is_active', newValue)}
+                            placeholder={scriptLines.productsToolbar.filters.statusPlaceholder}
+                            className="min-w-[150px]"
+                            isSortActiveTarget={activeFilterKeyForSortedColumn === 'is_active'}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-            <div className="flex-grow"></div> 
+            <div className="flex-grow"></div>
 
-            <CustomColumnDropdown
-                allTableColumns={allColumns}
-                visibleColumnKeys={columnVisibility}
-                columnOrderKeys={columnOrder}
-                onVisibilityChange={onColumnVisibilityChange}
-                onOrderChange={onColumnOrderChange}
-                onResetColumns={onResetTableSettings}
-            />
-
-            <button
-                onClick={onRefresh}
-                className="p-2 h-9 text-sm font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-200 dark:text-neutral-800 dark:hover:bg-neutral-300 rounded-full flex items-center"
-                title={scriptLines.productsToolbar.buttons.refreshTooltip}
-            >
-                <Icon name="refresh" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
-            </button>
-            <button
-                onClick={onAddProduct}
-                className="px-2 pr-4 h-9 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-full flex items-center"
-            >
-                <Icon name="add_circle" className="w-5 h-5 mr-2" style={{ fontSize: '1.25rem' }} />
-                {scriptLines.productsToolbar.buttons.addProduct}
-            </button>
+            <div className="flex items-center gap-x-3">
+                <ToolbarDropdown
+                    ariaLabel={scriptLines.productsToolbar.sort.ariaLabel}
+                    iconName="sort"
+                    options={scriptLines.tableConfig.sortOptions}
+                    value={sort.id ? (sort.desc ? `-${sort.id}` : sort.id) : ''}
+                    onChange={handleSortDropdownChange}
+                    placeholder={scriptLines.productsToolbar.sort.placeholder}
+                    className="min-w-[160px]"
+                />
+                <CustomColumnDropdown
+                    allTableColumns={allColumns}
+                    visibleColumnKeys={columnVisibility}
+                    columnOrderKeys={columnOrder}
+                    onVisibilityChange={onColumnVisibilityChange}
+                    onOrderChange={onColumnOrderChange}
+                    onResetColumns={onResetTableSettings}
+                />
+                <button
+                    onClick={onRefresh}
+                    className="p-2 h-9 w-9 text-sm font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-200 dark:text-neutral-800 dark:hover:bg-neutral-300 rounded-full flex items-center justify-center"
+                    title={scriptLines.productsToolbar.buttons.refreshTooltip}
+                >
+                    <Icon name="refresh" className="w-5 h-5" />
+                </button>
+            </div>
         </div>
     );
 };
@@ -151,6 +203,9 @@ ProductsToolbar.propTypes = {
     onAddProduct: PropTypes.func.isRequired,
     onRefresh: PropTypes.func.isRequired,
     onResetTableSettings: PropTypes.func,
+    selectedProductIds: PropTypes.instanceOf(Set).isRequired,
+    clearSelection: PropTypes.func.isRequired,
+    onBulkAction: PropTypes.func.isRequired,
 };
 
 export default ProductsToolbar;

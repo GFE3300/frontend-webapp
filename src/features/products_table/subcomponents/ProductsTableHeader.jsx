@@ -8,17 +8,30 @@ const ProductsTableHeader = ({
     columns,
     onSort,
     currentSort,
+    pageProductIds,
+    selectedProductIds,
+    onToggleAllRows,
 }) => {
     return (
-        <thead className="bg-neutral-50 dark:bg-neutral-700 sticky top-0 z-10 font-montserrat text-xs"> 
+        <thead className="bg-neutral-50 dark:bg-neutral-700 sticky top-0 z-10 font-montserrat text-xs">
             <tr>
                 {columns.map((col) => {
                     const isActiveSortColumn = currentSort.id === col.id;
                     const headerText = typeof col.header === 'string' ? col.header : col.id;
 
+                    // The header can be a function or a string.
+                    let headerContent = col.header;
+                    if (typeof col.header === 'function') {
+                        headerContent = col.header({
+                            pageProductIds,
+                            selectedProductIds,
+                            onToggleAllRows,
+                        });
+                    }
+
                     const thStyle = {
                         width: col.currentWidth ? `${col.currentWidth}px` : 'auto',
-                        minWidth: col.minWidth ? `${col.minWidth}px` : (col.currentWidth ? `${col.currentWidth}px` : '100px'), 
+                        minWidth: col.minWidth ? `${col.minWidth}px` : (col.currentWidth ? `${col.currentWidth}px` : '100px'),
                     };
 
                     const getTooltip = () => {
@@ -32,7 +45,7 @@ const ProductsTableHeader = ({
                         }
                         return baseText;
                     };
-                    
+
                     return (
                         <th
                             key={col.id}
@@ -40,11 +53,11 @@ const ProductsTableHeader = ({
                             className={`relative group px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap transition-colors duration-150 ease-in-out ${col.isSortable ? 'cursor-pointer' : 'cursor-default'} ${isActiveSortColumn ? 'bg-sky-100 dark:bg-sky-700 text-sky-700 dark:text-sky-100' : `text-neutral-500 dark:text-neutral-300 ${col.isSortable ? 'hover:bg-neutral-100 dark:hover:bg-neutral-600' : ''}`} ${col.sticky ? `sticky ${col.sticky === 'left' ? 'left-0 border-r border-neutral-200 dark:border-neutral-600' : 'right-0 border-l border-neutral-200 dark:border-neutral-600'} ${isActiveSortColumn ? 'bg-sky-100 dark:bg-sky-700' : 'bg-neutral-50 dark:bg-neutral-700'} z-20 shadow-sm` : ''}`}
                             style={thStyle}
                             onClick={col.isSortable ? () => onSort(col.id) : undefined}
-                            title={getTooltip()} // Use the new helper function for the title
+                            title={getTooltip()}
                             aria-sort={col.isSortable ? (isActiveSortColumn ? (currentSort.desc ? 'descending' : 'ascending') : 'none') : undefined}
                         >
                             <div className="flex items-center justify-between w-full">
-                                <span className="flex-grow truncate pr-1">{col.header}</span>
+                                <span className="flex-grow truncate pr-1">{headerContent}</span>
                                 {col.isSortable && (
                                     <span className="ml-1.5 flex-shrink-0">
                                         <Icon

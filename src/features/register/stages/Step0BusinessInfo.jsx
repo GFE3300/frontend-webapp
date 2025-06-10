@@ -1,34 +1,64 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { InputField, TagInput } from '../subcomponents'; // Assuming relative path to subcomponents
-import { scriptLines_Steps as scriptLines } from '../utils/script_lines'; // Import localization strings
-import Icon from '../../../components/common/Icon'; // Import Icon component
+import { useDebouncedCallback } from 'use-debounce';
+import { InputField, TagInput } from '../subcomponents';
+import { scriptLines_Steps as scriptLines } from '../utils/script_lines';
+import Icon from '../../../components/common/Icon';
+import apiService from '../../../services/api';
 
 /**
- * Business Information step (Step 0) of the registration form.
- * Collects essential details about the user's business, such as name,
- * contact information, and descriptive tags.
- * @component
- * @param {Object} props - Component properties
- * @param {Object} props.formData - The current state of the form data.
- * @param {Function} props.updateField - Callback function to update a specific field in the formData.
- * @param {Object} [props.errors] - An object containing validation errors, where keys correspond to field names.
+ * A hook to manage asynchronous validation for a form field.
+ * @param {string} fieldName - The name of the field in the API (e.g., 'business_username').
+ * @param {string} value - The current value of the field from formData.
+ * @returns {{status: string, errorMessage: string}} - The validation status and error message.
  */
+const useAsyncValidation = (fieldName, value) => {
+    const [status, setStatus] = useState('idle'); // 'idle', 'validating', 'valid', 'invalid'
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const debouncedValidate = useDebouncedCallback(async (val) => {
+        if (!val) {
+            setStatus('idle');
+            return;
+        }
+        setStatus('validating');
+        try {
+            const response = await apiService.validateRegistrationField(fieldName, val);
+            if (response.data.is_unique) {
+                setStatus('valid');
+                setErrorMessage('');
+            } else {
+                setStatus('invalid');
+                setErrorMessage(response.data.message || 'This value is already taken.');
+            }
+        } catch (error) {
+            setStatus('invalid');
+            setErrorMessage('Could not validate. Please check your connection.');
+            console.error(`Validation error for ${fieldName}:`, error);
+        }
+    }, 500);
+
+    useEffect(() => {
+        debouncedValidate(value);
+    }, [value, debouncedValidate]);
+
+    return { status, errorMessage };
+};
+
 const Step0BusinessInfo = ({ formData, updateField, errors }) => {
     // ===========================================================================
-    // Configuration
+    // Configuration & State
     // ===========================================================================
-
-    /**
-     * @constant {string[]} DEFAULT_BUSINESS_TAGS
-     * A predefined list of suggested tags, sourced from localized strings.
-     */
     const DEFAULT_BUSINESS_TAGS = scriptLines.step0BusinessInfo.defaultBusinessTags;
+
+    // --- Asynchronous Validation State ---
+    const { status: usernameStatus, errorMessage: usernameError } = useAsyncValidation('business_username', formData.businessUsername);
+    const { status: businessNameStatus, errorMessage: businessNameError } = useAsyncValidation('business_name', formData.businessName);
+    const { status: businessEmailStatus, errorMessage: businessEmailError } = useAsyncValidation('business_email', formData.businessEmail);
 
     // ===========================================================================
     // Handlers
     // ===========================================================================
-
     const handleInputChange = useCallback((field) => (e) => {
         updateField(field, e.target.value);
     }, [updateField]);
@@ -38,7 +68,7 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
     }, [updateField]);
 
     // ===========================================================================
-    // Validation (Prop validation using localized strings for console messages)
+    // Prop Validation
     // ===========================================================================
     if (typeof formData !== 'object' || formData === null) {
         console.error(scriptLines.step0BusinessInfo.console.invalidFormDataProp);
@@ -59,7 +89,6 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
 
     return (
         <>
-            {/* Business Name and Username Row */}
             <div className='relative w-full flex md:flex-row flex-col items-start gap-x-8 gap-y-12 mb-12'>
                 <InputField
                     className='w-full'
@@ -70,6 +99,8 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                     placeholder={scriptLines.step0BusinessInfo.placeholder.businessName}
                     error={errors?.businessName}
                     autoComplete="organization"
+                    asyncValidationStatus={businessNameStatus}
+                    asyncErrorMessage={businessNameError}
                     required
                 />
                 <InputField
@@ -81,11 +112,13 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                     placeholder={scriptLines.step0BusinessInfo.placeholder.businessUsername}
                     error={errors?.businessUsername}
                     autoComplete="nickname"
+                    asyncValidationStatus={usernameStatus}
+                    asyncErrorMessage={usernameError}
+                    helpTooltipText="This will be your unique URL (e.g., smore.com/your-username)."
                     required
                 />
             </div>
 
-            {/* Business Email Field */}
             <div className="mb-12">
                 <InputField
                     label={scriptLines.step0BusinessInfo.label.businessEmail}
@@ -96,11 +129,12 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                     placeholder={scriptLines.step0BusinessInfo.placeholder.businessEmail}
                     error={errors?.businessEmail}
                     autoComplete="email"
+                    asyncValidationStatus={businessEmailStatus}
+                    asyncErrorMessage={businessEmailError}
                     required
                 />
             </div>
 
-            {/* Business Phone and Website Row */}
             <div className='relative w-full flex md:flex-row flex-col items-start gap-x-8 gap-y-12 mb-12'>
                 <InputField
                     className='w-full'
@@ -127,7 +161,6 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                 />
             </div>
 
-            {/* MODIFICATION: Added relative positioning and confirmation icon */}
             <div className="relative mb-12">
                 <InputField
                     label={scriptLines.step0BusinessInfo.label.referralCodeOptional}
@@ -140,13 +173,12 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                     disabled={isReferralCodeDisabled}
                 />
                 {isReferralCodeDisabled && (
-                    <div className="absolute top-1.5 right-2 flex items-center pointer-events-none" title="Discount code applied">
+                    <div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center pointer-events-none" title="Discount code applied">
                         <Icon name="check_circle" className="w-6 h-6 text-green-500" />
                     </div>
                 )}
             </div>
 
-            {/* Business Tags Input */}
             <div className="mb-12">
                 <TagInput
                     label={scriptLines.step0BusinessInfo.label.businessTags}

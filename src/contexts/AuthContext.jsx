@@ -24,7 +24,7 @@ const createUserObjectFromToken = (decodedToken) => {
         language: decodedToken.language || 'en', // Add language with fallback
         is_staff: decodedToken.is_staff || false,
         is_superuser: decodedToken.is_superuser || false,
-        activeBusinessCurrency: decodedToken.active_business_currency || 'USD', // Default to USD
+        activeBusinessCurrency: decodedToken.active_business_currency || 'EUR', // Default to USD
     };
 };
 
@@ -60,6 +60,27 @@ export const AuthProvider = ({ children }) => {
         setUser(prevUser => (prevUser ? { ...prevUser, ...updatedFields } : null));
     }, []);
 
+    const login = useCallback(async (newAccessToken, newRefreshToken) => {
+        localStorage.setItem('accessToken', newAccessToken);
+        localStorage.setItem('refreshToken', newRefreshToken);
+
+        const decodedToken = jwtDecode(newAccessToken);
+
+        if (apiInstance?.defaults?.headers?.common) {
+            apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+        }
+
+        const userObject = createUserObjectFromToken(decodedToken);
+        setAccessToken(newAccessToken);
+        setRefreshToken(newRefreshToken);
+        setUser(userObject);
+
+        // Sync language
+        if (userObject.language && i18n.language !== userObject.language) {
+            await i18n.changeLanguage(userObject.language);
+        }
+    }, []); // MODIFIED: Added useCallback
+
     useEffect(() => {
         const initializeAuth = async () => {
             const storedAccessToken = localStorage.getItem('accessToken');
@@ -94,25 +115,8 @@ export const AuthProvider = ({ children }) => {
                                 const newAccessToken = response.data.access;
                                 const newRefreshTokenIfRotated = response.data.refresh || storedRefreshToken;
 
-                                localStorage.setItem('accessToken', newAccessToken);
-                                if (response.data.refresh) {
-                                    localStorage.setItem('refreshToken', newRefreshTokenIfRotated);
-                                }
-
-                                const newDecodedToken = jwtDecode(newAccessToken);
-                                const userObject = createUserObjectFromToken(newDecodedToken);
-                                setUser(userObject);
-
-                                // Sync language
-                                if (userObject.language && i18n.language !== userObject.language) {
-                                    await i18n.changeLanguage(userObject.language);
-                                }
-
-                                if (apiInstance?.defaults?.headers?.common) {
-                                    apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-                                }
-                                setAccessToken(newAccessToken);
-                                setRefreshToken(newRefreshTokenIfRotated);
+                                // Use the login function to set state correctly
+                                await login(newAccessToken, newRefreshTokenIfRotated);
 
                             } catch (refreshError) {
                                 console.error("Token refresh failed on init:", refreshError);
@@ -131,32 +135,28 @@ export const AuthProvider = ({ children }) => {
         };
 
         initializeAuth();
-    }, [performLogoutOperations]);
-
-    const login = async (newAccessToken, newRefreshToken) => {
-        localStorage.setItem('accessToken', newAccessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
-
-        const decodedToken = jwtDecode(newAccessToken);
-
-        if (apiInstance?.defaults?.headers?.common) {
-            apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-        }
-
-        const userObject = createUserObjectFromToken(decodedToken);
-        setAccessToken(newAccessToken);
-        setRefreshToken(newRefreshToken);
-        setUser(userObject);
-
-        // Sync language
-        if (userObject.language && i18n.language !== userObject.language) {
-            await i18n.changeLanguage(userObject.language);
-        }
-    };
+    }, [performLogoutOperations, login]); // MODIFIED: Added login dependency
 
     const logout = async () => {
         await performLogoutOperations(true);
     };
+
+    const switchBusiness = useCallback(async (businessId) => {
+        try {
+            const response = await apiService.switchBusiness(businessId);
+            const { access, refresh } = response.data;
+            if (access && refresh) {
+                // Re-use the existing login flow to update tokens and user state
+                await login(access, refresh);
+                return true;
+            }
+        } catch (error) {
+            console.error("Failed to switch business:", error);
+            // Propagate the error so the UI can handle it (e.g., show a toast)
+            throw error;
+        }
+        return false;
+    }, [login]); // depends on login function
 
     const value = {
         user,
@@ -166,6 +166,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUser,
+        switchBusiness, // Expose the new function
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

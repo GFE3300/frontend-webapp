@@ -1,10 +1,23 @@
-// src/contexts/ProductDataContext.jsx
+import { createContext, useContext } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
 import apiService from '../services/api'; // Adjust path if needed
-import { queryKeys, PRODUCTS_BASE_KEY } from '../services/queryKeys'; // Adjust path if needed
+import { queryKeys, PRODUCTS_BASE_KEY } from '../services/queryKeys';
 import { useAuth } from './AuthContext';
 
 const PAGE_SIZE = 10;
+
+
+const ProductDataContext = createContext();
+
+export const useProductDataContext = () => {
+    const context = useContext(ProductDataContext);
+    if (!context) {
+        throw new Error('useProductDataContext must be used within a ProductDataProvider');
+    }
+    return context;
+};
+
 
 // --- Custom Hooks for Data Fetching ---
 
@@ -313,59 +326,29 @@ export const useCategories = (options = {}) => {
  */
 export const useUpdateProduct = (options = {}) => {
     const queryClient = useQueryClient();
-    // const { user } = useAuth(); // Not strictly needed for this mutation
-
     return useMutation({
         mutationFn: async ({ productId, data, requestHeaders }) => {
-            // console.log(`[useUpdateProduct] mutationFn START: Patching ${productId} with data:`, data);
             const response = await apiService.patch(`/products/${productId}/`, data, { headers: requestHeaders });
-            // console.log(`[useUpdateProduct] mutationFn SUCCESS: API response for ${productId}:`, response);
-            return response; // Return the full Axios response
+            return response;
         },
-
-        onSuccess: (response, variables, context) => { // Axios response is the first arg
-            const updatedProduct = response.data; // The actual data from backend
+        onSuccess: (response, variables, context) => {
+            const updatedProduct = response.data;
             const { productId } = variables;
-            // console.log(`[useUpdateProduct] onSuccess START: Product ID ${productId}, Updated Data from PATCH:`, updatedProduct);
-
             if (!updatedProduct || typeof updatedProduct.id === 'undefined') {
-                console.error("[useUpdateProduct] onSuccess: updatedProduct data from PATCH is missing or invalid.", updatedProduct);
-                if (options.onSuccess) {
-                    options.onSuccess(response, variables, context);
-                }
+                if (options.onSuccess) options.onSuccess(response, variables, context);
                 return;
             }
-
             try {
-                // 1. Update single product details cache (good practice)
-                // console.log(`[useUpdateProduct] onSuccess: Updating productDetails cache for ${productId}`);
-                queryClient.setQueryData(queryKeys.productDetails(productId), updatedProduct); // Use the direct updated product data
-
-                // 2. Invalidate all product list queries.
-                // This will cause useProducts to refetch with its current queryParams.
-                const invalidationKey = [PRODUCTS_BASE_KEY, 'list']; // CORRECTLY USE THE IMPORTED CONSTANT
-                // console.log(`[useUpdateProduct] onSuccess: Invalidating all product list queries starting with key:`, invalidationKey);
-
-                queryClient.invalidateQueries({
-                    queryKey: invalidationKey,
-                    exact: false, // Match all queries starting with this base
-                });
-                // console.log(`[useUpdateProduct] onSuccess: Product list queries invalidated for product ${productId}. Refetch should occur.`);
-
-                if (options.onSuccess) {
-                    options.onSuccess(response, variables, context);
-                }
+                queryClient.setQueryData(queryKeys.productDetails(productId), updatedProduct);
+                const invalidationKey = [PRODUCTS_BASE_KEY, 'list'];
+                queryClient.invalidateQueries({ queryKey: invalidationKey, exact: false });
+                if (options.onSuccess) options.onSuccess(response, variables, context);
             } catch (e) {
                 console.error(`[useUpdateProduct] onSuccess: CRITICAL ERROR during cache operations for ${productId}:`, e);
             }
-            // console.log(`[useUpdateProduct] onSuccess END for ${productId}`);
         },
-
         onError: (error, variables, context) => {
-            console.error(`[useUpdateProduct] onError Invoked: Product ID ${variables?.productId}, Error:`, error.response?.data || error.message, error);
-            if (options.onError) {
-                options.onError(error, variables, context);
-            }
+            if (options.onError) options.onError(error, variables, context);
         },
         ...options,
     });
@@ -378,69 +361,35 @@ export const useUpdateProduct = (options = {}) => {
  */
 
 export const useProducts = (queryParams = {}, options = {}) => {
-    const { user } = useAuth(); // Get user to check for activeBusinessId
+    const { user } = useAuth();
+    const { page = 1, search = '', category = '', status = '', sort = '', tags = '', product_type = '' } = queryParams;
 
-    // Destructure all potential query params from the input object
-    const {
-        page = 1,
-        search = '',
-        category = '',
-        status = '', // 'active' or 'inactive'
-        sort = '',
-        tags = '', // Expected to be comma-separated string of IDs if used
-        product_type = '', // e.g., 'made_in_house', 'resold_item'
-        // pageSize is fixed by PAGE_SIZE constant
-    } = queryParams;
-
-    // Construct the apiParams object carefully, only including params that have a value.
-    const apiParams = {
-        page,
-        page_size: PAGE_SIZE,
-    };
-
+    const apiParams = { page, page_size: PAGE_SIZE };
     if (search) apiParams.search = search;
-    if (category) apiParams.category__id = category; // Backend expects category ID
-    if (status) apiParams.is_active = status === 'active'; // Convert to boolean for backend
+    if (category) apiParams.category__id = category;
+    if (status) apiParams.is_active = status === 'active';
     if (product_type) apiParams.product_type = product_type;
-    if (tags) apiParams.product_tags__id__in = tags; // Backend needs to support 'in' lookup for M2M
+    if (tags) apiParams.product_tags__id__in = tags;
     if (sort) apiParams.ordering = sort;
 
-    // console.log('[useProducts] Query Params Received:', queryParams);
-    // console.log('[useProducts] API Params to be sent:', apiParams);
-    // console.log('[useProducts] User for context check:', user);
-
     return useQuery({
-        queryKey: queryKeys.productsList(apiParams), // Parameterized query key
+        queryKey: queryKeys.productsList(apiParams),
         queryFn: async () => {
-            // console.log('[useProducts] Fetching products with params:', apiParams); // You have this
-            const response = await apiService.get('/products/', { params: apiParams }); // Make sure to pass params correctly
-
-            // console.log('[useProducts] API Response:', response);
-
-            const responseData = typeof response.data === 'object' && response.data !== null ? response.data : {};
-            const { results = [], count = 0, next = null, previous = null } = responseData;
-
-            // THIS IS ALSO VERY IMPORTANT
-            // console.log('[useProducts] Extracted data:', { results, count, next, previous }); 
-
+            const response = await apiService.get('/products/', { params: apiParams });
+            const { results = [], count = 0, next = null, previous = null } = response.data || {};
             return {
-                items: results,
-                count: count,
-                next,
-                previous,
+                items: results, count, next, previous,
                 totalPages: Math.ceil(count / PAGE_SIZE),
-                currentPage: page,
-                pageSize: PAGE_SIZE,
+                currentPage: page, pageSize: PAGE_SIZE,
             };
         },
-        staleTime: 1000 * 60 * 1, // Cache for 1 minute
-        keepPreviousData: true, // Good for pagination
-        // Only enable the query if the user is authenticated and has an active business ID.
-        // This prevents requests if the necessary context for backend scoping is missing.
+        staleTime: 1000 * 60 * 1,
+        keepPreviousData: true,
         enabled: !!user && !!user.activeBusinessId && (options.enabled !== false),
-        ...options, // Allow overriding default options
+        ...options,
     });
 };
+
 /**
  * Deletes a product.
  * @param {object} options - TanStack Query mutation options.
@@ -450,12 +399,13 @@ export const useDeleteProduct = (options = {}) => {
     return useMutation({
         mutationFn: (productId) => apiService.delete(`/products/${productId}/`).then(res => res.data),
         onSuccess: (data, variables, context) => {
-            queryClient.invalidateQueries({ queryKey: [queryKeys.products, 'list'] });
+            queryClient.invalidateQueries({ queryKey: [PRODUCTS_BASE_KEY, 'list'] });
             if (options.onSuccess) options.onSuccess(data, variables, context);
         },
         ...options,
     });
 };
+
 
 /**
  * Fetches product attribute tags for the active business.
@@ -595,7 +545,52 @@ export const useCreateTaxRate = (options = {}) => {
 };
 
 
+export const useBulkUpdateProducts = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (payload) => apiService.post('/products/bulk-update/', payload),
+        onSuccess: () => {
+            // Refined to use the constant for consistency
+            queryClient.invalidateQueries({ queryKey: [PRODUCTS_BASE_KEY, 'list'], exact: false });
+        },
+    });
+};
 
-// Note: No actual <ProductDataContext.Provider> is needed here.
-// TanStack Query's <QueryClientProvider> at the app root handles the context.
-// These hooks are then imported and used directly in components.
+
+// Update a category
+export const useUpdateCategory = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ categoryId, data }) => apiService.patch(`/products/categories/${categoryId}/`, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.categories() });
+        },
+    });
+};
+
+// Delete a category
+export const useDeleteCategory = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (categoryId) => apiService.delete(`/products/categories/${categoryId}/`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.categories() });
+        },
+    });
+};
+
+// Context Provider Component
+export const ProductDataProvider = ({ children }) => {
+    // The context value can be expanded with more shared state or functions if needed
+    const value = {};
+
+    return (
+        <ProductDataContext.Provider value={value}>
+            {children}
+        </ProductDataContext.Provider>
+    );
+};
+
+ProductDataProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+};

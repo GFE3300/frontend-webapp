@@ -21,6 +21,8 @@ const ProductsTableBody = ({
     onAddProductClick,
     onClearFiltersClick,
     hasActiveFilters,
+    selectedProductIds,
+    onToggleRow,
     numSkeletonRows = 3,
 }) => {
     if (isLoading) {
@@ -39,7 +41,7 @@ const ProductsTableBody = ({
                 <tr>
                     <td colSpan={colSpan} className="text-center p-10 font-montserrat">
                         <div className="flex flex-col items-center justify-center text-red-500 dark:text-red-400">
-                            <Icon name="error" className="w-12 h-12 mb-4" style={{ fontSize: '2.5rem' }}/>
+                            <Icon name="error" className="w-12 h-12 mb-4" style={{ fontSize: '2.5rem' }} />
                             {/* MODIFICATION: Use centralized script lines */}
                             <h3 className="text-lg font-semibold mb-1">{scriptLines.productsTableBody.error.title}</h3>
                             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 max-w-md">
@@ -58,7 +60,7 @@ const ProductsTableBody = ({
         );
     }
 
-    if (!products || products.length === 0 ) {
+    if (!products || products.length === 0) {
         return (
             <tbody>
                 <tr>
@@ -84,7 +86,7 @@ const ProductsTableBody = ({
                                     </Button>
                                 )}
                                 {onAddProductClick && (
-                                     <Button onClick={onAddProductClick} variant="solid" color="primary">
+                                    <Button onClick={onAddProductClick} variant="solid" color="primary">
                                         <Icon name="add_circle" className="w-4 h-4 mr-2" />
                                         {scriptLines.productsTableBody.empty.addProductButton}
                                     </Button>
@@ -109,7 +111,8 @@ const ProductsTableBody = ({
                         columns={columns}
                         updatingStatusProductId={updatingStatusProductId}
                         onUpdateProductField={onUpdateProductField}
-                        onCellSave={onCellSave}
+                        isSelected={selectedProductIds.has(product.id)}
+                        onToggleRow={onToggleRow}
                     />
                 ))}
             </AnimatePresence>
@@ -125,12 +128,14 @@ ProductsTableBody.propTypes = {
     error: PropTypes.object,
     onUpdateProductField: PropTypes.func.isRequired,
     colSpan: PropTypes.number.isRequired,
-    onCellSave: PropTypes.func, // This prop seems to be unused here, but defined in proptypes from original.
+    onCellSave: PropTypes.func,
     onRetry: PropTypes.func,
     onAddProductClick: PropTypes.func,
     onClearFiltersClick: PropTypes.func,
     hasActiveFilters: PropTypes.bool,
     numSkeletonRows: PropTypes.number,
+    selectedProductIds: PropTypes.instanceOf(Set).isRequired,
+    onToggleRow: PropTypes.func.isRequired,
 };
 
 ProductsTableBody.defaultProps = {

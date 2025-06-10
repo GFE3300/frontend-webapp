@@ -1,8 +1,9 @@
+// FILE: src/features/products_table/subcomponents/ToolbarDropdown.jsx
+// MODIFIED: Added support for an `isDestructive` property on options to style them with a red, cautionary theme.
 import React, { useState, useRef, useEffect, memo, useCallback, useId, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../components/common/Icon';
-
 import { scriptLines_ProductsTable as scriptLines } from '../utils/script_lines.js';
 
 const ToolbarDropdown = memo(({
@@ -26,6 +27,8 @@ const ToolbarDropdown = memo(({
         selectedOptionBg: 'bg-rose-50 dark:bg-rose-700/50',
         selectedOptionText: 'text-rose-600 dark:text-rose-300',
         optionHoverBg: 'hover:bg-neutral-100 dark:hover:bg-neutral-600/50',
+        destructiveOptionText: 'text-red-600 dark:text-red-400',
+        destructiveOptionHoverBg: 'hover:bg-red-50 dark:hover:bg-red-500/10',
         iconColor: 'text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-700',
     };
 
@@ -184,25 +187,38 @@ const ToolbarDropdown = memo(({
                         animate="animate"
                         exit="exit"
                     >
-                        {options.length > 0 ? options.map((option, index) => (
-                            <li
-                                key={option.value}
-                                id={`${CONTROL_ID}-option-${index}`}
-                                className={`px-3 py-2 text-sm cursor-pointer transition-colors outline-none flex items-center justify-between text-neutral-700 dark:text-neutral-800 ${option.disabled ? 'opacity-50 cursor-not-allowed' : `${currentTheme.optionHoverBg}`} ${activeIndex === index && !option.disabled ? `${currentTheme.selectedOptionBg} ${currentTheme.selectedOptionText}` : ''} ${value === option.value && !option.disabled && activeIndex !== index ? 'font-medium' : ''}`}
-                                onClick={() => !option.disabled && handleOptionClick(option.value)}
-                                onMouseEnter={() => !option.disabled && setActiveIndex(index)}
-                                role="option"
-                                aria-selected={value === option.value || activeIndex === index}
-                                aria-disabled={option.disabled}
-                            >
-                                <span className="truncate">{option.label}</span>
-                                {value === option.value && !option.disabled && (
-                                    <Icon name="check" className={`w-4 h-4 ml-2 flex-shrink-0 ${currentTheme.selectedOptionText}`} aria-hidden="true" style={{ fontSize: '1rem' }} />
-                                )}
-                            </li>
-                        )) : (
+                        {options.length > 0 ? options.map((option, index) => {
+                            const isSelected = value === option.value;
+                            const isActive = activeIndex === index;
+                            const isDestructive = option.isDestructive;
+
+                            const optionClasses = [
+                                "px-3 py-2 text-sm cursor-pointer transition-colors outline-none flex items-center justify-between",
+                                option.disabled ? "opacity-50 cursor-not-allowed" :
+                                    isDestructive ? `${currentTheme.destructiveOptionText} ${currentTheme.destructiveOptionHoverBg}` :
+                                        (isActive ? `${currentTheme.selectedOptionBg} ${currentTheme.selectedOptionText}` : currentTheme.optionHoverBg),
+                                isSelected && !isActive && !isDestructive ? 'font-semibold' : '',
+                            ].join(' ');
+
+                            return (
+                                <li
+                                    key={option.value}
+                                    id={`${CONTROL_ID}-option-${index}`}
+                                    className={optionClasses}
+                                    onClick={() => !option.disabled && handleOptionClick(option.value)}
+                                    onMouseEnter={() => !option.disabled && setActiveIndex(index)}
+                                    role="option"
+                                    aria-selected={isSelected || isActive}
+                                    aria-disabled={option.disabled}
+                                >
+                                    <span className="truncate">{option.label}</span>
+                                    {isSelected && !option.disabled && (
+                                        <Icon name="check" className={`w-4 h-4 ml-2 flex-shrink-0 ${isDestructive ? currentTheme.destructiveOptionText : currentTheme.selectedOptionText}`} aria-hidden="true" style={{ fontSize: '1rem' }} />
+                                    )}
+                                </li>
+                            );
+                        }) : (
                             <li className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400 italic">
-                                {/* MODIFICATION: Use centralized script lines */}
                                 {scriptLines.toolbarDropdown.noOptions}
                             </li>
                         )}
@@ -219,6 +235,7 @@ ToolbarDropdown.propTypes = {
             value: PropTypes.any.isRequired,
             label: PropTypes.string.isRequired,
             disabled: PropTypes.bool,
+            isDestructive: PropTypes.bool, // New prop for styling
         })
     ).isRequired,
     value: PropTypes.any,

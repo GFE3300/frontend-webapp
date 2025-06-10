@@ -5,6 +5,7 @@ import Icon from '../../../components/common/Icon'; // Assuming Icon component p
 const settingsNavLinks = [
     { name: 'Profile', to: 'profile', icon: 'person_outline' },
     { name: 'Subscription & Billing', to: 'billing', icon: 'credit_card' },
+    { name: 'Team Management', to: 'team', icon: 'group' }, // NEW: Nav link
     // Add more settings links here as needed:
     // { name: 'Notifications', to: 'notifications', icon: 'notifications_none' },
     // { name: 'Security', to: 'security', icon: 'shield_outline' },
@@ -14,7 +15,6 @@ const SettingsPage = () => {
     const location = useLocation();
 
     // If the user is at /dashboard/business/settings, redirect to a default sub-page.
-    // For example, redirect to 'profile' or 'billing'. Let's choose 'profile' for now.
     if (location.pathname === '/dashboard/business/settings' || location.pathname === '/dashboard/business/settings/') {
         return <Navigate to="profile" replace />;
     }
@@ -40,7 +40,7 @@ const SettingsPage = () => {
                                     `group rounded-md px-3 py-2 flex items-center text-sm font-medium transition-colors duration-150 ease-in-out
                                     ${isActive
                                         ? 'bg-primary-50 dark:bg-primary-700/20 text-primary-600 dark:text-primary-300'
-                                        : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700/50'
+                                        : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-700/50'
                                     }`
                                 }
                             >
@@ -52,7 +52,7 @@ const SettingsPage = () => {
                 </aside>
 
                 <div className="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-                    {/* Outlet will render the matched child route (Profile or SubscriptionBillingPage) */}
+                    {/* Outlet will render the matched child route (Profile, Billing, or Team) */}
                     <Outlet />
                 </div>
             </div>

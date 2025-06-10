@@ -6,8 +6,9 @@ const DEFAULT_PAGE_SIZE = 10;
 const createDefaultVisibilitySet = (cols) => {
     const defaultSet = new Set();
     cols.forEach(col => {
-        // MODIFICATION: Removed 'sales' from the hiddenByDefault array
-        const hiddenByDefault = [COLUMN_KEYS.COST, COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED];
+
+        const hiddenByDefault = [COLUMN_KEYS.BARCODE, COLUMN_KEYS.LAST_UPDATED, COLUMN_KEYS.LABOR_OVERHEAD_COST];
+
         if (col.isVisibilityToggleable === false) {
             defaultSet.add(col.id);
         } else if (!hiddenByDefault.includes(col.id)) {
@@ -17,15 +18,10 @@ const createDefaultVisibilitySet = (cols) => {
     return defaultSet;
 };
 
-// ... rest of the file remains unchanged ...
-// NOTE: The rest of the file from the dossier is assumed to be here.
-// Only the relevant changed function is shown for brevity.
-
-// The rest of the `useTableSettings.js` file content from the dossier follows...
 const defaultVisibilitySet = createDefaultVisibilitySet(initialColumns);
 const defaultColumnOrderKeys = initialColumns.map(col => col.id);
 
-const SETTINGS_STORAGE_KEY = 'productsTableSettings_v3_no_resize'; // Changed key slightly
+const SETTINGS_STORAGE_KEY = 'productsTableSettings_v3_no_resize';
 
 const loadSettings = () => {
     try {
@@ -34,7 +30,6 @@ const loadSettings = () => {
             return {
                 columnVisibility: defaultVisibilitySet,
                 columnOrder: defaultColumnOrderKeys,
-                // No columnWidths
                 filters: { search: '', category: '', product_type: '', is_active: '', tags: [] },
                 sort: { id: '', desc: false },
                 pagination: { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE },
@@ -71,15 +66,12 @@ const loadSettings = () => {
             mergedOrder = [...validStoredOrder, ...newColumnsInOrder];
         }
 
-        // No columnWidths merging needed
-
         const finalSettings = {
             filters: stored.filters || { search: '', category: '', product_type: '', is_active: '', tags: [] },
             sort: stored.sort || { id: '', desc: false },
             pagination: stored.pagination || { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE },
             columnVisibility: mergedVisibility,
             columnOrder: mergedOrder,
-            // No columnWidths
         };
         return finalSettings;
 
@@ -88,7 +80,6 @@ const loadSettings = () => {
         return {
             columnVisibility: defaultVisibilitySet,
             columnOrder: defaultColumnOrderKeys,
-            // No columnWidths
             filters: { search: '', category: '', product_type: '', is_active: '', tags: [] },
             sort: { id: '', desc: false },
             pagination: { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE },
@@ -101,7 +92,7 @@ export const useTableSettings = () => {
 
     useEffect(() => {
         try {
-            const { columnWidths, ...settingsToSave } = settings; // Exclude columnWidths if it somehow exists
+            const { columnWidths, ...settingsToSave } = settings;
             const serializedSettings = JSON.stringify({
                 ...settingsToSave,
                 columnVisibility: Array.from(settings.columnVisibility)
@@ -147,7 +138,6 @@ export const useTableSettings = () => {
         const freshDefaults = {
             columnVisibility: createDefaultVisibilitySet(initialColumns),
             columnOrder: initialColumns.map(col => col.id),
-            // No columnWidths
             filters: { search: '', category: '', product_type: '', is_active: '', tags: [] },
             sort: { id: '', desc: false },
             pagination: { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE },

@@ -7,8 +7,8 @@ import SalesSparkline from '../subcomponents/cell_contents/SalesSparkline';
 import SimpleToggle from '../subcomponents/cell_contents/SimpleToggle';
 import { scriptLines_ProductsTable as scriptLines } from './script_lines.js';
 
-
 export const COLUMN_KEYS = {
+    SELECTION: 'selection',
     ACTIONS: 'actions',
     IMAGE: 'image',
     NAME: 'name',
@@ -23,21 +23,70 @@ export const COLUMN_KEYS = {
     TAGS: 'product_tags',
     BARCODE: 'barcode',
     LAST_UPDATED: 'updated_at',
+    PROFIT_MARGIN: 'profit_margin',
 };
 
+// This context is now only for functions and less frequently updated data.
+// Reactive selection state will be passed via props.
 let tableInteractionContext = {
     onEdit: (product) => console.warn('onEdit not implemented', product),
     onDeleteRequest: (productId, productName) => console.warn('onDeleteRequest not implemented', productId, productName),
     onStatusToggle: (productId, newStatus) => console.warn('onStatusToggle not implemented', productId, newStatus),
     isProductStatusUpdating: (productId) => false,
+    salesData: {},
 };
 
 export const setTableInteractionContext = (context) => {
     tableInteractionContext = { ...tableInteractionContext, ...context };
 };
 
-
 export const initialColumns = [
+    {
+        id: COLUMN_KEYS.SELECTION,
+        // The header function now accepts props.
+        header: ({ pageProductIds, selectedProductIds, onToggleAllRows }) => {
+            const pageProductIdsSet = new Set(pageProductIds);
+            const selectedOnPageCount = new Set([...selectedProductIds].filter(id => pageProductIdsSet.has(id))).size;
+
+            const isAllSelected = pageProductIds.length > 0 && selectedOnPageCount === pageProductIds.length;
+            const isSomeSelected = selectedOnPageCount > 0 && selectedOnPageCount < pageProductIds.length;
+
+            return (
+                <div className="flex justify-center items-center px-4">
+                    <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-neutral-300 text-rose-600 focus:ring-rose-500 dark:border-neutral-500 dark:bg-neutral-600 dark:checked:bg-rose-500 dark:checked:border-rose-500"
+                        ref={el => { if (el) el.indeterminate = isSomeSelected; }}
+                        checked={isAllSelected}
+                        onChange={onToggleAllRows}
+                        aria-label="Select all rows on this page"
+                    />
+                </div>
+            );
+        },
+        // The cell function now accepts props.
+        cell: ({ row, isSelected, onToggleRow }) => {
+            const productId = row.original.id;
+            return (
+                <div className="flex justify-center items-center px-4">
+                    <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-neutral-300 text-rose-600 focus:ring-rose-500 dark:border-neutral-500 dark:bg-neutral-600 dark:checked:bg-rose-500 dark:checked:border-rose-500"
+                        checked={isSelected}
+                        onChange={() => onToggleRow(productId)}
+                        aria-label={`Select row for product ${row.original.name}`}
+                    />
+                </div>
+            );
+        },
+        size: 60,
+        minWidth: 60,
+        isResizable: false,
+        isSortable: false,
+        isVisibilityToggleable: false,
+        sticky: 'left',
+        align: 'center',
+    },
     {
         id: COLUMN_KEYS.ACTIONS,
         header: scriptLines.tableConfig.headers.actions,
@@ -50,11 +99,24 @@ export const initialColumns = [
         sticky: 'left',
         align: 'center',
         skeletonType: 'actions',
-        cell: ({ row }) => {
-            const salesHistory = tableInteractionContext.salesData?.[row.original.id];
-            const salesNumbers = salesHistory ? salesHistory.map(d => d.units_sold) : [];
-            return <SalesSparkline data={salesNumbers} />;
-        },
+        cell: ({ row }) => (
+            <div className="flex space-x-2 items-center justify-center">
+                <button
+                    onClick={() => tableInteractionContext.onEdit(row.original)}
+                    title={scriptLines.tableConfig.tooltips.editProduct}
+                    className="p-1 w-7 h-7 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                >
+                    <Icon name="edit" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
+                </button>
+                <button
+                    onClick={() => tableInteractionContext.onDeleteRequest(row.original.id, row.original.name)}
+                    title={scriptLines.tableConfig.tooltips.deleteProduct}
+                    className="p-1 w-7 h-7 text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 transition-colors"
+                >
+                    <Icon name="delete" className="w-5 h-5" style={{ fontSize: '1.25rem' }} />
+                </button>
+            </div>
+        ),
     },
     {
         id: COLUMN_KEYS.IMAGE,
@@ -84,8 +146,7 @@ export const initialColumns = [
         size: 250,
         align: 'left',
         skeletonType: 'name',
-        cell: ({ row, getValue, column }) => {
-            // This structure allows EditableCell to be used, but also provides a non-editable display
+        cell: ({ row, getValue }) => {
             return (
                 <div>
                     <span className="font-medium text-neutral-800 dark:text-neutral-100">{getValue()}</span>
@@ -131,7 +192,6 @@ export const initialColumns = [
         cell: ({ getValue }) => {
             const type = getValue();
             if (!type) return null;
-            // Map backend value to the display text from scriptLines for i18n
             const typeText = scriptLines.tableConfig.productTypes[type] || type.replace(/_/g, ' ');
             return (
                 <span className={`px-2 py-1 font-montserrat py-0.5 text-xs rounded-full ${type === 'made_in_house' ? 'bg-sky-100 text-sky-700 dark:bg-sky-700 dark:text-sky-100' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-700 dark:text-emerald-100'}`}>
@@ -155,7 +215,7 @@ export const initialColumns = [
     {
         id: COLUMN_KEYS.COST,
         header: scriptLines.tableConfig.headers.cost,
-        accessorKey: 'labor_overhead_cost',
+        accessorKey: 'total_cost',
         isSortable: true,
         isResizable: true,
         minWidth: 100,
@@ -163,6 +223,18 @@ export const initialColumns = [
         size: 100,
         align: 'right',
         skeletonType: 'price',
+    },
+    {
+        id: COLUMN_KEYS.PROFIT_MARGIN,
+        header: "Margin",
+        accessorKey: 'profit_margin',
+        isSortable: true,
+        isResizable: true,
+        minWidth: 80,
+        size: 90,
+        align: 'right',
+        skeletonType: 'price',
+        cellType: 'percentage',
     },
     {
         id: COLUMN_KEYS.STOCK,
@@ -179,14 +251,26 @@ export const initialColumns = [
     {
         id: COLUMN_KEYS.SALES,
         header: scriptLines.tableConfig.headers.sales,
-        accessorKey: 'sales_data',
-        isSortable: false,
+        isSortable: false, // Sales data is complex and not sortable by this column
         isResizable: true,
         minWidth: 100,
         size: 120,
         align: 'left',
         skeletonType: 'sales',
-        cell: ({ getValue }) => <SalesSparkline data={getValue() || []} />,
+        // --- MODIFICATION START ---
+        // Implement the cell renderer to process and pass data to the sparkline component.
+        cell: ({ row }) => {
+            const productId = row.original.id;
+            // Access the salesData from the context.
+            const salesHistoryForProduct = tableInteractionContext.salesData?.[productId] || [];
+
+            // Map the array of objects to an array of numbers.
+            const unitsSoldData = salesHistoryForProduct.map(day => day.units_sold);
+
+            // Pass the numerical data to the SalesSparkline component.
+            return <SalesSparkline data={unitsSoldData} />;
+        },
+        // --- MODIFICATION END ---
     },
     {
         id: COLUMN_KEYS.STATUS,

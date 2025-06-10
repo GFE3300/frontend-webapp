@@ -1,74 +1,49 @@
-import React, { useState, Suspense } from 'react';
+import React, { Suspense } from 'react';
+import { useCommandBarSummary } from '../hooks/useOverviewData';
 
-// Common Components
-import Toggle from '../../../components/common/Toggle';
-
-// Page-specific sections and cards
-import LiveVenueCard from '../cards/LiveVenueCard';
-import ProductMoversCard from '../cards/ProductMoversCard';
-import ActionItemsCard from '../cards/ActionItemsCard';
+// Skeletons
 import CommandBarSkeleton from '../cards/skeletons/CommandBarSkeleton';
-import LiveOrdersCard from '../cards/command_bar/LiveOrdersCard';
-import RevenueCard from '../cards/command_bar/RevenueCard';
-import OccupancyCard from '../cards/command_bar/OccupancyCard';
-import GuestsCard from '../cards/command_bar/GuestsCard';
-
-// Skeletons for other sections
 import LiveVenueCardSkeleton from '../cards/skeletons/LiveVenueCardSkeleton';
 import ActionItemsCardSkeleton from '../cards/skeletons/ActionItemsCardSkeleton';
 
-// Hooks
-import { useCommandBarSummary } from '../hooks/useOverviewData';
+// Cards
+import RevenueCard from '../../data_cards/revenue_card';
+import HeatmapCard from '../../data_cards/heatmap';
 
-/**
- * A dedicated component to handle the data fetching and rendering of the command bar.
- * This component is wrapped in Suspense, ensuring that it only renders once the
- * `useCommandBarSummary` hook has successfully returned data.
- */
-const CommandBarContent = ({ isInsightMode }) => {
-    // The useCommandBarSummary hook is likely returning the entire query object.
-    const queryResult = useCommandBarSummary();
+// Command Bar Cards
+import LiveOrdersCard from '../cards/command_bar/LiveOrdersCard';
+import DailyRevenueCard from '../cards/command_bar/RevenueCard';
+import OccupancyCard from '../cards/command_bar/OccupancyCard';
+import GuestsCard from '../cards/command_bar/GuestsCard';
 
-    // Defensively extract the 'data' property. This handles cases where the hook
-    // returns the full query object OR just the data payload.
-    const data = queryResult && queryResult.data ? queryResult.data : queryResult;
+// Other page sections
+import LiveVenueCard from '../cards/LiveVenueCard';
+import ProductMoversCard from '../cards/ProductMoversCard';
+import ActionItemsCard from '../cards/ActionItemsCard';
 
-    // Add a guard clause. Even with Suspense, if the hook is misbehaving,
-    // this prevents a crash before the component can be suspended.
-    if (!data || !data.snapshot_mode || !data.insight_mode) {
-        // This should not be reached if suspense works perfectly, but it's a robust failsafe.
-        // Returning null allows React to continue trying to render/suspend without crashing.
-        return null;
+
+const CommandBar = () => {
+    const { data } = useCommandBarSummary();
+
+    // The suspense boundary will prevent rendering until `data` is available.
+    // A check is added for robustness in case suspense behavior changes or fails.
+    if (!data) {
+        return <CommandBarSkeleton />;
     }
 
-    // By this point, `data` is guaranteed to have the correct nested structure.
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <LiveOrdersCard
-                data={{ live_orders: data.snapshot_mode.live_orders, order_funnel: data.insight_mode.order_funnel }}
-                isInsightMode={isInsightMode}
-            />
-            <RevenueCard
-                data={{ revenue_today: data.snapshot_mode.revenue_today, revenue_engine: data.insight_mode.revenue_engine }}
-                isInsightMode={isInsightMode}
-            />
-            <OccupancyCard
-                data={{ occupancy: data.snapshot_mode.occupancy, venue_hotspots: data.insight_mode.venue_hotspots }}
-                isInsightMode={isInsightMode}
-            />
-            <GuestsCard
-                data={{ guests_today: data.snapshot_mode.guests_today, guest_flow: data.insight_mode.guest_flow }}
-                isInsightMode={isInsightMode}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <LiveOrdersCard data={data.snapshot_mode.live_orders} insightData={data.insight_mode.order_funnel} />
+            <DailyRevenueCard data={data.snapshot_mode.revenue_today} insightData={data.insight_mode.revenue_engine} />
+            <OccupancyCard data={data.snapshot_mode.occupancy} insightData={data.insight_mode.venue_hotspots} />
+            <GuestsCard data={data.snapshot_mode.guests_today} insightData={data.insight_mode.guest_flow} />
         </div>
     );
 };
 
 const OverviewPage = () => {
-    const [isInsightMode, setInsightMode] = useState(false);
-
     return (
-        <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-neutral-900 min-h-screen">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-neutral-100 dark:bg-neutral-900 min-h-screen">
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold font-montserrat text-gray-900 dark:text-white">
@@ -78,30 +53,26 @@ const OverviewPage = () => {
                         A real-time pulse of your business operations.
                     </p>
                 </div>
-                <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        {isInsightMode ? 'Insight Mode' : 'Snapshot Mode'}
-                    </span>
-                    <Toggle
-                        checked={isInsightMode}
-                        onChange={() => setInsightMode(!isInsightMode)}
-                    />
-                </div>
             </div>
 
             {/* Command Bar */}
             <Suspense fallback={<CommandBarSkeleton />}>
-                <CommandBarContent isInsightMode={isInsightMode} />
+                <CommandBar />
             </Suspense>
-
 
             {/* Action Zone */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                <div className="lg:col-span-1">
+                    <HeatmapCard />
+                </div>
+                <div className="lg:col-span-2">
+                    <RevenueCard />
+                </div>
                 <div className="lg:col-span-2 space-y-6">
                     <Suspense fallback={<LiveVenueCardSkeleton />}>
                         <LiveVenueCard />
                     </Suspense>
-                    <Suspense fallback={<div>Loading Movers...</div>}>
+                    <Suspense fallback={<div className="h-full bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6 animate-pulse"></div>}>
                         <ProductMoversCard />
                     </Suspense>
                 </div>

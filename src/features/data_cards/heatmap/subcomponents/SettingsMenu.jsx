@@ -65,19 +65,18 @@ const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
             {isOpen && (
                 <>
                     <motion.div
-                        className="fixed inset-0 z-40 inset-0 bg-neutral-200/30 dark:bg-neutral-900/30 backdrop-blur-sm"
+                        className="fixed inset-0 z-40 inset-0 bg-neutral-200/30 dark:bg-neutral-900/30 backdrop-blur-sm "
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
                     />
                     <motion.div
-                        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 inset-0 w-full h-96 bg-neutral-200/80 dark:bg-neutral-900/80 backdrop-blur-lg rounded-4xl shadow-2xl z-50"
+                        className="fixed w-full md:w-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 inset-0 w-full h-96 bg-neutral-200/80 dark:bg-neutral-900/80 backdrop-blur-lg rounded-4xl shadow-2xl z-50"
                         initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.95, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        style={{ width: size.width + 96 }}
                     >
                         <div
                             className="flex flex-col h-full"
@@ -125,12 +124,12 @@ const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
                                             exit={{ opacity: 0 }}
                                             transition={{ duration: 0.3 }}
                                             className={`
-                                                grid w-full gap-6 px-4 py-6 overflow-hidden
-                                                ${isMobile ? 'grid-cols-1' : 'grid-cols-[300px_1fr]'}
+                                                flex w-full gap-6 px-4 py-6 overflow-hidden 
+                                                ${isMobile ? 'flex-cols' : 'flex-row justify-between'}
                                             `}
                                         >
                                             {/* Calendar Column */}
-                                            <div className="space-y-4 max-w-75">
+                                            <div className="space-y-4 w-full">
                                                 <Calendar
                                                     mode="week"
                                                     onChange={({ start }) => handleWeekSettingChange('startDay', start)}
@@ -139,7 +138,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
                                             </div>
 
                                             {/* Settings Column */}
-                                            <div className="flex flex-col gap-4 max-w-75">
+                                            <div className="flex flex-col gap-4 w-full">
                                                 <NumberStepper
                                                     label="Block Start Hour (0–23)"
                                                     min={0} max={23}

@@ -1,6 +1,3 @@
-// FILE: src/features/dashboard/cards/LiveVenueCardSkeleton.jsx
-// ACTION: CREATED
-
 import React from 'react';
 
 const LiveVenueCardSkeleton = () => {

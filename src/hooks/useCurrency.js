@@ -46,7 +46,7 @@ import { formatCurrency as formatCurrencyUtil } from '../utils/formatCurrency.js
  * A hook to access the current business's currency information and a formatting function.
  * @returns {{currencyCode: string, formatCurrency: (amount: number) => string}}
  */
-export const useCurrency  = () => {
+export const useCurrency = () => {
     const venueContext = useContext(VenueContext);
     const currencyCode = venueContext?.businessCurrency || 'USD';
 
@@ -54,5 +54,5 @@ export const useCurrency  = () => {
         return formatCurrencyUtil(amount, currencyCode);
     };
 
-    return { currencyCode, formatCurrency };
+    return { currencyCode, formatCurrency, currencySymbol: currencySymbols[currencyCode] };
 };

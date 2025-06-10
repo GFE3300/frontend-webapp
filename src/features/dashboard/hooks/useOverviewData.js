@@ -61,22 +61,3 @@ export const useProductMovers = (period = 'today', options = {}) => {
         ...options,
     });
 };
-
-/**
- * Fetches the summary data for the live orders card.
- * @param {object} options - TanStack Query options.
- * @returns {QueryResult} The result of the TanStack Query operation.
- */
-export const useLiveOrdersSummary = (options = {}) => {
-    return useQuery({
-        queryKey: queryKeys.liveOrdersSummary,
-        queryFn: async () => {
-            const response = await apiService.getLiveOrdersSummary();
-            return response.data;
-        },
-        staleTime: 1000 * 30, // 30 seconds
-        refetchInterval: 1000 * 60, // Refetch every 1 minute
-        suspense: true, // Enable Suspense mode
-        ...options,
-    });
-};

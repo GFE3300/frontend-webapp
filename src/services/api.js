@@ -77,7 +77,6 @@ apiInstance.interceptors.response.use(
                 isRefreshing = false;
                 const noRefreshError = new Error("No refresh token available. Please log in again.");
                 noRefreshError.isAxiosError = true; // Custom property
-                noRefreshError.config = originalRequest;
                 noRefreshError.requiresLogout = true; // Custom property for AuthContext
                 return Promise.reject(noRefreshError);
             }
@@ -131,6 +130,24 @@ const apiService = {
             headers: {
                 'X-Bypass-Auth-Interceptor': true, // To prevent attaching possibly non-existent token
                 'X-Bypass-Auth-Interceptor-Original': true // To prevent retry logic on 401 for this specific call
+            }
+        });
+    },
+
+    /**
+     * Validates a registration field for uniqueness against the backend.
+     * @param {string} fieldName - The name of the field to validate (e.g., 'email', 'business_username').
+     * @param {string} value - The value of the field to validate.
+     * @returns {Promise<AxiosResponse<object>>} The Axios response object containing validation result.
+     */
+    validateRegistrationField: (fieldName, value) => {
+        return apiInstance.post('auth/validate-field/', {
+            field_name: fieldName,
+            value: value,
+        }, {
+            headers: {
+                // This call should be public, but bypassing the interceptor ensures no stale tokens interfere.
+                'X-Bypass-Auth-Interceptor-Original': true
             }
         });
     },
@@ -347,22 +364,61 @@ const apiService = {
         return apiInstance.get('orders/kitchen-view/');
     },
 
-    getLiveOrdersSummary: () => {
-        console.warn("API STUB: getLiveOrdersSummary called");
-        return Promise.resolve({
-            data: {
-                active_orders_count: 12,
-                needs_confirmation_count: 2,
-                manager_attention_count: 1,
-                funnel: {
-                    pending_confirmation: 2,
-                    confirmed: 4,
-                    preparing: 5,
-                    served: 1
-                },
-                avg_confirmation_time_seconds: 35
-            }
-        });
+    // --- NEW: Business & Team Management API Signatures ---
+
+    /**
+     * Switches the user's active business context.
+     * @param {string} businessId - The UUID of the business to switch to.
+     * @returns {Promise<AxiosResponse<{access: string, refresh: string}>>}
+     */
+    switchBusiness: (businessId) => {
+        return apiInstance.post('auth/switch-business/', { business_id: businessId });
+    },
+
+    /**
+     * Fetches the list of businesses the current user is a member of.
+     * @returns {Promise<AxiosResponse<Array<{id: string, name: string, role: string}>>>}
+     */
+    getMyBusinesses: () => {
+        return apiInstance.get('businesses/');
+    },
+
+    /**
+     * Creates a new business.
+     * @param {object} businessData - The data for the new business (e.g., { name, email }).
+     * @returns {Promise<AxiosResponse<object>>} The created business object.
+     */
+    createBusiness: (businessData) => {
+        return apiInstance.post('businesses/', businessData);
+    },
+
+    /**
+     * Fetches the list of team members for a specific business.
+     * @param {string} businessId - The UUID of the business.
+     * @returns {Promise<AxiosResponse<Array<object>>>}
+     */
+    getBusinessMembers: (businessId) => {
+        return apiInstance.get(`businesses/${businessId}/members/`);
+    },
+
+    /**
+     * Invites a new member to a business.
+     * @param {string} businessId - The UUID of the business.
+     * @param {{email: string, role: string}} inviteData - The invite details.
+     * @returns {Promise<AxiosResponse<object>>}
+     */
+    inviteMember: (businessId, inviteData) => {
+        return apiInstance.post(`businesses/${businessId}/invite/`, inviteData);
+    },
+
+    /**
+     * Removes a team member from a business.
+     * @param {string} businessId - The UUID of the business.
+     * @param {string} membershipId - The UUID of the membership record to delete.
+     * @returns {Promise<AxiosResponse>}
+     */
+    removeMember: (businessId, membershipId) => {
+        return apiInstance.delete(`businesses/${businessId}/members/${membershipId}/`);
     },
 
 };

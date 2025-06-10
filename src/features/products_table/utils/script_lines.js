@@ -149,6 +149,19 @@ export const scriptLines_ProductsTable = {
             placeholder: i18n.t('products_table.productsTable.productsToolbar.sort.placeholder'), // "Sort By"
             ariaLabel: i18n.t('products_table.productsTable.productsToolbar.sort.ariaLabel'), // "Sort by"
         },
+        bulkActions: {
+            placeholder: "Bulk Actions ({count})", // 
+            ariaLabel: "Perform bulk actions on selected products", // 
+            activateSelected: "Activate Selected", // 
+            deactivateSelected: "Deactivate Selected", // 
+            changeCategory: "Change Category...", // 
+            addTags: "Add Tags...", // 
+            removeTags: "Remove Tags...", // 
+            deleteSelected: "Delete Selected", // 
+        },
+        selection: {
+            clearSelectionTooltip: "Clear Selection", // 
+        }
     },
     customColumnDropdown: {
         triggerText: i18n.t('products_table.productsTable.customColumnDropdown.triggerText'), // "Columns"

@@ -43,3 +43,5 @@ i18n
 export default i18n;
 
 export const t = (key, options) => i18n.t(key, options);
+
+export const interpolate = (key, options) => i18n.t(key, options);
