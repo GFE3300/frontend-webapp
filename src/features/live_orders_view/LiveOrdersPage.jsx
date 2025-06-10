@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 // Hooks and services
 import { useLiveOrders } from './hooks/useLiveOrders';
 import { useLayoutData } from './hooks/useLayoutData';
-import { useActiveKitchenOrders } from '../kitchen_display_system/hooks/useActiveKitchenOrders';
+import { useKitchenOrders } from '../kitchen_display_system/hooks/useKitchenOrders';
 import { useToast } from '../../contexts/ToastContext';
 import { queryKeys } from '../../services/queryKeys';
 import apiService from '../../services/api';
@@ -39,7 +39,7 @@ const OrdersDashboardPage = () => {
     // --- Data Fetching ---
     const { data: liveTableData, isLoading: isLoadingLive, isError: isErrorLive, error: errorLive } = useLiveOrders({ enabled: viewMode === 'venue' });
     const { data: layoutData, isLoading: isLoadingLayout, isError: isErrorLayout, error: errorLayout } = useLayoutData({ enabled: viewMode === 'venue' });
-    const { data: kitchenOrders, isLoading: isLoadingKitchen, isError: isErrorKitchen, error: errorKitchen } = useActiveKitchenOrders({ enabled: viewMode === 'kitchen' });
+    const { data: kitchenOrders, isLoading: isLoadingKitchen, isError: isErrorKitchen, error: errorKitchen } = useKitchenOrders({ enabled: viewMode === 'kitchen' });
 
     // --- Mutation for updating orders ---
     const orderUpdateMutation = useMutation({

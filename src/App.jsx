@@ -42,6 +42,7 @@ import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSett
 import SubscriptionBillingPage from './features/dashboard/pages/settings/SubscriptionBillingPage.jsx';
 import TeamManagementPage from './features/dashboard/pages/settings/TeamManagementPage.jsx'; // NEW: Import
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
+import KitchenDisplayPage from './features/kitchen_display_system/pages/KitchenDisplayPage.jsx';
 
 // Components
 import PrivateRoute from './components/common/PrivateRoute.jsx';
@@ -127,6 +128,14 @@ const router = createBrowserRouter([
         path: "/staff/login",
         element: <StaffLoginPage />,
     },
+    {
+        path: "/kitchen-display",
+        element: (
+            <PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
+                <KitchenDisplayPage />
+            </PrivateRoute>
+        ),
+    }, 
     {
         path: "/staff",
         element: (
