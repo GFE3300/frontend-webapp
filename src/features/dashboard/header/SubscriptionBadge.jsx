@@ -1,6 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useSubscription } from '../../../contexts/SubscriptionContext';
@@ -43,7 +42,6 @@ const SubscriptionBadge = () => {
                 isWrapper: true,
             };
         }
-
 
         // --- Error State ---
         if (subscriptionError) {
@@ -140,7 +138,7 @@ const SubscriptionBadge = () => {
                     disabled={isPortalLoading}
                     className={`${commonClasses} ${details.className}`}
                 >
-                    {details.icon && (typeof details.icon === 'string' ? <Icon name={details.icon} className="h-3.5 w-3.5" /> : details.icon)}
+                    {details.icon && (typeof details.icon === 'string' ? <Icon name={details.icon} className="h-4 w-4" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 24 }} /> : details.icon)}
                     <span>{details.content}</span>
                     {details.hasPulse && <div className="absolute inset-0 rounded-full bg-current opacity-25 animate-ping"></div>}
                 </Component>
@@ -148,8 +146,5 @@ const SubscriptionBadge = () => {
         </AnimatePresence>
     );
 };
-
-// No PropTypes needed as the component takes no external props.
-// It is fully self-sufficient.
 
 export default memo(SubscriptionBadge);

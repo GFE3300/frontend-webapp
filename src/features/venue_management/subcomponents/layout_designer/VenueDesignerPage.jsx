@@ -330,7 +330,7 @@ const VenueDesignerPage = () => {
 };
 
 VenueDesignerPage.Loading = () => (
-    <div className="flex items-center justify-center h-screen bg-neutral-50 dark:bg-neutral-900">
+    <div className="flex items-center justify-center h-screen bg-transparent">
         <Icon name="progress_activity" aria-hidden="true" className="w-12 h-12 text-rose-500 dark:text-rose-400 animate-spin" style={{ fontSize: '3rem' }} />
         <p className="ml-3 text-lg font-montserrat font-semibold text-rose-700 dark:text-rose-400">
             {sl.loadingPageTitle || "Loading Venue Designer..."}

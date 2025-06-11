@@ -26,6 +26,9 @@ import LiveVenueCard from '../cards/LiveVenueCard';
 import ProductMoversCard from '../cards/ProductMoversCard';
 import ActionItemsCard from '../cards/ActionItemsCard';
 
+// NEW: Import the greeting component
+import DashboardGreeting from '../subcomponents/DashboardGreeting';
+
 // Animation variants for the container to orchestrate staggered animations
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -82,16 +85,8 @@ const CommandBar = () => {
 const OverviewPage = () => {
     return (
         <div className="p-4 sm:p-6 lg:p-8 space-y-6 h-full">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold font-montserrat text-gray-900 dark:text-white">
-                        Dashboard Overview
-                    </h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        A real-time pulse of your business operations.
-                    </p>
-                </div>
-            </div>
+            {/* The old header is replaced with the new dynamic greeting component */}
+            <DashboardGreeting />
 
             <Suspense fallback={<CommandBarSkeleton />}>
                 <CommandBar />

@@ -2,22 +2,22 @@ import React from 'react';
 import MainContentArea from './MainContentArea';
 import DashboardHeader from './DashboardHeader';
 import Sidebar from './Sidebar';
+import MobileNavbar from './MobileNavbar'; // Import the new mobile navbar
+import { useDeviceDetection } from '../../hooks/useDeviceDetection'; // Import the device detection hook
 
 import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 import * as reactSpring from '@react-spring/three'
-
 import { useTheme } from '../../utils/ThemeProvider';
 
-const HeaderHeight = '5rem';
+const HeaderHeight = '5rem'; // Keep for header padding
 
 const DashboardLayout = () => {
     const { theme } = useTheme();
+    const { isMobile } = useDeviceDetection(); // Use the hook to detect device type
 
     return (
         <div className="flex h-screen bg-transparent overflow-hidden">
-
-
-            {/* Experimental */}
+            {/* Background Shader (no changes needed here) */}
             <ShaderGradientCanvas
                 style={{
                     position: 'fixed',
@@ -40,18 +40,20 @@ const DashboardLayout = () => {
                 />
             </ShaderGradientCanvas>
 
-            <div className='fixed left-0 bottom-0 z-10' style={{ height: `calc(100% - ${HeaderHeight})` }}>
-                <Sidebar />
-            </div>
+            {/* --- MODIFIED: Conditional Sidebar / Mobile Navbar --- */}
+            {isMobile ? <MobileNavbar /> : (
+                <div className='fixed left-0 bottom-0 z-10' style={{ height: `calc(100% - ${HeaderHeight})` }}>
+                    <Sidebar />
+                </div>
+            )}
 
             <div className="flex-1 flex flex-col overflow-hidden z-0">
-                {/* Header is also fixed and floats */}
                 <DashboardHeader />
 
-                {/* Main content area needs padding to not be obscured by the floating elements */}
+                {/* --- MODIFIED: Responsive Padding --- */}
                 <div
-                    className="flex-1 overflow-y-auto"
-                    style={{ paddingTop: HeaderHeight, paddingLeft: '6rem' }} // Space for header and sidebar
+                    className="flex-1 overflow-y-auto pb-20 md:pb-0 md:pl-24" // Added responsive padding
+                    style={{ paddingTop: HeaderHeight }}
                 >
                     <MainContentArea />
                 </div>

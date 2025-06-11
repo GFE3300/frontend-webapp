@@ -1,28 +1,32 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+import { usePermissions } from '../../../hooks/usePermissions'; // Import usePermissions
 
 /**
  * The "Living Insignia" component.
  * A dynamic, context-aware user avatar that subtly communicates subscription status
- * through color and ambient animation.
+ * through color and ambient animation. It now displays the user's profile image or initial.
  */
-const UserAvatar = ({ user, subscriptionPlan, onClick }) => {
+const UserAvatar = ({ user, onClick }) => {
+    // Get permissions which includes the subscription plan
+    const { permissions } = usePermissions();
+    const subscriptionPlan = permissions.subscriptionPlan;
 
-    const { color, glowClass, isPremium } = useMemo(() => {
+    const { color, isPremium } = useMemo(() => {
         switch (subscriptionPlan) {
             case 'premium_pro_suite':
-                return { color: '#F59E0B', glowClass: 'shadow-amber-500/50', isPremium: true };
+                return { color: '#F59E0B', isPremium: true }; // amber-500
             case 'growth_accelerator':
-                return { color: '#3B82F6', glowClass: 'shadow-blue-500/50', isPremium: false };
+                return { color: '#3B82F6', isPremium: false }; // blue-500
             case 'trialing':
-                return { color: '#14B8A6', glowClass: 'shadow-teal-500/50', isPremium: false };
+                return { color: '#14B8A6', isPremium: false }; // teal-500
             default: // starter_essentials or null
-                return { color: '#6B7280', glowClass: 'shadow-transparent', isPremium: false };
+                return { color: '#6B7280', isPremium: false }; // gray-500
         }
     }, [subscriptionPlan]);
 
-    const initial = user.firstName?.charAt(0).toUpperCase() || '?';
+    const initial = user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?';
 
     return (
         <motion.button
@@ -47,7 +51,7 @@ const UserAvatar = ({ user, subscriptionPlan, onClick }) => {
             }}
             transition={{ type: 'spring', stiffness: 300 }}
         >
-            {/* Layer 1: Animated Gradient Background */}
+            {/* Layer 1: Animated Gradient Background (for premium) */}
             {isPremium && (
                 <motion.div
                     className="absolute inset-0 w-full h-full rounded-full overflow-hidden"
@@ -61,7 +65,7 @@ const UserAvatar = ({ user, subscriptionPlan, onClick }) => {
 
             {/* Layer 2: Profile Picture or Initial */}
             <div className="relative w-full h-full rounded-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
-                {user.profile_image_url ? (
+                {user && user.profile_image_url ? (
                     <img
                         src={user.profile_image_url}
                         alt="User profile"
@@ -78,8 +82,11 @@ const UserAvatar = ({ user, subscriptionPlan, onClick }) => {
 };
 
 UserAvatar.propTypes = {
-    user: PropTypes.object.isRequired,
-    subscriptionPlan: PropTypes.string,
+    user: PropTypes.shape({
+        firstName: PropTypes.string,
+        email: PropTypes.string,
+        profile_image_url: PropTypes.string, // Expect this prop now
+    }),
     onClick: PropTypes.func.isRequired,
 };
 
