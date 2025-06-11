@@ -69,4 +69,12 @@ export const scriptLines_dashboard = {
         noActivity: i18n.t('dashboard.dashboard.occupancyCard.noActivity'),
         avgTurnTime: i18n.t('dashboard.dashboard.occupancyCard.avgTurnTime'),
     },
+        dashboardGreeting: {
+        goodMorning: 'Good morning',
+        goodAfternoon: 'Good afternoon',
+        goodEvening: 'Good evening',
+        fallbackName: 'Agent',
+        subtitle: 'Here is the real-time pulse of your business operations.',
+        greeting: '{{greeting}}, {{firstName}}.',
+    },
 };
