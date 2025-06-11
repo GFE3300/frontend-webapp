@@ -9,6 +9,7 @@ import { usePermissions } from '../../../hooks/usePermissions';
 
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
+import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
 const BusinessSwitcher = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -40,11 +41,11 @@ const BusinessSwitcher = () => {
         try {
             await switchBusiness(businessId);
             await queryClient.invalidateQueries();
-            addToast("Switched business successfully!", "success");
+            addToast(sl.businessSwitcher.switchSuccessToast || "Switched business successfully!", "success");
             setIsOpen(false);
             navigate('/dashboard/business/overview', { replace: true });
         } catch (error) {
-            addToast("Could not switch business.", "error");
+            addToast(sl.businessSwitcher.switchErrorToast || "Could not switch business.", "error");
         } finally {
             setIsSwitching(false);
         }
@@ -88,7 +89,7 @@ const BusinessSwitcher = () => {
                 </div>
                 <div className="ml-3 mr-2 flex-grow overflow-hidden">
                     <p className="text-sm font-semibold text-neutral-50 truncate">
-                        {isSwitching ? "Switching..." : user?.activeBusinessName || '...'}
+                        {isSwitching ? (sl.businessSwitcher.switching || "Switching...") : user?.activeBusinessName || '...'}
                     </p>
                 </div>
                 {isSwitching ? (
@@ -107,10 +108,10 @@ const BusinessSwitcher = () => {
                         exit="hidden"
                         className={`absolute left-0 mt-3 w-64 origin-top-left bg-black/50 dark:bg-neutral-900/70 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-2 z-50 border-t-2 ${getMenuAccentColor(permissions.subscriptionPlan)}`}
                     >
-                        <motion.div variants={itemVariants} className="px-2 pb-2 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Your Businesses</motion.div>
+                        <motion.div variants={itemVariants} className="px-2 pb-2 text-xs font-semibold text-neutral-400 uppercase tracking-wider">{sl.businessSwitcher.yourBusinesses || 'Your Businesses'}</motion.div>
 
-                        {isLoading && <motion.div variants={itemVariants} className="px-2 py-2 text-sm text-neutral-400">Loading...</motion.div>}
-                        {isError && <motion.div variants={itemVariants} className="px-2 py-2 text-sm text-red-400">Failed to load.</motion.div>}
+                        {isLoading && <motion.div variants={itemVariants} className="px-2 py-2 text-sm text-neutral-400">{sl.businessSwitcher.loading || 'Loading...'}</motion.div>}
+                        {isError && <motion.div variants={itemVariants} className="px-2 py-2 text-sm text-red-400">{sl.businessSwitcher.failedToLoad || 'Failed to load.'}</motion.div>}
 
                         {businesses && businesses.map((business) => (
                             <motion.button
@@ -142,11 +143,11 @@ const BusinessSwitcher = () => {
                                 onClickCapture={(e) => !permissions.canCreateNewBusiness && e.preventDefault()}
                             >
                                 <Icon name="add_business" className="mr-2 h-5 w-5" style={{ fontSize: '1.25rem' }} />
-                                Create New Business
+                                {sl.businessSwitcher.createNewBusiness || 'Create New Business'}
                             </Link>
                             {!permissions.canCreateNewBusiness && (
                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max px-3 py-1.5 text-xs font-medium text-white bg-neutral-900/80 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    Upgrade your plan to add more businesses.
+                                    {sl.businessSwitcher.upgradePlanTooltip || 'Upgrade your plan to add more businesses.'}
                                 </div>
                             )}
                         </motion.div>

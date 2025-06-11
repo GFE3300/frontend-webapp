@@ -342,6 +342,35 @@
   },
   "dashboard": {
     "dashboard": {
+      "actionItemsCard": {
+        "attentionNeeded": "Atención necesaria para <1>{{display}</1> }",
+        "confirmNewOrders_one": "Confirme <1>{{count}} nuevo pedido</1>",
+        "confirmNewOrders_other": "Confirmar <1>{{count}} nuevos pedidos</1>",
+        "lowOnStock": "<1>{{name}</1> } tiene pocas existencias ({{current_stock}} {{unit}})",
+        "noItemsSubtitle": "No hay acciones pendientes que requieran su atención.",
+        "noItemsTitle": "Todos los sistemas despejados",
+        "title": "Información sobre la misión"
+      },
+      "businessSwitcher": {
+        "createNewBusiness": "Crear nuevas empresas",
+        "failedToLoad": "Fallo al cargar.",
+        "switchErrorToast": "No podía cambiar de empresa.",
+        "switchSuccessToast": "Cambio de empresa con éxito",
+        "switching": "Cambiando...",
+        "upgradePlanTooltip": "Actualice su plan para añadir más empresas.",
+        "yourBusinesses": "Sus empresas"
+      },
+      "dashboardGreeting": {
+        "fallbackName": "Agente",
+        "goodAfternoon": "Buenas tardes",
+        "goodEvening": "Buenas noches",
+        "goodMorning": "Buenos días.",
+        "greeting": "{{greeting}}, {{firstName}}.",
+        "subtitle": "Aquí tiene el pulso en tiempo real de las operaciones de su empresa."
+      },
+      "dashboardHeader": {
+        "notificationsTitle": "Notificaciones"
+      },
       "guestsCard": {
         "peakHour": "Hora punta",
         "title": "Invitados de hoy",
@@ -354,6 +383,20 @@
         "title": "Pedidos en directo",
         "titleInsight": "Embudo de pedidos",
         "toConfirm_one": "{{count}} para Confirmar"
+      },
+      "liveVenueCard": {
+        "fullViewButton": "Vista completa",
+        "noLayoutSubtitle": "Ve al <1>Diseñador de recintos</1> para crear uno.",
+        "noLayoutTitle": "No se ha encontrado la disposición del lugar",
+        "title": "La Atalaya"
+      },
+      "nav": {
+        "analytics": "Analítica",
+        "orders": "Pedidos",
+        "overview": "Visión general",
+        "products": "Productos",
+        "settings": "Ajustes",
+        "venue": "Lugar"
       },
       "occupancyCard": {
         "avgTurnTime": "Avg. Tiempo de giro",
@@ -370,6 +413,13 @@
         "noActiveOrders": "No hay pedidos activos",
         "tooltipLabel": "{{count}} {{status}}"
       },
+      "productMoversCard": {
+        "bottomItemsTitle": "Los 5 artículos más vendidos",
+        "noData": "No hay datos para este periodo.",
+        "periodToday": "Hoy",
+        "title": "Hoja caliente de hoy",
+        "topItemsTitle": "Los 5 artículos más vendidos"
+      },
       "revenueCard": {
         "avgSpend": "Avg. Gasto / Huésped",
         "categoryDrinks": "Bebidas",
@@ -381,6 +431,20 @@
         "titleInsight": "Motor de ingresos",
         "vsYesterday": "frente a ayer",
         "vsYesterdayValue": "vs {{value}} ayer"
+      },
+      "subscriptionBadge": {
+        "actionRequired": "Acción requerida",
+        "cancelsOn": "Cancela {{date}}",
+        "choosePlan": "+ Elegir plan",
+        "growthPlan": "Plan de crecimiento",
+        "managePlan": "Plan de gestión",
+        "planError": "Error de plan",
+        "portalErrorToast": "No se ha podido acceder al portal de facturación. Vuelva a intentarlo más tarde.",
+        "premiumPlan": "Plan Premium",
+        "redirectingToast": "Redirigiendo al portal de facturación...",
+        "starterPlan": "Plan de inicio",
+        "trialDaysLeft": "Juicio: {{days}}d izquierda",
+        "trialEndsToday": "Prueba: Termina hoy"
       }
     }
   },
@@ -433,27 +497,32 @@
         "title": "Detalles del pedido: {{identifier}}"
       },
       "orderCard": {
+        "actionConfirm": "Confirmar pedido",
         "actionMarkAsReady": "Marcar como listo",
         "actionStartPreparing": "Empieza a prepararte",
         "defaultIdentifier": "Pida",
-        "lastUpdate": "Última actualización: {{timeAgo}}",
+        "lastUpdate": "Actualizado hace {{time}}",
         "pickupIdentifier": "Recogida #{{pickupCode}}"
       },
       "orderItemList": {
-        "itemQuantity": "x{{quantity}}",
-        "moreItems": "+ {{count}} más artículos..."
+        "itemQuantity": "x{{count}}",
+        "moreItems": "+ {{count}} más artículos...",
+        "moreItems_one": "+{{count}} más artículo",
+        "moreItems_other": "+{{count}} más artículos"
       },
       "orderStatus": {
+        "CANCELLED_BY_BUSINESS": "Cancelado (Empresas)",
+        "CANCELLED_BY_CUSTOMER": "Cancelado (Cliente)",
         "finalized": "Finalizado"
       },
       "page": {
-        "errorFetchingOrders": "Error al recuperar pedidos.",
-        "loadingOrders": "Cargando Pedidos...",
-        "noOrdersMessage": "Los nuevos pedidos aparecerán aquí.",
-        "noOrdersTitle": "No hay pedidos activos",
+        "errorFetchingOrders": "Error al recuperar pedidos",
+        "loadingOrders": "Cargando pedidos en directo...",
+        "noOrdersMessage": "Cuando llegue un nuevo pedido, aparecerá aquí.",
+        "noOrdersTitle": "No hay órdenes que mostrar",
         "orderCount_one": "({{count}} orden)",
         "orderCount_other": "({{count}} pedidos)",
-        "pageTitle": "Pedidos de cocina",
+        "pageTitle": "Sistema de exposición en cocina",
         "takeoutPickup": "Comida para llevar / Recogida"
       }
     }

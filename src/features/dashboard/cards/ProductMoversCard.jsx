@@ -4,12 +4,41 @@ import SegmentedControl from '../../../components/common/SegmentedControl';
 import Icon from '../../../components/common/Icon';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useAuth } from '../../../contexts/AuthContext';
+import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
-const periodOptions = [
-    { label: 'Today', value: 'today' },
-    { label: 'Week', value: 'week' },
-    { label: 'Month', value: 'month' },
-];
+const ProductMoversCard = () => {
+    const [period, setPeriod] = useState('today');
+
+    // These options now get their labels from script_lines
+    const periodOptions = [
+        { label: sl.productMoversCard.periodToday || 'Today', value: 'today' },
+        { label: sl.productMoversCard.periodWeek || 'Week', value: 'week' },
+        { label: sl.productMoversCard.periodMonth || 'Month', value: 'month' },
+    ];
+
+    return (
+        <div className="h-full bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-bold text-neutral-800 dark:text-neutral-100">
+                    {sl.productMoversCard.title || "Today's Hot Sheet"}
+                </h2>
+                <div className="mt-3 sm:mt-0">
+                    <SegmentedControl
+                        options={periodOptions}
+                        value={period}
+                        onChange={setPeriod}
+                        name="productMoversPeriod"
+                    />
+                </div>
+            </div>
+            {/* The Suspense boundary is placed here to refetch content when the key changes */}
+            <Suspense fallback={<ProductMoversCardSkeleton />}>
+                <ProductMoversContent period={period} />
+            </Suspense>
+        </div>
+    );
+};
+
 
 const MoverList = ({ title, icon, iconClass, items, currency }) => {
     const hasItems = items && items.length > 0;
@@ -30,7 +59,7 @@ const MoverList = ({ title, icon, iconClass, items, currency }) => {
                     </li>
                 )) : (
                     <li className="text-center text-xs text-neutral-400 dark:text-neutral-500 py-4">
-                        No data for this period.
+                        {sl.productMoversCard.noData || 'No data for this period.'}
                     </li>
                 )}
             </ul>
@@ -46,45 +75,19 @@ const ProductMoversContent = ({ period }) => {
     return (
         <div className="mt-4 flex flex-col sm:flex-row gap-6 sm:gap-8">
             <MoverList
-                title="Top 5 Selling Items"
+                title={sl.productMoversCard.topItemsTitle || 'Top 5 Selling Items'}
                 icon="trending_up"
                 iconClass="text-green-500"
                 items={data.top_movers}
                 currency={user?.activeBusinessCurrency}
             />
             <MoverList
-                title="Bottom 5 Selling Items"
+                title={sl.productMoversCard.bottomItemsTitle || 'Bottom 5 Selling Items'}
                 icon="trending_down"
                 iconClass="text-red-500"
                 items={data.bottom_movers}
                 currency={user?.activeBusinessCurrency}
             />
-        </div>
-    );
-};
-
-const ProductMoversCard = () => {
-    const [period, setPeriod] = useState('today');
-
-    return (
-        <div className="h-full bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-bold text-neutral-800 dark:text-neutral-100">
-                    Today's Hot Sheet
-                </h2>
-                <div className="mt-3 sm:mt-0">
-                    <SegmentedControl
-                        options={periodOptions}
-                        value={period}
-                        onChange={setPeriod}
-                        name="productMoversPeriod"
-                    />
-                </div>
-            </div>
-            {/* The Suspense boundary is placed here to refetch content when the key changes */}
-            <Suspense fallback={<ProductMoversCardSkeleton />}>
-                <ProductMoversContent period={period} />
-            </Suspense>
         </div>
     );
 };

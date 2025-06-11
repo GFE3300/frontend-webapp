@@ -22,65 +22,59 @@ import i18n from '../../../i18n';
 export const scriptLines_kitchenDisplaySystem = {
     // For KitchenDisplayPage.jsx
     page: {
-        pageTitle: "Kitchen Display System",
-        loadingOrders: "Loading Live Orders...",
-        errorFetchingOrders: "Error Fetching Orders",
-        noOrdersTitle: "No Orders to Display",
-        noOrdersMessage: "When a new order comes in, it will appear here.",
-        takeoutPickup: "Takeout / Pickup",
-        tableLabel: "Table #{{tableNumber}}",
-        orderCount: {
-            one: "{{count}} order",
-            other: "{{count}} orders",
-        },
+        pageTitle: i18n.t('kitchen_display_system.kitchenDisplaySystem.page.pageTitle'),
+        loadingOrders: i18n.t('kitchen_display_system.kitchenDisplaySystem.page.loadingOrders'),
+        errorFetchingOrders: i18n.t('kitchen_display_system.kitchenDisplaySystem.page.errorFetchingOrders'),
+        noOrdersTitle: i18n.t('kitchen_display_system.kitchenDisplaySystem.page.noOrdersTitle'),
+        noOrdersMessage: i18n.t('kitchen_display_system.kitchenDisplaySystem.page.noOrdersMessage'),
+        takeoutPickup: i18n.t('kitchen_display_system.kitchenDisplaySystem.page.takeoutPickup'),
+        tableLabel: i18n.t('dashboard.dashboard.occupancyCard.tableLabel'),
+        orderCount: i18n.t('kitchen_display_system.kitchenDisplaySystem.page.orderCount'),
     },
     // For KitchenHeader.jsx
     header: {
-        filterAll: "All",
-        filterPending: "Pending",
-        filterConfirmed: "Confirmed",
-        filterPreparing: "Preparing",
-        filterServed: "Served",
-        groupByTableToggle: "Group by Table",
+        filterAll: i18n.t('menu_view.menu_view.categoryFilterBar.allCategoryName'),
+        filterPending: i18n.t('dashboard.dashboard.liveOrdersCard.funnelLabelPending'),
+        filterConfirmed: i18n.t('live_orders_view.liveOrders.orderStatus.CONFIRMED'),
+        filterPreparing: i18n.t('live_orders_view.liveOrders.orderStatus.PREPARING'),
+        filterServed: i18n.t('live_orders_view.liveOrders.status.SERVED'),
+        groupByTableToggle: i18n.t('kitchen_display_system.kitchenDisplaySystem.header.groupByTableToggle'),
     },
     // For OrderCard.jsx
     orderCard: {
-        timeAgoNA: "N/A",
-        lastUpdate: "Updated {{time}} ago", // This is used in the old version, can be removed if not used
-        timeAgo: "{{time}} ago", // NEW: A more direct way of saying it
-        pickupIdentifier: "Pickup #{{pickupCode}}",
-        defaultIdentifier: "Order",
-        actionStartPreparing: "Start Preparing",
-        actionMarkAsReady: "Mark as Ready",
-        actionConfirm: "Confirm Order",
-        actionMarkServed: "Mark as Served",
+        timeAgoNA: i18n.t('add_product_modal.recipeComponentRow.estimatedCostNA'),
+        lastUpdate: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderCard.lastUpdate'), // This is used in the old version, can be removed if not used
+        timeAgo: i18n.t('live_orders_view.liveOrders.orderCard.timeAgo'), // NEW: A more direct way of saying it
+        pickupIdentifier: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderCard.pickupIdentifier'),
+        defaultIdentifier: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderCard.defaultIdentifier'),
+        actionStartPreparing: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderCard.actionStartPreparing'),
+        actionMarkAsReady: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderCard.actionMarkAsReady'),
+        actionConfirm: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderCard.actionConfirm'),
+        actionMarkServed: i18n.t('live_orders_view.liveOrders.actions.markServed'),
     },
     // For OrderItemList.jsx
     orderItemList: {
-        itemQuantity: "x{{count}}", // Old, can be replaced by the badge in the new design
-        moreItems: {
-            one: "+{{count}} more item",
-            other: "+{{count}} more items",
-        }, // NEW
+        itemQuantity: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderItemList.itemQuantity'), // Old, can be replaced by the badge in the new design
+        moreItems: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderItemList.moreItems'), // NEW
     },
     // For OrderStatusBadge.jsx and other components
     orderStatus: {
-        PENDING_CONFIRMATION: "Pending",
-        CONFIRMED: "Confirmed",
-        PREPARING: "Preparing",
-        READY_FOR_PICKUP: "Ready",
-        SERVED: "Served",
-        COMPLETED: "Completed",
-        CANCELLED_BY_CUSTOMER: "Cancelled (Customer)",
-        CANCELLED_BY_BUSINESS: "Cancelled (Business)",
-        finalized: "Finalized",
+        PENDING_CONFIRMATION: i18n.t('dashboard.dashboard.liveOrdersCard.funnelLabelPending'),
+        CONFIRMED: i18n.t('live_orders_view.liveOrders.orderStatus.CONFIRMED'),
+        PREPARING: i18n.t('live_orders_view.liveOrders.orderStatus.PREPARING'),
+        READY_FOR_PICKUP: i18n.t('kitchen_display_system.kitchenDisplaySystem.header.filterReady'),
+        SERVED: i18n.t('live_orders_view.liveOrders.status.SERVED'),
+        COMPLETED: i18n.t('live_orders_view.liveOrders.orderStatus.COMPLETED'),
+        CANCELLED_BY_CUSTOMER: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderStatus.CANCELLED_BY_CUSTOMER'),
+        CANCELLED_BY_BUSINESS: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderStatus.CANCELLED_BY_BUSINESS'),
+        finalized: i18n.t('kitchen_display_system.kitchenDisplaySystem.orderStatus.finalized'),
     },
     // NEW: For OrderDetailModal.jsx
     modal: {
-        title: "Order Details: {{identifier}}",
-        notes: "Order Notes",
-        items: "Items",
-        close: "Close",
-        price: "${{val}}", // Example for price formatting
+        title: i18n.t('kitchen_display_system.kitchenDisplaySystem.modal.title'),
+        notes: i18n.t('menu_view.menu_view.orderSummaryPanel.orderNotesLabel'),
+        items: i18n.t('venue_management.items'),
+        close: i18n.t('venue_management.close'),
+        price: i18n.t('kitchen_display_system.kitchenDisplaySystem.modal.price'), // Example for price formatting
     },
 };

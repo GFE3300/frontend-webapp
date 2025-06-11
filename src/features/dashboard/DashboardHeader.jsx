@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Icon from '../../components/common/Icon';
 import BusinessSwitcher from './header/BusinessSwitcher';
 import UserProfileWidget from './header/UserProfileWidget';
+import { scriptLines_dashboard as sl } from './utils/script_lines'; // Import script lines
 
 const DashboardHeader = () => {
     return (
@@ -21,7 +22,7 @@ const DashboardHeader = () => {
                 {/* Right Zone: User Control */}
                 <div className="flex items-center space-x-4">
                     <button
-                        title="Notifications"
+                        title={sl.dashboardHeader.notificationsTitle || 'Notifications'}
                         className="w-10 h-10 flex items-center justify-center rounded-full text-neutral-300 hover:text-white hover:bg-white/10 transition-colors"
                     >
                         <Icon name="notifications" />

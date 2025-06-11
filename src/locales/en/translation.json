@@ -342,6 +342,35 @@
   },
   "dashboard": {
     "dashboard": {
+      "actionItemsCard": {
+        "attentionNeeded": "Attention needed for <1>{{display}}</1>",
+        "confirmNewOrders_one": "Confirm <1>{{count}} new order</1>",
+        "confirmNewOrders_other": "Confirm <1>{{count}} new orders</1>",
+        "lowOnStock": "<1>{{name}}</1> is low on stock ({{current_stock}} {{unit}})",
+        "noItemsSubtitle": "No pending actions requiring your attention.",
+        "noItemsTitle": "All Systems Clear",
+        "title": "Mission Briefing"
+      },
+      "businessSwitcher": {
+        "createNewBusiness": "Create New Business",
+        "failedToLoad": "Failed to load.",
+        "switchErrorToast": "Could not switch business.",
+        "switchSuccessToast": "Switched business successfully!",
+        "switching": "Switching...",
+        "upgradePlanTooltip": "Upgrade your plan to add more businesses.",
+        "yourBusinesses": "Your Businesses"
+      },
+      "dashboardGreeting": {
+        "fallbackName": "Agent",
+        "goodAfternoon": "Good afternoon",
+        "goodEvening": "Good evening",
+        "goodMorning": "Good morning",
+        "greeting": "{{greeting}}, {{firstName}}.",
+        "subtitle": "Here is the real-time pulse of your business operations."
+      },
+      "dashboardHeader": {
+        "notificationsTitle": "Notifications"
+      },
       "guestsCard": {
         "peakHour": "Peak Hour",
         "title": "Guests Today",
@@ -354,6 +383,20 @@
         "title": "Live Orders",
         "titleInsight": "Order Funnel",
         "toConfirm_one": "{{count}} to Confirm"
+      },
+      "liveVenueCard": {
+        "fullViewButton": "Full View",
+        "noLayoutSubtitle": "Go to the <1>Venue Designer</1> to create one.",
+        "noLayoutTitle": "No Venue Layout Found",
+        "title": "The Watchtower"
+      },
+      "nav": {
+        "analytics": "Analytics",
+        "orders": "Orders",
+        "overview": "Overview",
+        "products": "Products",
+        "settings": "Settings",
+        "venue": "Venue"
       },
       "occupancyCard": {
         "avgTurnTime": "Avg. Turn Time",
@@ -370,6 +413,13 @@
         "noActiveOrders": "No active orders",
         "tooltipLabel": "{{count}} {{status}}"
       },
+      "productMoversCard": {
+        "bottomItemsTitle": "Bottom 5 Selling Items",
+        "noData": "No data for this period.",
+        "periodToday": "Today",
+        "title": "Today's Hot Sheet",
+        "topItemsTitle": "Top 5 Selling Items"
+      },
       "revenueCard": {
         "avgSpend": "Avg. Spend / Guest",
         "categoryDrinks": "Drinks",
@@ -381,6 +431,20 @@
         "titleInsight": "Revenue Engine",
         "vsYesterday": "vs yesterday",
         "vsYesterdayValue": "vs {{value}} yesterday"
+      },
+      "subscriptionBadge": {
+        "actionRequired": "Action Required",
+        "cancelsOn": "Cancels {{date}}",
+        "choosePlan": "+ Choose Plan",
+        "growthPlan": "Growth Plan",
+        "managePlan": "Manage Plan",
+        "planError": "Plan Error",
+        "portalErrorToast": "Could not access the billing portal. Please try again later.",
+        "premiumPlan": "Premium Plan",
+        "redirectingToast": "Redirecting to billing portal...",
+        "starterPlan": "Starter Plan",
+        "trialDaysLeft": "Trial: {{days}}d left",
+        "trialEndsToday": "Trial: Ends Today"
       }
     }
   },
@@ -433,27 +497,32 @@
         "title": "Order Details: {{identifier}}"
       },
       "orderCard": {
+        "actionConfirm": "Confirm Order",
         "actionMarkAsReady": "Mark as Ready",
         "actionStartPreparing": "Start Preparing",
         "defaultIdentifier": "Order",
-        "lastUpdate": "Last update: {{timeAgo}}",
+        "lastUpdate": "Updated {{time}} ago",
         "pickupIdentifier": "Pickup #{{pickupCode}}"
       },
       "orderItemList": {
-        "itemQuantity": "x{{quantity}}",
-        "moreItems": "+ {{count}} more items..."
+        "itemQuantity": "x{{count}}",
+        "moreItems": "+ {{count}} more items...",
+        "moreItems_one": "+{{count}} more item",
+        "moreItems_other": "+{{count}} more items"
       },
       "orderStatus": {
+        "CANCELLED_BY_BUSINESS": "Cancelled (Business)",
+        "CANCELLED_BY_CUSTOMER": "Cancelled (Customer)",
         "finalized": "Finalized"
       },
       "page": {
-        "errorFetchingOrders": "Error fetching orders.",
-        "loadingOrders": "Loading Orders...",
-        "noOrdersMessage": "New orders will appear here.",
-        "noOrdersTitle": "No Active Orders",
+        "errorFetchingOrders": "Error Fetching Orders",
+        "loadingOrders": "Loading Live Orders...",
+        "noOrdersMessage": "When a new order comes in, it will appear here.",
+        "noOrdersTitle": "No Orders to Display",
         "orderCount_one": "({{count}} order)",
         "orderCount_other": "({{count}} orders)",
-        "pageTitle": "Kitchen Orders",
+        "pageTitle": "Kitchen Display System",
         "takeoutPickup": "Takeout / Pickup"
       }
     }

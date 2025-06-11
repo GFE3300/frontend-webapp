@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Trans } from 'react-i18next';
 import { useLiveOrders } from '../../live_orders_view/hooks/useLiveOrders';
 import VenueLayoutDisplay from '../../live_orders_view/components/VenueLayoutDisplay';
 import Icon from '../../../components/common/Icon';
 import Button from '../../../components/common/Button';
+import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
 const LiveVenueCard = () => {
     // This hook suspends, so it will be wrapped in <Suspense> in OverviewPage
@@ -15,7 +17,7 @@ const LiveVenueCard = () => {
         <div className="h-full bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6 flex flex-col">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-neutral-800 dark:text-neutral-100">
-                    The Watchtower
+                    {sl.liveVenueCard.title || 'The Watchtower'}
                 </h2>
                 <Button
                     as={Link}
@@ -24,7 +26,7 @@ const LiveVenueCard = () => {
                     size="sm"
                     className="!px-2 !py-1" // More compact button
                 >
-                    Full View
+                    {sl.liveVenueCard.fullViewButton || 'Full View'}
                     <Icon name="arrow_forward" className="ml-1.5 h-4 w-4" />
                 </Button>
             </div>
@@ -39,9 +41,13 @@ const LiveVenueCard = () => {
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center text-neutral-500 dark:text-neutral-400">
                         <Icon name="map" className="h-10 w-10 text-neutral-400 mb-2" />
-                        <p className="font-semibold">No Venue Layout Found</p>
+                        <p className="font-semibold">{sl.liveVenueCard.noLayoutTitle || 'No Venue Layout Found'}</p>
                         <p className="text-xs mt-1">
-                            Go to the <Link to="/dashboard/business/venue" className="text-primary-500 hover:underline">Venue Designer</Link> to create one.
+                            <Trans
+                                i18nKey={sl.liveVenueCard.noLayoutSubtitle}
+                                components={{ 1: <Link to="/dashboard/business/venue" className="text-primary-500 hover:underline" /> }}
+                                defaults="Go to the <1>Venue Designer</1> to create one."
+                            />
                         </p>
                     </div>
                 )}

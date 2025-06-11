@@ -6,6 +6,7 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import Icon from '../../components/common/Icon';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
+import { scriptLines_dashboard as sl } from './utils/script_lines'; // Import script lines
 
 const NavItem = ({ to, iconName, label }) => {
     return (
@@ -50,11 +51,11 @@ const MobileNavbar = () => {
 
     const navItems = useMemo(() => {
         const allItems = [
-            { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
-            { name: 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
-            { name: 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products', requiredRoles: ['ADMIN', 'MANAGER'] },
-            { name: 'Venue', icon: 'storefront', path: '/dashboard/business/venue', requiredRoles: ['ADMIN', 'MANAGER'] },
-            { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+            { name: sl.nav.overview || 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+            { name: sl.nav.orders || 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+            { name: sl.nav.products || 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products', requiredRoles: ['ADMIN', 'MANAGER'] },
+            { name: sl.nav.venue || 'Venue', icon: 'storefront', path: '/dashboard/business/venue', requiredRoles: ['ADMIN', 'MANAGER'] },
+            { name: sl.nav.settings || 'Settings', icon: 'settings', path: '/dashboard/business/settings', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
         ];
 
         if (isLoading || !user) return [];
