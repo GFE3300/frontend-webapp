@@ -17,7 +17,7 @@ const MainContentArea = () => {
     return (
         // The <main> element will contain our animated page content.
         // `overflow-y-auto` allows its content to scroll vertically if it's too long.
-        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 bg-neutral-100 dark:bg-neutral-900">
+        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden p-6">
             {/* AnimatePresence handles the enter and exit animations of its direct child.
                 `mode="wait"` ensures the exiting component finishes its animation before the new one enters. */}
             <AnimatePresence mode="wait">

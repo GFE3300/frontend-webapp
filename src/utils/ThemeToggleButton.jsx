@@ -9,7 +9,7 @@ export const ThemeToggleButton = () => { // Exported if it's in this file, other
     return (
         <motion.button
             onClick={toggleTheme}
-            className="fixed top-4 right-4 z-500 p-2 rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm shadow-md hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+            className="fixed top-20 right-20 z-500 p-2 rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm shadow-md hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
             whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
         >
@@ -32,6 +32,6 @@ export function ThemeToggle() {
     return (
         <ThemeProvider>
             <ThemeToggleButton />
-        </ThemeProvider>        
+        </ThemeProvider>
     );
 }

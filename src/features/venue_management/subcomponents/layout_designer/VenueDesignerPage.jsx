@@ -235,7 +235,7 @@ const VenueDesignerPage = () => {
     }
 
     return (
-        <div className={`relative h-full w-full overflow-visible antialiased bg-neutral-100 dark:bg-neutral-900 transition-colors duration-300 ${isZenMode ? 'is-zen-mode' : ''}`}>
+        <div className={`relative h-full w-full overflow-visible antialiased bg-transparent transition-colors duration-300 ${isZenMode ? 'is-zen-mode' : ''}`}>
 
             {!isZenMode && (
                 <VenueDesignerHeader

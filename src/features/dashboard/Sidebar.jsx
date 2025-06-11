@@ -1,152 +1,166 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import SidebarNavItem from './subcomponents/SidebarNavItem';
+import React, { useMemo, useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+
 import Icon from '../../components/common/Icon';
-// eslint-disable-next-line
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePermissions } from '../../hooks/usePermissions';
+import logo from '../../assets/logo/Logo.svg';
 
-// Optional SidebarHeader (simple version)
-const SidebarHeader = ({ isCollapsed, businessName }) => (
-    <div className={`h-16 flex items-center border-b border-neutral-200 dark:border-neutral-700 transition-all duration-300 ease-in-out ${isCollapsed ? 'px-2 justify-center' : 'px-6'}`}>
-        <Link to="/dashboard/business" className="flex items-center gap-2 overflow-hidden">
-            {/* Placeholder for a real logo */}
-            <div className={`flex-shrink-0 p-1.5 rounded-md ${isCollapsed ? 'bg-rose-500 dark:bg-rose-600' : 'bg-rose-100 dark:bg-rose-800'}`}>
-                <Icon name="donut_small" className={`w-6 h-6 transition-colors ${isCollapsed ? 'text-white' : 'text-rose-500 dark:text-rose-400'}`} />
-            </div>
-            <AnimatePresence>
-                {!isCollapsed && (
-                    <motion.span
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2, delay: 0.1 }}
-                        className="text-xl font-semibold text-neutral-800 dark:text-neutral-100 whitespace-nowrap"
-                    >
-                        {businessName || "SmoreDash"}
-                    </motion.span>
-                )}
-            </AnimatePresence>
-        </Link>
-    </div>
+const Tooltip = ({ label }) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0.9, x: 10 }}
+        animate={{ opacity: 1, scale: 1, x: 0 }}
+        exit={{ opacity: 0, scale: 0.9, x: 10 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        className="absolute font-montserrat left-full ml-4 px-3 py-1.5 text-sm font-medium text-white bg-neutral-900/80 dark:bg-black/50 backdrop-blur-sm border border-white/10 rounded-lg shadow-lg whitespace-nowrap z-50"
+    >
+        {label}
+    </motion.div>
 );
 
-// Optional SidebarFooter (simple version with toggle)
-const SidebarFooter = ({ isCollapsed, toggleCollapse }) => (
-    <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
-        <button
-            onClick={toggleCollapse}
-            className={`w-full flex items-center h-10 px-3 rounded-lg text-sm font-medium 
-                        text-neutral-600 dark:text-neutral-300 
-                        hover:bg-neutral-100 dark:hover:bg-neutral-700 
-                        focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500
-                        transition-all duration-300 ease-in-out
-                        ${isCollapsed ? 'justify-center' : ''}
-                      `}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+const SidebarNavItem = ({ to, iconName, label }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    return (
+        <NavLink
+            to={to}
+            className="relative flex items-center justify-center group"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
-            <Icon name={isCollapsed ? "chevron_right" : "chevron_left"} className="w-5 h-5 flex-shrink-0" />
-            <AnimatePresence>
-                {!isCollapsed && (
-                    <motion.span
-                        key="toggle-label"
-                        initial={{ opacity: 0, width: 0, marginLeft: 0 }}
-                        animate={{ opacity: 1, width: 'auto', marginLeft: '0.5rem' }}
-                        exit={{ opacity: 0, width: 0, marginLeft: 0 }}
-                        transition={{ duration: 0.2, ease: "easeInOut", delay: 0.1 }}
-                        className="overflow-hidden whitespace-nowrap"
-                    >
-                        Collapse
-                    </motion.span>
-                )}
-            </AnimatePresence>
-        </button>
-    </div>
-);
+            {({ isActive }) => (
+                <div className="relative flex items-center justify-center w-14 h-14">
+                    <AnimatePresence>
+                        {isActive && (
+                            <motion.div
+                                layoutId="active-sidebar-indicator"
+                                className="absolute inset-0 bg-rose-500 rounded-2xl shadow-lg shadow-rose-500/50"
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.5, opacity: 0 }}
+                                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                            />
+                        )}
+                    </AnimatePresence>
 
+                    {/* Hover effect background */}
+                    <AnimatePresence>
+                        {isHovered && !isActive && (
+                            <motion.div
+                                className="absolute inset-0 bg-white/10 rounded-2xl"
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.5, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                            />
+                        )}
+                    </AnimatePresence>
+
+                    <motion.div
+                        className="relative flex items-center justify-center w-full h-full"
+                        whileHover={{ scale: 1.1 }}
+                    >
+                        <Icon
+                            name={iconName}
+                            className={`transition-colors duration-200 ${isActive ? 'text-white' : 'text-neutral-100 group-hover:text-white'}`}
+                            variations={{ fill: isActive ? 1 : 0, weight: isActive ? 600 : 300 }}
+                        />
+                    </motion.div>
+                    <AnimatePresence>
+                        {isHovered && <Tooltip label={label} />}
+                    </AnimatePresence>
+                </div>
+            )}
+        </NavLink>
+    );
+};
 
 const Sidebar = () => {
     const { user } = useAuth();
-    const [isCollapsed, setIsCollapsed] = useState(localStorage.getItem('sidebarCollapsed') === 'true');
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // md breakpoint
+    const { permissions, isLoading } = usePermissions();
 
-    useEffect(() => {
-        localStorage.setItem('sidebarCollapsed', isCollapsed);
-    }, [isCollapsed]);
+    const allPossibleItems = useMemo(() => [
+        { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+        { name: 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+        { name: 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products', requiredRoles: ['ADMIN', 'MANAGER'] },
+        { name: 'Venue', icon: 'storefront', path: '/dashboard/business/venue', requiredRoles: ['ADMIN', 'MANAGER'] },
+        { name: 'Analytics', icon: 'analytics', path: '/dashboard/business/analytics', requiredRoles: ['ADMIN', 'MANAGER'], requiresPermission: permissions.canAccessAnalytics },
+        { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+    ], [permissions.canAccessAnalytics]);
 
-    useEffect(() => {
-        const handleResize = () => {
-            const mobile = window.innerWidth < 768;
-            setIsMobile(mobile);
-            if (mobile && !isCollapsed) { // Auto-collapse on mobile if expanded
-                setIsCollapsed(true);
-            }
-        };
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Initial check
-        return () => window.removeEventListener('resize', handleResize);
-    }, []); // Empty dependency to run once on mount
+    const { navItems, settingsItem } = useMemo(() => {
+        if (isLoading || !user) return { navItems: [], settingsItem: null };
 
-    const toggleCollapse = () => {
-        if (isMobile && !isCollapsed) { // If mobile and trying to expand, it might not be desired
-            return; // Or handle mobile menu differently
-        }
-        setIsCollapsed(!isCollapsed);
-    };
+        const visibleItems = allPossibleItems.filter(item => {
+            const hasRole = item.requiredRoles.includes(user.role);
+            const hasPermission = item.requiresPermission !== false;
+            return hasRole && hasPermission;
+        });
 
-    // MODIFICATION: Removed the conditional logic that adds the "Affiliates" nav item.
-    // This sidebar is now exclusively for the customer-facing business dashboard.
-    const navItems = useMemo(() => {
-        const baseItems = [
-            { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview' },
-            { name: 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders' },
-            { name: 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products' },
-            { name: 'Inventory', icon: 'inventory', path: '/dashboard/business/inventory' },
-            { name: 'Venue', icon: 'storefront', path: '/dashboard/business/venue' },
-            { name: 'Analytics', icon: 'analytics', path: '/dashboard/business/analytics' },
-            { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings' },
-        ];
+        const mainNav = visibleItems.filter(item => item.name !== 'Settings');
+        const settingsNav = visibleItems.find(item => item.name === 'Settings');
 
-        // The logic for adding the "Affiliates" link based on user role has been removed from this component.
-        // It will be re-implemented in the new StaffSidebar.
-
-        return baseItems;
-    }, []); // MODIFICATION: Removed user.role from dependency array as it's no longer used.
-
-
-    const sidebarVariants = {
-        expanded: { width: '16rem' }, // w-64
-        collapsed: { width: isMobile ? '0rem' : '5rem' }, // w-0 on mobile, w-20 on desktop
-    };
-
-    if (isMobile && isCollapsed) { // On mobile, completely hide sidebar if collapsed (or use off-canvas)
-        return null; // Or a button to toggle an off-canvas menu
-    }
-
+        return { navItems: mainNav, settingsItem: settingsNav };
+    }, [user, permissions, isLoading, allPossibleItems]);
 
     return (
-        <motion.aside
-            initial={false}
-            animate={isCollapsed ? "collapsed" : "expanded"}
-            variants={sidebarVariants}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="bg-white dark:bg-neutral-800 shadow-lg flex-shrink-0 print:hidden flex flex-col h-screen fixed md:static z-30 md:z-auto left-0 top-0"
-        >
-            <SidebarHeader isCollapsed={isCollapsed} businessName={user?.activeBusinessName} />
-            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-                {navItems.map((item) => (
-                    <SidebarNavItem
-                        key={item.name}
-                        to={item.path}
-                        iconName={item.icon}
-                        label={item.name}
-                        isCollapsed={isCollapsed}
-                    />
-                ))}
-            </nav>
-            {!isMobile && <SidebarFooter isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />}
-        </motion.aside>
+        <aside className="relative h-full px-4 pb-4 flex">
+            <LayoutGroup>
+                <nav
+                    className="
+                        flex flex-col items-center w-20
+                        h-full p-2 gap-2 backdrop-blur-lg border border-white/10 rounded-3xl shadow-2xl
+                        bg-gradient-to-b from-black/20 via-black/50 to-black/20 dark:from-neutral-900/20 dark:via-neutral-900/50 dark:to-neutral-900/20"
+                >
+                    {/* Top Section: Logo & Main Navigation */}
+                    <div className="flex flex-col items-center gap-2">
+
+                        {navItems.map((item, index) => (
+                            <motion.div
+                                key={item.name}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 + index * 0.05 }}
+                            >
+                                <SidebarNavItem
+                                    to={item.path}
+                                    iconName={item.icon}
+                                    label={item.name}
+                                />
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* Bottom Section: Settings (pushed to the end) */}
+                    <div className="mt-auto flex flex-col items-center gap-2">
+                        {settingsItem && (
+                            <motion.div
+                                key={settingsItem.name}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 + navItems.length * 0.05 }}
+                            >
+                                <SidebarNavItem
+                                    to={settingsItem.path}
+                                    iconName={settingsItem.icon}
+                                    label={settingsItem.name}
+                                />
+                            </motion.div>
+                        )}
+                    </div>
+                </nav>
+            </LayoutGroup>
+        </aside>
     );
+};
+
+Tooltip.propTypes = { label: PropTypes.string.isRequired };
+SidebarNavItem.propTypes = {
+    to: PropTypes.string.isRequired,
+    iconName: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
 };
 
 export default Sidebar;

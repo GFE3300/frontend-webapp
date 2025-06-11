@@ -25,7 +25,7 @@ export const SubscriptionProvider = ({ children }) => {
 
         try {
             const response = await apiService.getSubscriptionStatus();
-            // console.log('[SubscriptionContext] Subscription status fetched:', response.data);
+            console.log('[SubscriptionContext] Subscription status fetched:', response.data);
             setSubscription(response.data); // Backend returns the subscription object or 404
         } catch (err) {
             // console.error('[SubscriptionContext] Error fetching subscription status:', err.response?.data || err.message);

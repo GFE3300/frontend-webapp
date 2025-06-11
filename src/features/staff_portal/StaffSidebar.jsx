@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Reusing existing, well-structured components
-import SidebarNavItem from '../dashboard/subcomponents/SidebarNavItem';
+import SidebarNavItem from './subcomponents/SidebarNavItem';
 import Icon from '../../components/common/Icon';
 import { useAuth } from '../../contexts/AuthContext';
 

@@ -157,14 +157,14 @@ const OrdersDashboardPage = () => {
         if (viewMode === 'kitchen') {
             // MODIFIED: Simplify the rendering of KitchenDisplayPage.
             // It no longer receives data props, only the action handler.
-            return <KitchenDisplayPage/>;
+            return <KitchenDisplayPage />;
         }
 
         return null;
     };
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 h-full flex flex-col bg-gray-100 dark:bg-neutral-900 font-inter">
+        <div className="p-4 sm:p-6 lg:p-8 h-full flex flex-col font-inter">
             {/* Header */}
             <header className="pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
                 <h1 className="text-2xl font-bold font-montserrat text-gray-900 dark:text-white">

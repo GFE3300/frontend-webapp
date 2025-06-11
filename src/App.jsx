@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 // Stripe
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import { useTheme } from './utils/ThemeProvider.jsx';
 
 import AdminOnlyRoute from './components/common/AdminOnlyRoute.jsx';
 
@@ -219,7 +220,20 @@ const router = createBrowserRouter([
     },
 ]);
 
-function App() {
+const App = () => {
+    const { theme } = useTheme();
+
+    return (
+        <div className="App">
+
+            <ThemeToggleButton />
+            <RouterProvider router={router} />
+        </div>
+    );
+}
+
+function AppWrapper() {
+
     return (
         <React.StrictMode>
             <QueryClientProvider client={queryClient}>
@@ -229,9 +243,9 @@ function App() {
                             <ToastProvider>
                                 <FlyingImageProvider>
                                     <ThemeProvider>
-                                        <ThemeToggleButton />
-                                        <LanguageSwitcher />
-                                        <RouterProvider router={router} />
+
+                                        <App />
+
                                     </ThemeProvider>
                                 </FlyingImageProvider>
                             </ToastProvider>
@@ -243,4 +257,4 @@ function App() {
     );
 }
 
-export default App;
+export default AppWrapper;

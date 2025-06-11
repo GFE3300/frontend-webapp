@@ -5,23 +5,8 @@ import useNumberGroups from '../../../../hooks/useNumberGroups';
 import HeatmapGrid from '../subcomponents/HeatmapGrid';
 import GridContainer from '../subcomponents/GridContainer';
 import { format } from 'date-fns';
-import GridSkeleton from '../skeletons/GridSkeleton'; // Import the skeleton
-import Icon from '../../../../components/common/Icon'; // Import for error state
 
 const HEATMAP_THEME = ['bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700', 'waving-lines', 'bg-[#fb718580]', 'bg-[#fb7185]'];
-
-/**
- * Renders an error state.
- * @param {object} props - Component props.
- * @param {string} props.message - The error message to display.
- */
-const ErrorState = ({ message }) => (
-    <div className="flex flex-col items-center justify-center h-full text-center text-red-500">
-        <Icon name="error_outline" className="h-10 w-10 mb-2" />
-        <p className="font-semibold">Could not load heatmap data</p>
-        <p className="text-xs">{message}</p>
-    </div>
-);
 
 export default function WeekHeatmapView({
     settings,
@@ -31,13 +16,15 @@ export default function WeekHeatmapView({
     const containerRef = useRef(null);
     const size = useResponsiveSize(containerRef);
 
-    const { status, blocks, error } = useCustomerTimeBlocks(settings);
+    const { status, blocks } = useCustomerTimeBlocks(settings);
 
+    // --- REFINED: Data transformation logic is now more robust and declarative ---
     const { rowLabels, colLabels, heatmapData, maxValue } = useMemo(() => {
         if (!blocks || blocks.length === 0) {
             return { rowLabels: [], colLabels: [], heatmapData: [], maxValue: 0 };
         }
 
+        // Group blocks by date (e.g., '2025-06-09') for easier lookup.
         const blocksByDate = blocks.reduce((acc, block) => {
             const dateKey = format(block.start, 'yyyy-MM-dd');
             if (!acc[dateKey]) {
@@ -47,12 +34,15 @@ export default function WeekHeatmapView({
             return acc;
         }, {});
 
+        // Derive column labels (e.g., 'Mon', 'Tue') from the sorted keys of the grouped data.
         const colDateKeys = Object.keys(blocksByDate).sort();
         const colLabels = colDateKeys.map(dateKey => format(new Date(dateKey), 'EEE'));
 
+        // Derive row labels (e.g., '8AM', '12PM') from the first day's blocks.
         const firstDayBlocks = blocksByDate[colDateKeys[0]] || [];
         const rowLabels = firstDayBlocks.map(block => format(block.start, 'ha'));
 
+        // Construct the 2D heatmapData array by looking up values. This is safer than index arithmetic.
         const heatmapData = rowLabels.map((timeLabel, rowIndex) => {
             return colDateKeys.map(dateKey => {
                 const dayBlocks = blocksByDate[dateKey] || [];
@@ -66,6 +56,7 @@ export default function WeekHeatmapView({
         return { rowLabels, colLabels, heatmapData, maxValue };
     }, [blocks]);
 
+    // Normalize data for percentage-based grouping and rendering.
     const normalizedData = useMemo(() => {
         if (maxValue === 0) return heatmapData.map(row => row.map(() => 0));
         return heatmapData.map(row => row.map(value => (value / maxValue) * 100));
@@ -100,15 +91,11 @@ export default function WeekHeatmapView({
         };
     }, [percentageRanges]);
 
-    // Conditional rendering based on the data fetching status
-    if (status === 'loading' || status === 'idle') {
-        return <GridSkeleton />;
+    if (status === 'loading') {
+        return <div className="flex items-center justify-center h-full">Loading...</div>;
     }
 
-    if (status === 'error') {
-        return <ErrorState message={error} />;
-    }
-
+    // --- REFINED: Add guard clause to prevent rendering with empty data, avoiding NaN errors. ---
     if (status === 'success' && (!heatmapData || heatmapData.length === 0 || colLabels.length === 0)) {
         return <div className="flex items-center justify-center h-full text-sm text-gray-500">No activity data for this period.</div>;
     }

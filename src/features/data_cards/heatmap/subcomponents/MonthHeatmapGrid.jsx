@@ -29,7 +29,6 @@ const MonthHeatmapGrid = ({ weekStarts, heatmapData, maxValue, findGroupIndex, t
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, date: null, value: 0 });
     const rafId = useRef(null);
 
-    // --- REFINED: The complex useMemo is gone. weekStarts is now an array of Date objects. ---
     const weekStartDates = weekStarts;
     const weeksCount = Math.min(weekStartDates.length, heatmapData.length);
 

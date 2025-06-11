@@ -21,10 +21,11 @@ const createUserObjectFromToken = (decodedToken) => {
         activeBusinessId: decodedToken.active_business_id,
         activeBusinessName: decodedToken.active_business_name,
         role: decodedToken.role,
-        language: decodedToken.language || 'en', // Add language with fallback
+        language: decodedToken.language || 'en',
         is_staff: decodedToken.is_staff || false,
         is_superuser: decodedToken.is_superuser || false,
-        activeBusinessCurrency: decodedToken.active_business_currency || 'EUR', // Default to USD
+        activeBusinessCurrency: decodedToken.active_business_currency || 'EUR',
+        profile_image_url: decodedToken.profile_image_url || null,
     };
 };
 
@@ -79,7 +80,7 @@ export const AuthProvider = ({ children }) => {
         if (userObject.language && i18n.language !== userObject.language) {
             await i18n.changeLanguage(userObject.language);
         }
-    }, []); // MODIFIED: Added useCallback
+    }, []);
 
     useEffect(() => {
         const initializeAuth = async () => {
@@ -135,7 +136,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         initializeAuth();
-    }, [performLogoutOperations, login]); // MODIFIED: Added login dependency
+    }, [performLogoutOperations, login]);
 
     const logout = async () => {
         await performLogoutOperations(true);
@@ -156,7 +157,7 @@ export const AuthProvider = ({ children }) => {
             throw error;
         }
         return false;
-    }, [login]); // depends on login function
+    }, [login]);
 
     const value = {
         user,
@@ -166,7 +167,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUser,
-        switchBusiness, // Expose the new function
+        switchBusiness,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

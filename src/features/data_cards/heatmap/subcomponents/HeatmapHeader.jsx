@@ -66,20 +66,6 @@ const HeatmapHeader = ({
                 {/* Left group: toggle, date, additional */}
                 <div className="flex flex-wrap items-center gap-4">
                     <ViewModeToggle currentView={viewMode} onChange={onViewChange} />
-
-                    <motion.h2
-                        className="text-xl font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap"
-                        key={dateRange}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0, transition: { duration: 0.4 } }}
-                        exit={{ opacity: 0, x: -10, transition: { duration: 0.2 } }}
-                    >
-                        {dateRange}
-                    </motion.h2>
-
-                    {additionalControls && (
-                        <div className="flex items-center">{additionalControls}</div>
-                    )}
                 </div>
             </div>
         </motion.header>
