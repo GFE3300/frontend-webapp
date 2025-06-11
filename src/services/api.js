@@ -383,8 +383,8 @@ const apiService = {
 
     /**
      * Creates a new business.
-     * @param {object} businessData - The data for the new business (e.g., { name, email }).
-     * @returns {Promise<AxiosResponse<object>>} The created business object.
+     * @param {object} businessData - The data for the new business (e.g., { name, username, email, etc. }).
+     * @returns {Promise<AxiosResponse<object>>} The created business object, including new auth tokens.
      */
     createBusiness: (businessData) => {
         return apiInstance.post('businesses/', businessData);

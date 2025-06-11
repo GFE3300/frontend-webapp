@@ -188,8 +188,22 @@ const router = createBrowserRouter([
                     // { path: "billing", element: <BillingPage /> },
                 ]
             },
+            // FIX: The link in the switcher pointed here, but the standalone page should be a top-level route.
+            // This nested route is no longer needed. The correct route is added below.
+            // { path: "create", element: <CreateBusinessPage /> },
         ]
-    }, {
+    },
+    // --- NEW: Add the standalone Create Business page route ---
+    {
+        path: "/dashboard/business/create",
+        element: (
+            <PrivateRoute>
+                <CreateBusinessPage />
+            </PrivateRoute>
+        ),
+        errorElement: <NotFoundPage />,
+    },
+    {
         path: "/dashboard/unauthorized",
         element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>,
     },
@@ -259,4 +273,4 @@ function AppWrapper() {
     );
 }
 
-export default AppWrapper;
+export default AppWrapper;  

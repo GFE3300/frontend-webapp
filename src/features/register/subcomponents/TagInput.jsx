@@ -1,26 +1,12 @@
-import React, { forwardRef, useState, useRef, useMemo, useCallback, memo, useEffect } from 'react';
+import React, { forwardRef, useState, useCallback, useMemo, memo, useRef } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import Icon from "../../../components/common/Icon";
 
-/**
- * Accessible tag input component with suggestions, animations, and dark mode support
- * @component
- * @param {Object} props - Component properties
- * @param {string} props.label - Input label text (required)
- * @param {string} [props.error] - Error message to display
- * @param {string} [props.className] - Additional CSS classes
- * @param {string[]} [props.defaultTags] - Predefined tag suggestions
- * @param {number} [props.maxTags=10] - Maximum allowed tags
- * @param {Function} [props.onTagsChange] - Callback when tags change
- * @param {Function} [props.validateTag] - Tag validation function
- * @param {React.Ref} ref - React ref for input element
- */
 const TagInput = memo(forwardRef(({
     label,
     error,
-    value,
+    value = [], // Default to an empty array to prevent errors if value is undefined
     className,
     defaultTags = [],
     maxTags = 10,
@@ -28,9 +14,7 @@ const TagInput = memo(forwardRef(({
     validateTag,
     ...props
 }, ref) => {
-    // ===========================================================================
-    // Configuration
-    // ===========================================================================
+    // --- Configuration ---
     const animationConfig = {
         tagSpring: { type: 'spring', stiffness: 400, damping: 30 },
         dropdown: {
@@ -46,86 +30,60 @@ const TagInput = memo(forwardRef(({
         }
     };
 
-    // ===========================================================================
-    // State & Refs
-    // ===========================================================================
-    const [tags, setTags] = useState(value || []);
+    // --- State & Refs ---
     const [inputValue, setInputValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-    const containerRef = useRef(null);
     const inputRef = useRef(null);
 
-    // ===========================================================================
-    // Memoized Values
-    // ===========================================================================
+    // --- Memoized Values ---
     const filteredTags = useMemo(
         () => defaultTags.filter(tag =>
             tag.toLowerCase().includes(inputValue.toLowerCase()) &&
-            !tags.includes(tag)
+            !value.includes(tag)
         ),
-        [defaultTags, tags, inputValue]
+        [defaultTags, value, inputValue]
     );
 
-    // ===========================================================================
-    // Handlers
-    // ===========================================================================
+    // --- Handlers ---
     const addTag = useCallback((tag) => {
         const trimmedTag = tag.trim();
-        if (!trimmedTag || tags.length >= maxTags) return;
+        if (!trimmedTag || value.length >= maxTags) return;
         if (validateTag && !validateTag(trimmedTag)) return;
 
-        setTags(prev => [...prev, trimmedTag]);
+        const newTags = [...value, trimmedTag];
+        onTagsChange?.(newTags);
+
         setInputValue('');
         inputRef.current?.focus();
-    }, [tags, maxTags, validateTag]);
+    }, [value, maxTags, validateTag, onTagsChange]);
 
     const removeTag = useCallback((index) => {
-        setTags(prev => prev.filter((_, i) => i !== index));
-    }, []);
+        const newTags = value.filter((_, i) => i !== index);
+        onTagsChange?.(newTags);
+    }, [value, onTagsChange]);
 
     const handleKeyDown = useCallback((e) => {
         if (['Enter', ','].includes(e.key) && inputValue.trim()) {
             e.preventDefault();
             addTag(inputValue.trim());
-        } else if (e.key === 'Backspace' && !inputValue) {
-            removeTag(tags.length - 1);
+        } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
+            removeTag(value.length - 1);
         }
-    }, [inputValue, tags, addTag, removeTag]);
+    }, [inputValue, value, addTag, removeTag]);
 
-    // ===========================================================================
-    // Effects
-    // ===========================================================================
-    useEffect(() => {
-        onTagsChange?.(tags);
-    }, [tags, onTagsChange]);
-
-    useEffect(() => {
-        if (value && JSON.stringify(value) !== JSON.stringify(tags)) {
-            setTags(value);
-        }
-    }, [value]);
-
-    // ===========================================================================
-    // Validation
-    // ===========================================================================
     if (!label) {
         console.error('TagInput: Missing required "label" prop');
         return null;
     }
 
-    // ===========================================================================
-    // Rendering
-    // ===========================================================================
     return (
         <LayoutGroup>
             <div
                 className={`relative ${className}`}
-                ref={containerRef}
                 role="group"
                 aria-labelledby="tagInputLabel"
             >
                 <div className="flex flex-col gap-2">
-                    {/* Label */}
                     <label className="absolute -top-7 left-3 origin-bottom-left pointer-events-none">
                         <motion.span
                             id="tagInputLabel"
@@ -140,20 +98,15 @@ const TagInput = memo(forwardRef(({
                         </motion.span>
                     </label>
 
-                    {/* Input & Tags Container */}
                     <div className="relative">
                         <input
                             {...props}
                             id="tagInput"
-                            ref={(node) => {
-                                if (typeof ref === 'function') ref(node);
-                                else if (ref) ref.current = node;
-                                inputRef.current = node;
-                            }}
+                            ref={inputRef}
                             value={inputValue}
                             aria-describedby={error ? 'tagInputError' : undefined}
                             aria-invalid={!!error}
-                            placeholder={tags.length >= maxTags ? 'Maximum tags reached' : 'Add a tag and press Enter...'}
+                            placeholder={value.length >= maxTags ? 'Maximum tags reached' : 'Add a tag and press Enter...'}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             onFocus={(e) => {
@@ -161,10 +114,10 @@ const TagInput = memo(forwardRef(({
                                 props.onFocus?.(e);
                             }}
                             onBlur={(e) => {
-                                setTimeout(() => setIsFocused(false), 100);
+                                setTimeout(() => setIsFocused(false), 150);
                                 props.onBlur?.(e);
                             }}
-                            disabled={tags.length >= maxTags}
+                            disabled={value.length >= maxTags}
                             className={`
                                 w-full py-2 px-4 rounded-full font-montserrat font-medium
                                 bg-neutral-100 dark:bg-neutral-200
@@ -173,18 +126,17 @@ const TagInput = memo(forwardRef(({
                                 text-gray-900 dark:text-neutral-800 text-sm
                                 ${error ? 'ring-2 ring-red-500 dark:ring-red-400' :
                                     'focus:ring-rose-400 dark:focus:ring-rose-400'}
-                                ${tags.length >= maxTags ? 'cursor-not-allowed opacity-75' : ''}
+                                ${value.length >= maxTags ? 'cursor-not-allowed opacity-75' : ''}
                             `}
                         />
 
-                        {/* Tag List */}
                         <motion.div
                             className="flex flex-wrap gap-2 mt-2"
                             layout
                             transition={animationConfig.tagSpring}
                         >
                             <AnimatePresence mode="popLayout">
-                                {tags.map((tag, index) => (
+                                {value.map((tag, index) => (
                                     <motion.div
                                         key={tag}
                                         layout="position"
@@ -216,7 +168,6 @@ const TagInput = memo(forwardRef(({
                         </motion.div>
                     </div>
 
-                    {/* Suggestions Dropdown */}
                     <AnimatePresence>
                         {isFocused && filteredTags.length > 0 && (
                             <motion.ul
@@ -251,7 +202,6 @@ const TagInput = memo(forwardRef(({
                         )}
                     </AnimatePresence>
 
-                    {/* Error Display */}
                     <AnimatePresence>
                         {error && (
                             <motion.div
@@ -283,16 +233,12 @@ const TagInput = memo(forwardRef(({
 TagInput.propTypes = {
     label: PropTypes.string.isRequired,
     error: PropTypes.string,
+    value: PropTypes.arrayOf(PropTypes.string),
     className: PropTypes.string,
     defaultTags: PropTypes.arrayOf(PropTypes.string),
     maxTags: PropTypes.number,
-    onTagsChange: PropTypes.func,
+    onTagsChange: PropTypes.func.isRequired,
     validateTag: PropTypes.func
-};
-
-TagInput.defaultProps = {
-    defaultTags: [],
-    maxTags: 10
 };
 
 export default TagInput;
