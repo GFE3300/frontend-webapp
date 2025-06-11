@@ -351,6 +351,13 @@
         "noItemsTitle": "All Systems Clear",
         "title": "Mission Briefing"
       },
+      "analyticsPage": {
+        "placeholderBody": "This section will include various charts, data export options, and detailed reports on sales, products, and customer behavior.",
+        "placeholderFooter": "(Further development required)",
+        "placeholderTitle": "[Advanced Analytics and Reporting Interface Placeholder]",
+        "subtitle": "Gain insights into your business performance.",
+        "title": "Analytics & Reports"
+      },
       "businessSwitcher": {
         "createNewBusiness": "Create New Business",
         "failedToLoad": "Failed to load.",
@@ -359,6 +366,25 @@
         "switching": "Switching...",
         "upgradePlanTooltip": "Upgrade your plan to add more businesses.",
         "yourBusinesses": "Your Businesses"
+      },
+      "commissionsList": {
+        "headerBusiness": "Referred Business",
+        "headerCommission": "Commission",
+        "headerDate": "Date",
+        "noCommissions": "No recent commissions found.",
+        "title": "Recent Commissions"
+      },
+      "createBusinessPage": {
+        "businessEmailLabel": "Business Email (Optional)",
+        "businessEmailPlaceholder": "contact@yourbusiness.com",
+        "businessNamePlaceholder": "e.g., The Artisan Cafe",
+        "businessPhoneLabel": "Business Phone (Optional)",
+        "businessPhonePlaceholder": "+1 (555) 123-4567",
+        "createButton": "Create Business",
+        "subtitle": "Add another business to your account. This will count towards your subscription's business limit.",
+        "title": "Create a New Business",
+        "toastError": "Failed to create business. Please try again.",
+        "toastSuccess": "Business \"{{name}}\" created successfully!"
       },
       "dashboardGreeting": {
         "fallbackName": "Agent",
@@ -375,6 +401,14 @@
         "peakHour": "Peak Hour",
         "title": "Guests Today",
         "titleInsight": "Guest Flow"
+      },
+      "inventoryPage": {
+        "addNewIngredientButton": "Add New Ingredient",
+        "buttonPlaceholder": "[Add New Ingredient Button Placeholder Clicked]",
+        "subtitle": "Track ingredients, manage stock levels, and view costings.",
+        "tablePlaceholderBody": "Expected features: Search, Filters (Low Stock, Category), Sortable Columns, Pagination, Add/Edit Ingredient Actions.",
+        "tablePlaceholderTitle": "[Inventory Items Table Placeholder]",
+        "title": "Inventory Management"
       },
       "liveOrdersCard": {
         "allConfirmed": "All orders confirmed.",
@@ -413,12 +447,31 @@
         "noActiveOrders": "No active orders",
         "tooltipLabel": "{{count}} {{status}}"
       },
+      "ordersPage": {
+        "buttonPlaceholder": "[Create New Order Button Placeholder Clicked]",
+        "createNewOrderButton": "Create New Order",
+        "subtitle": "View, track, and manage all customer orders.",
+        "tablePlaceholderBody": "Expected features: Search, Filters (Status, Date Range), Sortable Columns, Pagination, View Order Details Action.",
+        "tablePlaceholderTitle": "[Orders Table Placeholder]",
+        "title": "Manage Orders"
+      },
       "productMoversCard": {
         "bottomItemsTitle": "Bottom 5 Selling Items",
         "noData": "No data for this period.",
         "periodToday": "Today",
         "title": "Today's Hot Sheet",
         "topItemsTitle": "Top 5 Selling Items"
+      },
+      "productsPage": {
+        "addProductButton": "Add New Product",
+        "categoriesTitle": "Categories",
+        "subtitle": "Oversee your entire product catalog, manage categories, and perform bulk actions.",
+        "title": "Product Command Center"
+      },
+      "referralsList": {
+        "headerSubscription": "Subscription",
+        "noReferrals": "No recent referrals found.",
+        "title": "Recent Referrals"
       },
       "revenueCard": {
         "avgSpend": "Avg. Spend / Guest",
@@ -431,6 +484,13 @@
         "titleInsight": "Revenue Engine",
         "vsYesterday": "vs yesterday",
         "vsYesterdayValue": "vs {{value}} yesterday"
+      },
+      "settingsSidebar": {
+        "billing": "Billing",
+        "businessProfile": "Business Profile",
+        "security": "Security",
+        "teamMembers": "Team Members",
+        "userProfile": "User Profile"
       },
       "subscriptionBadge": {
         "actionRequired": "Action Required",
@@ -445,6 +505,9 @@
         "starterPlan": "Starter Plan",
         "trialDaysLeft": "Trial: {{days}}d left",
         "trialEndsToday": "Trial: Ends Today"
+      },
+      "userProfileWidget": {
+        "logout": "Logout"
       }
     }
   },
@@ -482,6 +545,43 @@
       "Peak": "Peak",
       "Week": "Week",
       "Wk": "Wk"
+    },
+    "heatmap": {
+      "cell": {
+        "ariaLabel": "{{count}} customers ({{percentage}}% of peak)"
+      },
+      "cellTypes": {
+        "highActivity": "{{value}}% activity (high)",
+        "lowActivity": "{{value}}% activity (low)",
+        "mediumActivity": "{{value}}% activity (medium)",
+        "noActivity": "No activity"
+      },
+      "clientTooltip": {
+        "clients_one": "client",
+        "clients_other": "clients"
+      },
+      "customerHeatmapCard": {
+        "openSettingsAriaLabel": "Open settings",
+        "title": "Customer Activity"
+      },
+      "heatmapGrid": {
+        "ariaLabel": "Data heatmap grid"
+      },
+      "monthHeatmapGrid": {
+        "cellAriaLabel_one": "{{date}}: {{count}} client",
+        "cellAriaLabel_other": "{{date}}: {{count}} clients"
+      },
+      "settingsMenu": {
+        "blockDurationLabel": "Block Duration (1–24 hours)",
+        "blockStartHourLabel": "Block Start Hour (0–23)",
+        "bufferDaysLabel": "Buffer Days (0-14)",
+        "operationalHoursLabel": "Operational Hours"
+      },
+      "weekHeatmapView": {
+        "ariaLabel": "Weekly customer activity heatmap",
+        "legendLabel": "< {{value}}",
+        "noActivity": "No activity data for this period."
+      }
     }
   },
   "kitchen_display_system": {

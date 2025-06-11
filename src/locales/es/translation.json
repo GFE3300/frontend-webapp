@@ -351,6 +351,13 @@
         "noItemsTitle": "Todos los sistemas despejados",
         "title": "Información sobre la misión"
       },
+      "analyticsPage": {
+        "placeholderBody": "Esta sección incluirá varios gráficos, opciones de exportación de datos e informes detallados sobre ventas, productos y comportamiento de los clientes.",
+        "placeholderFooter": "(Se requiere un mayor desarrollo)",
+        "placeholderTitle": "[Marcador de posición de la interfaz de análisis e informes avanzados]",
+        "subtitle": "Obtenga información sobre el rendimiento de su empresa.",
+        "title": "Análisis e informes"
+      },
       "businessSwitcher": {
         "createNewBusiness": "Crear nuevas empresas",
         "failedToLoad": "Fallo al cargar.",
@@ -359,6 +366,25 @@
         "switching": "Cambiando...",
         "upgradePlanTooltip": "Actualice su plan para añadir más empresas.",
         "yourBusinesses": "Sus empresas"
+      },
+      "commissionsList": {
+        "headerBusiness": "Empresa recomendada",
+        "headerCommission": "Comisión",
+        "headerDate": "Fecha",
+        "noCommissions": "No se han encontrado comisiones recientes.",
+        "title": "Comisiones recientes"
+      },
+      "createBusinessPage": {
+        "businessEmailLabel": "Correo electrónico profesional (opcional)",
+        "businessEmailPlaceholder": "contact@yourbusiness.com",
+        "businessNamePlaceholder": "por ejemplo, The Artisan Cafe",
+        "businessPhoneLabel": "Teléfono profesional (opcional)",
+        "businessPhonePlaceholder": "+1 (555) 123-4567",
+        "createButton": "Crear empresa",
+        "subtitle": "Añade otra empresa a tu cuenta. Esto contará para el límite de empresas de tu suscripción.",
+        "title": "Crear una nueva empresa",
+        "toastError": "No se ha podido crear la empresa. Por favor, inténtelo de nuevo.",
+        "toastSuccess": "¡Empresa \"{{name}}\" creada con éxito!"
       },
       "dashboardGreeting": {
         "fallbackName": "Agente",
@@ -375,6 +401,14 @@
         "peakHour": "Hora punta",
         "title": "Invitados de hoy",
         "titleInsight": "Flujo de invitados"
+      },
+      "inventoryPage": {
+        "addNewIngredientButton": "Añadir nuevo ingrediente",
+        "buttonPlaceholder": "[Botón Añadir nuevo ingrediente pulsado]",
+        "subtitle": "Haga un seguimiento de los ingredientes, gestione los niveles de existencias y consulte los costes.",
+        "tablePlaceholderBody": "Funciones previstas: Búsqueda, Filtros (Bajo Stock, Categoría), Columnas Ordenables, Paginación, Acciones Añadir/Editar Ingrediente.",
+        "tablePlaceholderTitle": "[Marcador de posición de la tabla de artículos de inventario]",
+        "title": "Gestión de existencias"
       },
       "liveOrdersCard": {
         "allConfirmed": "Todos los pedidos confirmados.",
@@ -413,12 +447,31 @@
         "noActiveOrders": "No hay pedidos activos",
         "tooltipLabel": "{{count}} {{status}}"
       },
+      "ordersPage": {
+        "buttonPlaceholder": "[Botón Crear nuevo pedido pulsado]",
+        "createNewOrderButton": "Crear nueva orden",
+        "subtitle": "Vea, siga y gestione todos los pedidos de los clientes.",
+        "tablePlaceholderBody": "Funciones previstas: Búsqueda, Filtros (Estado, Rango de fechas), Columnas ordenables, Paginación, Ver detalles del pedido Acción.",
+        "tablePlaceholderTitle": "[Marcador de posición de la tabla de pedidos]",
+        "title": "Gestionar pedidos"
+      },
       "productMoversCard": {
         "bottomItemsTitle": "Los 5 artículos más vendidos",
         "noData": "No hay datos para este periodo.",
         "periodToday": "Hoy",
         "title": "Hoja caliente de hoy",
         "topItemsTitle": "Los 5 artículos más vendidos"
+      },
+      "productsPage": {
+        "addProductButton": "Añadir nuevo producto",
+        "categoriesTitle": "Categorías",
+        "subtitle": "Supervise todo su catálogo de productos, gestione categorías y realice acciones masivas.",
+        "title": "Centro de mando de productos"
+      },
+      "referralsList": {
+        "headerSubscription": "Suscripción",
+        "noReferrals": "No se han encontrado referencias recientes.",
+        "title": "Referencias recientes"
       },
       "revenueCard": {
         "avgSpend": "Avg. Gasto / Huésped",
@@ -431,6 +484,13 @@
         "titleInsight": "Motor de ingresos",
         "vsYesterday": "frente a ayer",
         "vsYesterdayValue": "vs {{value}} ayer"
+      },
+      "settingsSidebar": {
+        "billing": "Facturación",
+        "businessProfile": "Perfil de la empresa",
+        "security": "Seguridad",
+        "teamMembers": "Miembros del equipo",
+        "userProfile": "Perfil del usuario"
       },
       "subscriptionBadge": {
         "actionRequired": "Acción requerida",
@@ -445,6 +505,9 @@
         "starterPlan": "Plan de inicio",
         "trialDaysLeft": "Juicio: {{days}}d izquierda",
         "trialEndsToday": "Prueba: Termina hoy"
+      },
+      "userProfileWidget": {
+        "logout": "Cierre de sesión"
       }
     }
   },
@@ -482,6 +545,43 @@
       "Peak": "Pico",
       "Week": "Semana",
       "Wk": "Semana"
+    },
+    "heatmap": {
+      "cell": {
+        "ariaLabel": "{{count}} clientes ({{percentage}}% del pico)"
+      },
+      "cellTypes": {
+        "highActivity": "{{value}}% actividad (alta)",
+        "lowActivity": "{{value}}% actividad (baja)",
+        "mediumActivity": "{{value}}% actividad (media)",
+        "noActivity": "Sin actividad"
+      },
+      "clientTooltip": {
+        "clients_one": "cliente",
+        "clients_other": "clientes"
+      },
+      "customerHeatmapCard": {
+        "openSettingsAriaLabel": "Abrir ajustes",
+        "title": "Actividad de los clientes"
+      },
+      "heatmapGrid": {
+        "ariaLabel": "Cuadrícula del mapa térmico de datos"
+      },
+      "monthHeatmapGrid": {
+        "cellAriaLabel_one": "{{date}}: {{count}} cliente",
+        "cellAriaLabel_other": "{{date}}: {{count}} clientes"
+      },
+      "settingsMenu": {
+        "blockDurationLabel": "Duración del bloque (1-24 horas)",
+        "blockStartHourLabel": "Hora de inicio del bloque (0-23)",
+        "bufferDaysLabel": "Días de tampón (0-14)",
+        "operationalHoursLabel": "Horario de atención al público"
+      },
+      "weekHeatmapView": {
+        "ariaLabel": "Mapa de actividad semanal de los clientes",
+        "legendLabel": "&lt; {{value}}",
+        "noActivity": "No hay datos de actividad para este periodo."
+      }
     }
   },
   "kitchen_display_system": {

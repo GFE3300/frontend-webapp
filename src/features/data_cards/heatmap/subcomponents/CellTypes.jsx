@@ -3,6 +3,18 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion } from 'framer-motion';
 import WavingBackground from '../../../../components/animations/WavingLine';
+import sl from '../utils/script_lines';
+
+// Helper for dynamic string interpolation
+const interpolate = (str, params) => {
+    if (!str) return '';
+    let newStr = str;
+    for (const key in params) {
+        newStr = newStr.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+    }
+    return newStr;
+};
+
 
 // Shared motion props & variants for hover animations
 const sharedProps = {
@@ -26,13 +38,14 @@ const textVariants = {
 // Base color
 const BASE_COLOR = '#fb7185';
 const COMMON_CLASS = 'relative flex-1 cursor-pointer rounded-xl overflow-hidden';
+const cellTypeStrings = sl.heatmap.cellTypes;
 
 /** EmptyCell: transparent background */
 export const EmptyCell = memo(({ realValue, style }) => (
     <motion.div
         className={COMMON_CLASS}
         style={{ backgroundColor: 'transparent', opacity: 0, ...style }}
-        aria-label="No activity"
+        aria-label={cellTypeStrings.noActivity || 'No activity'}
         whileHover={{ opacity: 1 }}
     >
         <motion.span
@@ -52,7 +65,7 @@ export const LowCell = memo(({ realValue, style }) => (
         variants={hoverVariants}
         className={COMMON_CLASS}
         style={{ ...style }}
-        aria-label={`${realValue}% activity (low)`}
+        aria-label={interpolate(cellTypeStrings.lowActivity || '{{value}}% activity (low)', { value: realValue })}
     >
         <WavingBackground
             amplitude={20}
@@ -86,7 +99,7 @@ export const MidCell = memo(({ realValue, style }) => (
         variants={hoverVariants}
         className={COMMON_CLASS}
         style={{ backgroundColor: `${BASE_COLOR}80`, ...style }}
-        aria-label={`${realValue}% activity (medium)`}
+        aria-label={interpolate(cellTypeStrings.mediumActivity || '{{value}}% activity (medium)', { value: realValue })}
     >
         <motion.span
             variants={textVariants}
@@ -105,7 +118,7 @@ export const HighCell = memo(({ realValue, style }) => (
         variants={hoverVariants}
         className={COMMON_CLASS}
         style={{ backgroundColor: `${BASE_COLOR}`, ...style }}
-        aria-label={`${realValue}% activity (high)`}
+        aria-label={interpolate(cellTypeStrings.highActivity || '{{value}}% activity (high)', { value: realValue })}
     >
         <motion.span
             variants={textVariants}

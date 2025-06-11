@@ -5,6 +5,17 @@ import useNumberGroups from '../../../../hooks/useNumberGroups';
 import HeatmapGrid from '../subcomponents/HeatmapGrid';
 import GridContainer from '../subcomponents/GridContainer';
 import { format } from 'date-fns';
+import sl from '../utils/script_lines';
+
+// Helper for dynamic string interpolation
+const interpolate = (str, params) => {
+    if (!str) return '';
+    let newStr = str;
+    for (const key in params) {
+        newStr = newStr.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+    }
+    return newStr;
+};
 
 const HEATMAP_THEME = ['bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700', 'waving-lines', 'bg-[#fb718580]', 'bg-[#fb7185]'];
 
@@ -15,6 +26,7 @@ export default function WeekHeatmapView({
 }) {
     const containerRef = useRef(null);
     const size = useResponsiveSize(containerRef);
+    const viewStrings = sl.heatmap.weekHeatmapView;
 
     const { status, blocks } = useCustomerTimeBlocks(settings);
 
@@ -67,12 +79,15 @@ export default function WeekHeatmapView({
 
     useEffect(() => {
         if (percentageRanges && maxValue > 0) {
-            const newIndexLabels = percentageRanges.map(([min]) => `< ${Math.round(min * (maxValue / 100))}`);
+            const formatString = viewStrings.legendLabel || '< {{value}}';
+            const newIndexLabels = percentageRanges.map(([min]) =>
+                interpolate(formatString, { value: Math.round(min * (maxValue / 100)) })
+            );
             setIndexLabels(newIndexLabels);
         } else {
             setIndexLabels([]);
         }
-    }, [percentageRanges, maxValue, setIndexLabels]);
+    }, [percentageRanges, maxValue, setIndexLabels, viewStrings.legendLabel]);
 
     useEffect(() => {
         setColorRanges(HEATMAP_THEME);
@@ -92,12 +107,12 @@ export default function WeekHeatmapView({
     }, [percentageRanges]);
 
     if (status === 'loading') {
-        return <div className="flex items-center justify-center h-full">Loading...</div>;
+        return <div className="flex items-center justify-center h-full">{viewStrings.loading || 'Loading...'}</div>;
     }
 
     // --- REFINED: Add guard clause to prevent rendering with empty data, avoiding NaN errors. ---
     if (status === 'success' && (!heatmapData || heatmapData.length === 0 || colLabels.length === 0)) {
-        return <div className="flex items-center justify-center h-full text-sm text-gray-500">No activity data for this period.</div>;
+        return <div className="flex items-center justify-center h-full text-sm text-gray-500">{viewStrings.noActivity || 'No activity data for this period.'}</div>;
     }
 
     return (
@@ -110,7 +125,7 @@ export default function WeekHeatmapView({
                 maxValue={maxValue}
                 theme={HEATMAP_THEME}
                 findGroupIndex={findGroupIndex}
-                ariaLabel="Weekly customer activity heatmap"
+                ariaLabel={viewStrings.ariaLabel || 'Weekly customer activity heatmap'}
             />
         </GridContainer>
     );

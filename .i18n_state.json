@@ -1,6 +1,7 @@
 {
   "features\\add_product_modal\\utils\\script_lines.js": "219db24c17c5a7a9d2fc25871d5aaa7818bd4d3485b1784b6a2728a791c4c6e4",
-  "features\\dashboard\\utils\\script_lines.js": "b7c4070769bcbdff1d140fb4935963290ff16671d40c1d1b6fd0cb61fd6fa1c7",
+  "features\\dashboard\\utils\\script_lines.js": "ee3753941ab5452453e7ab6489454703f947d6c54d7ec238de6093c9fbc60de9",
+  "features\\data_cards\\heatmap\\utils\\script_lines.js": "f4bf7f2e61fc062d69c327abe91111b56daa95bfb9b5eec6a25075ca62941b64",
   "features\\data_cards\\revenue_card\\language_script\\script_lines.js": "50969a45c67eb8bd899f909be88367eb43802afbd08caac0226c8ee137d9b7e6",
   "features\\kitchen_display_system\\utils\\script_lines.js": "9f49b40285b5438feaf97f368023e2b9cd713528454b31b318e488225610dce9",
   "features\\live_orders_view\\utils\\script_lines.js": "e6a1dd18cdbebfd02d030285941a2e1218f2f68c382a275f55bc9e471028b6de",

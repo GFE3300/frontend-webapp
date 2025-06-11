@@ -1,16 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import Icon from '../../../components/common/Icon';
-
-const settingsLinks = [
-    { name: 'User Profile', to: 'profile', icon: 'person' },
-    { name: 'Business Profile', to: 'business', icon: 'storefront' },
-    { name: 'Security', to: 'security', icon: 'shield_lock' },
-    { name: 'Billing', to: 'billing', icon: 'credit_card' },
-    { name: 'Team Members', to: 'team', icon: 'groups' },
-];
+import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
 const SettingsSidebar = () => {
+    // This array now uses the script lines for link names
+    const settingsLinks = [
+        { name: sl.settingsSidebar.userProfile || 'User Profile', to: 'profile', icon: 'person' },
+        { name: sl.settingsSidebar.businessProfile || 'Business Profile', to: 'business', icon: 'storefront' },
+        { name: sl.settingsSidebar.security || 'Security', to: 'security', icon: 'shield_lock' },
+        { name: sl.settingsSidebar.billing || 'Billing', to: 'billing', icon: 'credit_card' },
+        { name: sl.settingsSidebar.teamMembers || 'Team Members', to: 'team', icon: 'groups' },
+    ];
+
     const getLinkClassName = ({ isActive }) => {
         const baseClasses = 'flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200';
         if (isActive) {

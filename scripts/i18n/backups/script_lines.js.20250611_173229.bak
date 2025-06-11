@@ -1,0 +1,61 @@
+export const scriptLines = {
+    heatmap: {
+        customerHeatmapCard: {
+            title: 'Customer Activity',
+            openSettingsAriaLabel: 'Open settings',
+        },
+        settingsMenu: {
+            weekTab: 'Week',
+            monthTab: 'Month',
+            blockStartHourLabel: 'Block Start Hour (0–23)',
+            blockDurationLabel: 'Block Duration (1–24 hours)',
+            operationalHoursLabel: 'Operational Hours',
+            bufferDaysLabel: 'Buffer Days (0-14)',
+        },
+        viewToggle: {
+            week: 'Week',
+            month: 'Month',
+        },
+        weekHeatmapView: {
+            loading: 'Loading...',
+            noActivity: 'No activity data for this period.',
+            ariaLabel: 'Weekly customer activity heatmap',
+            legendLabel: '< {{value}}',
+        },
+        monthHeatmapView: {
+            loading: 'Loading...',
+            noActivity: 'No activity data for this period.',
+            legendLabel: '< {{value}}',
+        },
+        clientTooltip: {
+            clients: {
+                one: 'client',
+                other: 'clients',
+            }
+        },
+        monthHeatmapGrid: {
+            cellAriaLabel: {
+                one: '{{date}}: {{count}} client',
+                other: '{{date}}: {{count}} clients',
+            },
+
+
+
+
+        },
+        heatmapGrid: {
+            ariaLabel: 'Data heatmap grid',
+        },
+        cell: {
+            ariaLabel: '{{count}} customers ({{percentage}}% of peak)',
+        },
+        cellTypes: {
+            noActivity: 'No activity',
+            lowActivity: '{{value}}% activity (low)',
+            mediumActivity: '{{value}}% activity (medium)',
+            highActivity: '{{value}}% activity (high)',
+        },
+    },
+};
+
+export default scriptLines;

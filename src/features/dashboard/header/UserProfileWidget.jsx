@@ -8,6 +8,7 @@ import { usePermissions } from '../../../hooks/usePermissions';
 import Icon from '../../../components/common/Icon';
 import UserAvatar from './UserAvatar'; // The refactored avatar
 import SubscriptionBadge from './SubscriptionBadge'; // The new, self-contained badge
+import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
 // Reusable animated dropdown item component
 const DropdownItem = ({ children, onClick, iconName, iconClass = '' }) => (
@@ -97,12 +98,12 @@ const UserProfileWidget = () => {
                         </div>
 
                         <div className="p-2 space-y-1">
-                            <DropdownItem onClick={() => { navigate('/dashboard/business/settings/profile'); setIsMenuOpen(false); }} iconName="person">Your Profile</DropdownItem>
-                            <DropdownItem onClick={() => { navigate('/dashboard/business/settings'); setIsMenuOpen(false); }} iconName="settings">Settings</DropdownItem>
+                            <DropdownItem onClick={() => { navigate('/dashboard/business/settings/profile'); setIsMenuOpen(false); }} iconName="person">{sl.userProfileWidget.yourProfile || 'Your Profile'}</DropdownItem>
+                            <DropdownItem onClick={() => { navigate('/dashboard/business/settings'); setIsMenuOpen(false); }} iconName="settings">{sl.userProfileWidget.settings || 'Settings'}</DropdownItem>
 
                             <div className="my-1 border-t border-white/10" />
 
-                            <DropdownItem onClick={handleLogout} iconName="logout" iconClass="text-red-400">Logout</DropdownItem>
+                            <DropdownItem onClick={handleLogout} iconName="logout" iconClass="text-red-400">{sl.userProfileWidget.logout || 'Logout'}</DropdownItem>
                         </div>
                     </motion.div>
                 )}
