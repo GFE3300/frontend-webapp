@@ -91,7 +91,7 @@ function Modal({
                     onClick={onClose} // Click on backdrop to close
                 >
                     <motion.div
-                        className="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden"
+                        className="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-sm overflow-hidden"
                         variants={modalVariants}
                         onClick={(e) => e.stopPropagation()} // Prevent click inside modal from closing it
                     >
@@ -110,7 +110,7 @@ function Modal({
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-gray-50 px-5 py-3 sm:px-6 flex flex-row-reverse">
+                        <div className="bg-neutral-50 dark:bg-neutral-800 px-5 py-3 sm:px-6 flex flex-row-reverse">
                             {onConfirm ? (
                                 <>
                                     <button

@@ -8,12 +8,11 @@ const slPage = scriptLines_kitchenDisplaySystem.page;
 
 const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable, onToggleGroupByTable }) => {
     const filters = [
-        { key: 'all', label: sl.filterAll || "All", icon: "apps" },
-        { key: 'new', label: sl.filterNew || "New", icon: "fiber_new" },
-        { key: 'preparing', label: sl.filterPreparing || "Preparing", icon: "soup_kitchen" },
-        { key: 'ready', label: sl.filterReady || "Ready", icon: "room_service" },
-        { key: 'served', label: sl.filterServed || "Served", icon: "done_all" },
-        { key: 'paid', label: sl.filterPaid || "Paid", icon: "receipt_long" },
+        { key: 'all', label: sl.filterAll, icon: "apps" },
+        { key: 'pending', label: sl.filterPending, icon: "hourglass_top" },
+        { key: 'confirmed', label: sl.filterConfirmed, icon: "check_circle" },
+        { key: 'preparing', label: sl.filterPreparing, icon: "soup_kitchen" },
+        { key: 'served', label: sl.filterServed, icon: "room_service" },
     ];
 
     return (
@@ -21,7 +20,7 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
             <div className="flex items-center">
                 <Icon name="kitchen" className="w-6 h-6 text-rose-500 dark:text-rose-400 mr-2 sm:mr-3" />
                 <h1 className="font-montserrat font-semibold text-lg sm:text-xl text-neutral-700 dark:text-neutral-200 tracking-tight">
-                    {slPage.pageTitle || "Kitchen Orders"}
+                    {slPage.pageTitle}
                 </h1>
             </div>
             <div className="flex items-center space-x-1 sm:space-x-2">
@@ -29,7 +28,6 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                     <button
                         key={filter.key}
                         onClick={() => onFilterChange(filter.key)}
-                        // MODIFIED: Added `justify-center` to center the content
                         className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors duration-150 ease-in-out
                                     flex items-center justify-center space-x-1.5
                                     ${activeFilter === filter.key
@@ -38,7 +36,7 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                             }`}
                         title={`${filter.label} (${orderCounts[filter.key] || 0})`}
                     >
-                        <Icon name={filter.icon} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <Icon name={filter.icon} style={{ fontSize: '1rem' }} className="w-4 h-4" />
                         <span className="hidden sm:inline">{filter.label}</span>
                         <span className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded-full min-w-[1.25rem] 
                                         ${activeFilter === filter.key ? 'bg-rose-400/80' : 'bg-neutral-300/80 dark:bg-neutral-600/80'}`}>
@@ -53,13 +51,12 @@ const KitchenHeader = ({ activeFilter, onFilterChange, orderCounts, groupByTable
                 {/* Group by Table Toggle */}
                 <button
                     onClick={onToggleGroupByTable}
-                    // MODIFIED: Added flexbox centering for consistency
                     className={`p-2 rounded-full transition-colors duration-150 ease-in-out flex items-center justify-center
                                 ${groupByTable
                             ? 'bg-rose-500 text-white shadow-sm'
                             : 'bg-neutral-200/70 hover:bg-neutral-300/70 dark:bg-neutral-700/70 dark:hover:bg-neutral-600/70 text-neutral-700 dark:text-neutral-200'
                         }`}
-                    title={sl.groupByTableToggle || "Group by Table"}
+                    title={sl.groupByTableToggle}
                 >
                     <Icon name="table_rows" className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
