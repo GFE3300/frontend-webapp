@@ -151,16 +151,16 @@ export const scriptLines_ProductsTable = {
         },
         bulkActions: {
             placeholder: "Bulk Actions ({count})", // 
-            ariaLabel: i18n.t('products_table.productsTable.productsToolbar.bulkActions.ariaLabel'), // 
-            activateSelected: i18n.t('products_table.productsTable.productsToolbar.bulkActions.activateSelected'), // 
-            deactivateSelected: i18n.t('products_table.productsTable.productsToolbar.bulkActions.deactivateSelected'), // 
-            changeCategory: i18n.t('products_table.productsTable.productsToolbar.bulkActions.changeCategory'), // 
-            addTags: i18n.t('products_table.productsTable.productsToolbar.bulkActions.addTags'), // 
-            removeTags: i18n.t('products_table.productsTable.productsToolbar.bulkActions.removeTags'), // 
-            deleteSelected: i18n.t('products_table.productsTable.productsToolbar.bulkActions.deleteSelected'), // 
+            ariaLabel: "Perform bulk actions on selected products", // 
+            activateSelected: "Activate Selected", // 
+            deactivateSelected: "Deactivate Selected", // 
+            changeCategory: "Change Category...", // 
+            addTags: "Add Tags...", // 
+            removeTags: "Remove Tags...", // 
+            deleteSelected: "Delete Selected", // 
         },
         selection: {
-            clearSelectionTooltip: i18n.t('products_table.productsTable.productsToolbar.selection.clearSelectionTooltip'), // 
+            clearSelectionTooltip: "Clear Selection", // 
         }
     },
     customColumnDropdown: {

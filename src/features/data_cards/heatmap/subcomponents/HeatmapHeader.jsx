@@ -37,7 +37,7 @@ const HeatmapHeader = ({
                     <AnimatePresence>
                         {indexLabels?.map((label, idx) => (
                             <motion.div
-                                key={label}
+                                key={`${label}-${idx}`}
                                 className="flex items-center gap-2"
                                 custom={idx}
                                 initial="hidden"

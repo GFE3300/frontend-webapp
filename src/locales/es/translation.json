@@ -340,6 +340,50 @@
     },
     "warnCannotSetSelection": "No se ha podido establecer el rango de selección en la entrada:"
   },
+  "dashboard": {
+    "dashboard": {
+      "guestsCard": {
+        "peakHour": "Hora punta",
+        "title": "Invitados de hoy",
+        "titleInsight": "Flujo de invitados"
+      },
+      "liveOrdersCard": {
+        "allConfirmed": "Todos los pedidos confirmados.",
+        "funnelLabelPending": "Pendiente",
+        "funnelMetricTime": "~{{time}}",
+        "title": "Pedidos en directo",
+        "titleInsight": "Embudo de pedidos",
+        "toConfirm_one": "{{count}} para Confirmar"
+      },
+      "occupancyCard": {
+        "avgTurnTime": "Avg. Tiempo de giro",
+        "noActivity": "Aún no hay actividad en la mesa para clasificar los puntos calientes.",
+        "occupancyPercentage": "{{percentage}}% Ocupación",
+        "tableLabel": "Tabla #{{tableNumber}}",
+        "title": "Ocupación",
+        "titleInsight": "Lugares de celebración"
+      },
+      "orderStageColumn": {
+        "avgTime": "Avg. Tiempo"
+      },
+      "orderStatusDistributionBar": {
+        "noActiveOrders": "No hay pedidos activos",
+        "tooltipLabel": "{{count}} {{status}}"
+      },
+      "revenueCard": {
+        "avgSpend": "Avg. Gasto / Huésped",
+        "categoryDrinks": "Bebidas",
+        "categoryEvents": "Eventos",
+        "categoryFood": "Alimentación",
+        "categoryMerch": "Mercancía",
+        "categoryTakeout": "Comida para llevar",
+        "title": "Ingresos hoy",
+        "titleInsight": "Motor de ingresos",
+        "vsYesterday": "frente a ayer",
+        "vsYesterdayValue": "vs {{value}} ayer"
+      }
+    }
+  },
   "data_cards": {
     "DAYS": {
       "Fri": "Vie",
@@ -355,7 +399,7 @@
       "Aug": "Agosto",
       "Dec": "Diciembre",
       "Feb": "Febrero",
-      "Jan": "Ene",
+      "Jan": "Jan",
       "Jul": "Julio",
       "Jun": "Jun",
       "Mar": "Mar",
@@ -364,6 +408,9 @@
       "Oct": "Octubre",
       "Sep": "Sep"
     },
+    "TitleBar": {
+      "title": "Análisis de ingresos"
+    },
     "WORDS": {
       "Average": "Media",
       "Day": "Día",
@@ -371,6 +418,44 @@
       "Peak": "Pico",
       "Week": "Semana",
       "Wk": "Semana"
+    }
+  },
+  "kitchen_display_system": {
+    "kitchenDisplaySystem": {
+      "header": {
+        "filterNew": "Nuevo",
+        "filterPaid": "Pagado",
+        "filterReady": "Listo",
+        "groupByTableToggle": "Agrupar por mesa"
+      },
+      "modal": {
+        "price": "${{val}}",
+        "title": "Detalles del pedido: {{identifier}}"
+      },
+      "orderCard": {
+        "actionMarkAsReady": "Marcar como listo",
+        "actionStartPreparing": "Empieza a prepararte",
+        "defaultIdentifier": "Pida",
+        "lastUpdate": "Última actualización: {{timeAgo}}",
+        "pickupIdentifier": "Recogida #{{pickupCode}}"
+      },
+      "orderItemList": {
+        "itemQuantity": "x{{quantity}}",
+        "moreItems": "+ {{count}} más artículos..."
+      },
+      "orderStatus": {
+        "finalized": "Finalizado"
+      },
+      "page": {
+        "errorFetchingOrders": "Error al recuperar pedidos.",
+        "loadingOrders": "Cargando Pedidos...",
+        "noOrdersMessage": "Los nuevos pedidos aparecerán aquí.",
+        "noOrdersTitle": "No hay pedidos activos",
+        "orderCount_one": "({{count}} orden)",
+        "orderCount_other": "({{count}} pedidos)",
+        "pageTitle": "Pedidos de cocina",
+        "takeoutPickup": "Comida para llevar / Recogida"
+      }
     }
   },
   "live_orders_view": {
@@ -938,6 +1023,15 @@
         }
       },
       "productsToolbar": {
+        "bulkActions": {
+          "activateSelected": "Activar seleccionado",
+          "addTags": "Añadir etiquetas...",
+          "ariaLabel": "Realizar acciones masivas en los productos seleccionados",
+          "changeCategory": "Cambiar categoría...",
+          "deactivateSelected": "Desactivar seleccionado",
+          "deleteSelected": "Borrar seleccionados",
+          "removeTags": "Quitar etiquetas..."
+        },
         "buttons": {
           "addProduct": "Añadir producto",
           "refreshTooltip": "Actualizar datos"
@@ -950,6 +1044,9 @@
           "typeAriaLabel": "Filtrar por tipo de producto"
         },
         "searchPlaceholder": "Buscar nombre, SKU, etiquetas...",
+        "selection": {
+          "clearSelectionTooltip": "Borrar selección"
+        },
         "sort": {
           "ariaLabel": "Ordenar por",
           "placeholder": "Ordenar por"
@@ -1111,7 +1208,7 @@
           "cropSaveError": "No se ha podido guardar el recorte. Por favor, seleccione un área válida.",
           "errorReadingFile": "Error al leer el archivo.",
           "fileNotAccepted": "No se ha podido aceptar el archivo. Por favor, inténtelo de nuevo.",
-          "fileTooLarge": "El archivo es demasiado grande. Tamaño máximo: {maxFileSizeMB}MB.",
+          "fileTooLarge": "El archivo es demasiado grande. Tamaño máximo: {{maxFileSizeMB}}MB.",
           "handlerMissing": "Error: Falta el gestor de subida de imágenes.",
           "invalidFileType": "Tipo de archivo no válido. Por favor, cargue una imagen (JPEG, PNG, GIF, WebP)."
         },

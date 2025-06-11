@@ -779,7 +779,7 @@ export const scriptLines_Components = {
             uploadNew: i18n.t('register.components.imageUploader.preview.uploadNew'),
         },
         errors: {
-            fileTooLarge: i18n.t('register.components.imageUploader.errors.fileTooLarge'),
+            fileTooLarge: "File is too large. Max size: {{maxFileSizeMB}}MB.",
             invalidFileType: i18n.t('register.components.imageUploader.errors.invalidFileType'),
             fileNotAccepted: i18n.t('register.components.imageUploader.errors.fileNotAccepted'),
             errorReadingFile: i18n.t('register.components.imageUploader.errors.errorReadingFile'),

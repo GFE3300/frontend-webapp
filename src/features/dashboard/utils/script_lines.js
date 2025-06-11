@@ -1,3 +1,15 @@
+/**
+ * @auto-managed
+ *
+ * This file is managed by the I18N script. Any manual changes to this file will be
+ * overwritten during the next synchronization. To add or modify text, please
+ * update the original string in this file and then run the 'sync' command.
+ *
+ * @last-synced 2025-06-10 21:51:03 UTC
+ */
+
+import i18n from '../../../i18n';
+
 // src/features/dashboard/utils/script_lines.js
 
 /**
@@ -5,62 +17,56 @@
  */
 export const scriptLines_dashboard = {
     revenueCard: {
-        title: "Revenue Today",
-        titleInsight: "Revenue Engine",
-        avgSpend: "Avg. Spend / Guest",
-        vsYesterday: "vs yesterday",
-        vsYesterdayValue: "vs {{value}} yesterday",
-        categoryFood: "Food",
-        categoryDrinks: "Drinks",
-        categoryMerch: "Merchandise",
-        categoryEvents: "Events",
-        categoryTakeout: "Takeout",
+        title: i18n.t('dashboard.dashboard.revenueCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.revenueCard.titleInsight'),
+        avgSpend: i18n.t('dashboard.dashboard.revenueCard.avgSpend'),
+        vsYesterday: i18n.t('dashboard.dashboard.revenueCard.vsYesterday'),
+        vsYesterdayValue: i18n.t('dashboard.dashboard.revenueCard.vsYesterdayValue'),
+        categoryFood: i18n.t('dashboard.dashboard.revenueCard.categoryFood'),
+        categoryDrinks: i18n.t('dashboard.dashboard.revenueCard.categoryDrinks'),
+        categoryMerch: i18n.t('dashboard.dashboard.revenueCard.categoryMerch'),
+        categoryEvents: i18n.t('dashboard.dashboard.revenueCard.categoryEvents'),
+        categoryTakeout: i18n.t('dashboard.dashboard.revenueCard.categoryTakeout'),
     },
     interactiveDonutChart: {
-        totalLabel: "Total",
+        totalLabel: i18n.t('venue_management.total'),
     },
     guestsCard: {
-        title: "Guests Today",
-        titleInsight: "Guest Flow",
-        vsYesterday: "vs yesterday",
-        peakHour: "Peak Hour",
+        title: i18n.t('dashboard.dashboard.guestsCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.guestsCard.titleInsight'),
+        vsYesterday: i18n.t('dashboard.dashboard.revenueCard.vsYesterday'),
+        peakHour: i18n.t('dashboard.dashboard.guestsCard.peakHour'),
     },
     liveOrdersCard: {
-        title: "Live Orders",
-        titleInsight: "Order Funnel",
-        toConfirm: {
-            one: "{{count}} to Confirm",
-            other: "{{count}} to Confirm",
-        },
-        allConfirmed: "All orders confirmed.",
-        funnelLabelPending: "Pending",
-        funnelLabelConfirmed: "Confirmed",
-        funnelLabelPreparing: "Preparing",
-        funnelLabelServed: "Served",
-        funnelMetricTime: "~{{time}}",
+        title: i18n.t('dashboard.dashboard.liveOrdersCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.liveOrdersCard.titleInsight'),
+        toConfirm: i18n.t('dashboard.dashboard.liveOrdersCard.toConfirm'),
+        allConfirmed: i18n.t('dashboard.dashboard.liveOrdersCard.allConfirmed'),
+        funnelLabelPending: i18n.t('dashboard.dashboard.liveOrdersCard.funnelLabelPending'),
+        funnelLabelConfirmed: i18n.t('live_orders_view.liveOrders.orderStatus.CONFIRMED'),
+        funnelLabelPreparing: i18n.t('live_orders_view.liveOrders.orderStatus.PREPARING'),
+        funnelLabelServed: i18n.t('live_orders_view.liveOrders.status.SERVED'),
+        funnelMetricTime: i18n.t('dashboard.dashboard.liveOrdersCard.funnelMetricTime'),
     },
     orderStatusDistributionBar: {
-        tooltipLabel: "{{count}} {{status}}",
-        statusPending: "Pending",
-        statusConfirmed: "Confirmed",
-        statusPreparing: "Preparing",
-        statusServed: "Served",
-        noActiveOrders: "No active orders",
+        tooltipLabel: i18n.t('dashboard.dashboard.orderStatusDistributionBar.tooltipLabel'),
+        statusPending: i18n.t('dashboard.dashboard.liveOrdersCard.funnelLabelPending'),
+        statusConfirmed: i18n.t('live_orders_view.liveOrders.orderStatus.CONFIRMED'),
+        statusPreparing: i18n.t('live_orders_view.liveOrders.orderStatus.PREPARING'),
+        statusServed: i18n.t('live_orders_view.liveOrders.status.SERVED'),
+        noActiveOrders: i18n.t('dashboard.dashboard.orderStatusDistributionBar.noActiveOrders'),
     },
     orderStageColumn: {
-        avgTime: "Avg. Time",
+        avgTime: i18n.t('dashboard.dashboard.orderStageColumn.avgTime'),
     },
     occupancyCard: {
-        title: "Occupancy",
-        titleInsight: "Venue Hotspots",
-        activeTables: "Active Tables",
-        occupancyPercentage: "{{percentage}}% Occupancy",
-        tableLabel: "Table #{{tableNumber}}",
-        orderCount: {
-            one: "{{count}} order",
-            other: "{{count}} orders",
-        },
-        noActivity: "No table activity yet to rank hotspots.",
-        avgTurnTime: "Avg. Turn Time",
+        title: i18n.t('dashboard.dashboard.occupancyCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.occupancyCard.titleInsight'),
+        activeTables: i18n.t('live_orders_view.liveOrders.stats.activeTables'),
+        occupancyPercentage: i18n.t('dashboard.dashboard.occupancyCard.occupancyPercentage'),
+        tableLabel: i18n.t('dashboard.dashboard.occupancyCard.tableLabel'),
+        orderCount: i18n.t('dashboard.dashboard.occupancyCard.orderCount'),
+        noActivity: i18n.t('dashboard.dashboard.occupancyCard.noActivity'),
+        avgTurnTime: i18n.t('dashboard.dashboard.occupancyCard.avgTurnTime'),
     },
 };

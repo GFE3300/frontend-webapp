@@ -1,6 +1,6 @@
 import React from 'react';
 // Router
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
 // Stripe
 import { loadStripe } from '@stripe/stripe-js';
@@ -19,7 +19,7 @@ import UserpageWrapper from './features/menu_view/Userpage.jsx';
 import PlanAndPaymentPage from './features/payments/PlanAndPaymentPage.jsx';
 import PaymentSuccessPage from './features/payments/PaymentSuccessPage.jsx';
 import PaymentCancelPage from './features/payments/PaymentCancelPage.jsx';
-import CreateBusinessPage from './features/dashboard/pages/CreateBusinessPage.jsx'; // NEW: Import
+import CreateBusinessPage from './features/dashboard/pages/CreateBusinessPage.jsx';
 
 // Import Staff Portal pages
 import StaffLoginPage from './features/staff_portal/pages/admin/StaffLoginPage.jsx';
@@ -39,9 +39,8 @@ import VenuePage from './features/dashboard/pages/VenuePage.jsx';
 import OrdersDashboardPage from './features/live_orders_view/LiveOrdersPage.jsx';
 import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
-import ProfileSettingsPage from './features/dashboard/pages/settings/ProfileSettingsPage.jsx';
-import SubscriptionBillingPage from './features/dashboard/pages/settings/SubscriptionBillingPage.jsx';
-import TeamManagementPage from './features/dashboard/pages/settings/TeamManagementPage.jsx'; // NEW: Import
+import UserProfile from './features/settings_menu/components/UserProfile.jsx';
+import BusinessProfilePage from './features/settings_menu/components/BusinessProfilePage.jsx';
 import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
 import KitchenDisplayPage from './features/kitchen_display_system/pages/KitchenDisplayPage.jsx';
 
@@ -56,7 +55,6 @@ import { FlyingImageProvider } from './components/animations/flying_image/Flying
 import { ThemeProvider } from './utils/ThemeProvider.jsx';
 import { ThemeToggleButton } from './utils/ThemeToggleButton.jsx';
 import { ToastProvider } from './contexts/ToastContext';
-import { Navigate } from 'react-router-dom';
 
 // DND Imports
 import { DndProvider } from 'react-dnd';
@@ -178,41 +176,19 @@ const router = createBrowserRouter([
             { path: "analytics", element: <AnalyticsPage /> },
             {
                 path: "settings",
-                element: <SettingsPage />,
+                element: <SettingsPage />, // This is our new layout component
                 children: [
+                    // Redirect the base /settings path to the profile page by default
                     { index: true, element: <Navigate to="profile" replace /> },
-                    { path: "profile", element: <ProfileSettingsPage /> },
-                    { path: "billing", element: <SubscriptionBillingPage /> },
-                    { path: "team", element: <TeamManagementPage /> }, // NEW: Route for team management
+                    { path: "profile", element: <UserProfile /> },
+                    { path: "business", element: <BusinessProfilePage /> },
+                    // Add other pages as they are built, e.g.:
+                    // { path: "security", element: <SecurityPage /> },
+                    // { path: "billing", element: <BillingPage /> },
                 ]
             },
-            { // NEW: Route for creating a new business
-                path: "create",
-                element: (
-                    <PrivateRoute requiredRoles={['ADMIN', 'MANAGER', 'STAFF']}>
-                        <CreateBusinessPage />
-                    </PrivateRoute>
-                )
-            },
-            {
-                path: "menu-preview",
-                element: (
-                    <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
-                        <AdminMenuPreviewPage />
-                    </PrivateRoute>
-                ),
-            },
-            {
-                path: "venue-designer",
-                element: (
-                    <PrivateRoute requiredRoles={['ADMIN', 'MANAGER']}>
-                        <VenueDesignerPage />
-                    </PrivateRoute>
-                ),
-            },
         ]
-    },
-    {
+    }, {
         path: "/dashboard/unauthorized",
         element: <div><h1>Access Denied</h1><p>You do not have permission to view this page.</p></div>,
     },

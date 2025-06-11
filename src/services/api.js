@@ -1,5 +1,3 @@
-// FILE: src/services/api.js
-
 import axios from 'axios';
 import i18n from '../i18n';
 
@@ -482,6 +480,7 @@ const apiService = {
             headers: { 'X-Bypass-Auth-Interceptor-Original': true }
         });
     },
+    getContextPermissions: () => apiInstance.get('businesses/context-permissions/'),
 };
 
 export default apiService;

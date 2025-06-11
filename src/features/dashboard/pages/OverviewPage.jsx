@@ -1,3 +1,4 @@
+// src/features/dashboard/pages/OverviewPage.jsx
 import React, { Suspense } from 'react';
 import { useCommandBarSummary } from '../hooks/useOverviewData';
 
@@ -5,6 +6,10 @@ import { useCommandBarSummary } from '../hooks/useOverviewData';
 import CommandBarSkeleton from '../cards/skeletons/CommandBarSkeleton';
 import LiveVenueCardSkeleton from '../cards/skeletons/LiveVenueCardSkeleton';
 import ActionItemsCardSkeleton from '../cards/skeletons/ActionItemsCardSkeleton';
+// --- ADD THIS ---
+import RevenueCardSkeleton from '../../data_cards/revenue_card/skeletons/RevenueCardSkeleton';
+import HeatmapCardSkeleton from '../../data_cards/heatmap/skeletons/HeatmapCardSkeleton';
+
 
 // Cards
 import RevenueCard from '../../data_cards/revenue_card';
@@ -23,14 +28,11 @@ import ActionItemsCard from '../cards/ActionItemsCard';
 
 
 const CommandBar = () => {
+    // ... (no changes here)
     const { data } = useCommandBarSummary();
-
-    // The suspense boundary will prevent rendering until `data` is available.
-    // A check is added for robustness in case suspense behavior changes or fails.
     if (!data) {
         return <CommandBarSkeleton />;
     }
-
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <LiveOrdersCard data={data.snapshot_mode.live_orders} insightData={data.insight_mode.order_funnel} />
@@ -55,7 +57,6 @@ const OverviewPage = () => {
                 </div>
             </div>
 
-            {/* Command Bar */}
             <Suspense fallback={<CommandBarSkeleton />}>
                 <CommandBar />
             </Suspense>
@@ -63,22 +64,13 @@ const OverviewPage = () => {
             {/* Action Zone */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
                 <div className="lg:col-span-1">
-                    <HeatmapCard />
+                    <Suspense fallback={<HeatmapCardSkeleton />}>
+                        <HeatmapCard />
+                    </Suspense>
                 </div>
                 <div className="lg:col-span-2">
-                    <RevenueCard />
-                </div>
-                <div className="lg:col-span-2 space-y-6">
-                    <Suspense fallback={<LiveVenueCardSkeleton />}>
-                        <LiveVenueCard />
-                    </Suspense>
-                    <Suspense fallback={<div className="h-full bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6 animate-pulse"></div>}>
-                        <ProductMoversCard />
-                    </Suspense>
-                </div>
-                <div className="lg:col-span-1">
-                    <Suspense fallback={<ActionItemsCardSkeleton />}>
-                        <ActionItemsCard />
+                    <Suspense fallback={<RevenueCardSkeleton />}>
+                        <RevenueCard />
                     </Suspense>
                 </div>
             </div>

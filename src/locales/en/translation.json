@@ -340,6 +340,50 @@
     },
     "warnCannotSetSelection": "Could not set selection range on input: "
   },
+  "dashboard": {
+    "dashboard": {
+      "guestsCard": {
+        "peakHour": "Peak Hour",
+        "title": "Guests Today",
+        "titleInsight": "Guest Flow"
+      },
+      "liveOrdersCard": {
+        "allConfirmed": "All orders confirmed.",
+        "funnelLabelPending": "Pending",
+        "funnelMetricTime": "~{{time}}",
+        "title": "Live Orders",
+        "titleInsight": "Order Funnel",
+        "toConfirm_one": "{{count}} to Confirm"
+      },
+      "occupancyCard": {
+        "avgTurnTime": "Avg. Turn Time",
+        "noActivity": "No table activity yet to rank hotspots.",
+        "occupancyPercentage": "{{percentage}}% Occupancy",
+        "tableLabel": "Table #{{tableNumber}}",
+        "title": "Occupancy",
+        "titleInsight": "Venue Hotspots"
+      },
+      "orderStageColumn": {
+        "avgTime": "Avg. Time"
+      },
+      "orderStatusDistributionBar": {
+        "noActiveOrders": "No active orders",
+        "tooltipLabel": "{{count}} {{status}}"
+      },
+      "revenueCard": {
+        "avgSpend": "Avg. Spend / Guest",
+        "categoryDrinks": "Drinks",
+        "categoryEvents": "Events",
+        "categoryFood": "Food",
+        "categoryMerch": "Merchandise",
+        "categoryTakeout": "Takeout",
+        "title": "Revenue Today",
+        "titleInsight": "Revenue Engine",
+        "vsYesterday": "vs yesterday",
+        "vsYesterdayValue": "vs {{value}} yesterday"
+      }
+    }
+  },
   "data_cards": {
     "DAYS": {
       "Fri": "Fri",
@@ -355,7 +399,7 @@
       "Aug": "Aug",
       "Dec": "Dec",
       "Feb": "Feb",
-      "Jan": "Ene",
+      "Jan": "Jan",
       "Jul": "Jul",
       "Jun": "Jun",
       "Mar": "Mar",
@@ -364,6 +408,9 @@
       "Oct": "Oct",
       "Sep": "Sep"
     },
+    "TitleBar": {
+      "title": "Revenue Analytics"
+    },
     "WORDS": {
       "Average": "Average",
       "Day": "Day",
@@ -371,6 +418,44 @@
       "Peak": "Peak",
       "Week": "Week",
       "Wk": "Wk"
+    }
+  },
+  "kitchen_display_system": {
+    "kitchenDisplaySystem": {
+      "header": {
+        "filterNew": "New",
+        "filterPaid": "Paid",
+        "filterReady": "Ready",
+        "groupByTableToggle": "Group by Table"
+      },
+      "modal": {
+        "price": "${{val}}",
+        "title": "Order Details: {{identifier}}"
+      },
+      "orderCard": {
+        "actionMarkAsReady": "Mark as Ready",
+        "actionStartPreparing": "Start Preparing",
+        "defaultIdentifier": "Order",
+        "lastUpdate": "Last update: {{timeAgo}}",
+        "pickupIdentifier": "Pickup #{{pickupCode}}"
+      },
+      "orderItemList": {
+        "itemQuantity": "x{{quantity}}",
+        "moreItems": "+ {{count}} more items..."
+      },
+      "orderStatus": {
+        "finalized": "Finalized"
+      },
+      "page": {
+        "errorFetchingOrders": "Error fetching orders.",
+        "loadingOrders": "Loading Orders...",
+        "noOrdersMessage": "New orders will appear here.",
+        "noOrdersTitle": "No Active Orders",
+        "orderCount_one": "({{count}} order)",
+        "orderCount_other": "({{count}} orders)",
+        "pageTitle": "Kitchen Orders",
+        "takeoutPickup": "Takeout / Pickup"
+      }
     }
   },
   "live_orders_view": {
@@ -938,6 +1023,15 @@
         }
       },
       "productsToolbar": {
+        "bulkActions": {
+          "activateSelected": "Activate Selected",
+          "addTags": "Add Tags...",
+          "ariaLabel": "Perform bulk actions on selected products",
+          "changeCategory": "Change Category...",
+          "deactivateSelected": "Deactivate Selected",
+          "deleteSelected": "Delete Selected",
+          "removeTags": "Remove Tags..."
+        },
         "buttons": {
           "addProduct": "Add Product",
           "refreshTooltip": "Refresh Data"
@@ -950,6 +1044,9 @@
           "typeAriaLabel": "Filter by product type"
         },
         "searchPlaceholder": "Search name, SKU, tags...",
+        "selection": {
+          "clearSelectionTooltip": "Clear Selection"
+        },
         "sort": {
           "ariaLabel": "Sort by",
           "placeholder": "Sort By"
@@ -1111,7 +1208,7 @@
           "cropSaveError": "Could not save crop. Please select a valid area.",
           "errorReadingFile": "Error reading file.",
           "fileNotAccepted": "File could not be accepted. Please try again.",
-          "fileTooLarge": "File is too large. Max size: {maxFileSizeMB}MB.",
+          "fileTooLarge": "File is too large. Max size: {{maxFileSizeMB}}MB.",
           "handlerMissing": "Error: Image upload handler is missing.",
           "invalidFileType": "Invalid file type. Please upload an image (JPEG, PNG, GIF, WebP)."
         },

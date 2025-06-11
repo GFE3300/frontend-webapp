@@ -12,7 +12,7 @@ import { t } from 'i18next';
 import i18n from '../../../../i18n';
 
 export const MONTHS = {
-    Jan: 'Jan',
+    Jan: i18n.t('data_cards.MONTHS.Jan'),
     Feb: i18n.t('data_cards.MONTHS.Feb'), // "Feb"
     Mar: i18n.t('data_cards.MONTHS.Mar'), // "Mar"
     Apr: i18n.t('data_cards.MONTHS.Apr'), // "Apr"
@@ -46,5 +46,5 @@ export const WORDS = {
 }
 
 export const TitleBar = {
-    title: 'Revenue Analytics',
+    title: i18n.t('data_cards.TitleBar.title'),
 }
