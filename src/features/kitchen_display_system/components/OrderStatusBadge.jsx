@@ -11,8 +11,8 @@ const OrderStatusBadge = ({ status }) => {
 
     switch (status) {
         case 'PENDING_CONFIRMATION':
-            bgColor = 'bg-sky-100 dark:bg-sky-500/30';
-            textColor = 'text-sky-700 dark:text-sky-300';
+            bgColor = 'bg-amber-100 dark:bg-amber-500/30';
+            textColor = 'text-amber-700 dark:text-amber-300';
             text = statusText;
             break;
         case 'CONFIRMED':
@@ -21,19 +21,15 @@ const OrderStatusBadge = ({ status }) => {
             text = statusText;
             break;
         case 'PREPARING':
-            bgColor = 'bg-amber-100 dark:bg-amber-500/30';
-            textColor = 'text-amber-700 dark:text-amber-300';
+            bgColor = 'bg-purple-100 dark:bg-purple-500/30';
+            textColor = 'text-purple-700 dark:text-purple-300';
             text = statusText;
             break;
         case 'READY_FOR_PICKUP':
+        case 'SERVED':
             bgColor = 'bg-emerald-100 dark:bg-emerald-500/30';
             textColor = 'text-emerald-700 dark:text-emerald-300';
-            text = statusText;
-            break;
-        case 'SERVED':
-            bgColor = 'bg-neutral-200 dark:bg-neutral-600/30';
-            textColor = 'text-neutral-600 dark:text-neutral-300';
-            text = statusText;
+            text = sl['SERVED']; // Always show "Served" for both states
             break;
         case 'COMPLETED':
         case 'CANCELLED_BY_BUSINESS':

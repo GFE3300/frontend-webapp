@@ -99,10 +99,10 @@ const KitchenDisplayPage = () => {
     const processedOrders = useMemo(() => {
         if (activeFilter === 'all') return orders;
         const statusMap = {
-            new: ['PENDING_CONFIRMATION', 'CONFIRMED'],
+            pending: ['PENDING_CONFIRMATION'],
+            confirmed: ['CONFIRMED'],
             preparing: ['PREPARING'],
-            ready: ['READY_FOR_PICKUP'],
-            served: ['SERVED'],
+            served: ['SERVED', 'READY_FOR_PICKUP'], // Group 'Ready' into 'Served' for filtering
         };
         const targetStatuses = statusMap[activeFilter] || [];
         return orders.filter(order => targetStatuses.includes(order.status));
@@ -110,11 +110,10 @@ const KitchenDisplayPage = () => {
 
     const orderCounts = useMemo(() => ({
         all: orders.length,
-        new: orders.filter(o => ['PENDING_CONFIRMATION', 'CONFIRMED'].includes(o.status)).length,
+        pending: orders.filter(o => o.status === 'PENDING_CONFIRMATION').length,
+        confirmed: orders.filter(o => o.status === 'CONFIRMED').length,
         preparing: orders.filter(o => o.status === 'PREPARING').length,
-        ready: orders.filter(o => o.status === 'READY_FOR_PICKUP').length,
-        served: orders.filter(o => o.status === 'SERVED').length,
-        paid: 0,
+        served: orders.filter(o => ['SERVED', 'READY_FOR_PICKUP'].includes(o.status)).length,
     }), [orders]);
 
     const groupedByTableOrders = useMemo(() => {
@@ -132,7 +131,7 @@ const KitchenDisplayPage = () => {
             <div className={KDS_PAGE_STYLE.container}>
                 <div className={KDS_PAGE_STYLE.loadingContainer}>
                     <Icon name="restaurant_menu" className={KDS_PAGE_STYLE.loadingIcon} />
-                    <p className={KDS_PAGE_STYLE.loadingText}>{sl.loadingOrders || "Loading Orders..."}</p>
+                    <p className={KDS_PAGE_STYLE.loadingText}>{sl.loadingOrders}</p>
                 </div>
             </div>
         );
