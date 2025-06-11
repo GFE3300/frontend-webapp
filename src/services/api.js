@@ -427,7 +427,7 @@ const apiService = {
      * @returns {Promise<AxiosResponse>}
      */
     updateMemberRole: (businessId, membershipId, roleData) => {
-        return apiInstance.patch(`businesses/${businessId}/members/${membershipId}/`, roleData);
+        return apiInstance.patch(`businesses/${businessId}/members/${membershipId}/role/`, roleData);
     },
 
     /**

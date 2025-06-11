@@ -1,5 +1,3 @@
-// File: src/features/settings_menu/components/PasswordSecurityCard.jsx
-
 import React, { useState, useCallback } from 'react';
 import { useChangePassword } from '../hooks/useChangePassword';
 
@@ -7,7 +5,6 @@ import { useChangePassword } from '../hooks/useChangePassword';
 import InputField from '../../../components/common/InputField';
 import Button from '../../../components/common/Button';
 import { PasswordStrength } from '../../register/subcomponents/PasswordStrength';
-import Icon from '../../../components/common/Icon';
 
 const PasswordSecurityCard = () => {
     const [oldPassword, setOldPassword] = useState('');
@@ -44,7 +41,6 @@ const PasswordSecurityCard = () => {
             return;
         }
 
-        // Call the mutation if client-side validation passes.
         changePasswordMutation.mutate({
             old_password: oldPassword,
             new_password1: newPassword1,
@@ -52,52 +48,59 @@ const PasswordSecurityCard = () => {
         });
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        handleSaveChanges();
+    };
+
     return (
-        <div className="bg-white dark:bg-neutral-800 shadow-sm rounded-xl">
-            <div className="p-6 md:p-8 border-b border-neutral-200 dark:border-neutral-700">
-                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">
-                    Password & Security
-                </h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                    Manage your password and other security settings.
-                </p>
-            </div>
-            <div className="p-6 md:p-8 space-y-6">
-                <InputField
-                    id="oldPassword"
-                    label="Current Password"
-                    type="password"
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                    autoComplete="current-password"
-                />
-                <InputField
-                    id="newPassword1"
-                    label="New Password"
-                    type="password"
-                    value={newPassword1}
-                    onChange={(e) => setNewPassword1(e.target.value)}
-                    autoComplete="new-password"
-                />
-                <PasswordStrength strength={newPassword1 ? (newPassword1.length < 8 ? 'weak' : 'strong') : null} />
-                <InputField
-                    id="newPassword2"
-                    label="Confirm New Password"
-                    type="password"
-                    value={newPassword2}
-                    onChange={(e) => setNewPassword2(e.target.value)}
-                    autoComplete="new-password"
-                    error={passwordError || changePasswordMutation.error?.response?.data?.new_password2?.[0]}
-                />
-            </div>
-            <div className="p-6 md:px-8 bg-neutral-50 dark:bg-neutral-800/50 rounded-b-xl flex justify-end">
-                <Button
-                    onClick={handleSaveChanges}
-                    isLoading={changePasswordMutation.isPending}
-                >
-                    Change Password
-                </Button>
-            </div>
+        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-xl">
+            <form onSubmit={handleSubmit} noValidate>
+                <div className="p-6 md:p-8 border-b border-white/10 dark:border-neutral-700">
+                    <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+                        Password & Security
+                    </h3>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                        Manage your password.
+                    </p>
+                </div>
+                <div className="p-6 md:p-8 space-y-6">
+                    <InputField
+                        id="oldPassword"
+                        label="Current Password"
+                        type="password"
+                        value={oldPassword}
+                        onChange={(e) => setOldPassword(e.target.value)}
+                        autoComplete="current-password"
+                    />
+                    <InputField
+                        id="newPassword1"
+                        label="New Password"
+                        type="password"
+                        value={newPassword1}
+                        onChange={(e) => setNewPassword1(e.target.value)}
+                        autoComplete="new-password"
+                    />
+                    <PasswordStrength strength={newPassword1 ? (newPassword1.length < 8 ? 'weak' : 'strong') : null} />
+                    <InputField
+                        id="newPassword2"
+                        label="Confirm New Password"
+                        type="password"
+                        value={newPassword2}
+                        onChange={(e) => setNewPassword2(e.target.value)}
+                        autoComplete="new-password"
+                        error={passwordError || changePasswordMutation.error?.response?.data?.new_password2?.[0]}
+                    />
+                </div>
+                <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-xl flex justify-end">
+                    <Button
+                        type="submit"
+                        isLoading={changePasswordMutation.isPending}
+                    >
+                        Change Password
+                    </Button>
+                </div>
+            </form>
         </div>
     );
 };

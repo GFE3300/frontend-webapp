@@ -3,6 +3,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import apiService from '../../../services/api';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
+import i18n from '../../../i18n';
 
 export const useUpdateProfile = (options = {}) => {
     const { updateUser } = useAuth();
@@ -10,13 +11,17 @@ export const useUpdateProfile = (options = {}) => {
 
     return useMutation({
         mutationFn: (userData) => {
-            // This service function sends a PATCH request to /api/auth/user/
             return apiService.updateCurrentUser(userData);
         },
         onSuccess: (response, variables, context) => {
             const updatedUser = response.data;
-            updateUser(updatedUser); // Update the global auth context with the new user data
+            updateUser(updatedUser);
             addToast("Profile updated successfully!", "success");
+
+            // If language was changed, update the i18next instance
+            if (variables.language && i18n.language !== variables.language) {
+                i18n.changeLanguage(variables.language);
+            }
 
             if (options.onSuccess) {
                 options.onSuccess(response, variables, context);

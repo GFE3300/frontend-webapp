@@ -1,6 +1,4 @@
-// File: src/features/settings_menu/components/PersonalInfoCard.jsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -17,10 +15,10 @@ import { ImageUploader } from '../../register/subcomponents';
 
 const PersonalInfoCard = ({ user }) => {
     const [formData, setFormData] = useState({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        phone: user.phone || '',
-        language: user.language || 'en'
+        first_name: user?.first_name || '',
+        last_name: user?.last_name || '',
+        phone: user?.phone || '',
+        language: user?.language || 'en'
     });
     const [profileImageFile, setProfileImageFile] = useState(null);
 
@@ -41,40 +39,53 @@ const PersonalInfoCard = ({ user }) => {
         }
     });
 
-    const hasDataChanges =
-        formData.first_name !== user.first_name ||
-        formData.last_name !== user.last_name ||
-        formData.phone !== (user.phone || '') ||
-        formData.language !== user.language;
+    // FIX: Use useEffect to synchronize form state with the user prop
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                phone: user.phone || '',
+                language: user.language || 'en'
+            });
+        }
+    }, [user]);
 
-    const handleInputChange = (e) => {
+    const hasDataChanges =
+        formData.first_name !== (user?.first_name || '') ||
+        formData.last_name !== (user?.last_name || '') ||
+        formData.phone !== (user?.phone || '') ||
+        formData.language !== (user?.language || 'en');
+
+    const handleInputChange = useCallback((e) => {
         const { id, value } = e.target;
         setFormData(prev => ({ ...prev, [id]: value }));
-    };
+    }, []);
 
-    const handleLanguageChange = (selectedValue) => {
+    const handleLanguageChange = useCallback((selectedValue) => {
         setFormData(prev => ({ ...prev, language: selectedValue }));
-    };
+    }, []);
 
     const handleSaveChanges = () => {
         const payload = {};
+        let hasPayloadChanges = false;
 
         if (hasDataChanges) {
-            if (formData.first_name !== user.first_name) payload.first_name = formData.first_name;
-            if (formData.last_name !== user.last_name) payload.last_name = formData.last_name;
-            if (formData.phone !== (user.phone || '')) payload.phone = formData.phone;
-            if (formData.language !== user.language) payload.language = formData.language;
+            if (formData.first_name !== (user?.first_name || '')) { payload.first_name = formData.first_name; hasPayloadChanges = true; }
+            if (formData.last_name !== (user?.last_name || '')) { payload.last_name = formData.last_name; hasPayloadChanges = true; }
+            if (formData.phone !== (user?.phone || '')) { payload.phone = formData.phone; hasPayloadChanges = true; }
+            if (formData.language !== (user?.language || 'en')) { payload.language = formData.language; hasPayloadChanges = true; }
+        }
 
-            if (Object.keys(payload).length > 0) {
-                updateProfileMutation.mutate(payload);
-            }
+        if (hasPayloadChanges) {
+            updateProfileMutation.mutate(payload);
         }
 
         if (profileImageFile) {
             uploadImageMutation.mutate(profileImageFile);
         }
 
-        if (!hasDataChanges && !profileImageFile) {
+        if (!hasPayloadChanges && !profileImageFile) {
             addToast("No changes to save.", "info");
         }
     };
@@ -86,12 +97,12 @@ const PersonalInfoCard = ({ user }) => {
     ];
 
     return (
-        <div className="bg-white dark:bg-neutral-800 shadow-sm rounded-xl">
-            <div className="p-6 md:p-8 border-b border-neutral-200 dark:border-neutral-700">
+        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-xl">
+            <div className="p-6 md:p-8 border-b border-white/10 dark:border-neutral-700">
                 <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">
                     Personal Information
                 </h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
                     Update your photo and personal details here.
                 </p>
             </div>
@@ -99,7 +110,7 @@ const PersonalInfoCard = ({ user }) => {
                 <div className="lg:col-span-1">
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Your Photo</label>
                     <ImageUploader
-                        initialSrc={user.profile_image_url}
+                        initialSrc={user?.profile_image_url}
                         onImageUpload={setProfileImageFile}
                         circularCrop={true}
                     />
@@ -121,7 +132,7 @@ const PersonalInfoCard = ({ user }) => {
                         <InputField
                             id="email"
                             label="Email Address"
-                            value={user.email}
+                            value={user?.email || ''}
                             disabled={true}
                             helptext="Your email address cannot be changed."
                         />
@@ -142,7 +153,7 @@ const PersonalInfoCard = ({ user }) => {
                     />
                 </div>
             </div>
-            <div className="p-6 md:px-8 bg-neutral-50 dark:bg-neutral-800/50 rounded-b-xl flex justify-end">
+            <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-xl flex justify-end">
                 <Button
                     onClick={handleSaveChanges}
                     disabled={!hasDataChanges && !profileImageFile}

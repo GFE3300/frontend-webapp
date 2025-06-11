@@ -9,11 +9,11 @@ import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 import * as reactSpring from '@react-spring/three'
 import { useTheme } from '../../utils/ThemeProvider';
 
-const HeaderHeight = '5rem'; // Keep for header padding
+const HeaderHeight = '5rem';
 
 const DashboardLayout = () => {
     const { theme } = useTheme();
-    const { isMobile } = useDeviceDetection(); // Use the hook to detect device type
+    const { isMobile } = useDeviceDetection();
 
     return (
         <div className="flex h-screen bg-transparent overflow-hidden">
@@ -40,7 +40,6 @@ const DashboardLayout = () => {
                 />
             </ShaderGradientCanvas>
 
-            {/* --- MODIFIED: Conditional Sidebar / Mobile Navbar --- */}
             {isMobile ? <MobileNavbar /> : (
                 <div className='fixed left-0 bottom-0 z-10' style={{ height: `calc(100% - ${HeaderHeight})` }}>
                     <Sidebar />
@@ -50,9 +49,8 @@ const DashboardLayout = () => {
             <div className="flex-1 flex flex-col overflow-hidden z-0">
                 <DashboardHeader />
 
-                {/* --- MODIFIED: Responsive Padding --- */}
                 <div
-                    className="flex-1 overflow-y-auto pb-20 md:pb-0 md:pl-24" // Added responsive padding
+                    className="flex-1 overflow-y-auto pb-20 md:pb-0 md:pl-24"
                     style={{ paddingTop: HeaderHeight }}
                 >
                     <MainContentArea />

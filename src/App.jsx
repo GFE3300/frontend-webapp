@@ -225,7 +225,9 @@ const App = () => {
 
     return (
         <div className="App">
-
+            <div className='fixed z-50 top-0 w-full h-12 flex items-center justify-between px-4 bg-white dark:bg-neutral-900 dark:text-neutral-100 border-b border-neutral-300 dark:border-neutral-700 shadow-sm'>
+                <LanguageSwitcher />
+            </div>
             <ThemeToggleButton />
             <RouterProvider router={router} />
         </div>
