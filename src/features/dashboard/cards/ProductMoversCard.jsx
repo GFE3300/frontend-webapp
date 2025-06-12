@@ -2,9 +2,9 @@ import React, { useState, Suspense } from 'react';
 import { useProductMovers } from '../hooks/useOverviewData';
 import SegmentedControl from '../../../components/common/SegmentedControl';
 import Icon from '../../../components/common/Icon';
-import { formatCurrency } from '../../../utils/formatCurrency';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useCurrency } from '../../../hooks/useCurrency'; // Import the new currency hook
 import { scriptLines_dashboard as sl } from '../utils/script_lines';
+// `useAuth` is no longer needed here as `useCurrency` handles it.
 
 const ProductMoversCard = () => {
     const [period, setPeriod] = useState('today');
@@ -40,7 +40,8 @@ const ProductMoversCard = () => {
 };
 
 
-const MoverList = ({ title, icon, iconClass, items, currency }) => {
+const MoverList = ({ title, icon, iconClass, items }) => {
+    const { formatCurrency } = useCurrency(); // Use the new hook directly here
     const hasItems = items && items.length > 0;
 
     return (
@@ -54,7 +55,8 @@ const MoverList = ({ title, icon, iconClass, items, currency }) => {
                     <li key={index} className="flex justify-between items-center text-sm">
                         <span className="font-medium text-neutral-800 dark:text-neutral-100 truncate pr-2">{item.name}</span>
                         <span className="font-semibold text-neutral-600 dark:text-neutral-300 flex-shrink-0">
-                            {formatCurrency(item.revenue, currency)}
+                            {/* The formatCurrency function from the hook is already configured with the correct currency */}
+                            {formatCurrency(parseFloat(item.revenue))}
                         </span>
                     </li>
                 )) : (
@@ -70,7 +72,7 @@ const MoverList = ({ title, icon, iconClass, items, currency }) => {
 const ProductMoversContent = ({ period }) => {
     // This hook will suspend while fetching, handled by <Suspense>
     const data = useProductMovers(period);
-    const { user } = useAuth(); // To get the business's currency
+    // The currency is no longer fetched or passed down from here.
 
     return (
         <div className="mt-4 flex flex-col sm:flex-row gap-6 sm:gap-8">
@@ -79,14 +81,12 @@ const ProductMoversContent = ({ period }) => {
                 icon="trending_up"
                 iconClass="text-green-500"
                 items={data.top_movers}
-                currency={user?.activeBusinessCurrency}
             />
             <MoverList
                 title={sl.productMoversCard.bottomItemsTitle || 'Bottom 5 Selling Items'}
                 icon="trending_down"
                 iconClass="text-red-500"
                 items={data.bottom_movers}
-                currency={user?.activeBusinessCurrency}
             />
         </div>
     );

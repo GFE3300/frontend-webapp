@@ -69,7 +69,7 @@ export const scriptLines_dashboard = {
         noActivity: i18n.t('dashboard.dashboard.occupancyCard.noActivity'),
         avgTurnTime: i18n.t('dashboard.dashboard.occupancyCard.avgTurnTime'),
     },
-        dashboardGreeting: {
+    dashboardGreeting: {
         goodMorning: i18n.t('dashboard.dashboard.dashboardGreeting.goodMorning'),
         goodAfternoon: i18n.t('dashboard.dashboard.dashboardGreeting.goodAfternoon'),
         goodEvening: i18n.t('dashboard.dashboard.dashboardGreeting.goodEvening'),
@@ -77,10 +77,10 @@ export const scriptLines_dashboard = {
         subtitle: i18n.t('dashboard.dashboard.dashboardGreeting.subtitle'),
         greeting: i18n.t('dashboard.dashboard.dashboardGreeting.greeting'),
     },
-        dashboardHeader: {
+    dashboardHeader: {
         notificationsTitle: i18n.t('dashboard.dashboard.dashboardHeader.notificationsTitle'),
     },
-       nav: {
+    nav: {
         overview: i18n.t('dashboard.dashboard.nav.overview'),
         orders: i18n.t('dashboard.dashboard.nav.orders'),
         products: i18n.t('dashboard.dashboard.nav.products'),
@@ -88,7 +88,7 @@ export const scriptLines_dashboard = {
         analytics: i18n.t('dashboard.dashboard.nav.analytics'),
         settings: i18n.t('dashboard.dashboard.nav.settings'),
     },
-        actionItemsCard: {
+    actionItemsCard: {
         title: i18n.t('dashboard.dashboard.actionItemsCard.title'),
         noItemsTitle: i18n.t('dashboard.dashboard.actionItemsCard.noItemsTitle'),
         noItemsSubtitle: i18n.t('dashboard.dashboard.actionItemsCard.noItemsSubtitle'),
@@ -96,13 +96,13 @@ export const scriptLines_dashboard = {
         attentionNeeded: i18n.t('dashboard.dashboard.actionItemsCard.attentionNeeded'),
         lowOnStock: i18n.t('dashboard.dashboard.actionItemsCard.lowOnStock'),
     },
-        liveVenueCard: {
+    liveVenueCard: {
         title: i18n.t('dashboard.dashboard.liveVenueCard.title'),
         fullViewButton: i18n.t('dashboard.dashboard.liveVenueCard.fullViewButton'),
         noLayoutTitle: i18n.t('dashboard.dashboard.liveVenueCard.noLayoutTitle'),
         noLayoutSubtitle: i18n.t('dashboard.dashboard.liveVenueCard.noLayoutSubtitle'),
     },
-        productMoversCard: {
+    productMoversCard: {
         title: i18n.t('dashboard.dashboard.productMoversCard.title'),
         periodToday: i18n.t('dashboard.dashboard.productMoversCard.periodToday'),
         periodWeek: i18n.t('data_cards.WORDS.Week'),
@@ -111,10 +111,10 @@ export const scriptLines_dashboard = {
         bottomItemsTitle: i18n.t('dashboard.dashboard.productMoversCard.bottomItemsTitle'),
         noData: i18n.t('dashboard.dashboard.productMoversCard.noData'),
     },
-        vsYesterdayComparison: i18n.t('dashboard.dashboard.revenueCard.vsYesterdayValue'),
-        avgSpendPerGuest: i18n.t('dashboard.dashboard.revenueCard.avgSpend'),
-        
-        businessSwitcher: {
+    vsYesterdayComparison: i18n.t('dashboard.dashboard.revenueCard.vsYesterdayValue'),
+    avgSpendPerGuest: i18n.t('dashboard.dashboard.revenueCard.avgSpend'),
+
+    businessSwitcher: {
         switching: i18n.t('dashboard.dashboard.businessSwitcher.switching'),
         yourBusinesses: i18n.t('dashboard.dashboard.businessSwitcher.yourBusinesses'),
         loading: i18n.t('venue_management.loading'),
@@ -124,11 +124,11 @@ export const scriptLines_dashboard = {
         switchSuccessToast: i18n.t('dashboard.dashboard.businessSwitcher.switchSuccessToast'),
         switchErrorToast: i18n.t('dashboard.dashboard.businessSwitcher.switchErrorToast'),
     },
-        subscriptionBadge: {
+    subscriptionBadge: {
         // Toasts
         redirectingToast: i18n.t('dashboard.dashboard.subscriptionBadge.redirectingToast'),
         portalErrorToast: i18n.t('dashboard.dashboard.subscriptionBadge.portalErrorToast'),
-        
+
         // Badge States
         planError: i18n.t('dashboard.dashboard.subscriptionBadge.planError'),
         choosePlan: i18n.t('dashboard.dashboard.subscriptionBadge.choosePlan'),
@@ -141,20 +141,20 @@ export const scriptLines_dashboard = {
         starterPlan: i18n.t('dashboard.dashboard.subscriptionBadge.starterPlan'),
         managePlan: i18n.t('dashboard.dashboard.subscriptionBadge.managePlan'),
     },
-        userProfileWidget: {
+    userProfileWidget: {
         yourProfile: i18n.t('register.registration.registrationPage.stepTitles.yourProfile'),
         settings: i18n.t('dashboard.dashboard.nav.settings'),
         logout: i18n.t('dashboard.dashboard.userProfileWidget.logout'),
     },
     // In src/features/dashboard/utils/script_lines.js, inside scriptLines_dashboard
-        analyticsPage: {
+    analyticsPage: {
         title: i18n.t('dashboard.dashboard.analyticsPage.title'),
         subtitle: i18n.t('dashboard.dashboard.analyticsPage.subtitle'),
         placeholderTitle: i18n.t('dashboard.dashboard.analyticsPage.placeholderTitle'),
         placeholderBody: i18n.t('dashboard.dashboard.analyticsPage.placeholderBody'),
         placeholderFooter: i18n.t('dashboard.dashboard.analyticsPage.placeholderFooter'),
     },
-        createBusinessPage: {
+    createBusinessPage: {
         title: i18n.t('dashboard.dashboard.createBusinessPage.title'),
         subtitle: i18n.t('dashboard.dashboard.createBusinessPage.subtitle'),
         businessNameLabel: i18n.t('register.steps.step0BusinessInfo.label.businessName'),
@@ -169,7 +169,7 @@ export const scriptLines_dashboard = {
         toastError: i18n.t('dashboard.dashboard.createBusinessPage.toastError'),
         toastWarning: i18n.t('register.useFormState.validation.businessNameRequired'),
     },
-        inventoryPage: {
+    inventoryPage: {
         title: i18n.t('dashboard.dashboard.inventoryPage.title'),
         subtitle: i18n.t('dashboard.dashboard.inventoryPage.subtitle'),
         addNewIngredientButton: i18n.t('dashboard.dashboard.inventoryPage.addNewIngredientButton'),
@@ -177,7 +177,7 @@ export const scriptLines_dashboard = {
         tablePlaceholderTitle: i18n.t('dashboard.dashboard.inventoryPage.tablePlaceholderTitle'),
         tablePlaceholderBody: i18n.t('dashboard.dashboard.inventoryPage.tablePlaceholderBody'),
     },
-        ordersPage: {
+    ordersPage: {
         title: i18n.t('dashboard.dashboard.ordersPage.title'),
         subtitle: i18n.t('dashboard.dashboard.ordersPage.subtitle'),
         createNewOrderButton: i18n.t('dashboard.dashboard.ordersPage.createNewOrderButton'),
@@ -186,13 +186,13 @@ export const scriptLines_dashboard = {
         tablePlaceholderBody: i18n.t('dashboard.dashboard.ordersPage.tablePlaceholderBody'),
     },
     // In src/features/dashboard/utils/script_lines.js, inside scriptLines_dashboard
-        productsPage: {
+    productsPage: {
         title: i18n.t('dashboard.dashboard.productsPage.title'),
         subtitle: i18n.t('dashboard.dashboard.productsPage.subtitle'),
         addProductButton: i18n.t('dashboard.dashboard.productsPage.addProductButton'),
         categoriesTitle: i18n.t('dashboard.dashboard.productsPage.categoriesTitle'),
     },
-        commissionsList: {
+    commissionsList: {
         title: i18n.t('dashboard.dashboard.commissionsList.title'),
         headerDate: i18n.t('dashboard.dashboard.commissionsList.headerDate'),
         headerBusiness: i18n.t('dashboard.dashboard.commissionsList.headerBusiness'),
@@ -200,7 +200,7 @@ export const scriptLines_dashboard = {
         headerStatus: i18n.t('products_table.productsTable.tableConfig.headers.status'),
         noCommissions: i18n.t('dashboard.dashboard.commissionsList.noCommissions'),
     },
-        referralsList: {
+    referralsList: {
         title: i18n.t('dashboard.dashboard.referralsList.title'),
         headerDate: i18n.t('dashboard.dashboard.commissionsList.headerDate'),
         headerBusiness: i18n.t('dashboard.dashboard.commissionsList.headerBusiness'),
@@ -208,11 +208,62 @@ export const scriptLines_dashboard = {
         noReferrals: i18n.t('dashboard.dashboard.referralsList.noReferrals'),
         statusNotAvailable: i18n.t('add_product_modal.recipeComponentRow.estimatedCostNA'),
     },
-        settingsSidebar: {
+    settingsSidebar: {
         userProfile: i18n.t('dashboard.dashboard.settingsSidebar.userProfile'),
         businessProfile: i18n.t('dashboard.dashboard.settingsSidebar.businessProfile'),
         security: i18n.t('dashboard.dashboard.settingsSidebar.security'),
         billing: i18n.t('dashboard.dashboard.settingsSidebar.billing'),
         teamMembers: i18n.t('dashboard.dashboard.settingsSidebar.teamMembers'),
+    },
+
+    businessProfileCard: {
+        // Card Header
+        title: 'Business Profile',
+        subtitle: "Manage your business's public information and location settings.",
+
+        // Section Headers
+        sectionTitleDetails: 'Business Details',
+        sectionTitleLogo: 'Business Logo',
+        sectionTitleLocation: 'Location & Address',
+
+        // InputField Labels
+        labelBusinessName: 'Business Name',
+        labelWebsite: 'Website',
+        labelPhone: 'Public Phone Number',
+        labelDescription: 'Business Description',
+
+        // InputField Placeholders
+        placeholderWebsite: 'https://yourbusiness.com',
+
+        // Footer Button
+        saveButton: 'Save Changes',
+        savingButton: 'Saving...',
+
+        // Toast Messages
+        toastSuccess: 'Business profile updated successfully!',
+        toastLogoSuccess: 'Logo updated successfully!',
+        toastError: 'Failed to update business profile.',
+        toastLogoError: 'Failed to upload logo.',
+        toastNoChanges: 'No changes to save.',
+    },
+
+    passwordSecurityCard: {
+        // Card Header
+        title: 'Password & Security',
+        subtitle: 'Update your password for enhanced account security.',
+
+        // InputField Labels
+        labelCurrentPassword: 'Current Password',
+        labelNewPassword: 'New Password',
+        labelConfirmNewPassword: 'Confirm New Password',
+
+        // Footer Button
+        changePasswordButton: 'Change Password',
+
+        // Validation Error Messages
+        errorAllFieldsRequired: 'All password fields are required.',
+        errorMinLength: 'New password must be at least 8 characters long.',
+        errorMismatch: 'The new passwords do not match.',
+        errorSameAsOld: 'The new password cannot be the same as the old password.',
     },
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { scriptLines_dashboard as sl } from '../utils/script_lines';
-import { useCurrency } from '../../../hooks/useCurrency'; // Import useCurrency
+import { useCurrency } from '../../../hooks/useCurrency'; // Import the new hook
 
 const CommissionsList = ({ commissions }) => {
     const { formatCurrency } = useCurrency(); // Use the hook
@@ -24,7 +24,8 @@ const CommissionsList = ({ commissions }) => {
                             <tr key={item.id}>
                                 <td className="px-4 py-2 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">{new Date(item.calculation_date).toLocaleDateString()}</td>
                                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-neutral-800 dark:text-neutral-200">{item.referred_business_name}</td>
-                                <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-semibold text-green-600 dark:text-green-400">{formatCurrency(item.commission_earned)}</td>
+                                {/* Use the context-aware formatCurrency function */}
+                                <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-semibold text-green-600 dark:text-green-400">{formatCurrency(parseFloat(item.commission_earned))}</td>
                                 <td className="px-4 py-2 whitespace-nowrap text-center text-sm text-neutral-600 dark:text-neutral-300">
                                     <span className="px-2 py-0.5 text-xs rounded-full bg-neutral-100 dark:bg-neutral-700">{item.payout_status_display}</span>
                                 </td>

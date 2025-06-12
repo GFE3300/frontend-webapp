@@ -2,26 +2,25 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../../../../components/common/Icon';
 import InteractiveDonutChart from './subcomponents/InteractiveDonutChart';
-import { formatCurrency } from '../../../../utils/formatCurrency';
+import { useCurrency } from '../../../../hooks/useCurrency'; // Import the new hook
 import AnimatedNumber from '../../../../components/animated_number/animated-number';
 import InteractiveLineChart from './subcomponents/InteractiveLineChart';
-import { useCurrency } from '../../../../hooks/useCurrency';
 import { scriptLines_dashboard as sl } from '../../utils/script_lines'; // I18N
 import { interpolate } from '../../../../i18n'; // I18N Helper
 
-const DefaultView = ({ data, currency, isHovered, hoveredData, onChartHover, onChartLeave = () => { } }) => {
+const DefaultView = ({ data, currencyCode, currencySymbol, isHovered, hoveredData, onChartHover, onChartLeave = () => { } }) => {
+    const { formatCurrency } = useCurrency(); // Also use it here for the text comparison
     const { current_value = 0, comparison_percentage = 0, today_trend = [], yesterday_trend = [] } = data || {};
     const isPositive = comparison_percentage >= 0;
     const trendIcon = isPositive ? 'trending_up' : 'trending_down';
     const [showVsYesterday, setShowVsYesterday] = useState(false);
-    const { currencySymbol } = useCurrency();
 
     useEffect(() => {
         const timer = setTimeout(() => setShowVsYesterday(true), 2000);
         return () => clearTimeout(timer);
     }, []);
 
-    const displayValue = hoveredData ? hoveredData.today : current_value;
+    const displayValue = hoveredData ? hoveredData.today : parseFloat(current_value);
 
     return (
         <motion.div
@@ -44,7 +43,8 @@ const DefaultView = ({ data, currency, isHovered, hoveredData, onChartHover, onC
                             transition={{ duration: 0.2 }}
                             className="text-xs text-neutral-500 mb-1"
                         >
-                            {interpolate(sl.revenueCard.vsYesterdayComparison || 'vs {{value}} yesterday', { value: formatCurrency(hoveredData.yesterday, currency) })}
+                            {/* Use formatCurrency for the text part */}
+                            {interpolate(sl.revenueCard.vsYesterdayComparison || 'vs {{value}} yesterday', { value: formatCurrency(hoveredData.yesterday) })}
                         </motion.p>
                     )}
                 </AnimatePresence>
@@ -98,7 +98,8 @@ const DefaultView = ({ data, currency, isHovered, hoveredData, onChartHover, onC
     );
 };
 
-const InsightView = ({ data, currency }) => {
+const InsightView = ({ data, currencyCode }) => {
+    const { formatCurrency } = useCurrency(); // Use the hook here as well
     const { avg_spend_per_guest = 0, category_breakdown = [] } = data || {};
 
     const chartData = useMemo(() => {
@@ -121,12 +122,14 @@ const InsightView = ({ data, currency }) => {
             className="flex flex-col h-full w-full justify-between font-montserrat"
         >
             <div className="flex-grow flex items-center justify-start w-full">
+                {/* Donut chart already uses the hook internally, no prop needed */}
                 <InteractiveDonutChart data={chartData} size={80} strokeWidth={15} />
             </div>
             <div className="mt-2 pt-2 flex items-start border-t border-neutral-200 dark:border-neutral-700 flex justify-between items-center text-xs">
                 <span className="text-neutral-500 dark:text-neutral-400">{sl.revenueCard.avgSpendPerGuest || 'Avg. Spend / Guest'}</span>
                 <span className="font-semibold text-neutral-800 dark:text-white">
-                    {formatCurrency(parseFloat(avg_spend_per_guest) || 0, currency)}
+                    {/* Use the hook's formatCurrency function */}
+                    {formatCurrency(parseFloat(avg_spend_per_guest) || 0)}
                 </span>
             </div>
         </motion.div>
@@ -137,7 +140,7 @@ const DailyRevenueCard = ({ data, insightData }) => {
     const [isInsightVisible, setInsightVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [hoveredData, setHoveredData] = useState(null);
-    const { currency } = useCurrency();
+    const { currencyCode, currencySymbol } = useCurrency(); // Get currency info here
 
     const handleChartHover = (newData) => setHoveredData(newData);
     const handleChartLeave = () => setHoveredData(null);
@@ -166,11 +169,12 @@ const DailyRevenueCard = ({ data, insightData }) => {
             <div className="flex-grow flex flex-col">
                 <AnimatePresence mode="wait">
                     {isInsightVisible ? (
-                        <InsightView data={insightData} currency={currency} />
+                        <InsightView data={insightData} currencyCode={currencyCode} />
                     ) : (
                         <DefaultView
                             data={data}
-                            currency={currency}
+                            currencyCode={currencyCode}
+                            currencySymbol={currencySymbol}
                             isHovered={isHovered}
                             hoveredData={hoveredData}
                             onChartHover={handleChartHover}

@@ -1,11 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { useChangePassword } from '../hooks/useChangePassword';
-import { getErrorMessage } from '../../../utils/getErrorMessage'; // Assuming a central error handler
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 
 // UI Component Imports
 import InputField from '../../../components/common/InputField';
 import Button from '../../../components/common/Button';
 import { PasswordStrength } from '../../register/subcomponents';
+
+// i18n
+import { scriptLines_dashboard as sl } from '../../dashboard/utils/script_lines';
 
 /**
  * A self-contained card for managing user password changes.
@@ -44,19 +47,19 @@ const PasswordSecurityCard = () => {
 
         // 2. Perform client-side validation first.
         if (!oldPassword || !newPassword1 || !newPassword2) {
-            setClientError("All password fields are required.");
+            setClientError(sl.passwordSecurityCard.errorAllFieldsRequired || "All password fields are required.");
             return;
         }
         if (newPassword1.length < 8) {
-            setClientError("New password must be at least 8 characters long.");
+            setClientError(sl.passwordSecurityCard.errorMinLength || "New password must be at least 8 characters long.");
             return;
         }
         if (newPassword1 !== newPassword2) {
-            setClientError("The new passwords do not match.");
+            setClientError(sl.passwordSecurityCard.errorMismatch || "The new passwords do not match.");
             return;
         }
         if (oldPassword === newPassword1) {
-            setClientError("The new password cannot be the same as the old password.");
+            setClientError(sl.passwordSecurityCard.errorSameAsOld || "The new password cannot be the same as the old password.");
             return;
         }
 
@@ -86,15 +89,15 @@ const PasswordSecurityCard = () => {
     };
 
     return (
-        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-4xl font-montserrat">
+        <div className="bg-gradient-to-br from-white/10 to-white/0 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-4xl font-montserrat">
             <form onSubmit={handleSubmit} noValidate>
                 {/* Header Section */}
                 <div className="p-6 md:p-8 border-b border-white/10 dark:border-neutral-700">
                     <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">
-                        Password & Security
+                        {sl.passwordSecurityCard.title || 'Password & Security'}
                     </h3>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                        Update your password for enhanced account security.
+                        {sl.passwordSecurityCard.subtitle || 'Update your password for enhanced account security.'}
                     </p>
                 </div>
                 {/* Content Section */}
@@ -102,7 +105,7 @@ const PasswordSecurityCard = () => {
                     <div className='pt-6 space-y-12'>
                         <InputField
                             id="oldPassword"
-                            label="Current Password"
+                            label={sl.passwordSecurityCard.labelCurrentPassword || "Current Password"}
                             type="password"
                             value={oldPassword}
                             onChange={(e) => setOldPassword(e.target.value)}
@@ -111,7 +114,7 @@ const PasswordSecurityCard = () => {
                         />
                         <InputField
                             id="newPassword1"
-                            label="New Password"
+                            label={sl.passwordSecurityCard.labelNewPassword || "New Password"}
                             type="password"
                             value={newPassword1}
                             onChange={(e) => setNewPassword1(e.target.value)}
@@ -121,7 +124,7 @@ const PasswordSecurityCard = () => {
                         <PasswordStrength strength={getPasswordStrength(newPassword1)} />
                         <InputField
                             id="newPassword2"
-                            label="Confirm New Password"
+                            label={sl.passwordSecurityCard.labelConfirmNewPassword || "Confirm New Password"}
                             type="password"
                             value={newPassword2}
                             onChange={(e) => setNewPassword2(e.target.value)}
@@ -132,13 +135,13 @@ const PasswordSecurityCard = () => {
                     </div>
                 </div>
                 {/* Footer Section */}
-                <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-xl flex justify-end">
+                <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-4xl flex justify-end">
                     <Button
                         type="submit"
                         isLoading={changePasswordMutation.isPending}
                         disabled={changePasswordMutation.isPending}
                     >
-                        Change Password
+                        {sl.passwordSecurityCard.changePasswordButton || 'Change Password'}
                     </Button>
                 </div>
             </form>

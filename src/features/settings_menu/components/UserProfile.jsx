@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../../contexts/AuthContext';
 import PersonalInfoCard from './PersonalInfoCard';
 import PasswordSecurityCard from './PasswordSecurityCard';
@@ -17,8 +18,20 @@ const UserProfile = () => {
 
     return (
         <div className="space-y-8">
-            <PersonalInfoCard user={user} />
-            <PasswordSecurityCard />
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+                <PersonalInfoCard key={user.id} user={user} />
+            </motion.div>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+            >
+                <PasswordSecurityCard />
+            </motion.div>
         </div>
     );
 };

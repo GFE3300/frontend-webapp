@@ -18,43 +18,27 @@ import Spinner from '../../../components/common/Spinner';
 const PersonalInfoCard = ({ user }) => {
     // --- State Management ---
     const [formData, setFormData] = useState({
-        first_name: '',
-        last_name: '',
-        phone: '',
-        language: 'en'
+        first_name: user?.firstName || '',
+        last_name: user?.lastName || '',
+        phone: user?.phone || '',
+        language: user?.language || 'en'
     });
     const [profileImageFile, setProfileImageFile] = useState(null);
 
-    const [isDataSynced, setIsDataSynced] = useState(false);
-
     // --- Hooks ---
     const { addToast } = useToast();
-    const { updateUser } = useAuth();
+    const { updateUser } = useAuth(); // We still need this to update the local state optimistically
     const updateProfileMutation = useUpdateProfile();
 
     const uploadImageMutation = useMutation({
         mutationFn: (imageFile) => apiService.uploadUserProfileImage(imageFile),
         onSuccess: (response) => {
             updateUser({ profile_image_url: response.data.profile_image_url });
-            setProfileImageFile(null);
+            setProfileImageFile(null); // Reset after successful upload
             addToast("Profile picture updated!", "success");
         },
         onError: (error) => addToast(getErrorMessage(error, 'Failed to upload profile picture.'), 'error')
     });
-
-    // --- Data Synchronization ---
-    useEffect(() => {
-
-        if (user && !isDataSynced) {
-            setFormData({
-                first_name: user.firstName || '',
-                last_name: user.lastName || '',
-                phone: user.phone || '',
-                language: user.language || 'en'
-            });
-            setIsDataSynced(true);
-        }
-    }, [user, isDataSynced]);
 
     // --- Derived State for UI Logic ---
     const hasDataChanges = useMemo(() => {
@@ -99,32 +83,24 @@ const PersonalInfoCard = ({ user }) => {
     const languageOptions = [{ value: 'en', label: 'English' }, { value: 'es', label: 'Español (Spanish)' }, { value: 'pt-PT', label: 'Português (Portuguese)' }];
 
     return (
-        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-4xl font-montserrat">
+        <div className="bg-gradient-to-br from-white/10 to-white/0 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-4xl font-montserrat">
             <div className="p-6 md:p-8 border-b border-white/10 dark:border-neutral-700">
                 <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Personal Information</h3>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Update your photo and personal details here.</p>
             </div>
-            <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                <div className="lg:col-span-1 flex flex-col items-center">
+            <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="lg:col-span-1 flex flex-col items-center pt-6">
                     <ProfileImageUploader initialSrc={user?.profile_image_url} onImageUpload={setProfileImageFile} />
                 </div>
 
                 <div className="lg:col-span-2 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-y-12 gap-x-6">
-                    {isDataSynced ? (
-                        <>
-                            <InputField id="first_name" label="First Name" value={formData.first_name} onChange={handleInputChange} />
-                            <InputField id="last_name" label="Last Name" value={formData.last_name} onChange={handleInputChange} />
-                            <div className="sm:col-span-2">
-                                <InputField id="email" label="Email Address" value={user?.email || ''} disabled={true} helptext="Your email address cannot be changed." />
-                            </div>
-                            <InputField id="phone" label="Phone Number" type="tel" value={formData.phone} onChange={handleInputChange} placeholder="e.g., +1 555-123-4567" />
-                            <Dropdown label="Language" value={formData.language} onChange={handleLanguageChange} options={languageOptions} />
-                        </>
-                    ) : (
-                        <div className="sm:col-span-2 flex items-center justify-center h-full">
-                            <Spinner />
-                        </div>
-                    )}
+                    <InputField id="first_name" label="First Name" value={formData.first_name} onChange={handleInputChange} />
+                    <InputField id="last_name" label="Last Name" value={formData.last_name} onChange={handleInputChange} />
+                    <div className="sm:col-span-2">
+                        <InputField id="email" label="Email Address" value={user?.email || ''} disabled={true} helptext="Your email address cannot be changed." />
+                    </div>
+                    <InputField id="phone" label="Phone Number" type="tel" value={formData.phone} onChange={handleInputChange} placeholder="e.g., +1 555-123-4567" />
+                    <Dropdown label="Language" value={formData.language} onChange={handleLanguageChange} options={languageOptions} />
                 </div>
             </div>
             <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-4xl flex justify-end">
@@ -135,11 +111,7 @@ const PersonalInfoCard = ({ user }) => {
 };
 
 PersonalInfoCard.propTypes = {
-    user: PropTypes.object,
-};
-
-PersonalInfoCard.defaultProps = {
-    user: null,
+    user: PropTypes.object.isRequired,
 };
 
 export default PersonalInfoCard;

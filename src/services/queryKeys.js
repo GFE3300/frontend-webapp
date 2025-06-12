@@ -10,7 +10,8 @@ export const queryKeys = {
     // --- Business Management ---
     myBusinesses: [BUSINESSES_BASE_KEY, 'list'],
     businessMembers: (businessId) => [BUSINESSES_BASE_KEY, 'members', businessId],
-    pendingInvitations: (businessId) => [BUSINESSES_BASE_KEY, 'invitations', businessId], // NEW KEY
+    pendingInvitations: (businessId) => [BUSINESSES_BASE_KEY, 'invitations', businessId],
+    businessDetails: (businessId) => [BUSINESSES_BASE_KEY, 'details', businessId],
     contextPermissions: [BUSINESSES_BASE_KEY, 'context-permissions'],
 
     // Product related data

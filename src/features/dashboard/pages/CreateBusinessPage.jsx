@@ -1,6 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import * as yup from 'yup';
+import { Link } from 'react-router-dom';
+import { BubbleAnimation } from '../../register/subcomponents';
 
 import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
@@ -90,6 +92,8 @@ const CreateBusinessPage = () => {
     const [visitedSteps, setVisitedSteps] = useState(new Set([0]));
     const [navigationDirection, setNavigationDirection] = useState(1);
 
+    const vortexRef = useRef(null);
+
     const createBusinessMutation = useCreateBusiness();
 
     const updateFormData = useCallback((field, value) => {
@@ -169,9 +173,8 @@ const CreateBusinessPage = () => {
             address_postal_code: formData.address?.postalCode,
             address_country: formData.address?.country,
             address_formatted: formData.address?.formattedAddress,
-            // --- FIX: Convert latitude and longitude numbers to strings ---
-            latitude: formData.locationCoords?.lat ? String(formData.locationCoords.lat) : null,
-            longitude: formData.locationCoords?.lng ? String(formData.locationCoords.lng) : null,
+            latitude: formData.locationCoords?.lat ? formData.locationCoords.lat.toFixed(6) : null,
+            longitude: formData.locationCoords?.lng ? formData.locationCoords.lng.toFixed(6) : null,
         };
 
         const cleanedPayload = Object.fromEntries(
@@ -223,33 +226,48 @@ const CreateBusinessPage = () => {
     };
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
-            <header className="mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-                    {sl.createBusinessPage.title || 'Create a New Business'}
-                </h1>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                    Set up a new venture in just a few steps. This will count towards your plan's limit.
-                </p>
-            </header>
+        <BubbleAnimation
+            ref={vortexRef}
+            particleCount={500}
+            baseSpeed={0.3}
+            rangeSpeed={0.2}
+            baseRadius={1}
+            rangeRadius={2}
+            baseHue={1000}
+            backgroundColor="rgba(255, 255, 255, 0)"
+        >
+            <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
 
-            <div className="flex flex-col md:flex-row gap-8">
-                <aside className="w-full md:w-1/4">
-                    <StageTracker
-                        steps={stageTrackerLabels}
-                        currentStep={currentStep}
-                        onStepClick={goToStep}
-                        orientation="vertical"
-                        visitedSteps={visitedSteps}
-                    />
-                </aside>
-                <main className="flex-1 overflow-hidden">
-                    <AnimatePresence mode="wait" custom={navigationDirection}>
-                        {renderCurrentStep()}
-                    </AnimatePresence>
-                </main>
+                <header className="flex flex-row gap-4 mb-8 font-montserrat">
+                    <div className='flex flex-col'>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+                            {sl.createBusinessPage.title || 'Create a New Business'}
+                        </h1>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                            Set up a new venture in just a few steps. This will count towards your plan's limit.
+                        </p>
+                    </div>
+                </header>
+
+                <div className="flex flex-col md:flex-row gap-8">
+                    <aside className="w-full md:w-1/4">
+                        <StageTracker
+                            steps={stageTrackerLabels}
+                            currentStep={currentStep}
+                            onStepClick={goToStep}
+                            orientation="vertical"
+                            visitedSteps={visitedSteps}
+                        />
+                    </aside>
+                    <main className="flex-1">
+                        <AnimatePresence mode="wait" custom={navigationDirection}>
+                            {renderCurrentStep()}
+                        </AnimatePresence>
+                    </main>
+                </div>
             </div>
-        </div>
+
+        </BubbleAnimation>
     );
 };
 

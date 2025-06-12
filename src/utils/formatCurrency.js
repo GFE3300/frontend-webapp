@@ -1,38 +1,34 @@
-/**
- * Formats a numeric amount into a locale-aware currency string.
- * This standalone utility is preferred over a hook for simple formatting tasks
- * as it doesn't require being in a React component context.
- *
- * @param {number | string} amount - The numeric value to format.
- * @param {string} [currencyCode='USD'] - The 3-letter ISO currency code (e.g., 'USD', 'EUR').
- * @param {string} [locale=navigator.language] - The locale string (e.g., 'en-US', 'de-DE'). Defaults to the browser's language.
- * @returns {string} The formatted currency string.
- */
-export const formatCurrency = (amount, currencyCode = 'USD', locale = navigator.language) => {
-    const numericAmount = typeof amount === 'number' ? amount : parseFloat(amount);
+import { getErrorMessage } from './getErrorMessage';
 
-    if (isNaN(numericAmount)) {
-        console.warn(`Invalid 'amount' passed to formatCurrency: ${amount}. Defaulting to 0.`);
-        return new Intl.NumberFormat(locale, {
-            style: 'currency',
-            currency: currencyCode,
-            minimumFractionDigits: 2,
-        }).format(0);
-    }
+/**
+ * Formats a number as a currency string using the browser's Intl API.
+ * Gracefully handles non-numeric inputs and invalid currency codes.
+ *
+ * @param {number | null | undefined} amount - The numeric value to format.
+ * @param {string} currencyCode - The 3-letter ISO currency code (e.g., 'USD', 'EUR'). Defaults to 'USD'.
+ * @returns {string} The formatted currency string (e.g., "$1,234.56", "€1.234,56").
+ */
+
+export const formatCurrency = (amount, currencyCode = 'USD') => {
+    const safeAmount = typeof amount === 'number' && isFinite(amount) ? amount : 0;
+    const safeCurrencyCode = currencyCode || 'USD';
 
     try {
-        return new Intl.NumberFormat(locale, {
+        return new Intl.NumberFormat(undefined, {
             style: 'currency',
-            currency: currencyCode,
-            minimumFractionDigits: 2,
-        }).format(numericAmount);
+            currency: safeCurrencyCode,
+            currencyDisplay: 'symbol', // Use 'narrowSymbol' for potentially more compact symbols like '$' instead of 'US$'
+        }).format(safeAmount);
     } catch (error) {
-        console.error(`Error formatting currency for code '${currencyCode}':`, error);
-        // Fallback for invalid currency codes to prevent app crashes
-        return `$${numericAmount.toFixed(2)}`;
+        // This catches invalid currency codes passed to Intl.NumberFormat
+        console.error(`Currency formatting error for code '${safeCurrencyCode}':`, getErrorMessage(error));
+        // Fallback to a simple USD format on error
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        }).format(safeAmount);
     }
 };
-
 /**
  * Formats a duration in seconds into a human-readable string (e.g., 95 -> "1m 35s").
  * @param {number} totalSeconds - The duration in seconds.

@@ -46,7 +46,7 @@ const VenueLayoutDisplay = ({ layoutData, liveDataMap, onSelectTable }) => {
                     <p className="font-semibold">{scriptLines_liveOrders.noLayoutConfiguredTitle}</p>
                     <p className="text-sm mt-2">{scriptLines_liveOrders.noLayoutConfiguredBody}</p>
                     {canConfigure && (
-                        <Link to="/dashboard/business/venue-designer" className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline">
+                        <Link to="/dashboard/business/venue" className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline">
                             Go to Venue Designer
                         </Link>
                     )}

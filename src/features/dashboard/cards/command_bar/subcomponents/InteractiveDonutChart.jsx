@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCurrency } from '../../../../../hooks/useCurrency';
+import { useCurrency } from '../../../../../hooks/useCurrency'; // Import the new currency hook
 import AnimatedNumber from '../../../../../components/animated_number/animated-number';
 import { scriptLines_dashboard as sl } from '../../../utils/script_lines'; // I18N
 
@@ -28,7 +28,7 @@ function describeArc(x, y, radius, startAngle, endAngle) {
 
 const InteractiveDonutChart = ({ data, size = 120, strokeWidth = 15 }) => {
     const [hoveredSegment, setHoveredSegment] = useState(null);
-    const { currencySymbol } = useCurrency(); // Get currency symbol
+    const { currencySymbol } = useCurrency(); // Use the hook to get the currency symbol
 
     const total = useMemo(() => data.reduce((acc, item) => acc + item.value, 0), [data]);
 
