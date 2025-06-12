@@ -1,5 +1,3 @@
-// FILE: src/features/settings_menu/components/PersonalInfoCard.jsx (Definitive Fix)
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation } from '@tanstack/react-query';

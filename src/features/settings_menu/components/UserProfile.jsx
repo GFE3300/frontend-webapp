@@ -1,5 +1,3 @@
-// FILE: src/features/settings_menu/components/UserProfile.jsx (Final)
-
 import React from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import PersonalInfoCard from './PersonalInfoCard';
