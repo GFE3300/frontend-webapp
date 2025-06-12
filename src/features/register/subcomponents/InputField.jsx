@@ -173,7 +173,7 @@ const InputField = memo(forwardRef(({
                 </div>
             </div>
 
-            <div className="mt-1.5 ml-3 min-h-[1.25rem]">
+            <div className="absolute mt-1.5 ml-3 min-h-[1.25rem]">
                 {/* Standard help text is shown only when there's no error */}
                 {props.helptext && !isErrorActive && (
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium font-montserrat">

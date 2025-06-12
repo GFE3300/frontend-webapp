@@ -42,8 +42,7 @@ import AnalyticsPage from './features/dashboard/pages/AnalyticsPage.jsx';
 import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 import UserProfile from './features/settings_menu/components/UserProfile.jsx';
 import BusinessProfilePage from './features/settings_menu/components/BusinessProfilePage.jsx';
-import VenueDesignerPage from './features/venue_management/subcomponents/layout_designer/VenueDesignerPage.jsx';
-import KitchenDisplayPage from './features/kitchen_display_system/pages/KitchenDisplayPage.jsx';
+import BillingPage from './features/settings_menu/components/BillingPage.jsx';
 
 // Components
 import PrivateRoute from './components/common/PrivateRoute.jsx';
@@ -183,9 +182,9 @@ const router = createBrowserRouter([
                     { index: true, element: <Navigate to="profile" replace /> },
                     { path: "profile", element: <UserProfile /> },
                     { path: "business", element: <BusinessProfilePage /> },
+                    { path: "billing", element: <BillingPage /> },
                     // Add other pages as they are built, e.g.:
                     // { path: "security", element: <SecurityPage /> },
-                    // { path: "billing", element: <BillingPage /> },
                 ]
             },
             // FIX: The link in the switcher pointed here, but the standalone page should be a top-level route.
@@ -235,7 +234,6 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-    const { theme } = useTheme();
 
     return (
         <div className="App">

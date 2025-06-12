@@ -337,7 +337,6 @@ const AutocompleteInput = memo(({
             {!isLoading && !isFetchingDetails && !error && inputValue.trim().length >= 3 && suggestions.length === 0 && (
                 <div className="absolute z-10 top-full left-0 right-0 mt-1 px-4 py-3 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-xl">
                     <p className="text-sm text-gray-500 dark:text-neutral-400 text-center">
-                        {/* MODIFICATION: Use centralized script lines */}
                         {scriptLines.autocompleteInput.status.noResults}
                     </p>
                 </div>

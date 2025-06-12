@@ -266,4 +266,21 @@ export const scriptLines_dashboard = {
         errorMismatch: 'The new passwords do not match.',
         errorSameAsOld: 'The new password cannot be the same as the old password.',
     },
+    billingCard: {
+        title: "Billing & Subscription",
+        subtitle: "View your current plan, billing history, and manage payment details.",
+        noSubscriptionMessage: "You do not have an active subscription.",
+        choosePlanLink: "Choose a Plan",
+        currentPlanLabel: "Current Plan",
+        billingCycleLabel: "Billing Cycle",
+        renewsOnLabel: "Renews on {{date}}",
+        endsOnLabel: "Ends on {{date}}",
+        paymentMethodLabel: "Payment Method",
+        paymentMethodText: "Payment methods and invoices are securely managed by Stripe.",
+        manageButton: "Manage Subscription & Billing",
+    },
+    subscriptionManagement: {
+        redirectingToast: "Redirecting to your secure billing portal...",
+        portalErrorToast: "Could not open the billing portal. Please try again.",
+    },
 };

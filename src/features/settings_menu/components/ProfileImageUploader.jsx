@@ -1,15 +1,16 @@
+// src/features/settings_menu/components/ProfileImageUploader.jsx
+
 import React, { useState, useCallback, useRef, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import { useDropzone } from 'react-dropzone';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import Icon from '../../../components/common/Icon'; // Assuming a common Icon component exists
+import Icon from '../../../components/common/Icon';
 
-// --- Component-Specific Localization (Placeholder) ---
-// In a real app, these would come from a central i18n instance.
 const scriptLines = {
     changeButton: "Change",
+    clearButton: "Clear",
     dropzone: {
         ctaActive: "Drop image to upload",
         ctaDefault: "Drop image here, or click to select",
@@ -33,30 +34,19 @@ const scriptLines = {
     }
 };
 
-/**
- * A bespoke image uploader and cropper for user profiles. It handles
- * previewing an existing image, dropping a new one, and cropping it
- * before passing the result to a parent component.
- *
- * @component ProfileImageUploader
- * @param {object} props
- * @param {string|null} props.initialSrc - The URL of the current profile image.
- * @param {function(File|null): void} props.onImageUpload - Callback with the new cropped File object.
- */
 const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
-    // --- State Management ---
-    const [view, setView] = useState('preview'); // 'preview', 'dropzone', 'cropping'
-    const [imageSrc, setImageSrc] = useState(null); // For the cropper
+    const [view, setView] = useState('preview');
+    const [imageSrc, setImageSrc] = useState(null);
     const [crop, setCrop] = useState(null);
     const [completedCrop, setCompletedCrop] = useState(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const imgRef = useRef(null);
+    const [croppedPreview, setCroppedPreview] = useState(null);
 
-    // --- Configuration ---
-    const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+    const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
     const ACCEPTED_IMAGE_TYPES = { 'image/jpeg': [], 'image/png': [], 'image/webp': [] };
-    const OUTPUT_IMAGE_SIZE = 256; // Output a 256x256px image
+    const OUTPUT_IMAGE_SIZE = 256;
 
     const viewAnimation = {
         initial: { opacity: 0, scale: 0.98 },
@@ -65,15 +55,19 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
         transition: { duration: 0.25, ease: 'easeInOut' }
     };
 
-    // --- Handlers & Callbacks ---
-    const resetState = useCallback(() => {
+    const clearLocalState = useCallback(() => {
+        if (croppedPreview) {
+            URL.revokeObjectURL(croppedPreview);
+        }
+        setCroppedPreview(null);
         setImageSrc(null);
         setCrop(null);
         setCompletedCrop(null);
         setError('');
         setIsProcessing(false);
         setView('preview');
-    }, []);
+        onImageUpload(null);
+    }, [croppedPreview, onImageUpload]);
 
     const onFileDrop = useCallback((acceptedFiles, fileRejections) => {
         setError('');
@@ -88,7 +82,6 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
             }
             return;
         }
-
         if (acceptedFiles.length > 0) {
             const reader = new FileReader();
             reader.onload = () => {
@@ -104,7 +97,8 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
         onDrop: onFileDrop,
         accept: ACCEPTED_IMAGE_TYPES,
         maxSize: MAX_FILE_SIZE_BYTES,
-        noClick: true, // We have a dedicated button
+        // --- KEY CHANGE: Removed `noClick: true` ---
+        // This allows the dropzone to be clickable. The default is `false`.
         noKeyboard: true,
         multiple: false,
     });
@@ -120,11 +114,9 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
 
     const handleSaveCrop = useCallback(async () => {
         if (!completedCrop || !imgRef.current) {
-            setError(scriptLines.errors.save);
-            return;
+            setError(scriptLines.errors.save); return;
         }
         setIsProcessing(true);
-
         const image = imgRef.current;
         const canvas = document.createElement('canvas');
         const scaleX = image.naturalWidth / image.width;
@@ -132,46 +124,49 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
         canvas.width = OUTPUT_IMAGE_SIZE;
         canvas.height = OUTPUT_IMAGE_SIZE;
         const ctx = canvas.getContext('2d');
-
         if (!ctx) {
-            setError(scriptLines.errors.canvas);
-            setIsProcessing(false);
-            return;
+            setError(scriptLines.errors.canvas); setIsProcessing(false); return;
         }
-
-        ctx.drawImage(
-            image,
-            completedCrop.x * scaleX, completedCrop.y * scaleY,
-            completedCrop.width * scaleX, completedCrop.height * scaleY,
-            0, 0, OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE
-        );
-
+        ctx.drawImage(image, completedCrop.x * scaleX, completedCrop.y * scaleY, completedCrop.width * scaleX, completedCrop.height * scaleY, 0, 0, OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
         const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 0.95));
         if (blob) {
             const file = new File([blob], `profile_image_${Date.now()}.png`, { type: 'image/png' });
             onImageUpload(file);
-            resetState();
+            if (croppedPreview) {
+                URL.revokeObjectURL(croppedPreview);
+            }
+            setCroppedPreview(URL.createObjectURL(blob));
+            setImageSrc(null); setCrop(null); setCompletedCrop(null); setIsProcessing(false); setView('preview');
         } else {
-            setError(scriptLines.errors.save);
-            setIsProcessing(false);
+            setError(scriptLines.errors.save); setIsProcessing(false);
         }
-    }, [completedCrop, onImageUpload, resetState]);
+    }, [completedCrop, onImageUpload, croppedPreview]);
+
+    useEffect(() => {
+        return () => {
+            if (croppedPreview) {
+                URL.revokeObjectURL(croppedPreview);
+            }
+        };
+    }, [croppedPreview]);
 
     const renderPreview = () => (
-        <motion.div key="preview" {...viewAnimation} className="relative group w-32 h-32">
+        <motion.div key="preview" {...viewAnimation} className="relative w-32 h-32">
             <img
-                src={initialSrc || `https://ui-avatars.com/api/?name=?&background=random&size=128`}
-                alt="Current profile"
+                src={croppedPreview || initialSrc || `https://ui-avatars.com/api/?name=?&background=random&size=128`}
+                alt="Profile preview"
                 className="w-full h-full object-cover rounded-full shadow-md"
             />
-            <button
-                type="button"
-                onClick={() => setView('dropzone')}
-                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 focus:opacity-100 focus:outline-none"
-                aria-label="Change profile picture"
-            >
-                <Icon name="edit" className="w-8 h-8 text-white" style={{ fontSize: '2rem' }} />
-            </button>
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+                <button type="button" onClick={() => setView('dropzone')} className="p-2 text-white hover:bg-white/20 rounded-full" aria-label="Change profile picture">
+                    <Icon name="edit" className="w-7 h-7" />
+                </button>
+                {croppedPreview && (
+                    <button type="button" onClick={clearLocalState} className="p-2 text-white hover:bg-white/20 rounded-full" aria-label="Clear new profile picture">
+                        <Icon name="close" className="w-7 h-7" />
+                    </button>
+                )}
+            </div>
         </motion.div>
     );
 
@@ -189,7 +184,7 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
                 </p>
                 <p className="text-xs text-neutral-500 mt-1">{scriptLines.dropzone.fileTypes}</p>
             </div>
-            <button type="button" onClick={resetState} className="mt-4 text-sm text-neutral-600 hover:underline">
+            <button type="button" onClick={() => setView('preview')} className="mt-4 text-sm text-neutral-600 hover:underline">
                 {scriptLines.cropper.buttons.cancel}
             </button>
         </motion.div>
@@ -199,19 +194,12 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
         <motion.div key="cropper" {...viewAnimation} className="w-full space-y-4">
             <p className="text-center font-medium text-neutral-700 dark:text-neutral-200">{scriptLines.cropper.title}</p>
             <div className="bg-neutral-200 dark:bg-neutral-900 rounded-lg p-2 max-w-sm mx-auto">
-                <ReactCrop
-                    crop={crop}
-                    onChange={(_, percentCrop) => setCrop(percentCrop)}
-                    onComplete={(c) => setCompletedCrop(c)}
-                    aspect={1}
-                    circularCrop
-                    minWidth={50}
-                >
+                <ReactCrop crop={crop} onChange={(_, percentCrop) => setCrop(percentCrop)} onComplete={(c) => setCompletedCrop(c)} aspect={1} circularCrop minWidth={50}>
                     <img ref={imgRef} src={imageSrc} alt="Image to crop" onLoad={onImageLoad} className="max-h-80" />
                 </ReactCrop>
             </div>
             <div className="flex justify-center gap-4">
-                <button type="button" onClick={resetState} className="px-4 py-2 text-sm font-medium rounded-md bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600">
+                <button type="button" onClick={() => setView('dropzone')} className="px-4 py-2 text-sm font-medium rounded-md bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600">
                     {scriptLines.cropper.buttons.cancel}
                 </button>
                 <button type="button" onClick={handleSaveCrop} disabled={isProcessing} className="px-4 py-2 text-sm font-medium text-white rounded-md bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 flex items-center gap-2">
@@ -235,10 +223,5 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
 });
 
 ProfileImageUploader.displayName = 'ProfileImageUploader';
-
-ProfileImageUploader.propTypes = {
-    initialSrc: PropTypes.string,
-    onImageUpload: PropTypes.func.isRequired,
-};
-
+ProfileImageUploader.propTypes = { initialSrc: PropTypes.string, onImageUpload: PropTypes.func.isRequired };
 export default ProfileImageUploader;
