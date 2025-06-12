@@ -6,7 +6,7 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import Icon from '../../components/common/Icon';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
-import logo from '../../assets/logo/Logo.svg';
+import { scriptLines_dashboard as sl } from './utils/script_lines'; // Import script lines
 
 const Tooltip = ({ label }) => (
     <motion.div
@@ -82,12 +82,12 @@ const Sidebar = () => {
     const { permissions, isLoading } = usePermissions();
 
     const allPossibleItems = useMemo(() => [
-        { name: 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
-        { name: 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
-        { name: 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products', requiredRoles: ['ADMIN', 'MANAGER'] },
-        { name: 'Venue', icon: 'storefront', path: '/dashboard/business/venue', requiredRoles: ['ADMIN', 'MANAGER'] },
-        { name: 'Analytics', icon: 'analytics', path: '/dashboard/business/analytics', requiredRoles: ['ADMIN', 'MANAGER'], requiresPermission: permissions.canAccessAnalytics },
-        { name: 'Settings', icon: 'settings', path: '/dashboard/business/settings', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+        { name: sl.nav.overview || 'Overview', icon: 'space_dashboard', path: '/dashboard/business/overview', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+        { name: sl.nav.orders || 'Orders', icon: 'receipt_long', path: '/dashboard/business/orders', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
+        { name: sl.nav.products || 'Products', icon: 'restaurant_menu', path: '/dashboard/business/products', requiredRoles: ['ADMIN', 'MANAGER'] },
+        { name: sl.nav.venue || 'Venue', icon: 'storefront', path: '/dashboard/business/venue', requiredRoles: ['ADMIN', 'MANAGER'] },
+        { name: sl.nav.analytics || 'Analytics', icon: 'analytics', path: '/dashboard/business/analytics', requiredRoles: ['ADMIN', 'MANAGER'], requiresPermission: permissions.canAccessAnalytics },
+        { name: sl.nav.settings || 'Settings', icon: 'settings', path: '/dashboard/business/settings', requiredRoles: ['ADMIN', 'MANAGER', 'STAFF'] },
     ], [permissions.canAccessAnalytics]);
 
     const { navItems, settingsItem } = useMemo(() => {
@@ -99,8 +99,8 @@ const Sidebar = () => {
             return hasRole && hasPermission;
         });
 
-        const mainNav = visibleItems.filter(item => item.name !== 'Settings');
-        const settingsNav = visibleItems.find(item => item.name === 'Settings');
+        const mainNav = visibleItems.filter(item => item.name !== (sl.nav.settings || 'Settings'));
+        const settingsNav = visibleItems.find(item => item.name === (sl.nav.settings || 'Settings'));
 
         return { navItems: mainNav, settingsItem: settingsNav };
     }, [user, permissions, isLoading, allPossibleItems]);

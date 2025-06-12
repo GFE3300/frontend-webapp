@@ -9,6 +9,8 @@ import apiService from '../../../services/api';
 
 import Icon from '../../../components/common/Icon';
 import Spinner from '../../../components/common/Spinner';
+import { scriptLines_dashboard as sl } from '../utils/script_lines';
+import { interpolate } from '../../../i18n';
 
 /**
  * A dynamic, context-aware badge that displays the user's subscription status.
@@ -23,12 +25,12 @@ const SubscriptionBadge = () => {
 
     const handleManageSubscriptionClick = useCallback(async () => {
         setIsPortalLoading(true);
-        addToast("Redirecting to billing portal...", "info", 2000);
+        addToast(sl.subscriptionBadge.redirectingToast || "Redirecting to billing portal...", "info", 2000);
         try {
             const response = await apiService.createCustomerPortalSession();
             window.location.href = response.data.url;
         } catch (err) {
-            addToast("Could not access the billing portal. Please try again later.", "error");
+            addToast(sl.subscriptionBadge.portalErrorToast || "Could not access the billing portal. Please try again later.", "error");
             setIsPortalLoading(false);
         }
     }, [addToast]);
@@ -47,7 +49,7 @@ const SubscriptionBadge = () => {
         if (subscriptionError) {
             return {
                 key: 'error',
-                content: "Plan Error",
+                content: sl.subscriptionBadge.planError || "Plan Error",
                 icon: "error_outline",
                 className: "bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 ring-1 ring-inset ring-red-500/30",
             };
@@ -59,7 +61,7 @@ const SubscriptionBadge = () => {
                 key: 'no-plan',
                 as: Link,
                 to: "/plans",
-                content: "+ Choose Plan",
+                content: sl.subscriptionBadge.choosePlan || "+ Choose Plan",
                 icon: "add",
                 className: "bg-primary-500 hover:bg-primary-600 text-white shadow-md relative",
                 hasPulse: true,
@@ -72,7 +74,7 @@ const SubscriptionBadge = () => {
                 key: 'cancels',
                 as: 'button',
                 onClick: handleManageSubscriptionClick,
-                content: `Cancels ${new Date(subscription.current_period_end).toLocaleDateString()}`,
+                content: interpolate(sl.subscriptionBadge.cancelsOn || "Cancels {{date}}", { date: new Date(subscription.current_period_end).toLocaleDateString() }),
                 icon: isPortalLoading ? <Spinner size="xs" /> : "event_busy",
                 className: "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 ring-1 ring-inset ring-amber-500/30",
             };
@@ -83,7 +85,7 @@ const SubscriptionBadge = () => {
                 key: 'past-due',
                 as: 'button',
                 onClick: handleManageSubscriptionClick,
-                content: subscription.status_display || "Action Required",
+                content: subscription.status_display || (sl.subscriptionBadge.actionRequired || "Action Required"),
                 icon: isPortalLoading ? <Spinner size="xs" /> : "credit_card_error",
                 className: "bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 ring-1 ring-inset ring-red-500/30 animate-pulse",
             };
@@ -96,7 +98,7 @@ const SubscriptionBadge = () => {
                 key: 'trial',
                 as: Link,
                 to: "/plans",
-                content: `Trial: ${daysLeft > 0 ? `${daysLeft}d left` : 'Ends Today'}`,
+                content: daysLeft > 0 ? interpolate(sl.subscriptionBadge.trialDaysLeft || "Trial: {{days}}d left", { days: daysLeft }) : (sl.subscriptionBadge.trialEndsToday || 'Trial: Ends Today'),
                 icon: "timelapse",
                 className: "bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-300 ring-1 ring-inset ring-teal-500/20",
                 hasPulse: true,
@@ -105,13 +107,13 @@ const SubscriptionBadge = () => {
 
         switch (permissions.subscriptionPlan) {
             case 'growth_accelerator':
-                return { key: 'growth', content: "Growth Plan", icon: "rocket_launch", className: "bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 ring-1 ring-inset ring-blue-500/20" };
+                return { key: 'growth', content: sl.subscriptionBadge.growthPlan || "Growth Plan", icon: "rocket_launch", className: "bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 ring-1 ring-inset ring-blue-500/20" };
             case 'premium_pro_suite':
-                return { key: 'premium', content: "Premium Plan", icon: "workspace_premium", className: "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 ring-1 ring-inset ring-amber-500/30" };
+                return { key: 'premium', content: sl.subscriptionBadge.premiumPlan || "Premium Plan", icon: "workspace_premium", className: "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 ring-1 ring-inset ring-amber-500/30" };
             case 'starter_essentials':
-                return { key: 'starter', content: "Starter Plan", icon: "foundation", className: "bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 ring-1 ring-inset ring-neutral-500/10" };
+                return { key: 'starter', content: sl.subscriptionBadge.starterPlan || "Starter Plan", icon: "foundation", className: "bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 ring-1 ring-inset ring-neutral-500/10" };
             default:
-                return { key: 'unknown', as: Link, to: "/plans", content: "Manage Plan", icon: "settings", className: "bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 ring-1 ring-inset ring-neutral-500/10" };
+                return { key: 'unknown', as: Link, to: "/plans", content: sl.subscriptionBadge.managePlan || "Manage Plan", icon: "settings", className: "bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 ring-1 ring-inset ring-neutral-500/10" };
         }
     };
 

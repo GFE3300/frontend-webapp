@@ -1,6 +1,17 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { EmptyCell, LowCell, MidCell, HighCell } from './CellTypes';
+import sl from '../utils/script_lines';
+
+// Helper for dynamic string interpolation
+const interpolate = (str, params) => {
+    if (!str) return '';
+    let newStr = str;
+    for (const key in params) {
+        newStr = newStr.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+    }
+    return newStr;
+};
 
 /**
  * Intensity level cell component with strict type safety and error boundaries
@@ -23,6 +34,7 @@ import { EmptyCell, LowCell, MidCell, HighCell } from './CellTypes';
  * />
  */
 const Cell = memo(({ percentage, level, maxCustomers, theme = [], style = {} }) => {
+    const cellStrings = sl.heatmap.cell;
     // Validate level boundaries
     const clampedLevel = Math.min(Math.max(Number(level), 0), 3);
     const CellComponent = [EmptyCell, LowCell, MidCell, HighCell][clampedLevel];
@@ -32,6 +44,11 @@ const Cell = memo(({ percentage, level, maxCustomers, theme = [], style = {} }) 
     const realValue = sanitizedMax > 0
         ? Math.floor((percentage / 100) * sanitizedMax)
         : 0;
+    
+    const ariaLabel = interpolate(
+        cellStrings.ariaLabel || '{{count}} customers ({{percentage}}% of peak)',
+        { count: realValue, percentage }
+    );
 
     // Merge external styling carefully
     const mergedStyle = {
@@ -51,7 +68,7 @@ const Cell = memo(({ percentage, level, maxCustomers, theme = [], style = {} }) 
             className={className}
             style={mergedStyle}
             role="gridcell"
-            aria-label={`${realValue} customers (${percentage}% of peak)`}
+            aria-label={ariaLabel}
         />
     );
 });

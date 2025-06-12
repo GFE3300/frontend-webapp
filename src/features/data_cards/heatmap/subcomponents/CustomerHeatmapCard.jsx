@@ -15,6 +15,7 @@ import { useResponsiveSize } from '../../../../hooks/useResponsiveSize';
 import SettingsMenu from './SettingsMenu';
 import HeatmapHeader from './HeatmapHeader';
 import Icon from '../../../../components/common/Icon';
+import sl from '../utils/script_lines';
 
 /**
  * Calculates the number of weeks that span a given month.
@@ -109,6 +110,7 @@ function CustomerHeatmapCardContent() {
 }
 
 const TitleBar = ({ setIsMenuOpen, isMenuOpen }) => {
+    const cardStrings = sl.heatmap.customerHeatmapCard;
     return (
         <motion.div
             className="flex w-full justify-between items-center gap-4 mb-1 px-4"
@@ -131,7 +133,7 @@ const TitleBar = ({ setIsMenuOpen, isMenuOpen }) => {
                 </motion.div>
                 <div className="flex h-full justify-center items-end">
                     <h2 className="text-xl font-montserrat font-semibold text-gray-800 dark:text-gray-200 tracking-tight">
-                        Customer Activity
+                        {cardStrings.title || 'Customer Activity'}
                     </h2>
                 </div>
             </div>
@@ -145,7 +147,7 @@ const TitleBar = ({ setIsMenuOpen, isMenuOpen }) => {
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        aria-label="Open settings"
+                        aria-label={cardStrings.openSettingsAriaLabel || 'Open settings'}
                     >
                         {isMenuOpen ? (
                             <motion.div

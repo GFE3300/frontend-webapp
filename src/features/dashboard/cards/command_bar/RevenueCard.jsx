@@ -6,7 +6,8 @@ import { formatCurrency } from '../../../../utils/formatCurrency';
 import AnimatedNumber from '../../../../components/animated_number/animated-number';
 import InteractiveLineChart from './subcomponents/InteractiveLineChart';
 import { useCurrency } from '../../../../hooks/useCurrency';
-
+import { scriptLines_dashboard as sl } from '../../utils/script_lines'; // I18N
+import { interpolate } from '../../../../i18n'; // I18N Helper
 
 const DefaultView = ({ data, currency, isHovered, hoveredData, onChartHover, onChartLeave = () => { } }) => {
     const { current_value = 0, comparison_percentage = 0, today_trend = [], yesterday_trend = [] } = data || {};
@@ -43,7 +44,7 @@ const DefaultView = ({ data, currency, isHovered, hoveredData, onChartHover, onC
                             transition={{ duration: 0.2 }}
                             className="text-xs text-neutral-500 mb-1"
                         >
-                            vs {formatCurrency(hoveredData.yesterday, currency)} yesterday
+                            {interpolate(sl.revenueCard.vsYesterdayComparison || 'vs {{value}} yesterday', { value: formatCurrency(hoveredData.yesterday, currency) })}
                         </motion.p>
                     )}
                 </AnimatePresence>
@@ -85,7 +86,7 @@ const DefaultView = ({ data, currency, isHovered, hoveredData, onChartHover, onC
                                         initial={{ opacity: 0, width: 0 }}
                                         animate={{ opacity: 1, width: 'auto', transition: { delay: 0.1 } }}
                                     >
-                                        vs yesterday
+                                        {sl.revenueCard.vsYesterday || 'vs yesterday'}
                                     </motion.p>
                                 )}
                             </AnimatePresence>
@@ -123,7 +124,7 @@ const InsightView = ({ data, currency }) => {
                 <InteractiveDonutChart data={chartData} size={80} strokeWidth={15} />
             </div>
             <div className="mt-2 pt-2 flex items-start border-t border-neutral-200 dark:border-neutral-700 flex justify-between items-center text-xs">
-                <span className="text-neutral-500 dark:text-neutral-400">Avg. Spend / Guest</span>
+                <span className="text-neutral-500 dark:text-neutral-400">{sl.revenueCard.avgSpendPerGuest || 'Avg. Spend / Guest'}</span>
                 <span className="font-semibold text-neutral-800 dark:text-white">
                     {formatCurrency(parseFloat(avg_spend_per_guest) || 0, currency)}
                 </span>
@@ -154,7 +155,7 @@ const DailyRevenueCard = ({ data, insightData }) => {
             {/* --- NEW: Stable Header --- */}
             <div className="flex w-full justify-between items-start text-neutral-500 dark:text-neutral-300 mb-2">
                 <h3 className="font-medium text-lg font-montserrat">
-                    {isInsightVisible ? 'Revenue Engine' : 'Revenue Today'}
+                    {isInsightVisible ? (sl.revenueCard.titleInsight || 'Revenue Engine') : (sl.revenueCard.title || 'Revenue Today')}
                 </h3>
                 <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-neutral-200 dark:bg-neutral-700 shrink-0">
                     <Icon name="monitoring" className="w-4 h-4 text-purple-500" style={{ fontSize: '1rem' }} variations={{ fill: 1, weight: 600, grade: 0, opsz: 48 }} />

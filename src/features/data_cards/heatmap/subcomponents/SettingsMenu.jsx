@@ -6,6 +6,7 @@ import TimeRangeSlider from '../../../../components/common/TimeRangeSlider';
 import BlockNumberSelector from '../../../../components/common/BlockNumberSelector';
 import Calendar from '../../../../components/common/Calendar';
 import NumberStepper from '../../../../components/common/NumberStepper';
+import sl from '../utils/script_lines';
 
 /**
  * Calculates the number of weeks that span a given month.
@@ -23,6 +24,7 @@ const getWeeksInMonth = (date) => {
 const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
     const [activeTab, setActiveTab] = useState('week');
     const [isMobile, setIsMobile] = useState(false);
+    const menuStrings = sl.heatmap.settingsMenu;
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -107,7 +109,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
                                             onClick={() => setActiveTab(tab)}
                                             style={{ zIndex: 1 }}
                                         >
-                                            {tab === 'week' ? 'Week' : 'Month'}
+                                            {tab === 'week' ? (menuStrings.weekTab || 'Week') : (menuStrings.monthTab || 'Month')}
                                         </button>
                                     ))}
                                 </div>
@@ -140,13 +142,13 @@ const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
                                             {/* Settings Column */}
                                             <div className="flex flex-col gap-4 w-full">
                                                 <NumberStepper
-                                                    label="Block Start Hour (0–23)"
+                                                    label={menuStrings.blockStartHourLabel || 'Block Start Hour (0–23)'}
                                                     min={0} max={23}
                                                     value={settings.week.blockStartHour}
                                                     onChange={(v) => handleWeekSettingChange('blockStartHour', v)}
                                                 />
                                                 <NumberStepper
-                                                    label="Block Duration (1–24 hours)"
+                                                    label={menuStrings.blockDurationLabel || 'Block Duration (1–24 hours)'}
                                                     min={1} max={24}
                                                     value={settings.week.blockDuration}
                                                     onChange={(v) => handleWeekSettingChange('blockDuration', v)}
@@ -178,7 +180,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
                                             <div className="flex flex-col justify-between max-w-75">
                                                 <div>
                                                     <label className="block text-xs text-neutral-500 mb-1">
-                                                        Operational Hours
+                                                        {menuStrings.operationalHoursLabel || 'Operational Hours'}
                                                     </label>
                                                     <TimeRangeSlider
                                                         initialStart={settings.month.timeRange.startHour}
@@ -191,7 +193,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onUpdate, size }) => {
                                                 </div>
                                                 <div>
                                                     <label className="block text-xs text-neutral-500 mb-4">
-                                                        Buffer Days (0-14)
+                                                        {menuStrings.bufferDaysLabel || 'Buffer Days (0-14)'}
                                                     </label>
                                                     <BlockNumberSelector
                                                         value={settings.month.bufferDays}

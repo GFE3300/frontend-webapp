@@ -5,6 +5,18 @@ import clsx from 'clsx';
 import { addDays, format, isValid } from 'date-fns';
 import PropTypes from 'prop-types';
 import ClientTooltip from './ClientTooltip';
+import sl from '../utils/script_lines';
+
+// Helper for dynamic string interpolation
+const interpolate = (str, params) => {
+    if (!str) return '';
+    let newStr = str;
+    for (const key in params) {
+        newStr = newStr.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+    }
+    return newStr;
+};
+
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const FOOTER_HEIGHT = 24;
@@ -28,6 +40,7 @@ const cellVariants = {
 const MonthHeatmapGrid = ({ weekStarts, heatmapData, maxValue, findGroupIndex, theme, size, timeRange }) => {
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, date: null, value: 0 });
     const rafId = useRef(null);
+    const gridStrings = sl.heatmap.monthHeatmapGrid;
 
     const weekStartDates = weekStarts;
     const weeksCount = Math.min(weekStartDates.length, heatmapData.length);
@@ -67,13 +80,23 @@ const MonthHeatmapGrid = ({ weekStarts, heatmapData, maxValue, findGroupIndex, t
                 {daysOfWeek.map((_, dayIndex) =>
                     [...Array(weeksCount)].map((_, weekIndex) => {
                         const week = heatmapData[weekIndex] || [];
-                        const value = week[dayIndex] ?? 0;
-                        const colorIndex = findGroupIndex(value);
+                        const valuePercentage = week[dayIndex] ?? 0;
+                        const clientCount = Math.round(valuePercentage * (maxValue / 100));
+                        const colorIndex = findGroupIndex(valuePercentage);
                         const bgClass = theme?.[colorIndex] || theme?.[0] || 'bg-gray-200';
                         // --- REFINED: Ensure weekStartDates[weekIndex] is a valid date before using ---
                         const dateObj = isValid(weekStartDates[weekIndex])
                             ? addDays(weekStartDates[weekIndex], dayIndex)
                             : new Date();
+                        
+                        const ariaLabelString = (clientCount === 1)
+                            ? (gridStrings.cellAriaLabel.one || '{{date}}: {{count}} client')
+                            : (gridStrings.cellAriaLabel.other || '{{date}}: {{count}} clients');
+
+                        const ariaLabel = interpolate(ariaLabelString, {
+                            date: format(dateObj, 'EEE, MMM d, yyyy'),
+                            count: clientCount
+                        });
 
                         return (
                             <motion.div
@@ -87,10 +110,10 @@ const MonthHeatmapGrid = ({ weekStarts, heatmapData, maxValue, findGroupIndex, t
                                     'cursor-pointer'
                                 )}
                                 style={{ width: (size?.width - 64) / weeksCount, height: (size?.height - FOOTER_HEIGHT - 12) / 7 }}
-                                onMouseMove={e => updateTooltipPosition(e, dateObj, value)}
-                                onMouseEnter={() => setTooltip(prev => ({ ...prev, date: dateObj, value: Math.round(value), visible: true }))}
+                                onMouseMove={e => updateTooltipPosition(e, dateObj, valuePercentage)}
+                                onMouseEnter={() => setTooltip(prev => ({ ...prev, date: dateObj, value: Math.round(valuePercentage), visible: true }))}
                                 onMouseLeave={() => setTooltip(prev => ({ ...prev, visible: false }))}
-                                aria-label={`${format(dateObj, 'EEE, MMM d, yyyy')}: ${value} clients`}
+                                aria-label={ariaLabel}
                             />
                         );
                     })

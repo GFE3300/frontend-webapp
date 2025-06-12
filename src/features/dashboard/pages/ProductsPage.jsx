@@ -5,6 +5,7 @@ import CategoryList from '../../../components/CategoryCard/CategoryList';
 import Button from '../../../components/common/Button';
 import Icon from '../../../components/common/Icon';
 import { useTableSettings } from '../../products_table/hooks/useTableSettings'; // Import the hook here
+import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
 const ProductsPage = () => {
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
@@ -45,9 +46,9 @@ const ProductsPage = () => {
         <div className="p-4 sm:p-6 space-y-6 flex flex-col h-full">
             <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">Product Command Center</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">{sl.productsPage.title || 'Product Command Center'}</h1>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                        Oversee your entire product catalog, manage categories, and perform bulk actions.
+                        {sl.productsPage.subtitle || 'Oversee your entire product catalog, manage categories, and perform bulk actions.'}
                     </p>
                 </div>
                 <div className="mt-4 sm:mt-0">
@@ -58,7 +59,7 @@ const ProductsPage = () => {
                         className="w-full sm:w-auto"
                     >
                         <Icon name="add_circle" className="mr-2 h-5 w-5" />
-                        Add New Product
+                        {sl.productsPage.addProductButton || 'Add New Product'}
                     </Button>
                 </div>
             </header>
@@ -77,7 +78,7 @@ const ProductsPage = () => {
                 <aside aria-labelledby="categories-section" className="lg:w-1/4 xl:w-1/5 lg:h-full lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-600">
                     <div className="bg-white dark:bg-neutral-800 p-4 sm:p-6 rounded-xl shadow-lg h-full">
                         <h2 id="categories-section" className="text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
-                            Categories
+                            {sl.productsPage.categoriesTitle || 'Categories'}
                         </h2>
                         <CategoryList
                             onSelectCategory={handleCategorySelect}

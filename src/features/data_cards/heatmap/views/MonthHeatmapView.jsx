@@ -6,6 +6,17 @@ import { useResponsiveSize } from '../../../../hooks/useResponsiveSize';
 import useNumberGroups from '../../../../hooks/useNumberGroups';
 import MonthHeatmapGrid from '../subcomponents/MonthHeatmapGrid';
 import GridContainer from '../subcomponents/GridContainer';
+import sl from '../utils/script_lines';
+
+// Helper for dynamic string interpolation
+const interpolate = (str, params) => {
+    if (!str) return '';
+    let newStr = str;
+    for (const key in params) {
+        newStr = newStr.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+    }
+    return newStr;
+};
 
 const HEATMAP_THEME = ['bg-rose-400/20', 'bg-rose-400/60', 'bg-rose-400/80', 'bg-rose-400'];
 
@@ -16,6 +27,7 @@ export default function MonthHeatmapView({
 }) {
     const containerRef = useRef(null);
     const size = useResponsiveSize(containerRef);
+    const viewStrings = sl.heatmap.monthHeatmapView;
 
     const { status, blocks } = useWeeklyClientBlocks(settings);
 
@@ -45,12 +57,15 @@ export default function MonthHeatmapView({
 
     useEffect(() => {
         if (percentageRanges && maxValue > 0) {
-            const newIndexLabels = percentageRanges.map(([min]) => `< ${Math.round(min * (maxValue / 100))}`);
+            const formatString = viewStrings.legendLabel || '< {{value}}';
+            const newIndexLabels = percentageRanges.map(([min]) =>
+                interpolate(formatString, { value: Math.round(min * (maxValue / 100)) })
+            );
             setIndexLabels(newIndexLabels);
         } else {
             setIndexLabels([]);
         }
-    }, [percentageRanges, maxValue, setIndexLabels]);
+    }, [percentageRanges, maxValue, setIndexLabels, viewStrings.legendLabel]);
 
     useEffect(() => {
         setColorRanges(HEATMAP_THEME);
@@ -72,11 +87,11 @@ export default function MonthHeatmapView({
     }, [percentageRanges]);
 
     if (status === 'loading') {
-        return <div className="flex items-center justify-center h-full">Loading...</div>;
+        return <div className="flex items-center justify-center h-full">{viewStrings.loading || 'Loading...'}</div>;
     }
 
     if (status === 'success' && (!heatmapData || heatmapData.length === 0 || weekStarts.length === 0)) {
-        return <div className="flex items-center justify-center h-full text-sm text-gray-500">No activity data for this period.</div>;
+        return <div className="flex items-center justify-center h-full text-sm text-gray-500">{viewStrings.noActivity || 'No activity data for this period.'}</div>;
     }
 
     return (

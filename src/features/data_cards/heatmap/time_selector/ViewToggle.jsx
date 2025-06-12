@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import Icon from '../../../../components/common/Icon';
+import sl from '../utils/script_lines';
 
 /**
  * A minimalist collapsible view-mode menu.
@@ -11,6 +12,7 @@ import Icon from '../../../../components/common/Icon';
 export default function ViewModeToggle({ currentView, onChange }) {
     const [open, setOpen] = useState(false);
     const containerRef = useRef(null);
+    const toggleStrings = sl.heatmap.viewToggle;
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -24,8 +26,8 @@ export default function ViewModeToggle({ currentView, onChange }) {
     }, []);
 
     const options = [
-        { key: 'week', label: 'Week' },
-        { key: 'month', label: 'Month' }
+        { key: 'week', label: toggleStrings.week || 'Week' },
+        { key: 'month', label: toggleStrings.month || 'Month' }
     ];
 
     return (
@@ -43,7 +45,7 @@ export default function ViewModeToggle({ currentView, onChange }) {
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
                 <span className="text-xs font-montserrat font-medium text-gray-800 dark:text-gray-200 capitalize">
-                    {currentView}
+                    {currentView === 'week' ? (toggleStrings.week || 'Week') : (toggleStrings.month || 'Month')}
                 </span>
                 <motion.span
                     className="h-5 text-gray-500 dark:text-gray-400"

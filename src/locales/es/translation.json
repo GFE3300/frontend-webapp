@@ -342,10 +342,73 @@
   },
   "dashboard": {
     "dashboard": {
+      "actionItemsCard": {
+        "attentionNeeded": "Atención necesaria para <1>{{display}</1> }",
+        "confirmNewOrders_one": "Confirme <1>{{count}} nuevo pedido</1>",
+        "confirmNewOrders_other": "Confirmar <1>{{count}} nuevos pedidos</1>",
+        "lowOnStock": "<1>{{name}</1> } tiene pocas existencias ({{current_stock}} {{unit}})",
+        "noItemsSubtitle": "No hay acciones pendientes que requieran su atención.",
+        "noItemsTitle": "Todos los sistemas despejados",
+        "title": "Información sobre la misión"
+      },
+      "analyticsPage": {
+        "placeholderBody": "Esta sección incluirá varios gráficos, opciones de exportación de datos e informes detallados sobre ventas, productos y comportamiento de los clientes.",
+        "placeholderFooter": "(Se requiere un mayor desarrollo)",
+        "placeholderTitle": "[Marcador de posición de la interfaz de análisis e informes avanzados]",
+        "subtitle": "Obtenga información sobre el rendimiento de su empresa.",
+        "title": "Análisis e informes"
+      },
+      "businessSwitcher": {
+        "createNewBusiness": "Crear nuevas empresas",
+        "failedToLoad": "Fallo al cargar.",
+        "switchErrorToast": "No podía cambiar de empresa.",
+        "switchSuccessToast": "Cambio de empresa con éxito",
+        "switching": "Cambiando...",
+        "upgradePlanTooltip": "Actualice su plan para añadir más empresas.",
+        "yourBusinesses": "Sus empresas"
+      },
+      "commissionsList": {
+        "headerBusiness": "Empresa recomendada",
+        "headerCommission": "Comisión",
+        "headerDate": "Fecha",
+        "noCommissions": "No se han encontrado comisiones recientes.",
+        "title": "Comisiones recientes"
+      },
+      "createBusinessPage": {
+        "businessEmailLabel": "Correo electrónico profesional (opcional)",
+        "businessEmailPlaceholder": "contact@yourbusiness.com",
+        "businessNamePlaceholder": "por ejemplo, The Artisan Cafe",
+        "businessPhoneLabel": "Teléfono profesional (opcional)",
+        "businessPhonePlaceholder": "+1 (555) 123-4567",
+        "createButton": "Crear empresa",
+        "subtitle": "Añade otra empresa a tu cuenta. Esto contará para el límite de empresas de tu suscripción.",
+        "title": "Crear una nueva empresa",
+        "toastError": "No se ha podido crear la empresa. Por favor, inténtelo de nuevo.",
+        "toastSuccess": "¡Empresa \"{{name}}\" creada con éxito!"
+      },
+      "dashboardGreeting": {
+        "fallbackName": "Agente",
+        "goodAfternoon": "Buenas tardes",
+        "goodEvening": "Buenas noches",
+        "goodMorning": "Buenos días.",
+        "greeting": "{{greeting}}, {{firstName}}.",
+        "subtitle": "Aquí tiene el pulso en tiempo real de las operaciones de su empresa."
+      },
+      "dashboardHeader": {
+        "notificationsTitle": "Notificaciones"
+      },
       "guestsCard": {
         "peakHour": "Hora punta",
         "title": "Invitados de hoy",
         "titleInsight": "Flujo de invitados"
+      },
+      "inventoryPage": {
+        "addNewIngredientButton": "Añadir nuevo ingrediente",
+        "buttonPlaceholder": "[Botón Añadir nuevo ingrediente pulsado]",
+        "subtitle": "Haga un seguimiento de los ingredientes, gestione los niveles de existencias y consulte los costes.",
+        "tablePlaceholderBody": "Funciones previstas: Búsqueda, Filtros (Bajo Stock, Categoría), Columnas Ordenables, Paginación, Acciones Añadir/Editar Ingrediente.",
+        "tablePlaceholderTitle": "[Marcador de posición de la tabla de artículos de inventario]",
+        "title": "Gestión de existencias"
       },
       "liveOrdersCard": {
         "allConfirmed": "Todos los pedidos confirmados.",
@@ -354,6 +417,20 @@
         "title": "Pedidos en directo",
         "titleInsight": "Embudo de pedidos",
         "toConfirm_one": "{{count}} para Confirmar"
+      },
+      "liveVenueCard": {
+        "fullViewButton": "Vista completa",
+        "noLayoutSubtitle": "Ve al <1>Diseñador de recintos</1> para crear uno.",
+        "noLayoutTitle": "No se ha encontrado la disposición del lugar",
+        "title": "La Atalaya"
+      },
+      "nav": {
+        "analytics": "Analítica",
+        "orders": "Pedidos",
+        "overview": "Visión general",
+        "products": "Productos",
+        "settings": "Ajustes",
+        "venue": "Lugar"
       },
       "occupancyCard": {
         "avgTurnTime": "Avg. Tiempo de giro",
@@ -370,6 +447,32 @@
         "noActiveOrders": "No hay pedidos activos",
         "tooltipLabel": "{{count}} {{status}}"
       },
+      "ordersPage": {
+        "buttonPlaceholder": "[Botón Crear nuevo pedido pulsado]",
+        "createNewOrderButton": "Crear nueva orden",
+        "subtitle": "Vea, siga y gestione todos los pedidos de los clientes.",
+        "tablePlaceholderBody": "Funciones previstas: Búsqueda, Filtros (Estado, Rango de fechas), Columnas ordenables, Paginación, Ver detalles del pedido Acción.",
+        "tablePlaceholderTitle": "[Marcador de posición de la tabla de pedidos]",
+        "title": "Gestionar pedidos"
+      },
+      "productMoversCard": {
+        "bottomItemsTitle": "Los 5 artículos más vendidos",
+        "noData": "No hay datos para este periodo.",
+        "periodToday": "Hoy",
+        "title": "Hoja caliente de hoy",
+        "topItemsTitle": "Los 5 artículos más vendidos"
+      },
+      "productsPage": {
+        "addProductButton": "Añadir nuevo producto",
+        "categoriesTitle": "Categorías",
+        "subtitle": "Supervise todo su catálogo de productos, gestione categorías y realice acciones masivas.",
+        "title": "Centro de mando de productos"
+      },
+      "referralsList": {
+        "headerSubscription": "Suscripción",
+        "noReferrals": "No se han encontrado referencias recientes.",
+        "title": "Referencias recientes"
+      },
       "revenueCard": {
         "avgSpend": "Avg. Gasto / Huésped",
         "categoryDrinks": "Bebidas",
@@ -381,6 +484,30 @@
         "titleInsight": "Motor de ingresos",
         "vsYesterday": "frente a ayer",
         "vsYesterdayValue": "vs {{value}} ayer"
+      },
+      "settingsSidebar": {
+        "billing": "Facturación",
+        "businessProfile": "Perfil de la empresa",
+        "security": "Seguridad",
+        "teamMembers": "Miembros del equipo",
+        "userProfile": "Perfil del usuario"
+      },
+      "subscriptionBadge": {
+        "actionRequired": "Acción requerida",
+        "cancelsOn": "Cancela {{date}}",
+        "choosePlan": "+ Elegir plan",
+        "growthPlan": "Plan de crecimiento",
+        "managePlan": "Plan de gestión",
+        "planError": "Error de plan",
+        "portalErrorToast": "No se ha podido acceder al portal de facturación. Vuelva a intentarlo más tarde.",
+        "premiumPlan": "Plan Premium",
+        "redirectingToast": "Redirigiendo al portal de facturación...",
+        "starterPlan": "Plan de inicio",
+        "trialDaysLeft": "Juicio: {{days}}d izquierda",
+        "trialEndsToday": "Prueba: Termina hoy"
+      },
+      "userProfileWidget": {
+        "logout": "Cierre de sesión"
       }
     }
   },
@@ -418,6 +545,43 @@
       "Peak": "Pico",
       "Week": "Semana",
       "Wk": "Semana"
+    },
+    "heatmap": {
+      "cell": {
+        "ariaLabel": "{{count}} clientes ({{percentage}}% del pico)"
+      },
+      "cellTypes": {
+        "highActivity": "{{value}}% actividad (alta)",
+        "lowActivity": "{{value}}% actividad (baja)",
+        "mediumActivity": "{{value}}% actividad (media)",
+        "noActivity": "Sin actividad"
+      },
+      "clientTooltip": {
+        "clients_one": "cliente",
+        "clients_other": "clientes"
+      },
+      "customerHeatmapCard": {
+        "openSettingsAriaLabel": "Abrir ajustes",
+        "title": "Actividad de los clientes"
+      },
+      "heatmapGrid": {
+        "ariaLabel": "Cuadrícula del mapa térmico de datos"
+      },
+      "monthHeatmapGrid": {
+        "cellAriaLabel_one": "{{date}}: {{count}} cliente",
+        "cellAriaLabel_other": "{{date}}: {{count}} clientes"
+      },
+      "settingsMenu": {
+        "blockDurationLabel": "Duración del bloque (1-24 horas)",
+        "blockStartHourLabel": "Hora de inicio del bloque (0-23)",
+        "bufferDaysLabel": "Días de tampón (0-14)",
+        "operationalHoursLabel": "Horario de atención al público"
+      },
+      "weekHeatmapView": {
+        "ariaLabel": "Mapa de actividad semanal de los clientes",
+        "legendLabel": "&lt; {{value}}",
+        "noActivity": "No hay datos de actividad para este periodo."
+      }
     }
   },
   "kitchen_display_system": {
@@ -433,27 +597,32 @@
         "title": "Detalles del pedido: {{identifier}}"
       },
       "orderCard": {
+        "actionConfirm": "Confirmar pedido",
         "actionMarkAsReady": "Marcar como listo",
         "actionStartPreparing": "Empieza a prepararte",
         "defaultIdentifier": "Pida",
-        "lastUpdate": "Última actualización: {{timeAgo}}",
+        "lastUpdate": "Actualizado hace {{time}}",
         "pickupIdentifier": "Recogida #{{pickupCode}}"
       },
       "orderItemList": {
-        "itemQuantity": "x{{quantity}}",
-        "moreItems": "+ {{count}} más artículos..."
+        "itemQuantity": "x{{count}}",
+        "moreItems": "+ {{count}} más artículos...",
+        "moreItems_one": "+{{count}} más artículo",
+        "moreItems_other": "+{{count}} más artículos"
       },
       "orderStatus": {
+        "CANCELLED_BY_BUSINESS": "Cancelado (Empresas)",
+        "CANCELLED_BY_CUSTOMER": "Cancelado (Cliente)",
         "finalized": "Finalizado"
       },
       "page": {
-        "errorFetchingOrders": "Error al recuperar pedidos.",
-        "loadingOrders": "Cargando Pedidos...",
-        "noOrdersMessage": "Los nuevos pedidos aparecerán aquí.",
-        "noOrdersTitle": "No hay pedidos activos",
+        "errorFetchingOrders": "Error al recuperar pedidos",
+        "loadingOrders": "Cargando pedidos en directo...",
+        "noOrdersMessage": "Cuando llegue un nuevo pedido, aparecerá aquí.",
+        "noOrdersTitle": "No hay órdenes que mostrar",
         "orderCount_one": "({{count}} orden)",
         "orderCount_other": "({{count}} pedidos)",
-        "pageTitle": "Pedidos de cocina",
+        "pageTitle": "Sistema de exposición en cocina",
         "takeoutPickup": "Comida para llevar / Recogida"
       }
     }

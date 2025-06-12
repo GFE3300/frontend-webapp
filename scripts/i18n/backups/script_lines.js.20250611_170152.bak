@@ -1,0 +1,147 @@
+/**
+ * @auto-managed
+ *
+ * This file is managed by the I18N script. Any manual changes to this file will be
+ * overwritten during the next synchronization. To add or modify text, please
+ * update the original string in this file and then run the 'sync' command.
+ *
+ * @last-synced 2025-06-10 21:51:03 UTC
+ */
+
+import i18n from '../../../i18n';
+
+// src/features/dashboard/utils/script_lines.js
+
+/**
+ * @prettier
+ */
+export const scriptLines_dashboard = {
+    revenueCard: {
+        title: i18n.t('dashboard.dashboard.revenueCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.revenueCard.titleInsight'),
+        avgSpend: i18n.t('dashboard.dashboard.revenueCard.avgSpend'),
+        vsYesterday: i18n.t('dashboard.dashboard.revenueCard.vsYesterday'),
+        vsYesterdayValue: i18n.t('dashboard.dashboard.revenueCard.vsYesterdayValue'),
+        categoryFood: i18n.t('dashboard.dashboard.revenueCard.categoryFood'),
+        categoryDrinks: i18n.t('dashboard.dashboard.revenueCard.categoryDrinks'),
+        categoryMerch: i18n.t('dashboard.dashboard.revenueCard.categoryMerch'),
+        categoryEvents: i18n.t('dashboard.dashboard.revenueCard.categoryEvents'),
+        categoryTakeout: i18n.t('dashboard.dashboard.revenueCard.categoryTakeout'),
+    },
+    interactiveDonutChart: {
+        totalLabel: i18n.t('venue_management.total'),
+    },
+    guestsCard: {
+        title: i18n.t('dashboard.dashboard.guestsCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.guestsCard.titleInsight'),
+        vsYesterday: i18n.t('dashboard.dashboard.revenueCard.vsYesterday'),
+        peakHour: i18n.t('dashboard.dashboard.guestsCard.peakHour'),
+    },
+    liveOrdersCard: {
+        title: i18n.t('dashboard.dashboard.liveOrdersCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.liveOrdersCard.titleInsight'),
+        toConfirm: i18n.t('dashboard.dashboard.liveOrdersCard.toConfirm'),
+        allConfirmed: i18n.t('dashboard.dashboard.liveOrdersCard.allConfirmed'),
+        funnelLabelPending: i18n.t('dashboard.dashboard.liveOrdersCard.funnelLabelPending'),
+        funnelLabelConfirmed: i18n.t('live_orders_view.liveOrders.orderStatus.CONFIRMED'),
+        funnelLabelPreparing: i18n.t('live_orders_view.liveOrders.orderStatus.PREPARING'),
+        funnelLabelServed: i18n.t('live_orders_view.liveOrders.status.SERVED'),
+        funnelMetricTime: i18n.t('dashboard.dashboard.liveOrdersCard.funnelMetricTime'),
+    },
+    orderStatusDistributionBar: {
+        tooltipLabel: i18n.t('dashboard.dashboard.orderStatusDistributionBar.tooltipLabel'),
+        statusPending: i18n.t('dashboard.dashboard.liveOrdersCard.funnelLabelPending'),
+        statusConfirmed: i18n.t('live_orders_view.liveOrders.orderStatus.CONFIRMED'),
+        statusPreparing: i18n.t('live_orders_view.liveOrders.orderStatus.PREPARING'),
+        statusServed: i18n.t('live_orders_view.liveOrders.status.SERVED'),
+        noActiveOrders: i18n.t('dashboard.dashboard.orderStatusDistributionBar.noActiveOrders'),
+    },
+    orderStageColumn: {
+        avgTime: i18n.t('dashboard.dashboard.orderStageColumn.avgTime'),
+    },
+    occupancyCard: {
+        title: i18n.t('dashboard.dashboard.occupancyCard.title'),
+        titleInsight: i18n.t('dashboard.dashboard.occupancyCard.titleInsight'),
+        activeTables: i18n.t('live_orders_view.liveOrders.stats.activeTables'),
+        occupancyPercentage: i18n.t('dashboard.dashboard.occupancyCard.occupancyPercentage'),
+        tableLabel: i18n.t('dashboard.dashboard.occupancyCard.tableLabel'),
+        orderCount: i18n.t('dashboard.dashboard.occupancyCard.orderCount'),
+        noActivity: i18n.t('dashboard.dashboard.occupancyCard.noActivity'),
+        avgTurnTime: i18n.t('dashboard.dashboard.occupancyCard.avgTurnTime'),
+    },
+        dashboardGreeting: {
+        goodMorning: i18n.t('dashboard.dashboard.dashboardGreeting.goodMorning'),
+        goodAfternoon: i18n.t('dashboard.dashboard.dashboardGreeting.goodAfternoon'),
+        goodEvening: i18n.t('dashboard.dashboard.dashboardGreeting.goodEvening'),
+        fallbackName: i18n.t('dashboard.dashboard.dashboardGreeting.fallbackName'),
+        subtitle: i18n.t('dashboard.dashboard.dashboardGreeting.subtitle'),
+        greeting: i18n.t('dashboard.dashboard.dashboardGreeting.greeting'),
+    },
+        dashboardHeader: {
+        notificationsTitle: 'Notifications',
+    },
+       nav: {
+        overview: 'Overview',
+        orders: 'Orders',
+        products: 'Products',
+        venue: 'Venue',
+        analytics: 'Analytics',
+        settings: 'Settings',
+    },
+        actionItemsCard: {
+        title: 'Mission Briefing',
+        noItemsTitle: 'All Systems Clear',
+        noItemsSubtitle: 'No pending actions requiring your attention.',
+        confirmNewOrders: {
+            one: 'Confirm <1>{{count}} new order</1>',
+            other: 'Confirm <1>{{count}} new orders</1>',
+        },
+        attentionNeeded: 'Attention needed for <1>{{display}}</1>',
+        lowOnStock: '<1>{{name}}</1> is low on stock ({{current_stock}} {{unit}})',
+    },
+        liveVenueCard: {
+        title: 'The Watchtower',
+        fullViewButton: 'Full View',
+        noLayoutTitle: 'No Venue Layout Found',
+        noLayoutSubtitle: 'Go to the <1>Venue Designer</1> to create one.',
+    },
+        productMoversCard: {
+        title: 'Today\'s Hot Sheet',
+        periodToday: 'Today',
+        periodWeek: 'Week',
+        periodMonth: 'Month',
+        topItemsTitle: 'Top 5 Selling Items',
+        bottomItemsTitle: 'Bottom 5 Selling Items',
+        noData: 'No data for this period.',
+    },
+        vsYesterdayComparison: 'vs {{value}} yesterday',
+        avgSpendPerGuest: 'Avg. Spend / Guest',
+        
+        businessSwitcher: {
+        switching: 'Switching...',
+        yourBusinesses: 'Your Businesses',
+        loading: 'Loading...',
+        failedToLoad: 'Failed to load.',
+        createNewBusiness: 'Create New Business',
+        upgradePlanTooltip: 'Upgrade your plan to add more businesses.',
+        switchSuccessToast: 'Switched business successfully!',
+        switchErrorToast: 'Could not switch business.',
+    },
+        subscriptionBadge: {
+        // Toasts
+        redirectingToast: 'Redirecting to billing portal...',
+        portalErrorToast: 'Could not access the billing portal. Please try again later.',
+        
+        // Badge States
+        planError: 'Plan Error',
+        choosePlan: '+ Choose Plan',
+        cancelsOn: 'Cancels {{date}}',
+        actionRequired: 'Action Required',
+        trialEndsToday: 'Trial: Ends Today',
+        trialDaysLeft: 'Trial: {{days}}d left',
+        growthPlan: 'Growth Plan',
+        premiumPlan: 'Premium Plan',
+        starterPlan: 'Starter Plan',
+        managePlan: 'Manage Plan',
+    },
+};

@@ -4,6 +4,7 @@ import Icon from '../../../../components/common/Icon';
 import AnimatedNumber from '../../../../components/animated_number/number_components/AnimatedNumber';
 import { format } from 'date-fns';
 import useThrottledValue from '../../../../hooks/useThrottledValue';
+import sl from '../utils/script_lines';
 
 const ClientTooltip = ({
     tooltip = {},
@@ -11,6 +12,13 @@ const ClientTooltip = ({
     timeRange = { startHour: 8, endHour: 16 },
 }) => {
     const value = useThrottledValue(Math.round(tooltip.value * (maxValue / 100)), 100);
+    const tooltipStrings = sl.heatmap.clientTooltip;
+
+    // The i18n manager will convert this to t('...', { count: value })
+    // For now, we simulate the logic.
+    const clientLabel = (value === 1)
+        ? (tooltipStrings.clients.one || 'client')
+        : (tooltipStrings.clients.other || 'clients');
 
     return (
         <motion.div
@@ -42,7 +50,9 @@ const ClientTooltip = ({
                                 easing="easeOut"
                             />
                             <div className='h-full flex flex-col justify-end items-end'>
-                                <span className="text-xs font-montserrat font-semibold text-gray-500 dark:text-gray-400">clients</span>
+                                <span className="text-xs font-montserrat font-semibold text-gray-500 dark:text-gray-400">
+                                    {clientLabel}
+                                </span>
                             </div>
                         </div>
                     </div>

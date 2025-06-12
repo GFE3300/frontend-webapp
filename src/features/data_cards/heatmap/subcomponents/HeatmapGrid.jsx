@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { motion } from 'framer-motion';
 import Cell from './Cell';
+import sl from '../utils/script_lines';
 
 const DEFAULT_ROW_HEADER_WIDTH = 50;
 const DEFAULT_GAP = 5;
@@ -32,7 +33,7 @@ const HeatmapGrid = React.memo(({
     maxValue = 0,
     findGroupIndex
 }) => {
-
+    const gridStrings = sl.heatmap.heatmapGrid;
     // console.log('HeatmapGrid render', size);
     const rowCount = rowLabels.length;
     const colCount = colLabels.length;
@@ -67,7 +68,7 @@ const HeatmapGrid = React.memo(({
                     height: totalHeight,
                 }}
                 role="grid"
-                aria-label="Data heatmap grid"
+                aria-label={gridStrings.ariaLabel || 'Data heatmap grid'}
             >
                 {rowLabels.map((rowLabel, rowIdx) => {
 
@@ -138,7 +139,6 @@ const HeatmapGrid = React.memo(({
                                                     height: cellHeight,
                                                     flex: `0 0 ${cellWidth}px`,
                                                 }}
-                                                aria-label={`${rowLabel} - ${colLabels[colIdx]}: ${data[rowIdx]?.[colIdx] || 0}%`}
                                             />
                                         </motion.div>
                                     );
