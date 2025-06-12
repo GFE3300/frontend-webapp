@@ -3,40 +3,38 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import apiService from '../../../services/api';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
-import i18n from '../../../i18n';
 
 /**
- * A custom mutation hook for updating the current user's profile.
- * It handles the API call, global state updates via AuthContext,
- * toast notifications, and language switching.
+ * A custom mutation hook for updating the user's profile.
+ * It handles the API call, and upon success, immediately triggers a full
+ * session refresh to get new tokens with the updated user data.
  * @param {object} [options={}] - Optional TanStack Query mutation options.
  * @returns {import('@tanstack/react-query').UseMutationResult}
  */
 export const useUpdateProfile = (options = {}) => {
-    // Get the global state updater function from AuthContext.
-    const { updateUser } = useAuth();
+    // MODIFIED: We now get `login` from AuthContext.
+    // The backend's response will contain everything needed.
+    const { login } = useAuth();
     const { addToast } = useToast();
 
     return useMutation({
         mutationFn: (userData) => {
-            // This API call sends a PATCH request to update the user's details.
+            // Send the PATCH request to update user details in the database.
+            // The backend will now respond with new tokens.
             return apiService.updateCurrentUser(userData);
         },
-        onSuccess: (response, variables, context) => {
-            const updatedUser = response.data;
-
-            // CRITICAL FIX: Update the global user state in AuthContext.
-            // This immediately propagates changes to all subscribed components,
-            // such as the main dashboard header avatar and name.
-            updateUser(updatedUser);
-
+        onSuccess: async (response, variables, context) => {
             addToast("Profile updated successfully!", "success");
 
-            // If the language was part of the update, change the app's language.
-            // This ensures the UI language matches the user's new preference.
-            if (variables.language && i18n.language !== variables.language) {
-                i18n.changeLanguage(variables.language)
-                    .catch(err => console.error("i18n: Failed to change language on profile update.", err));
+            // --- THE CORRECT AND FINAL FIX ---
+            const { access, refresh } = response.data;
+            if (access && refresh) {
+                // Use the centralized login function to update the entire auth state
+                // with the new tokens. This is the single source of truth.
+                await login(access, refresh);
+            } else {
+                console.error("Profile update succeeded but did not receive new tokens.");
+                addToast("Profile updated, but session may be out of sync.", "warning");
             }
 
             // Allow the calling component to perform additional actions on success.
@@ -45,7 +43,7 @@ export const useUpdateProfile = (options = {}) => {
             }
         },
         onError: (error, variables, context) => {
-            // Use a centralized error handler for consistent user feedback.
+            // This handles errors from the initial PATCH request.
             const errorMessage = getErrorMessage(error, "Failed to update profile. Please try again.");
             addToast(errorMessage, "error");
             console.error("Profile update error:", error);
@@ -54,7 +52,6 @@ export const useUpdateProfile = (options = {}) => {
                 options.onError(error, variables, context);
             }
         },
-        // Spread any other options passed from the component.
         ...options
     });
 };

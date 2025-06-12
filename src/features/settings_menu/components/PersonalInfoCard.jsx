@@ -13,6 +13,7 @@ import InputField from '../../../components/common/InputField';
 import Button from '../../../components/common/Button';
 import { Dropdown } from '../../register/subcomponents';
 import ProfileImageUploader from './ProfileImageUploader';
+import Spinner from '../../../components/common/Spinner';
 
 const PersonalInfoCard = ({ user }) => {
     // --- State Management ---
@@ -24,7 +25,6 @@ const PersonalInfoCard = ({ user }) => {
     });
     const [profileImageFile, setProfileImageFile] = useState(null);
 
-    // THE FIX: Add a state flag to track if the initial data sync has occurred.
     const [isDataSynced, setIsDataSynced] = useState(false);
 
     // --- Hooks ---
@@ -35,7 +35,7 @@ const PersonalInfoCard = ({ user }) => {
     const uploadImageMutation = useMutation({
         mutationFn: (imageFile) => apiService.uploadUserProfileImage(imageFile),
         onSuccess: (response) => {
-            updateUser(response.data);
+            updateUser({ profile_image_url: response.data.profile_image_url });
             setProfileImageFile(null);
             addToast("Profile picture updated!", "success");
         },
@@ -43,25 +43,25 @@ const PersonalInfoCard = ({ user }) => {
     });
 
     // --- Data Synchronization ---
-    // This effect now reliably populates the state and then flags that it's safe to render the inputs.
     useEffect(() => {
-        if (user && !isDataSynced) { // Only run the sync logic once when user data arrives.
+
+        if (user && !isDataSynced) {
             setFormData({
-                first_name: user.first_name || '',
-                last_name: user.last_name || '',
+                first_name: user.firstName || '',
+                last_name: user.lastName || '',
                 phone: user.phone || '',
                 language: user.language || 'en'
             });
-            setIsDataSynced(true); // Mark data as synced.
+            setIsDataSynced(true);
         }
-    }, [user, isDataSynced]); // Depend on user and the sync flag.
+    }, [user, isDataSynced]);
 
     // --- Derived State for UI Logic ---
     const hasDataChanges = useMemo(() => {
         if (!user) return false;
         return (
-            formData.first_name !== (user.first_name || '') ||
-            formData.last_name !== (user.last_name || '') ||
+            formData.first_name !== (user.firstName || '') ||
+            formData.last_name !== (user.lastName || '') ||
             formData.phone !== (user.phone || '') ||
             formData.language !== (user.language || 'en')
         );
@@ -77,14 +77,23 @@ const PersonalInfoCard = ({ user }) => {
     const handleSaveChanges = () => {
         const payload = {};
         if (hasDataChanges) {
-            if (formData.first_name !== (user.first_name || '')) payload.first_name = formData.first_name;
-            if (formData.last_name !== (user.last_name || '')) payload.last_name = formData.last_name;
+            if (formData.first_name !== (user.firstName || '')) payload.first_name = formData.first_name;
+            if (formData.last_name !== (user.lastName || '')) payload.last_name = formData.last_name;
             if (formData.phone !== (user.phone || '')) payload.phone = formData.phone;
             if (formData.language !== (user.language || 'en')) payload.language = formData.language;
         }
-        if (Object.keys(payload).length > 0) updateProfileMutation.mutate(payload);
-        if (profileImageFile) uploadImageMutation.mutate(profileImageFile);
-        if (Object.keys(payload).length === 0 && !profileImageFile) addToast("No changes to save.", "info");
+
+        if (Object.keys(payload).length > 0) {
+            updateProfileMutation.mutate(payload);
+        }
+
+        if (profileImageFile) {
+            uploadImageMutation.mutate(profileImageFile);
+        }
+
+        if (Object.keys(payload).length === 0 && !profileImageFile) {
+            addToast("No changes to save.", "info");
+        }
     };
 
     const languageOptions = [{ value: 'en', label: 'English' }, { value: 'es', label: 'Español (Spanish)' }, { value: 'pt', label: 'Português (Portuguese)' }];
@@ -100,7 +109,7 @@ const PersonalInfoCard = ({ user }) => {
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 w-full text-center">Your Photo</label>
                     <ProfileImageUploader initialSrc={user?.profile_image_url} onImageUpload={setProfileImageFile} />
                 </div>
-                {/* THE FIX: Conditionally render the form inputs only after data is synced. */}
+                {/* THE FIX: Show a loading state until the form is synced with user data */}
                 <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-6">
                     {isDataSynced ? (
                         <>
@@ -113,10 +122,8 @@ const PersonalInfoCard = ({ user }) => {
                             <Dropdown label="Language" value={formData.language} onChange={handleLanguageChange} options={languageOptions} />
                         </>
                     ) : (
-                        // Optional: Show a lightweight skeleton loader while waiting for the sync.
-                        <div className="sm:col-span-2 space-y-6 animate-pulse">
-                            <div className="h-9 bg-neutral-200 dark:bg-neutral-700 rounded-full"></div>
-                            <div className="h-9 bg-neutral-200 dark:bg-neutral-700 rounded-full"></div>
+                        <div className="sm:col-span-2 flex items-center justify-center h-full">
+                            <Spinner />
                         </div>
                     )}
                 </div>

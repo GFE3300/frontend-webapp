@@ -6,13 +6,9 @@ import i18n from '../i18n';
 
 const AuthContext = createContext(null);
 
-/**
- * Creates a normalized user object from a decoded JWT payload.
- * @param {object} decodedToken - The payload from jwt-decode.
- * @returns {object} A structured user object for the AuthContext state.
- */
 const createUserObjectFromToken = (decodedToken) => {
     if (!decodedToken) return null;
+
     return {
         id: decodedToken.user_id,
         email: decodedToken.email,
@@ -26,9 +22,9 @@ const createUserObjectFromToken = (decodedToken) => {
         is_superuser: decodedToken.is_superuser || false,
         activeBusinessCurrency: decodedToken.active_business_currency || 'EUR',
         profile_image_url: decodedToken.profile_image_url || null,
+
     };
 };
-
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -57,35 +53,58 @@ export const AuthProvider = ({ children }) => {
         console.log("Client-side logout completed.");
     }, []);
 
-    const updateUser = useCallback((updatedFields) => {
-        setUser(prevUser => (prevUser ? { ...prevUser, ...updatedFields } : null));
-    }, []);
-
     const login = useCallback(async (newAccessToken, newRefreshToken) => {
         localStorage.setItem('accessToken', newAccessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
 
         const decodedToken = jwtDecode(newAccessToken);
+        const userObject = createUserObjectFromToken(decodedToken);
 
         if (apiInstance?.defaults?.headers?.common) {
             apiInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         }
 
-        const userObject = createUserObjectFromToken(decodedToken);
         setAccessToken(newAccessToken);
         setRefreshToken(newRefreshToken);
         setUser(userObject);
 
-        // Sync language
         if (userObject.language && i18n.language !== userObject.language) {
             await i18n.changeLanguage(userObject.language);
         }
     }, []);
 
+    const updateUser = useCallback((updatedFields) => {
+        setUser(prevUser => (prevUser ? { ...prevUser, ...updatedFields } : null));
+    }, []);
+
+    const refreshSession = useCallback(async () => {
+        console.log("AuthContext: Attempting to refresh session to get new token...");
+        const currentRefreshToken = localStorage.getItem('refreshToken');
+        if (!currentRefreshToken) {
+            console.error("AuthContext.refreshSession: No refresh token available.");
+            throw new Error("No refresh token available.");
+        }
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/'}auth/refresh/`,
+                { refresh: currentRefreshToken }
+            );
+            const newAccessToken = response.data.access;
+            const newRefreshToken = response.data.refresh || currentRefreshToken;
+
+            await login(newAccessToken, newRefreshToken);
+            console.log("AuthContext: Session refreshed successfully.");
+            return true;
+        } catch (error) {
+            console.error("AuthContext.refreshSession: Failed to refresh token.", error);
+            await performLogoutOperations(false);
+            throw error;
+        }
+    }, [login, performLogoutOperations]);
+
     useEffect(() => {
         const initializeAuth = async () => {
             const storedAccessToken = localStorage.getItem('accessToken');
-            const storedRefreshToken = localStorage.getItem('refreshToken');
 
             if (storedAccessToken) {
                 try {
@@ -93,39 +112,11 @@ export const AuthProvider = ({ children }) => {
                     const isExpired = decodedToken.exp * 1000 < Date.now();
 
                     if (!isExpired) {
-                        const userObject = createUserObjectFromToken(decodedToken);
-                        setUser(userObject);
-
-                        // Sync language
-                        if (userObject.language && i18n.language !== userObject.language) {
-                            await i18n.changeLanguage(userObject.language);
-                        }
-
-                        if (apiInstance?.defaults?.headers?.common) {
-                            apiInstance.defaults.headers.common['Authorization'] = `Bearer ${storedAccessToken}`;
-                        }
-                        setAccessToken(storedAccessToken);
-                        setRefreshToken(storedRefreshToken);
+                        // For initial load, just use the existing login logic
+                        await login(storedAccessToken, localStorage.getItem('refreshToken'));
                     } else {
-                        if (storedRefreshToken) {
-                            console.log("Access token expired, attempting refresh on init...");
-                            try {
-                                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/'}auth/refresh/`, {
-                                    refresh: storedRefreshToken,
-                                });
-                                const newAccessToken = response.data.access;
-                                const newRefreshTokenIfRotated = response.data.refresh || storedRefreshToken;
-
-                                // Use the login function to set state correctly
-                                await login(newAccessToken, newRefreshTokenIfRotated);
-
-                            } catch (refreshError) {
-                                console.error("Token refresh failed on init:", refreshError);
-                                await performLogoutOperations(false);
-                            }
-                        } else {
-                            await performLogoutOperations(false);
-                        }
+                        console.log("Access token expired, attempting refresh on init...");
+                        await refreshSession();
                     }
                 } catch (e) {
                     console.error("Error processing token on init (invalid token?):", e);
@@ -136,7 +127,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         initializeAuth();
-    }, [performLogoutOperations, login]);
+    }, [login, performLogoutOperations, refreshSession]); // login is a dependency now
 
     const logout = async () => {
         await performLogoutOperations(true);
@@ -147,13 +138,11 @@ export const AuthProvider = ({ children }) => {
             const response = await apiService.switchBusiness(businessId);
             const { access, refresh } = response.data;
             if (access && refresh) {
-                // Re-use the existing login flow to update tokens and user state
                 await login(access, refresh);
                 return true;
             }
         } catch (error) {
             console.error("Failed to switch business:", error);
-            // Propagate the error so the UI can handle it (e.g., show a toast)
             throw error;
         }
         return false;
@@ -168,6 +157,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         updateUser,
         switchBusiness,
+        refreshSession,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

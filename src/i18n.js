@@ -5,6 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // Import translation files
 import translationEN from './locales/en/translation.json';
 import translationES from './locales/es/translation.json';
+import translationPT from './locales/pt/translation.json';
 
 const resources = {
     en: {
@@ -13,29 +14,27 @@ const resources = {
     es: {
         translation: translationES,
     },
+    pt: {
+        translation: translationPT,
+    },
 };
 
 i18n
-    // Detect user language
-    // Learn more: https://github.com/i18next/i18next-browser-languageDetector
     .use(LanguageDetector)
-    // Pass the i18n instance to react-i18next.
     .use(initReactI18next)
-    // Init i18next
-    // For all options read: https://www.i18next.com/overview/configuration-options
     .init({
         resources,
         fallbackLng: 'en',
-        debug: import.meta.env.DEV, // Enable debug output in development
+
+        supportedLngs: ['en', 'es', 'pt'],
+        debug: import.meta.env.DEV,
 
         interpolation: {
-            escapeValue: false, // React already safes from xss
+            escapeValue: false,
         },
 
         detection: {
-            // Order and from where user language should be detected
             order: ['localStorage', 'cookie', 'navigator', 'htmlTag'],
-            // Cache user language in localStorage and cookies
             caches: ['localStorage', 'cookie'],
         },
     });
@@ -43,5 +42,4 @@ i18n
 export default i18n;
 
 export const t = (key, options) => i18n.t(key, options);
-
 export const interpolate = (key, options) => i18n.t(key, options);
