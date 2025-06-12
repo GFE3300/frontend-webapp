@@ -1,0 +1,2271 @@
+{
+  "add_product_modal": {
+    "addProductModal_errorFetchingTemplate": "Erro ao obter o modelo do produto:",
+    "addProductModal_error_activeBusinessMissing": "Falta um contexto empresarial ativo.",
+    "addProductModal_error_apiErrorDefault": "Ocorreu um erro de API.",
+    "addProductModal_error_categoryCreationFailed": "A criação da categoria falhou: {errorMessage}",
+    "addProductModal_error_couldNotLoadData": "Não foi possível carregar dados essenciais.",
+    "addProductModal_error_failedToAddProduct": "Falha ao adicionar o produto.",
+    "addProductModal_error_failedToCreateCategory": "Falha ao criar a categoria.",
+    "addProductModal_error_failedToCreateTag": "Falha na criação da etiqueta.",
+    "addProductModal_error_failedToUpdateProduct": "Falha na atualização do produto.",
+    "addProductModal_error_invalidStep": "Erro: Passo inválido.",
+    "addProductModal_error_tagCreationFailed": "A criação da etiqueta falhou: {errorMessage}",
+    "addProductModal_error_tryClosingModal": "Tente fechar e reabrir o modal.",
+    "addProductModal_header_placeholderEdit": "Editar nome do produto...",
+    "addProductModal_header_placeholderNew": "Introduzir o nome do produto...",
+    "addProductModal_loading_fetchingSettings": "Obtenção das definições e modelos mais recentes.",
+    "addProductModal_loading_initialDataError": "Erro ao carregar os dados iniciais: {errorMessage}",
+    "addProductModal_loading_preparingForm": "Preparar o formulário do produto...",
+    "addProductModal_loading_productSetup": "A carregar a configuração do produto...",
+    "addProductModal_noTemplateFound": "Nenhum modelo de produto encontrado (404). Reiniciar o formulário.",
+    "addProductModal_toast_imageRemoveFailed": "Os dados do produto foram guardados, mas a remoção da imagem falhou: {errorMessage}",
+    "addProductModal_toast_imageRemoved": "Imagem removida.",
+    "addProductModal_toast_imageUploadFailed": "Os dados do produto foram guardados, mas o carregamento da imagem falhou: {errorMessage}",
+    "addProductModal_toast_imageUploaded": "A imagem foi carregada com sucesso.",
+    "addProductModal_toast_productAdded": "Produto adicionado com sucesso!",
+    "addProductModal_toast_productUpdated": "Produto atualizado com sucesso!",
+    "appliedDiscountRow_defaultDescription": "Código de desconto geral",
+    "appliedDiscountRow_percentageLabel": "Percentagem de desconto",
+    "appliedDiscountRow_percentagePlaceholder": "por exemplo, 10",
+    "appliedDiscountRow_remove_ariaLabel": "Remover desconto {discountName}",
+    "appliedDiscountRow_remove_title": "Remover {discountName}",
+    "appliedDiscountsManagerListHeaderPattern": "Descontos aplicados ({count}):",
+    "appliedDiscountsManagerNoDiscountsPrimary": "Ainda não foram aplicados descontos a este produto.",
+    "appliedDiscountsManagerNoDiscountsSecondary": "Selecione um código acima ou crie um novo código.",
+    "ariaEditLabelInfix": ". Valor atual:",
+    "ariaEditLabelValueEmpty": "vazio",
+    "attributeGroup_addOptionButton": "Adicionar opção",
+    "attributeGroup_error_invalidGroupData": "Erro: Dados de grupo de atributos inválidos.",
+    "attributeGroup_error_missingGroupIndex": "Erro: Índice de grupo em falta.",
+    "attributeGroup_error_missingHandler": "Erro: Manipulador crítico em falta: {handlerName}.",
+    "attributeGroup_groupNameLabel": "Nome do grupo de atributos",
+    "attributeGroup_groupNamePlaceholder": "Por exemplo, tamanho, opções de leite",
+    "attributeGroup_groupName_ariaLabel": "Nome do grupo de atributos {groupNumber}",
+    "attributeGroup_groupName_srLabel": "Grupo de atributos: {groupNameOrNumber}",
+    "attributeGroup_optionsForGroupTitle": "Opções para \"{groupName}\"",
+    "attributeGroup_optionsForThisGroupTitle": "Opções para este grupo",
+    "attributeGroup_removeGroupButton_ariaLabel": "Remover grupo de atributos {groupNameOrNumber}",
+    "attributeGroup_removeGroupButton_mobileText": "Remover grupo",
+    "attributeGroup_requiredLabel": "Necessário",
+    "attributeGroup_required_ariaLabel": "O grupo de atributos {groupNumber} é obrigatório",
+    "attributeGroup_typeLabel": "Tipo de atributo",
+    "attributeGroup_type_ariaLabel": "Tipo de grupo de atributos {groupNumber}",
+    "attributeGroup_type_multiSelectLabel": "Seleção múltipla (por exemplo, caixas de verificação)",
+    "attributeGroup_type_singleSelectLabel": "Seleção única (por exemplo, botões de rádio)",
+    "categoryDropdownButtonCreate": "Criar categoria",
+    "categoryDropdownColorLabel": "Categoria Cor",
+    "categoryDropdownCreateNewActionLabel": "Criar nova categoria...",
+    "categoryDropdownErrorNameEmpty": "O nome da categoria não pode estar vazio.",
+    "categoryDropdownErrorNameExists": "Já existe uma categoria com este nome.",
+    "categoryDropdownNewNamePlaceholder": "Novo nome de categoria",
+    "categoryDropdownPlaceholder": "Selecionar ou criar categoria",
+    "categoryDropdown_categoryCreatedSuccess": "Categoria criada com sucesso!",
+    "charCountOverLimitSuffix": "sobre",
+    "charCountRemainingPlural": "caracteres restantes",
+    "charCountRemainingSingular": "carácter restante",
+    "colorAmber": "Âmbar",
+    "colorBlue": "Azul",
+    "colorCyan": "Ciano",
+    "colorEmerald": "Esmeralda",
+    "colorFuchsia": "Fúcsia",
+    "colorGreen": "Verde",
+    "colorIndigo": "Índigo",
+    "colorLime": "Cal",
+    "colorNeutral": "Neutro",
+    "colorOrange": "Laranja",
+    "colorPalette": {
+      "selectColorPrefix": "Selecionar a cor:"
+    },
+    "colorPink": "Cor-de-rosa",
+    "colorPurple": "Púrpura",
+    "colorRed": "Vermelho",
+    "colorRose": "Rosa",
+    "colorSky": "Céu",
+    "colorTeal": "Azul-petróleo",
+    "colorViolet": "Violeta",
+    "colorYellow": "Amarelo",
+    "common_closeModal_ariaLabel": "Fechar modal",
+    "createDiscountCodeModal": {
+      "closeButtonLabel": "Fechar o modal de criação de desconto",
+      "codeNameHelpText": "Código único, {minLength}-{maxLength} chars. Os clientes utilizá-lo-ão.",
+      "codeNameLabel": "Nome do código de desconto",
+      "codeNamePlaceholder": "por exemplo, SUMMER2024",
+      "createButtonText": "Criar desconto",
+      "descriptionHelpText": "Para sua referência, não mostrado aos clientes.",
+      "descriptionLabel": "Descrição interna",
+      "descriptionPlaceholder": "Por exemplo, campanha de verão 2024, todos os produtos",
+      "discountTypeHelpText": "Determina como o valor do desconto é interpretado.",
+      "discountTypeLabel": "Tipo de desconto (para este código mestre)",
+      "discountTypePercentageLabel": "Percentagem de desativação (%)",
+      "discountValueHelpTextAmount": "Montante fixo geral para este código.",
+      "discountValueHelpTextPercentage": "Percentagem geral para este código. Pode ser ajustada por produto.",
+      "discountValueLabelAmount": "Montante de desconto por defeito",
+      "discountValueLabelPercentage": "Percentagem de desconto por defeito",
+      "errorCodeNameExists": "Este nome de código de desconto já existe.",
+      "errorCodeNameMaxLength": "O código deve ter no máximo {maxLength} caracteres.",
+      "errorCodeNameMinLength": "O código deve ter pelo menos {minLength} caracteres.",
+      "errorConsoleFailedCreate": "Falha ao criar o desconto:",
+      "errorDescriptionMaxLength": "A descrição deve ter no máximo {maxLength} caracteres.",
+      "errorDiscountPercentageMax": "A percentagem não pode exceder 100.",
+      "errorDiscountValuePositive": "O valor do desconto deve ser positivo.",
+      "errorDiscountValueRequired": "É necessário um valor de desconto válido.",
+      "errorRequired": "{fieldName} é necessário.",
+      "title": "Criar novo desconto principal"
+    },
+    "createNewIngredientModal_button_createItem": "Criar item",
+    "createNewIngredientModal_button_creating": "Criar...",
+    "createNewIngredientModal_costPerBaseUnitHelpText": "Introduzir o custo de uma unidade de base ({baseUnit}) deste artigo.",
+    "createNewIngredientModal_costPerBaseUnitLabel": "Custo por {baseUnit}",
+    "createNewIngredientModal_costPerBaseUnitPlaceholder_EUR": "por exemplo, 0,02 (para EUR)",
+    "createNewIngredientModal_costPerBaseUnitPlaceholder_USD": "por exemplo, 0,02 (para USD)",
+    "createNewIngredientModal_defaultUnitLabel": "Unidade por defeito (para este item)",
+    "createNewIngredientModal_defaultUnitPlaceholder": "Selecionar unidade...",
+    "createNewIngredientModal_error_costRequired": "É necessário um custo válido (por exemplo, 0,05 ou 0).",
+    "createNewIngredientModal_error_creationFailed": "Falha ao criar o ingrediente. Por favor, tente novamente.",
+    "createNewIngredientModal_error_defaultUnitRequired": "A unidade predefinida para este item é necessária.",
+    "createNewIngredientModal_error_measurementTypeRequired": "É necessário o tipo de medição primária.",
+    "createNewIngredientModal_error_nameExists": "Já existe um ingrediente com este nome.",
+    "createNewIngredientModal_error_nameRequired": "O nome do ingrediente é obrigatório.",
+    "createNewIngredientModal_itemNameLabel": "Nome do item de inventário",
+    "createNewIngredientModal_itemNamePlaceholder": "Por exemplo, farinha de amêndoa biológica, leite gordo",
+    "createNewIngredientModal_measurementTypeLabel": "Tipo de medição primária",
+    "createNewIngredientModal_measurementTypePlaceholder": "Selecionar o tipo...",
+    "createNewIngredientModal_measurementType_mass": "Massa (por exemplo, g, kg, oz, lb)",
+    "createNewIngredientModal_measurementType_pieces": "Peças (por exemplo, pcs, unidade, fatia)",
+    "createNewIngredientModal_measurementType_volume": "Volume (por exemplo, ml, L, colher de chá, chávena)",
+    "createNewIngredientModal_title": "Criar novo item de inventário",
+    "currencySymbol_EUR": "€",
+    "customTagModal_chooseIconLabel": "Escolher um ícone (opcional)",
+    "customTagModal_createTagButton": "Criar etiqueta",
+    "customTagModal_error_nameEmpty": "O nome da etiqueta não pode estar vazio.",
+    "customTagModal_error_nameExists": "Já existe uma etiqueta com o nome \"{tagName}\".",
+    "customTagModal_tagCreatedSuccess": "Tag criada com sucesso!",
+    "customTagModal_tagNameLabel": "Nome do dia",
+    "customTagModal_tagNamePlaceholder": "por exemplo, Sem açúcar, Escolha da equipa",
+    "customTagModal_title": "Criar etiqueta personalizada",
+    "discountCodeSelector_createNew": "Criar novo código de desconto",
+    "discountCodeSelector_label": "Adicionar código de desconto a este produto",
+    "discountCodeSelector_noMatch": "Não foram encontrados códigos correspondentes.",
+    "discountCodeSelector_placeholder": "Pesquise códigos existentes ou crie novos...",
+    "errorMissingOnSave": "Erro: Configuração incorrecta do componente. Não é possível guardar a entrada.",
+    "errorMissingOnSaveTitle": "Componente mal configurado: falta o manipulador onSave",
+    "error_additionalNotes_maxLength": "Notas demasiado longas (máx. 500 caracteres).",
+    "error_appliedDiscount_masterId_required": "É necessária uma identificação de desconto principal.",
+    "error_appliedDiscount_overridePercentage_max": "Máximo 100",
+    "error_appliedDiscount_overridePercentage_min": "Mínimo 0%",
+    "error_appliedDiscount_overridePercentage_type": "A percentagem de substituição deve ser um número.",
+    "error_attributeGroupName_maxLength": "Nome do grupo demasiado longo (máx. 50 caracteres).",
+    "error_attributeGroupName_required": "O nome do grupo de atributos é obrigatório.",
+    "error_attributeOptions_maxLength": "Máximo de 20 opções por grupo.",
+    "error_attributeOptions_minLength": "É necessária pelo menos uma opção para um grupo de atributos.",
+    "error_attributeType_required": "O tipo de seleção é necessário.",
+    "error_category_required": "A categoria é obrigatória.",
+    "error_description_maxLength": "Descrição demasiado longa (máx. 1000 caracteres).",
+    "error_editableAttributes_maxLength": "É permitido um máximo de 5 grupos de atributos.",
+    "error_laborCost_min": "O custo não pode ser negativo.",
+    "error_laborCost_type": "O custo deve ser um número.",
+    "error_optionName_maxLength": "Nome da opção demasiado longo (máx. 50 caracteres).",
+    "error_optionName_required": "O nome da opção é obrigatório.",
+    "error_priceAdjustment_type": "O ajustamento de preços deve ser um número.",
+    "error_productAttributes_maxLength": "São permitidas, no máximo, 10 etiquetas.",
+    "error_productName_maxLength": "Nome demasiado longo (máx. 100 caracteres).",
+    "error_productName_required": "O nome do produto é obrigatório.",
+    "error_productType_required": "O tipo de produto é obrigatório.",
+    "error_recipeComponent_inventoryItem_required": "É necessário um item de ingrediente.",
+    "error_recipeComponent_quantity_min": "A quantidade deve ser positiva.",
+    "error_recipeComponent_quantity_required": "É necessária uma quantidade.",
+    "error_recipeComponent_quantity_type": "A quantidade deve ser um número.",
+    "error_recipeComponent_unit_maxLength": "Unidade demasiado longa (máx. 20 caracteres).",
+    "error_recipeComponent_unit_required": "A unidade é necessária.",
+    "error_recipeComponents_maxLength_resold": "Os artigos revendidos não podem ter ingredientes.",
+    "error_recipeComponents_minLength_madeInHouse": "É necessário pelo menos um ingrediente para os produtos fabricados internamente.",
+    "error_recipeYields_integer_madeInHouse": "O rendimento deve ser um número inteiro.",
+    "error_recipeYields_min_madeInHouse": "O rendimento deve ser de pelo menos 1.",
+    "error_recipeYields_required_madeInHouse": "É necessário o rendimento da receita.",
+    "error_recipeYields_type_madeInHouse": "O rendimento deve ser um número.",
+    "error_sellingPrice_min": "O preço não pode ser negativo.",
+    "error_sellingPrice_required": "O preço de venda é obrigatório.",
+    "error_sellingPrice_type": "O preço deve ser um número.",
+    "error_subtitle_maxLength": "Subtítulo demasiado longo (máx. 150 caracteres).",
+    "error_unknownValidation": "Ocorreu um erro de validação desconhecido.",
+    "iconPickerAriaLabel": "Selecionar um ícone",
+    "iconPickerErrorDataMissing": "Os dados do ícone estão em falta ou são inválidos.",
+    "iconPickerErrorInvalidStructure": "Estrutura de dados de ícones inválida.",
+    "iconPickerErrorhandlerMissing": "O manipulador de seleção de ícones está em falta.",
+    "label": "Descrição",
+    "modalError_criticalHandlersMissing": "Erro Modal: Faltam manipuladores críticos.",
+    "modalError_inventoryDataMissing": "Erro Modal: Faltam dados de inventário.",
+    "modalFooterCreateProductButton": "Criar produto",
+    "modalFooterValidatingButton": "Validação...",
+    "modalHeader": {
+      "labelEditModePrefix": "Edição:"
+    },
+    "modalStepIndicator_aria_currentStep": "{stepName}, etapa atual",
+    "modalStepIndicator_aria_goToStep": "Ir para {stepName}",
+    "modalStepIndicator_nav_ariaLabel": "Etapas de criação do produto",
+    "modalStepIndicator_step_attributes": "Atributos",
+    "modalStepIndicator_step_basics": "Noções básicas",
+    "modalStepIndicator_step_discounts": "Descontos",
+    "modalStepIndicator_step_ingredients": "Ingredientes",
+    "modalStepIndicator_step_pricing": "Preços",
+    "placeholder": "Informe os seus clientes sobre este produto...",
+    "placeholder2": "Introduzir o nome do produto",
+    "productFormStepButtonSaveChanges": "Guardar alterações",
+    "productFormStepErrorSummaryMore": "e {count} mais...",
+    "productFormStepErrorSummaryTitle": "Para continuar, corrija o seguinte:",
+    "productIdentifiers_addTagButton": "Adicionar etiqueta",
+    "productIdentifiers_addTag_ariaLabel": "Adicionar atributo ou etiqueta de produto personalizado",
+    "productIdentifiers_defaultLabel": "Atributos do produto",
+    "productIdentifiers_emptyState": "Ainda não existem atributos definidos. Clique em \"Adicionar etiqueta\" para criar uma.",
+    "productIdentifiers_error_invalidStructure": "Estrutura de dados de identificador inválida.",
+    "productIdentifiers_error_missingCreateHandler": "O manipulador de criação de etiquetas personalizadas está em falta.",
+    "productIdentifiers_error_missingData": "Os dados do identificador estão em falta ou são inválidos.",
+    "productIdentifiers_error_missingSelectedData": "Os dados dos identificadores selecionados estão em falta ou são inválidos.",
+    "productIdentifiers_error_missingToggleHandler": "O manipulador de alternância de identificador está em falta.",
+    "productImageUploaderButtonChange": "Alterar",
+    "productImageUploaderButtonRemove": "Remover",
+    "productImageUploaderButtonSaving": "Poupar...",
+    "productImageUploaderCropAreaAriaLabel": "Área de corte da imagem",
+    "productImageUploaderCropImageAlt": "Imagem a recortar",
+    "productImageUploaderDropzoneAriaLabel": "Zona de largada de imagens: Clique ou arraste e largue uma imagem",
+    "productImageUploaderDropzoneMessageDefault": "Toque ou arraste a sua fotografia de alimentos",
+    "productImageUploaderDropzoneSubMessagePattern": "PNG, JPG, WEBP até {maxFileSizeMB}MB",
+    "productImageUploaderErrorCanvasToBlobFailed": "Falha no processamento da imagem (Canvas to Blob).",
+    "productImageUploaderErrorCouldNotLoadProductImage": "Não foi possível carregar a imagem do produto.",
+    "productImageUploaderErrorCouldNotSaveCrop": "Não foi possível guardar o corte. Selecione uma área de corte válida ou aguarde que a imagem seja carregada.",
+    "productImageUploaderErrorFailedToProcess": "Falha no processamento da imagem. Tente novamente.",
+    "productImageUploaderErrorFileNotAccepted": "Não foi possível aceitar este ficheiro. Por favor, tente outro.",
+    "productImageUploaderErrorFileTooLarge": "A fotografia é demasiado grande. Máximo {maxFileSizeMB}MB.",
+    "productImageUploaderErrorInvalidFileType": "Tipo de ficheiro inválido. Utilize JPG, PNG ou WEBP.",
+    "productImageUploaderErrorInvalidImageData": "Os dados da imagem são inválidos ou a imagem não pôde ser carregada. Tente uma imagem diferente.",
+    "productImageUploaderErrorReadingFile": "Erro ao ler o ficheiro. Por favor, tente novamente.",
+    "productImageUploaderErrorSavingDefault": "Por favor, tente novamente.",
+    "productImageUploaderErrorSavingGeneric": "Ocorreu um erro ao guardar: {errorMessage}",
+    "productImageUploaderFinalImageAlt": "Produto",
+    "productImageUploaderStatusPreparing": "Preparar a fotografia...",
+    "productName": "Nome do produto",
+    "recipeBuilderAddAnotherButton": "Adicionar outro ingrediente",
+    "recipeBuilderAddFirstButton": "Adicionar o primeiro ingrediente",
+    "recipeBuilderEmptySubtitle": "Adicione ingredientes para criar a receita do seu produto.",
+    "recipeBuilderEmptyTitle": "A receita está vazia",
+    "recipeBuilderErrorMisconfigured": "Erro: O Recipe Builder está mal configurado. Verifique a consola para obter detalhes.",
+    "recipeBuilderEstCostPrefix": "Est. Custo da receita:",
+    "recipeBuilderSubtitle": "Definir ingredientes para um lote. Arrastar para reordenar.",
+    "recipeBuilderTitle": "Ingredientes da receita",
+    "recipeComponentRow": {
+      "devErrorInvalidComponentProp": "RecipeComponentRow Dev Erro: Prop. `component` inválida.",
+      "devErrorInvalidIndexProp": "RecipeComponentRow Dev Erro: A propriedade `index` é obrigatória e tem de ser um número.",
+      "errorInvalidNewItem": "RecipeComponentRow: newItemFromBackend recebido do modal de criação é inválido.",
+      "estimatedCostLabel": "Est. Custo",
+      "estimatedCostNA": "N/A",
+      "ingredientLabel": "Ingrediente",
+      "ingredientPlaceholder": "Procurar ou criar um ingrediente...",
+      "ingredientSrLabelItemInfix": "Item",
+      "ingredientSrLabelPrefix": "Ingrediente da receita:",
+      "quantityAriaLabelPrefix": "Quantidade para",
+      "quantityLabel": "Quantidade",
+      "quantityPlaceholder": "por exemplo, 100",
+      "removeButtonAriaLabelPrefix": "Remover ingrediente",
+      "removeButtonTextSmallScreen": "Remover ingrediente",
+      "suggestionCreateNewPrefix": "Criar novo:",
+      "suggestionExactMatch": "Correspondência exacta selecionada.",
+      "suggestionNoIngredients": "Não existem ingredientes disponíveis. Comece a escrever para criar um.",
+      "suggestionNoMatch": "Não foram encontrados ingredientes correspondentes.",
+      "unitAriaLabelPrefix": "Unidade para",
+      "unitLabel": "Unidade",
+      "unitSelectIngredientFirst": "Selecionar primeiro o ingrediente",
+      "unitSelectPlaceholder": "Selecionar...",
+      "warnCostCalculation": "RecipeComponentRow Problema de cálculo de custos para {itemName}: QIB {quantityInBaseUnit}, Unidade de custo {costUnit}, Unidade de base prevista {expectedBaseUnit}"
+    },
+    "step1ImageErrorDefault": "Imagem inválida",
+    "step1SubtitleLabel": "Subtítulo do produto",
+    "step1SubtitlePlaceholder": "Por exemplo, cozinhado diariamente com ingredientes biológicos",
+    "step1TagsLabel": "Etiquetas/Atributos do produto",
+    "step2EditableAttributes": {
+      "addButtonText": "Adicionar grupo de atributos",
+      "emptyStateDescription": "Clique em \"Adicionar grupo de atributos\" para permitir que os clientes personalizem este produto.",
+      "emptyStateTitle": "Ainda não há personalizações",
+      "infoText": "Defina opções que os seus clientes podem escolher, como tamanho, sabor ou suplementos. Estes podem, opcionalmente, ajustar o preço.",
+      "sectionTitle": "Personalizações de produtos"
+    },
+    "step3_errorLoadingInventory": "Erro ao carregar o inventário: {errorMessage}",
+    "step3_loadingInventory": "Carregamento de artigos de inventário...",
+    "step3_productTypeLabel": "Tipo de produto*",
+    "step3_productType_madeInHouse": "Made In-House (Uses Recipe)",
+    "step3_productType_resoldItem": "Item revendido (estoque direto)",
+    "step3_recipeYieldsHelpText": "Quantas unidades deste produto são produzidas por esta receita?",
+    "step3_recipeYieldsLabel": "Rendimento da receita (unidades deste produto)",
+    "step3_recipeYieldsPlaceholder": "por exemplo, 1",
+    "step3_resoldItemInfo": "Para os artigos revendidos, o stock é gerido diretamente. O \"Custo de fabrico\" na etapa seguinte será o seu preço de compra.",
+    "step3_subtitle": "Especificar se este produto é fabricado internamente ou revendido. Isto afecta o cálculo do custo.",
+    "step3_title": "Fornecimento de produtos e receitas",
+    "step4CalcProfitMarginLabel": "Margem de lucro calculada:",
+    "step4CostBreakdownTitle": "Repartição dos custos",
+    "step4ErrorLoadingTaxRatesPattern": "Erro ao carregar as taxas de imposto: {errorMessage}",
+    "step4EstCostIngredientsLabel": "Custo estimado dos ingredientes:",
+    "step4FinalPriceLabel": "Preço de venda final (incluindo impostos):",
+    "step4LaborOverheadHelpText": "Custos adicionais para além das matérias-primas.",
+    "step4LaborOverheadLabelPattern": "Mão de obra, embalagem e despesas gerais ({currencySymbol})",
+    "step4LoadingTaxRates": "Carregamento de taxas de imposto...",
+    "step4MainSubtitle": "Defina o preço do seu produto, tendo em conta os custos e a margem de lucro desejada.",
+    "step4MainTitle": "Configuração de preços",
+    "step4ProfitPerUnitLabelPattern": "Lucro por unidade (antes de impostos): {currencySymbol}{profitAmount}",
+    "step4PurchaseCostHelpText": "O seu custo para adquirir este artigo revendido.",
+    "step4PurchaseCostLabelPattern": "Custo de aquisição ({currencySymbol})",
+    "step4SaveAsTemplateHelpText": "Se estiver selecionado, os detalhes deste produto serão pré-preenchidos no formulário da próxima vez que adicionar um novo produto. Apenas um produto pode ser o modelo ativo por empresa.",
+    "step4SaveAsTemplateLabel": "Utilize este produto como modelo para futuras criações",
+    "step4SellingPriceLabelPattern": "O seu preço de venda ({currencySymbol}) (excluindo impostos)",
+    "step4SellingPriceProfitTitle": "Preço de venda e lucro",
+    "step4TaxAmountLabelPattern": "Montante do imposto ({taxRate}%):",
+    "step4TaxRateLabel": "Taxa de imposto (aplicada ao preço de venda)",
+    "step4TaxRateNoTaxOption": "Sem impostos / com impostos incluídos",
+    "step4TaxationTitle": "Fiscalidade",
+    "step4TotalCalculatedCostLabel": "Custo total calculado:",
+    "step4WarningPriceBelowCost": "O preço de venda é inferior ao custo total calculado. Isto resultará numa perda.",
+    "step5DiscountsExtras": {
+      "additionalNotesLabel": "Notas internas ou informações adicionais",
+      "additionalNotesPlaceholder": "Por exemplo, manuseamento especial, informações sobre alergénios não abrangidas pelas etiquetas, notas de apresentação...",
+      "additionalNotesTitle": "Notas adicionais (facultativo)",
+      "errorBusinessContextMissing": "O seu contexto empresarial está em falta. Tente novamente ou contacte o suporte.",
+      "errorFailedCreateMasterCode": "Passo 5: Falha ao criar o código de desconto principal:",
+      "errorLoadingMasterCodesPrefix": "Erro ao carregar códigos de desconto:",
+      "errorLoadingMasterCodesTitle": "Erro ao carregar descontos",
+      "errorMissingBusinessId": "Passo 5: O ID comercial ativo está em falta. Não é possível criar um código de desconto.",
+      "loadingMasterCodes": "Carregando códigos de desconto...",
+      "mainDescription": "Aplicar descontos ou adicionar notas internas para este produto.",
+      "mainTitle": "Descontos e extras",
+      "productSpecificDiscountsTitle": "Descontos específicos para produtos",
+      "warnDiscountAlreadyApplied": "Código de desconto já aplicado a este produto."
+    },
+    "warnCannotSetSelection": "Não foi possível definir o intervalo de seleção na entrada: "
+  },
+  "dashboard": {
+    "dashboard": {
+      "actionItemsCard": {
+        "attentionNeeded": "Atenção necessária para <1>{{display}</1> }",
+        "confirmNewOrders_one": "Confirmar <1>{{count}</1> } <1> nova encomenda</1>",
+        "confirmNewOrders_other": "Confirmar <1>{{count}</1> } <1> novas encomendas</1>",
+        "lowOnStock": "<1>{{name}</1> } tem pouco stock ({{current_stock}} {{unit}})",
+        "noItemsSubtitle": "Não há acções pendentes que requeiram a sua atenção.",
+        "noItemsTitle": "Todos os sistemas limpos",
+        "title": "Resumo da missão"
+      },
+      "analyticsPage": {
+        "placeholderBody": "Esta secção inclui vários gráficos, opções de exportação de dados e relatórios detalhados sobre vendas, produtos e comportamento dos clientes.",
+        "placeholderFooter": "(É necessário um maior desenvolvimento)",
+        "placeholderTitle": "[Marcador de posição da interface de análise e relatórios avançados].",
+        "subtitle": "Obtenha informações sobre o desempenho da sua empresa.",
+        "title": "Análises e relatórios"
+      },
+      "businessSwitcher": {
+        "createNewBusiness": "Criar novos negócios",
+        "failedToLoad": "Falha no carregamento.",
+        "switchErrorToast": "Não foi possível mudar de empresa.",
+        "switchSuccessToast": "Mudança de empresa com sucesso!",
+        "switching": "Mudança...",
+        "upgradePlanTooltip": "Actualize o seu plano para adicionar mais empresas.",
+        "yourBusinesses": "As suas empresas"
+      },
+      "commissionsList": {
+        "headerBusiness": "Negócio referenciado",
+        "headerCommission": "Comissão",
+        "headerDate": "Data",
+        "noCommissions": "Não foram encontradas comissões recentes.",
+        "title": "Comissões recentes"
+      },
+      "createBusinessPage": {
+        "businessEmailLabel": "E-mail comercial (opcional)",
+        "businessEmailPlaceholder": "contact@yourbusiness.com",
+        "businessNamePlaceholder": "por exemplo, The Artisan Cafe",
+        "businessPhoneLabel": "Telefone comercial (opcional)",
+        "businessPhonePlaceholder": "+1 (555) 123-4567",
+        "createButton": "Criar negócio",
+        "subtitle": "Adicione outra empresa à sua conta. Isto contará para o limite de empresas da sua subscrição.",
+        "title": "Criar um novo negócio",
+        "toastError": "Falha ao criar o negócio. Por favor, tente novamente.",
+        "toastSuccess": "Negócio \"{{name}}\" criado com sucesso!"
+      },
+      "dashboardGreeting": {
+        "fallbackName": "Agente",
+        "goodAfternoon": "Boa tarde",
+        "goodEvening": "Boa noite",
+        "goodMorning": "Bom dia",
+        "greeting": "{{greeting}}, {{firstName}}.",
+        "subtitle": "Aqui está o pulso em tempo real das operações da sua empresa."
+      },
+      "dashboardHeader": {
+        "notificationsTitle": "Notificações"
+      },
+      "guestsCard": {
+        "peakHour": "Hora de ponta",
+        "title": "Convidados de hoje",
+        "titleInsight": "Fluxo de convidados"
+      },
+      "inventoryPage": {
+        "addNewIngredientButton": "Adicionar novo ingrediente",
+        "buttonPlaceholder": "[Adicionado o marcador de posição do botão \"Adicionar novo ingrediente\" clicado].",
+        "subtitle": "Acompanhe os ingredientes, gira os níveis de stock e veja os custos.",
+        "tablePlaceholderBody": "Caraterísticas previstas: Pesquisa, filtros (baixo stock, categoria), colunas ordenáveis, paginação, acções para adicionar/editar ingredientes.",
+        "tablePlaceholderTitle": "[Marcador de posição da tabela de itens de inventário].",
+        "title": "Gestão do inventário"
+      },
+      "liveOrdersCard": {
+        "allConfirmed": "Todas as encomendas confirmadas.",
+        "funnelLabelPending": "Pendente",
+        "funnelMetricTime": "~{{time}}",
+        "title": "Encomendas em direto",
+        "titleInsight": "Funil de encomendas",
+        "toConfirm_one": "{{count}} para confirmar"
+      },
+      "liveVenueCard": {
+        "fullViewButton": "Ver Completo",
+        "noLayoutSubtitle": "Aceda ao <1>Designer de locais</1> para criar um.",
+        "noLayoutTitle": "Nenhum layout de local encontrado",
+        "title": "A Torre de Vigia"
+      },
+      "nav": {
+        "analytics": "Analítica",
+        "orders": "Encomendas",
+        "overview": "Visão geral",
+        "products": "Produtos",
+        "settings": "Definições",
+        "venue": "Local do evento"
+      },
+      "occupancyCard": {
+        "avgTurnTime": "Avg. Tempo de rotação",
+        "noActivity": "Ainda não há atividade na mesa para classificar os hotspots.",
+        "occupancyPercentage": "{{percentage}}% Ocupação",
+        "tableLabel": "Tabela #{{tableNumber}}",
+        "title": "Ocupação",
+        "titleInsight": "Pontos de acesso ao local"
+      },
+      "orderStageColumn": {
+        "avgTime": "Avg. Tempo médio"
+      },
+      "orderStatusDistributionBar": {
+        "noActiveOrders": "Nenhuma encomenda ativa",
+        "tooltipLabel": "{{count}} {{status}}"
+      },
+      "ordersPage": {
+        "buttonPlaceholder": "[Criar nova encomenda com o marcador de posição clicado].",
+        "createNewOrderButton": "Criar nova encomenda",
+        "subtitle": "Ver, acompanhar e gerir todas as encomendas dos clientes.",
+        "tablePlaceholderBody": "Caraterísticas esperadas: Pesquisa, filtros (estado, intervalo de datas), colunas ordenáveis, paginação, ver detalhes da encomenda Ação.",
+        "tablePlaceholderTitle": "[Marcador de lugar do quadro de encomendas].",
+        "title": "Gerir encomendas"
+      },
+      "productMoversCard": {
+        "bottomItemsTitle": "Os 5 artigos mais vendidos",
+        "noData": "Não há dados para este período.",
+        "periodToday": "Hoje",
+        "title": "A folha quente de hoje",
+        "topItemsTitle": "Os 5 artigos mais vendidos"
+      },
+      "productsPage": {
+        "addProductButton": "Adicionar novo produto",
+        "categoriesTitle": "Categorias",
+        "subtitle": "Supervisione todo o seu catálogo de produtos, gira categorias e execute acções em massa.",
+        "title": "Centro de Comando de Produtos"
+      },
+      "referralsList": {
+        "headerSubscription": "Assinatura",
+        "noReferrals": "Não foram encontradas referências recentes.",
+        "title": "Referências recentes"
+      },
+      "revenueCard": {
+        "avgSpend": "Avg. Gastos / Hóspede",
+        "categoryDrinks": "Bebidas",
+        "categoryEvents": "Eventos",
+        "categoryFood": "Alimentação",
+        "categoryMerch": "Mercadoria",
+        "categoryTakeout": "Encomenda",
+        "title": "Receitas actuais",
+        "titleInsight": "Motor de receitas",
+        "vsYesterday": "vs ontem",
+        "vsYesterdayValue": "vs {{value}} ontem"
+      },
+      "settingsSidebar": {
+        "billing": "Faturação",
+        "businessProfile": "Perfil da empresa",
+        "security": "Segurança",
+        "teamMembers": "Membros da equipa",
+        "userProfile": "Perfil do utilizador"
+      },
+      "subscriptionBadge": {
+        "actionRequired": "Ação necessária",
+        "cancelsOn": "Cancela {{date}}",
+        "choosePlan": "+ Selecionar plano",
+        "growthPlan": "Plano de crescimento",
+        "managePlan": "Gerir o plano",
+        "planError": "Erro do plano",
+        "portalErrorToast": "Não foi possível aceder ao portal de faturação. Por favor, tente novamente mais tarde.",
+        "premiumPlan": "Plano Premium",
+        "redirectingToast": "Redirecionar para o portal de faturação...",
+        "starterPlan": "Plano inicial",
+        "trialDaysLeft": "Teste: {{days}}d esquerda",
+        "trialEndsToday": "Teste: Termina hoje"
+      },
+      "userProfileWidget": {
+        "logout": "Terminar sessão"
+      }
+    }
+  },
+  "data_cards": {
+    "DAYS": {
+      "Fri": "Sex",
+      "Mon": "Pri",
+      "Sat": "Sáb",
+      "Sun": "Dom",
+      "Thu": "Qui",
+      "Tue": "Terça",
+      "Wed": "Quarta"
+    },
+    "MONTHS": {
+      "Apr": "Abr",
+      "Aug": "Ago",
+      "Dec": "Dez",
+      "Feb": "Fev",
+      "Jan": "Jan",
+      "Jul": "Jul",
+      "Jun": "Jun",
+      "Mar": "Mar",
+      "May": "Mai",
+      "Nov": "Nov",
+      "Oct": "Out",
+      "Sep": "Set"
+    },
+    "TitleBar": {
+      "title": "Análise de receitas"
+    },
+    "WORDS": {
+      "Average": "Média",
+      "Day": "Dia",
+      "Month": "Mês",
+      "Peak": "Pico",
+      "Week": "Semana",
+      "Wk": "Semana"
+    },
+    "heatmap": {
+      "cell": {
+        "ariaLabel": "{{count}} clientes ({{percentage}}% do pico)"
+      },
+      "cellTypes": {
+        "highActivity": "{{value}}% atividade (alta)",
+        "lowActivity": "{{value}}% atividade (baixa)",
+        "mediumActivity": "{{value}}% atividade (média)",
+        "noActivity": "Nenhuma atividade"
+      },
+      "clientTooltip": {
+        "clients_one": "cliente",
+        "clients_other": "clientes"
+      },
+      "customerHeatmapCard": {
+        "openSettingsAriaLabel": "Abrir definições",
+        "title": "Atividade do cliente"
+      },
+      "heatmapGrid": {
+        "ariaLabel": "Grelha de mapa de calor de dados"
+      },
+      "monthHeatmapGrid": {
+        "cellAriaLabel_one": "{{date}}: {{count}} cliente",
+        "cellAriaLabel_other": "{{date}}: {{count}} clientes"
+      },
+      "settingsMenu": {
+        "blockDurationLabel": "Duração do bloco (1-24 horas)",
+        "blockStartHourLabel": "Hora de início do bloco (0-23)",
+        "bufferDaysLabel": "Dias de tampão (0-14)",
+        "operationalHoursLabel": "Horário de funcionamento"
+      },
+      "weekHeatmapView": {
+        "ariaLabel": "Mapa de calor semanal da atividade dos clientes",
+        "legendLabel": "&lt; {{value}}",
+        "noActivity": "Não há dados de atividade para este período."
+      }
+    }
+  },
+  "kitchen_display_system": {
+    "kitchenDisplaySystem": {
+      "header": {
+        "filterNew": "Novo",
+        "filterPaid": "Pago",
+        "filterReady": "Pronto",
+        "groupByTableToggle": "Agrupar por tabela"
+      },
+      "modal": {
+        "price": "${{val}}",
+        "title": "Detalhes da encomenda: {{identifier}}"
+      },
+      "orderCard": {
+        "actionConfirm": "Confirmar a encomenda",
+        "actionMarkAsReady": "Marcar como pronto",
+        "actionStartPreparing": "Iniciar a preparação",
+        "defaultIdentifier": "Encomendar",
+        "lastUpdate": "Atualizado {{time}} há",
+        "pickupIdentifier": "Captador #{{pickupCode}}"
+      },
+      "orderItemList": {
+        "itemQuantity": "x{{count}}",
+        "moreItems": "+ {{count}} mais itens...",
+        "moreItems_one": "+{{count}} mais item",
+        "moreItems_other": "+{{count}} mais itens"
+      },
+      "orderStatus": {
+        "CANCELLED_BY_BUSINESS": "Cancelado (Negócios)",
+        "CANCELLED_BY_CUSTOMER": "Cancelado (Cliente)",
+        "finalized": "Finalizado"
+      },
+      "page": {
+        "errorFetchingOrders": "Erro na obtenção de ordens",
+        "loadingOrders": "Carregando pedidos em andamento...",
+        "noOrdersMessage": "Quando chegar uma nova encomenda, esta aparecerá aqui.",
+        "noOrdersTitle": "Nenhuma ordem para exibir",
+        "orderCount_one": "({{count}} ordem)",
+        "orderCount_other": "({{count}} encomendas)",
+        "pageTitle": "Sistema de exposição de cozinha",
+        "takeoutPickup": "Entrega / Recolha"
+      }
+    }
+  },
+  "live_orders_view": {
+    "liveOrders": {
+      "actions": {
+        "cancel": "Cancelar encomenda",
+        "markPaid": "Marcar como pago",
+        "markServed": "Marcar como Servido"
+      },
+      "errorBody": "Ocorreu um problema ao obter os dados da ordem em tempo real. Por favor, tente novamente mais tarde.",
+      "errorTitle": "Não foi possível carregar a visualização em direto",
+      "guestsSummary": "{{count}} convidado",
+      "guestsSummary_one": "{{count}} convidado",
+      "guestsSummary_other": "{{count}} convidados",
+      "layoutErrorBody": "Houve um problema ao obter o desenho estático do local.",
+      "layoutErrorTitle": "Não foi possível carregar o layout do local",
+      "loadingText": "A carregar a visualização em direto...",
+      "modal": {
+        "noOrdersFound": "Não há encomendas activas para esta tabela.",
+        "title": "Detalhes do quadro {{tableNumber}}"
+      },
+      "noLayoutConfiguredBody": "Um administrador pode criar um no Venue Designer.",
+      "noLayoutConfiguredTitle": "Não foi configurada a disposição do local.",
+      "orderCard": {
+        "collapseTooltip": "Esconder detalhes",
+        "expandTooltip": "Mostrar detalhes",
+        "idLabel": "Encomendar",
+        "noActions": "Não há acções disponíveis.",
+        "notesHeader": "Notas",
+        "statusLabel": "Estado:",
+        "timeAgo": "{{time}} atrás"
+      },
+      "orderStatus": {
+        "CANCELLED_BY_BUSINESS": "Cancelado pela empresa",
+        "CANCELLED_BY_CUSTOMER": "Cancelado pelo cliente",
+        "COMPLETED": "Concluído",
+        "CONFIRMED": "Confirmado",
+        "PENDING_CONFIRMATION": "Confirmação pendente",
+        "PREPARING": "Preparação",
+        "READY_FOR_PICKUP": "Pronto para recolha"
+      },
+      "ordersSummary": "{{count}} encomendas",
+      "ordersSummary_one": "{{count}} encomenda",
+      "ordersSummary_other": "{{count}} encomendas",
+      "pageSubtitle": "Uma visão geral em tempo real da atividade das mesas do seu local.",
+      "pageTitle": "Visualização de ordens em direto",
+      "stats": {
+        "activeTables": "Tabelas activas",
+        "pendingOrders": "Ordens pendentes",
+        "totalGuests": "Total de hóspedes",
+        "totalSales": "Vendas em direto"
+      },
+      "status": {
+        "IDLE": "Inativo",
+        "NEEDS_ATTENTION": "Necessita de atenção",
+        "NEEDS_PAYMENT": "Necessita de pagamento",
+        "NEW_ORDER": "Nova Ordem",
+        "SERVED": "Servido",
+        "WAITING": "Em espera"
+      },
+      "tableLabel": "Tabela {{tableNumber}}",
+      "tableLabel_one": "Tabela {{tableNumber}}"
+    }
+  },
+  "menu_view": {
+    "menu_view": {
+      "bottomNav": {
+        "menuLabel": "Menu",
+        "myInfoLabel": "As minhas informações"
+      },
+      "categoryFilterBar": {
+        "allCategoryName": "Todos",
+        "categoryFiltersAriaLabel": "Filtros de categoria",
+        "errorLoading": "Não foi possível carregar as categorias.",
+        "loadingAriaLabel": "Carregamento de filtros de categoria",
+        "loadingCategoriesAriaLabel": "Carregando categorias...",
+        "noCategoriesAvailable": "Não existem categorias disponíveis."
+      },
+      "guestSettingsModal": {
+        "closeAriaLabel": "Fechar definições",
+        "emailLabel": "E-mail para receção (opcional)",
+        "guestCountLabel": "Número de convidados",
+        "languageLabel": "Língua",
+        "nameLabel": "Nome para esta encomenda",
+        "nameRequiredError": "Introduza um nome para a encomenda.",
+        "orderInfoLegend": "Informações sobre a encomenda",
+        "themeLabel": "Tema",
+        "title": "Definições de convidados",
+        "uiPrefsLegend": "Preferências da IU"
+      },
+      "menuDisplayLayout": {
+        "clearFiltersButton": "Limpar filtros e pesquisar",
+        "errorMessageDefault": "Houve um problema ao obter os itens do menu.",
+        "errorSuggestion": "Tente novamente dentro de momentos ou contacte a equipa se o problema persistir.",
+        "errorTitle": "Ops! Não foi possível carregar o menu.",
+        "loadingCuisine": "Carregando Cuisine...",
+        "menuEmptyMessage": "O menu está atualmente vazio.",
+        "menuEmptySuggestion": "Por favor, volte mais tarde ou peça ajuda ao nosso pessoal.",
+        "menuEmptyTitle": "Menu vazio",
+        "noResultsMessage": "Nenhum item do menu corresponde à sua seleção atual.",
+        "noResultsSuggestion": "Tente ajustar a sua pesquisa ou filtros.",
+        "noResultsTitle": "Nenhum resultado encontrado",
+        "otherItemsCategory": "Outros artigos",
+        "refreshingMenu": "Atualização do menu...",
+        "uncategorized": "Sem categoria"
+      },
+      "menuItemCard": {
+        "ariaLabel": {
+          "base": "{{name}}, preço {{price}}.",
+          "hasOptions": "Toque para ver os detalhes e configurar as opções.",
+          "noOptions": "Toque para adicionar à encomenda.",
+          "unavailable": "Este artigo não está atualmente disponível."
+        },
+        "ariaLabelPrice": {
+          "discounted": "Preço com desconto {{price}}",
+          "original": "Preço original {{price}}",
+          "standard": "Preço {{price}}"
+        },
+        "moreTagsAriaLabel": "e {{count}} mais etiquetas",
+        "moreTagsTitle": "+{{count}} mais etiquetas",
+        "tagsAriaLabel": "Etiquetas de produtos",
+        "unavailable": "Não disponível",
+        "unnamedProduct": "Produto sem nome"
+      },
+      "menuSearchBar": {
+        "clearInputAriaLabel": "Limpar a entrada de pesquisa",
+        "errorLoading": "Erro ao carregar sugestões.",
+        "inputAriaLabel": "Pesquisar itens de menu, categorias ou etiquetas",
+        "loadingSuggestions": "Procurar...",
+        "noSuggestions": "Nenhuma sugestão para \"{{term}}\".",
+        "placeholder": "Menu de pesquisa...",
+        "searchAllPrompt": "Pesquisar todos os itens para \"{{term}}\"",
+        "searchAriaLabel": "Pesquisa no menu",
+        "suggestionTypeFallback": "{{type}}",
+        "suggestionTypeProduct": "In: {{categoryName}}",
+        "suggestionsAriaLabel": "Resultados da pesquisa"
+      },
+      "orderInteractionController": {
+        "closeDrawerAriaLabel": "Resumo da ordem de fecho",
+        "desktopEmptyMessage": "O resumo da encomenda aparecerá aqui quando adicionar artigos.",
+        "peekBar": {
+          "item_one": "({{count}} item)",
+          "item_other": "({{count}} itens)",
+          "title": "Ver a sua encomenda"
+        }
+      },
+      "orderItem": {
+        "ariaLabel": {
+          "base": "{{itemName}}, quantidade {{quantity}}, preço final {{finalPrice}}",
+          "discounted": " (com desconto de {{originalPrice}}, {{discountDescription}})"
+        },
+        "ariaLabelPrice": {
+          "final": "Preço total atual {{price}}"
+        },
+        "decreaseQuantityAriaLabel": "Diminuir a quantidade de {{itemName}}",
+        "increaseQuantityAriaLabel": "Aumentar a quantidade de {{itemName}}",
+        "unitPrice": "/ unidade",
+        "unnamedItem": "Item sem nome"
+      },
+      "orderManagement": {
+        "itemAddedToast": "\"{{itemName}}\" adicionado à encomenda!",
+        "itemDiscountFixed": "{{value}} desligado",
+        "itemDiscountPercentage": "{{value}}% off",
+        "itemDiscountsApplied": "Descontos de itens aplicados",
+        "orderDiscountFixed": "{{value}} Fora de encomenda",
+        "orderDiscountPercentage": "{value}{10% de desconto na encomenda"
+      },
+      "orderSummaryPanel": {
+        "applyPromoButton": "Aplicar",
+        "browseMenuButton": "Navegar no menu",
+        "discountLabel": "Desconto ({{promoCode}})",
+        "emptyOrderDefaultMessage": "Adicione itens para começar.",
+        "emptyOrderMessageDrawer": "Toque em \"Menu\" para explorar!",
+        "emptyOrderMessageSidebar": "Adicionar itens do menu.",
+        "emptyOrderTitle": "A sua encomenda está vazia",
+        "forLabel": "Para: { \"{userName}\".}",
+        "guestCountLabel": " ({{count}} {{plural}})",
+        "guestFallback": "Convidado",
+        "guestPlural": "convidados",
+        "guestSingular": "guest",
+        "orderNotesLabel": "Notas de encomenda",
+        "orderNotesPlaceholder": "Por exemplo, sem cebolas, extra picante...",
+        "orderNotesPreviewLabel": "(Pré-visualização)",
+        "placeOrderButton": "Efetuar encomenda",
+        "promoCodeLabel": "Promo Code",
+        "promoCodePlaceholder": "Introduzir código promocional",
+        "promoFeedback": {
+          "applied": "Desconto aplicado!",
+          "inputEmpty": "Introduzir um código promocional.",
+          "missingBusinessContext": "Faltam informações comerciais.",
+          "noApplicableDiscount": "O código é válido, mas não há desconto aplicável à encomenda atual."
+        },
+        "subtotalLabel": "Subtotal",
+        "tableLabel": "Mesa: {{tableNumber}}",
+        "titlePreview": "Pré-visualização da encomenda",
+        "titleYourOrder": "A sua encomenda"
+      },
+      "orderTracker": {
+        "backToMenuButton": "Voltar ao menu",
+        "cancelledByBusinessMessage": "Houve um problema com a encomenda. Consulte a equipa para obter mais informações.",
+        "cancelledByBusinessTitle": "Encomenda cancelada",
+        "cancelledByCustomerMessage": "A sua encomenda foi cancelada com sucesso.",
+        "completedMessage": "Obrigado pela sua encomenda. Desfrute!",
+        "completedTitle": "Encomenda concluída!",
+        "confirmedMessage": "Recebemos a sua encomenda e começaremos a prepará-la em breve.",
+        "confirmedTitle": "Encomenda confirmada!",
+        "defaultMessage": "Estamos atualmente a atualizar o estado da encomenda.",
+        "defaultTitle": "Estado da encomenda Desconhecido",
+        "errorMessageDefault": "Ocorreu um erro desconhecido. Por favor, mostre este ecrã a um membro da equipa.",
+        "errorTitle": "Não foi possível carregar a encomenda",
+        "loadingMessage": "Carregamento do estado da encomenda...",
+        "pendingConfirmationMessage": "A cozinha confirmará o seu pedido em breve.",
+        "pendingConfirmationTitle": "À espera da confirmação",
+        "pickupCodeLabel": "Código de recolha",
+        "placeAnotherOrderButton": "Efetuar outra encomenda",
+        "preparingMessage": "Os nossos chefes estão a fazer a sua magia. Não vai demorar muito!",
+        "preparingTitle": "A sua encomenda está a ser preparada",
+        "readyForPickupMessage": "Por favor, apresente o seu código de levantamento no balcão.",
+        "readyForPickupTitle": "Pronto para ser recolhido!",
+        "servedMessage": "Esteja atento ao nosso pessoal que traz os seus artigos.",
+        "servedTitle": "A sua encomenda está a caminho!",
+        "timerLabel": "Tempo no estado atual: "
+      },
+      "orderTracking": {
+        "errorMissingId": "A ID da encomenda é necessária para acompanhar o estado."
+      },
+      "productDetailModal": {
+        "addToOrderButton": "Adicionar {{quantity}} à encomenda",
+        "closeAriaLabel": "Fechar opções de produtos",
+        "configureItemTitle": "Configurar item",
+        "quantityLabel": "Item quantity",
+        "requiredLabel": "(Obrigatório)",
+        "selectionNeededError": "Por favor, faça uma seleção para {{groupName}}.",
+        "totalLabel": "Total:"
+      },
+      "productUtils": {
+        "discountFallbackName": "Desconto"
+      },
+      "setupStage": {
+        "atTableLabel": "Está na mesa",
+        "footerMessage": "Desfrute da sua refeição! Se precisar de ajuda, por favor avise o nosso pessoal.",
+        "nameRequiredError": "Introduza o seu nome para continuar.",
+        "peopleLabel": "Número de pessoas que efectuam encomendas",
+        "setupPrompt": "Vamos prepará-lo!",
+        "startOrderingButton": "Iniciar a encomenda",
+        "startingButton": "A começar...",
+        "welcomeTitle": "Bem-vindo!",
+        "yourNameLabel": "O seu nome",
+        "yourNamePlaceholder": "por exemplo, Alex Smith"
+      },
+      "snakesGame": {
+        "gameOver": {
+          "continueHint": "(Clique em qualquer sítio para continuar)",
+          "finalScoreLabel": "A vossa pontuação final: ",
+          "highScoreBeaten": "Bateste a pontuação mais alta! 🏆",
+          "title": "Fim do jogo"
+        },
+        "highScoreLabel": "Pontuação máxima: ",
+        "newGameHint": "Clique em qualquer lugar para iniciar",
+        "pauseHint": "PAUSA:",
+        "pauseHintInstructions": "Clique em qualquer lugar ou prima",
+        "paused": {
+          "title": "Em pausa"
+        },
+        "scoreLabel": "Pontuação",
+        "title": "Jogo da cobra"
+      },
+      "tagFilterPills": {
+        "errorLoading": "Não foi possível carregar as etiquetas.",
+        "filterByTagsAriaLabel": "Filtrar por etiquetas",
+        "loadingAriaLabel": "Carregamento de filtros de etiquetas",
+        "loadingTagsAriaLabel": "Carregando etiquetas...",
+        "tagFiltersAriaLabel": "Filtros de etiquetas"
+      },
+      "userPageHeader": {
+        "defaultBusinessName": "Menu do restaurante",
+        "guestLabel": "Para:",
+        "logoAlt": "{{businessName}} logótipo",
+        "logoPlaceholderAriaLabel": "{{businessName}} espaço reservado para o logótipo",
+        "settingsAriaLabel": "Abrir definições de convidado",
+        "tableLabel": "Tabela:"
+      },
+      "userpage": {
+        "errorInvalidLinkOrNotFound": "Esta ligação é inválida ou o restaurante não foi encontrado.",
+        "errorMessageFallback": "Deparámo-nos com um problema.",
+        "errorOrderFailed": "Não foi possível efetuar a encomenda. Por favor, tente novamente ou avise a equipa.",
+        "loadingActiveOrder": "Verificação das ordens activas...",
+        "loadingInvalidLink": "Ligação inválida...",
+        "loadingVenueInfo": "Carregando informações sobre o restaurante...",
+        "modalOrderFailedTitle": "Falha na encomenda",
+        "modalPlacingOrderMessage": "Aguarde enquanto submetemos a sua encomenda.",
+        "modalPlacingOrderTitle": "Colocação da encomenda...",
+        "toastOrderPlaced": "Encomenda #{{orderId}}... Colocada!",
+        "toastSettingsSaved": "As suas definições foram guardadas!",
+        "toastWelcome": "Bem-vindo, {{userName}}! Pronto para encomendar."
+      },
+      "venueContextManager": {
+        "updateWarning": "updateVenueUserDetails chamado antes de o contexto ter sido inicializado."
+      }
+    }
+  },
+  "payments": {
+    "components": {
+      "paymentCancelPage": {
+        "buttons": {
+          "contactSupport": "Apoio ao contacto",
+          "tryAgain": "Tentar de novo"
+        },
+        "footerNote": "Se considerar que se trata de um erro ou se precisar de ajuda, não hesite em contactar-nos.",
+        "message": "Parece que o processo de pagamento não foi concluído ou optou por cancelar. A sua subscrição não foi activada.",
+        "title": "Pagamento não efectuado"
+      },
+      "paymentSuccessPage": {
+        "accessMessage": "Pode agora aceder a todas as funcionalidades premium.",
+        "buttons": {
+          "goToDashboard": "Ir para o painel de controlo",
+          "viewBilling": "Ver detalhes da faturação"
+        },
+        "errors": {
+          "missingSessionId": "Os detalhes de confirmação do pagamento estão em falta. Se acabou de subscrever, verifique o seu painel de controlo ou contacte o suporte.",
+          "subscriptionUpdateFailed": "O seu pagamento foi efectuado com êxito, mas não foi possível atualizar imediatamente os detalhes da sua subscrição. Verifique o seu painel de controlo ou contacte o suporte."
+        },
+        "links": {
+          "contactSupport": "contactar a nossa equipa de apoio"
+        },
+        "loading": {
+          "checkingDetails": "Verificação dos dados de pagamento...",
+          "finalizingSubscription": "Finalizar a sua subscrição..."
+        },
+        "thankYouGeneric": "Obrigado! O seu pagamento foi efectuado com sucesso e a sua subscrição está agora ativa.",
+        "thankYouMessage": "Obrigado, {userName}! A sua subscrição do plano **{planName}** foi activada com sucesso.",
+        "title": "Pagamento efectuado com sucesso!",
+        "titleSubscriptionActivated": "Assinatura activada!",
+        "transactionIdLabel": "ID da transação:"
+      },
+      "planSelection": {
+        "badges": {
+          "currentPlan": "Plano atual",
+          "mostPopular": "Mais populares",
+          "recommended": "Recomendado",
+          "specialOffer": "OFERTA ESPECIAL"
+        },
+        "buttons": {
+          "chooseThisPlan": "Escolher este plano",
+          "downgradePlan": "Downgrade Plan",
+          "manageSubscription": "Gerir a subscrição",
+          "planSelected": "Plano selecionado!",
+          "processing": "Processamento...",
+          "switchPlan": "Plano de mudança",
+          "upgradePlan": "Upgrade Plan"
+        },
+        "console": {
+          "invalidOnPlanSelectProp": "PlanSelection: Prop `onPlanSelect` inválida. Esperava-se uma função."
+        },
+        "errors": {
+          "functionalityUnavailable": "Erro: A funcionalidade de seleção de planos não está disponível."
+        },
+        "footerNote": "Todos os planos são facturados mensal ou anualmente. Pode atualizar, fazer downgrade ou cancelar o seu plano em qualquer altura a partir das definições da sua conta.",
+        "messages": {
+          "alreadySubscribedError": "Já está subscrito a este plano. Para efetuar alterações, utilize \"Gerir subscrição\".",
+          "loadingSubscription": "Carregando os detalhes da sua assinatura...",
+          "subscriptionErrorTitle": "Erro ao carregar a subscrição",
+          "subscriptionLoadError": "Não foi possível carregar os seus dados de subscrição. Actualize a página ou contacte o serviço de apoio se o problema persistir."
+        },
+        "plans": {
+          "0": {
+            "description": "Perfeito para lojas individuais e micro-lojas. Comece a trabalhar rapidamente com ferramentas essenciais de encomenda e inventário.",
+            "features": {
+              "0": {
+                "text": "3 Utilizadores profissionais"
+              },
+              "1": {
+                "text": "Gestão completa do produto"
+              },
+              "2": {
+                "text": "Menu digital e códigos QR"
+              },
+              "4": {
+                "text": "Designer de layout do local"
+              },
+              "5": {
+                "text": "Inventário básico (entrada manual)"
+              },
+              "6": {
+                "text": "Análise básica (hoje)"
+              },
+              "7": {
+                "text": "Suporte por correio eletrónico"
+              }
+            },
+            "frequency": "/mês",
+            "id": "essenciais para iniciantes",
+            "name": "Fundamentos para iniciantes",
+            "price": "29.99",
+            "whyThisPlan": "Deixar o papel e tornar-se digital. Rápido. Este plano dá-lhe tudo o que é necessário para gerir as suas operações diárias sem problemas, desde menus digitais até ao acompanhamento de encomendas em tempo real."
+          },
+          "1": {
+            "description": "Para empresas em crescimento prontas para escalar. Gestão de encomendas tudo-em-um + conhecimentos profundos para otimizar e crescer.",
+            "discount": {
+              "details": "Depois, 39,99 euros/mês. Renova automaticamente, pode ser cancelado em qualquer altura.",
+              "displayPrice": "16.00",
+              "offerTitle": "Primeiro mês com 60% de desconto!",
+              "originalPriceText": "39,99 euros/mês",
+              "priceSuffix": "/primeiro mês"
+            },
+            "features": {
+              "0": {
+                "text": "Tudo no Starter, mais:"
+              },
+              "1": {
+                "text": "10 utilizadores profissionais"
+              },
+              "2": {
+                "text": "Inventário automatizado (através de receitas)"
+              },
+              "3": {
+                "text": "Alertas de stock baixo"
+              },
+              "4": {
+                "text": "Análise do histórico completo"
+              },
+              "5": {
+                "text": "10 Códigos promocionais activos"
+              },
+              "6": {
+                "text": "Remover a marca \"Powered by"
+              },
+              "7": {
+                "text": "Suporte prioritário por e-mail"
+              }
+            },
+            "id": "acelerador de crescimento",
+            "name": "Acelerador de crescimento",
+            "price": "39.99",
+            "whyThisPlan": "Automatize as suas operações e compreenda o seu crescimento. O inventário automatizado poupa horas e o histórico analítico completo ajuda-o a tomar decisões mais inteligentes."
+          },
+          "2": {
+            "description": "Para padarias estabelecidas que exigem excelência. Serviço completo, com luvas brancas e escalabilidade ilimitada.",
+            "features": {
+              "0": {
+                "text": "Tudo em Crescimento, mais:"
+              },
+              "1": {
+                "text": "Lugares de utilizador ilimitados"
+              },
+              "2": {
+                "text": "Página de análise avançada"
+              },
+              "3": {
+                "text": "Exportação de dados (CSV)"
+              },
+              "4": {
+                "text": "Códigos promocionais ilimitados"
+              },
+              "5": {
+                "text": "Personalização avançada do menu"
+              },
+              "6": {
+                "text": "Especialista em integração dedicado"
+              }
+            },
+            "id": "premium_pro_suite",
+            "name": "Premium Pro Suite",
+            "price": "89.99",
+            "whyThisPlan": "Liberte todo o poder dos seus dados e da sua marca. Este é o pacote definitivo, sem compromissos, com análises aprofundadas e um serviço de excelência."
+          }
+        },
+        "subtitle": "Está a um passo de distância! Escolha o plano que está de acordo com a sua ambição e vamos começar a cozinhar o sucesso juntos.",
+        "themeColorDefault": "rosa",
+        "title": "Liberte o seu potencial",
+        "whyThisPlanTemplate": "Porquê {{planName}}?"
+      }
+    }
+  },
+  "products_table": {
+    "productsTable": {
+      "animatedSearchBar": {
+        "status": {
+          "loading": "Carregando sugestões...",
+          "noSuggestions": "Não foram encontradas sugestões."
+        },
+        "tooltips": {
+          "clearSearch": "Pesquisa clara",
+          "openSearch": "Pesquisa aberta"
+        }
+      },
+      "customColumnDropdown": {
+        "headerSubtitle": "Alternar a visibilidade ou arrastar para reordenar colunas não fixas.",
+        "headerTitle": "Personalizar colunas da tabela",
+        "listTitles": {
+          "fixed": "Fixo",
+          "hidden": "Oculto",
+          "visibleAndDraggable": "Visível e arrastável"
+        },
+        "noColumnsAvailable": "Não existem colunas disponíveis.",
+        "noDraggableColumns": "Não há colunas arrastáveis para mostrar.",
+        "resetButton": "Repor a predefinição",
+        "triggerText": "Colunas",
+        "triggerTooltip": "Personalizar colunas"
+      },
+      "draggableColumnItem": {
+        "aria": {
+          "hide": "Ocultar a coluna {{columnName}}",
+          "show": "Mostrar {{columnName}} coluna"
+        },
+        "tooltips": {
+          "dragReorder": "Arrastar para reordenar",
+          "fixedColumn": "Coluna fixa (não pode ser reordenada ou ocultada)",
+          "hideColumn": "Ocultar coluna",
+          "showColumn": "Mostrar coluna"
+        }
+      },
+      "editableCell": {
+        "editTooltip": "Clique para editar {{fieldKey}}",
+        "emptyPlaceholder": "-",
+        "errors": {
+          "invalidNumber": "Número inválido.",
+          "invalidNumberShort": "Invalid",
+          "nameCannotBeEmpty": "O nome não pode estar vazio.",
+          "negativeValue": "O valor não pode ser negativo.",
+          "saveFailed": "A gravação falhou."
+        }
+      },
+      "productsTable": {
+        "deleteModal": {
+          "message": "Tem a certeza de que pretende eliminar '{{productName}}'? Esta ação não pode ser anulada.",
+          "title": "Confirmar a eliminação"
+        },
+        "pagination": {
+          "ariaLabel": "Paginação",
+          "nextAriaLabel": "Página seguinte",
+          "pageOf": "Página {{currentPage}} de {{totalPages}}",
+          "previous": "Anterior",
+          "previousAriaLabel": "Página anterior",
+          "showingResults": "Mostrando {{start}} a {{end}} de {{total}} resultados"
+        },
+        "toasts": {
+          "deleteError": "Falha ao eliminar '{{productName}}'.",
+          "deleteSuccess": "Produto '{{productName}}' eliminado com êxito.",
+          "fieldUpdateError": "Falha ao atualizar {{fieldKey}}.",
+          "fieldUpdateSuccess": "Campo de produto '{{fieldKey}}' atualizado.",
+          "filtersCleared": "Filtros limpos",
+          "statusUpdateError": "Falha na atualização do estado.",
+          "statusUpdateSuccess": "Estado do produto atualizado para {{status}}."
+        }
+      },
+      "productsTableBody": {
+        "empty": {
+          "clearFiltersButton": "Limpar filtros",
+          "filteredMessage": "Tente ajustar ou limpar os seus filtros para ver mais produtos.",
+          "filteredTitle": "Nenhum produto corresponde aos filtros",
+          "noProductsMessage": "Comece por adicionar o seu primeiro produto ao inventário.",
+          "noProductsTitle": "Ainda não há produtos"
+        },
+        "error": {
+          "message": "Não foi possível carregar os produtos neste momento. Por favor, tente novamente.",
+          "title": "Ops! Algo correu mal."
+        }
+      },
+      "productsTableHeader": {
+        "tooltips": {
+          "ascending": "(Ascendente)",
+          "descending": "(Descendente)",
+          "sortBy": "Ordenar por {{headerText}}"
+        }
+      },
+      "productsToolbar": {
+        "bulkActions": {
+          "activateSelected": "Ativar selecionado",
+          "addTags": "Adicionar etiquetas...",
+          "ariaLabel": "Realizar acções em massa em produtos selecionados",
+          "changeCategory": "Mudar de categoria...",
+          "deactivateSelected": "Desativar selecionado",
+          "deleteSelected": "Apagar selecionado",
+          "placeholder": "Acções em massa ({count})",
+          "removeTags": "Remover etiquetas..."
+        },
+        "buttons": {
+          "addProduct": "Adicionar produto",
+          "refreshTooltip": "Atualizar dados"
+        },
+        "filters": {
+          "allCategoriesLabel": "Todas as categorias",
+          "categoryAriaLabel": "Filtrar por categoria",
+          "loadingCategoriesLabel": "Carregando categorias...",
+          "statusAriaLabel": "Filtrar por estado",
+          "typeAriaLabel": "Filtrar por tipo de produto"
+        },
+        "searchPlaceholder": "Pesquisar nome, SKU, etiquetas...",
+        "selection": {
+          "clearSelectionTooltip": "Limpar seleção"
+        },
+        "sort": {
+          "ariaLabel": "Ordenar por",
+          "placeholder": "Ordenar por"
+        }
+      },
+      "salesSparkline": {
+        "noData": "Sem dados de vendas",
+        "tooltip": "Tendência de vendas: {{data}}"
+      },
+      "stockLevelDisplay": {
+        "inStock": "{{quantity}} (Em stock)",
+        "inStockStatus": "Em stock",
+        "lowStock": "{{quantity}} (Stock baixo)",
+        "lowStockStatus": "Estoque baixo",
+        "outOfStock": "Fora de stock"
+      },
+      "tableConfig": {
+        "errors": {
+          "invalidDate": "Data inválida"
+        },
+        "filters": {
+          "allStatuses": "Todos os estados",
+          "allTypes": "Todos os tipos",
+          "inactive": "Inativo"
+        },
+        "headers": {
+          "barcode": "Código de barras",
+          "category": "Categoria",
+          "cost": "Custo",
+          "image": "Imagem",
+          "lastUpdated": "Última atualização",
+          "price": "Preço",
+          "sales": "Vendas (7d)",
+          "sku": "SKU",
+          "status": "Estado",
+          "stock": "Nível de stock",
+          "tags": "Etiquetas",
+          "type": "Tipo"
+        },
+        "productTypes": {
+          "made_in_house": "Made In-House",
+          "resold_item": "Item revendido"
+        },
+        "sort": {
+          "default": "Ordenação por defeito",
+          "nameAsc": "Nome (A-Z)",
+          "nameDesc": "Nome (Z-A)",
+          "priceAsc": "Preço (baixo-alto)",
+          "priceDesc": "Preço (Alto-Baixo)",
+          "stockAsc": "Estoque (baixo-alto)",
+          "stockDesc": "Estoque (Alto-Baixo)",
+          "updatedAsc": "Última atualização (mais antiga)",
+          "updatedDesc": "Última atualização (mais recente)"
+        },
+        "tooltips": {
+          "deleteProduct": "Eliminar produto",
+          "editProduct": "Editar produto"
+        }
+      },
+      "tagPills": {
+        "more": "+{{count}} mais"
+      },
+      "toolbarDropdown": {
+        "errors": {
+          "onChangeMissing": "Erro: Falta o menu pendente onChange.",
+          "optionsMissing": "Erro: Faltam opções do menu suspenso."
+        },
+        "noOptions": "Não existem opções disponíveis"
+      }
+    }
+  },
+  "register": {
+    "addressForm": {
+      "addressForm": {
+        "error": {
+          "countryAutocompleteError": "Erro de preenchimento automático de país",
+          "placesImportFailed": "A importação de locais falhou"
+        },
+        "label": {
+          "city": "Cidade",
+          "country": "País",
+          "postalCode": "Código Postal",
+          "streetAddress": "Endereço da rua"
+        },
+        "staticCountries": {
+          "AU": "Austrália",
+          "BR": "Brasil",
+          "CA": "Canadá",
+          "CN": "China",
+          "DE": "Alemanha",
+          "ES": "Espanha",
+          "FR": "França",
+          "GB": "Reino Unido",
+          "IN": "Índia",
+          "IT": "Itália",
+          "JP": "Japão",
+          "MX": "México",
+          "PT": "Portugal",
+          "RU": "Rússia",
+          "US": "Estados Unidos",
+          "ZA": "África do Sul"
+        }
+      }
+    },
+    "components": {
+      "Dropdown": {
+        "line1": "Não existem opções disponíveis."
+      },
+      "formStep": {
+        "buttons": {
+          "back": "Voltar",
+          "completeRegistration": "Registo completo",
+          "continue": "Continuar",
+          "submitting": "Enviar..."
+        },
+        "console": {
+          "invalidFormStateProp": "FormStep: Prop `formState` inválida ou ausente ou função `formState.validateStep`.",
+          "invalidOnSubmitProp": "FormStep: a propriedade `onSubmit` é fornecida para a etapa final, mas não é uma função. Será utilizada `onProceed`.",
+          "invalidStepIndexProp": "FormStep: Propriedade `stepIndex` inválida. Esperava-se um número não negativo.",
+          "invalidTitleProp": "FormStep: Prop. `title` inválida ou em falta. Esperava-se uma string.",
+          "missingChildrenProp": "FormStep: Falta a propriedade `children`.",
+          "missingNavigationHandlers": "FormStep: Falta a prop `onProceed` ou `onBack`. Funções esperadas.",
+          "validationOrProceedError": "FormStep: Erro durante a validação da etapa ou durante o processo:"
+        },
+        "errors": {
+          "formContextUnavailable": "Erro: O contexto do formulário não está disponível.",
+          "navigationHandlersMissing": "Erro: Faltam manipuladores de navegação.",
+          "stepConfigurationInvalid": "Erro: A configuração do passo é inválida.",
+          "stepContentMissing": "Erro: O conteúdo do passo está em falta.",
+          "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."
+        },
+        "progress": {
+          "of": "de",
+          "step": "Etapa"
+        }
+      },
+      "imageUploader": {
+        "console": {
+          "initialSrcWarning": "ImageUploader: initialSrc prop não parece ser um URL de imagem ou URL de dados válido.",
+          "invalidOnImageUploadProp": "ImageUploader: Prop `onImageUpload` inválida. Esperava-se uma função."
+        },
+        "cropper": {
+          "buttons": {
+            "applyCrop": "Aplicar cultura",
+            "changeImage": "Alterar imagem",
+            "resetCrop": "Redefinir cultura"
+          },
+          "title": "Ajustar a sua imagem"
+        },
+        "dropzone": {
+          "clickToUploadText": "Clique para carregar",
+          "ctaActive": "Deixar cair a imagem aqui!",
+          "ctaDefault": "<span class='font-bold'>{clickToUpload}</span> ou arrastar e largar",
+          "fileTypes": "PNG, JPG, GIF, WEBP até {maxFileSizeMB}MB"
+        },
+        "errors": {
+          "blobCreationError": "Falha ao criar o blob de imagem. Por favor, tente novamente.",
+          "canvasContextError": "Falha no processamento da imagem. O contexto da tela não está disponível.",
+          "cropSaveError": "Não foi possível guardar a colheita. Selecione uma área válida.",
+          "errorReadingFile": "Erro na leitura do ficheiro.",
+          "fileNotAccepted": "O ficheiro não pôde ser aceite. Por favor, tente novamente.",
+          "fileTooLarge": "O ficheiro é demasiado grande. Tamanho máximo: {{maxFileSizeMB}}MB.",
+          "handlerMissing": "Erro: O manipulador de carregamento de imagens está em falta.",
+          "invalidFileType": "Tipo de ficheiro inválido. Carregue uma imagem (JPEG, PNG, GIF, WebP)."
+        },
+        "preview": {
+          "title": "Imagem de perfil atual:",
+          "uploadNew": "Carregar nova imagem?"
+        }
+      },
+      "trustFooter": {
+        "copyright": "© {year} {companyName} . Todos os direitos reservados.",
+        "links": {
+          "termsOfUse": "Termos de utilização"
+        },
+        "securityMessage": "As suas informações estão seguras. Damos prioridade à sua privacidade e à proteção dos dados."
+      }
+    },
+    "header": {
+      "autocompleteInput": {
+        "error": {
+          "autocompleteError": "Erro de preenchimento automático",
+          "noMatchingAddresses": "Não foi possível encontrar endereços correspondentes",
+          "placesLibraryLoadFailed": "Falha no carregamento da biblioteca de locais"
+        },
+        "label": {
+          "autoComplete": "Auto Complete"
+        },
+        "placeholder": {
+          "quickerSearch": "Aqui é mais rápido..."
+        },
+        "status": {
+          "findingLocations": "Encontrar locais frescos...",
+          "noResults": "Não foram encontrados bolos frescos..."
+        }
+      },
+      "geolocationButton": {
+        "aria": {
+          "locating": "Localização..."
+        },
+        "error": {
+          "notSupported": "A geolocalização não é suportada pelo seu browser",
+          "permissionDenied": "Ativar o acesso à localização no seu browser",
+          "unableToDetermine": "Não é possível determinar a sua localização"
+        },
+        "label": {
+          "useMyLocation": "Utilizar a minha localização"
+        }
+      }
+    },
+    "registration": {
+      "addressForm": {
+        "placeholder": {
+          "selectCountry": "Selecionar um país"
+        },
+        "staticCountries": {
+          "VE": "Venezuela"
+        }
+      },
+      "autocompleteInput": {
+        "aria": {
+          "addressSuggestions": "Sugestões de endereços"
+        },
+        "error": {
+          "fetchDetailsFailed": "Falha ao carregar os detalhes da localização selecionada.",
+          "placesLibraryNotLoaded": "Os serviços de localização estão atualmente indisponíveis.",
+          "searchByTextError": "Erro na procura de localizações."
+        },
+        "label": "Procurar localização ou endereço",
+        "placeholder": "Por exemplo, 123 Main St, Anytown, EUA",
+        "status": {
+          "errorFetching": "Não foi possível obter sugestões. Por favor, tente novamente.",
+          "findingLocations": "Encontrar locais...",
+          "loadingDetails": "Carregando detalhes...",
+          "noResults": "Não foram encontrados locais correspondentes."
+        }
+      },
+      "checkboxGroup": {
+        "selectAll": "Selecionar tudo"
+      },
+      "geolocationButton": {
+        "error": {
+          "notSupported": "A geolocalização não é suportada pelo seu browser.",
+          "permissionDenied": "Permissão negada. Ativar os serviços de localização.",
+          "timeout": "O pedido para obter a localização do utilizador expirou.",
+          "unavailable": "As informações de localização não estão disponíveis.",
+          "unknown": "Ocorreu um erro desconhecido ao tentar obter a sua localização."
+        },
+        "label": {
+          "useMyLocation": "Utilizar a minha localização atual"
+        },
+        "tooltip": {
+          "default": "Obter a localização atual"
+        }
+      },
+      "mapViewport": {
+        "aria": {
+          "map": "Mapa de seleção de locais"
+        },
+        "loading": {
+          "api": "A carregar a API do mapa...",
+          "components": "Carregar componentes do mapa..."
+        },
+        "markerTitle": "Localização selecionada"
+      },
+      "passwordStrengthIndicator": {
+        "fair": "Justo",
+        "strong": "Forte",
+        "weak": "Fraco"
+      },
+      "registrationPage": {
+        "error": {
+          "formLoadError": "Ocorreu um erro ao carregar o formulário de registo. Por favor, tente novamente mais tarde.",
+          "genericError": "Ocorreu um erro (Estado: {{status}}). Verifique a sua introdução.",
+          "noResponse": "Não há resposta do servidor. Verifique a sua ligação de rede.",
+          "noTokensReturned": "O registo foi bem sucedido, mas não foram devolvidos quaisquer tokens.",
+          "registrationFailed": "O registo falhou. Por favor, tente novamente.",
+          "serverError": "Ocorreu um erro no servidor. Tente novamente mais tarde ou contacte o suporte.",
+          "unknownError": "Ocorreu um erro desconhecido durante o registo."
+        },
+        "stageTrackerLabels": {
+          "0": "Informações comerciais",
+          "2": "Logótipo",
+          "3": "Perfil",
+          "4": "Preferências"
+        },
+        "stepTitles": {
+          "businessInfo": "Informações comerciais",
+          "businessLocation": "Localização da empresa",
+          "businessLogo": "Logótipo da empresa",
+          "setupPreferences": "Preferências de configuração",
+          "yourProfile": "O seu perfil",
+          "yourProfileImage": "A sua imagem de perfil"
+        },
+        "success": {
+          "accountCreatedWithIssues": {
+            "base": "Conta criada com sucesso. ",
+            "logoFail": "No entanto, o logótipo da empresa não pôde ser carregado: {{error}} ",
+            "manageInDashboard": "Pode geri-los a partir do seu painel de controlo.",
+            "profileFail": "A imagem de perfil não pôde ser carregada: {{error}} "
+          },
+          "finalSuccessMessage": "A sua conta e perfil de empresa foram criados com sucesso. A sua sessão está agora iniciada.",
+          "finalSuccessTitle": "Registo concluído!",
+          "registrationComplete": "Registo bem sucedido! Escolha um plano para ativar a sua conta.",
+          "toastFileUploadWarning": "Conta criada! Alguns carregamentos de ficheiros tiveram problemas, pode geri-los a partir do seu painel de controlo. Por favor, escolha um plano."
+        }
+      },
+      "stageTracker": {
+        "optionalLabel": "(Opcional)"
+      }
+    },
+    "steps": {
+      "locationStage": {
+        "label": {
+          "mapLocation": "Localização"
+        }
+      },
+      "step0BusinessInfo": {
+        "console": {
+          "invalidErrorsProp": "Step0BusinessInfo: Prop `errors` inválida. Esperava-se um objeto ou undefined.",
+          "invalidFormDataProp": "Step0BusinessInfo: Prop `formData` inválida. Esperava-se um objeto.",
+          "invalidUpdateFieldProp": "Step0BusinessInfo: Prop. `updateField` inválida. Esperava-se uma função."
+        },
+        "defaultBusinessTags": {
+          "0": "Restaurant",
+          "1": "Cafe",
+          "10": "Orgânico",
+          "11": "Aprovisionamento local",
+          "12": "Cafetaria",
+          "13": "Bar de sumos",
+          "14": "Camião de comida",
+          "15": "Pizzaria",
+          "16": "De propriedade familiar",
+          "17": "Apenas em linha",
+          "18": "Só com marcação prévia",
+          "19": "Sustentável",
+          "2": "Retalho",
+          "20": "Luxo",
+          "21": "Económico",
+          "22": "Amigo dos animais",
+          "3": "Serviço",
+          "4": "Padaria",
+          "5": "Bar",
+          "6": "Mercearia",
+          "7": "Restauração",
+          "8": "Vegan",
+          "9": "Sem glúten"
+        },
+        "errors": {
+          "formDataMissing": "Erro: Faltam dados do formulário para esta etapa.",
+          "updateFieldMissing": "Erro: Falta o mecanismo de atualização do formulário."
+        },
+        "helptext": {
+          "businessTags": "Selecione, no máximo, 7 etiquetas que melhor descrevam a sua atividade."
+        },
+        "label": {
+          "businessEmail": "E-mail comercial",
+          "businessName": "Nome da empresa",
+          "businessPhone": "Telefone comercial",
+          "businessTags": "Etiquetas comerciais (Descreva a sua atividade)",
+          "businessUsername": "Nome de utilizador comercial",
+          "businessWebsiteOptional": "Sítio Web da empresa (opcional)",
+          "referralCodeOptional": "Código de referência (opcional)"
+        },
+        "placeholder": {
+          "businessEmail": "Por exemplo, contact@artisancorner.com",
+          "businessName": "Por exemplo, o \"The Artisan Corner",
+          "businessPhone": "por exemplo, +1 (555) 123-4567",
+          "businessTags": "Digite e prima Enter (por exemplo, Café, Handmade)",
+          "businessUsername": "por exemplo, @artisancorner",
+          "businessWebsite": "Por exemplo, https://artisancorner.com",
+          "referralCode": "Introduza o código, se tiver um"
+        }
+      },
+      "step2BusinessLogo": {
+        "console": {
+          "invalidErrorsProp": "Step2BusinessLogo: Prop `errors` inválida. Esperava-se um objeto ou indefinido. A exibição de erros pode ser afetada.",
+          "invalidFormDataProp": "Step2BusinessLogo: Prop `formData` inválida. Esperava-se um objeto.",
+          "invalidUpdateFieldProp": "Step2BusinessLogo: Prop. `updateField` inválida. Esperava-se uma função."
+        },
+        "description": "O seu logótipo é fundamental para a identidade da sua marca. Carregue uma imagem nítida. Recomendamos um logótipo quadrado ou um que se adapte bem a um quadrado.",
+        "errors": {
+          "formDataUnavailable": "Erro: Os dados do formulário não estão disponíveis para a etapa do logótipo comercial.",
+          "updateMechanismImproperlyConfigured": "Erro: O mecanismo de atualização do formulário não está configurado corretamente."
+        },
+        "title": "Carregar o logótipo da sua empresa"
+      },
+      "step3Profile": {
+        "aria": {
+          "hidePassword": "Ocultar palavra-passe",
+          "showPassword": "Mostrar palavra-passe"
+        },
+        "console": {
+          "invalidFormDataProp": "Step3Profile: Prop `formData` inválida. Esperava-se um objeto.",
+          "invalidPasswordStrengthProp": "Step3Profile: Prop `passwordStrength` inválida ou em falta. Esperava-se uma string.",
+          "invalidPasswordVisibilityProps": "Step3Profile: Props de visibilidade de senha inválidos ou ausentes (`showPassword`, `setShowPassword`).",
+          "invalidUpdateFieldProp": "Step3Profile: Prop `updateField` inválida. Esperava-se uma função."
+        },
+        "errors": {
+          "passwordStrengthMissing": "Erro: Faltam informações sobre a força da palavra-passe.",
+          "passwordVisibilityControlMissing": "Erro: Falta o controlo de visibilidade da palavra-passe."
+        },
+        "label": {
+          "confirmPassword": "Confirmar a palavra-passe",
+          "contactEmail": "E-mail de contacto",
+          "contactPhone": "Número de telefone de contacto",
+          "createPassword": "Criar palavra-passe",
+          "fullName": "O seu nome completo",
+          "lastName": "O seu apelido completo",
+          "roleAtBusiness": "A sua função/título na empresa"
+        },
+        "placeholder": {
+          "confirmPassword": "Reintroduzir a sua palavra-passe",
+          "contactEmail": "Por exemplo, alex.johnson@example.com",
+          "contactPhone": "(555) 123-4567",
+          "firstName": "Por exemplo, Alex",
+          "lastName": "Por exemplo, Johnson",
+          "passwordMinChars": "Mínimo de 8 caracteres",
+          "role": "por exemplo, Proprietário, Gerente, Chefe de cozinha"
+        }
+      },
+      "step4Preferences": {
+        "console": {
+          "invalidErrorsProp": "Step4Preferences: Prop `errors` inválida. Esperava-se um objeto ou undefined.",
+          "invalidFormDataProp": "Step4Preferences: Prop `formData` inválida. Esperava-se um objeto.",
+          "invalidUpdateFieldProp": "Step4Preferences: Prop. `updateField` inválida. Esperava-se uma função."
+        },
+        "errors": {
+          "formDataMissing": "Erro: Faltam dados do formulário para as preferências."
+        },
+        "helptext": {
+          "dailySummaryTime": "Definir uma hora para receber resumos diários, se aplicável.",
+          "referralSources": "Diga-nos como nos encontrou!"
+        },
+        "label": {
+          "acceptTerms": "Tomei conhecimento e concordo com o site {termsLink} e o site {privacyLink}.",
+          "preferredDailySummaryTimeOptional": "Hora preferida do resumo diário (opcional)",
+          "preferredLanguage": "Língua preferida",
+          "preferredNotificationMethod": "Método de notificação preferido",
+          "primaryCurrency": "Moeda principal",
+          "referralSourcesOptional": "Como é que ouviu falar de nós? (Opcional)",
+          "timezone": "Fuso horário"
+        },
+        "linkText": {
+          "privacyPolicy": "Política de privacidade",
+          "termsOfService": "Termos do serviço"
+        },
+        "options": {
+          "currencies": {
+            "0": {
+              "label": "USD - Dólar dos Estados Unidos",
+              "value": "USD"
+            },
+            "1": {
+              "label": "EUR - Euro",
+              "value": "EUR"
+            },
+            "2": {
+              "label": "GBP - Libra esterlina britânica",
+              "value": "GBP"
+            },
+            "3": {
+              "label": "JPY - Iene japonês",
+              "value": "JPY"
+            },
+            "4": {
+              "label": "CAD - Dólar Canadiano",
+              "value": "CAD"
+            },
+            "5": {
+              "label": "AUD - Dólar australiano",
+              "value": "AUD"
+            },
+            "6": {
+              "label": "CHF - Franco suíço",
+              "value": "CHF"
+            }
+          },
+          "languages": {
+            "0": {
+              "label": "Inglês",
+              "value": "en"
+            },
+            "1": {
+              "label": "Inglês (Inglês)",
+              "value": "es"
+            },
+            "10": {
+              "label": "Árabe",
+              "value": "ar"
+            },
+            "11": {
+              "label": "हिन्दी (Hindi)",
+              "value": "oi"
+            },
+            "2": {
+              "label": "Français (Francês)",
+              "value": "fr"
+            },
+            "3": {
+              "label": "Alemão (Alemão)",
+              "value": "de"
+            },
+            "4": {
+              "label": "Italiano (italiano)",
+              "value": "ele"
+            },
+            "5": {
+              "label": "Português (Portuguese)",
+              "value": "pt"
+            },
+            "6": {
+              "label": "简体中文 (Chinês simplificado)",
+              "value": "zh-CN"
+            },
+            "7": {
+              "label": "Japonês (japonês)",
+              "value": "ja"
+            },
+            "8": {
+              "label": "Português (Português)",
+              "value": "ko"
+            },
+            "9": {
+              "label": "Russo",
+              "value": "ru"
+            }
+          },
+          "notificationMethods": {
+            "0": {
+              "label": "Correio eletrónico",
+              "value": "correio eletrónico"
+            },
+            "1": {
+              "label": "SMS (Mensagem de texto)",
+              "value": "sms"
+            },
+            "2": {
+              "label": "Notificação push",
+              "value": "empurrar"
+            },
+            "3": {
+              "label": "Nenhum",
+              "value": "nenhum"
+            }
+          },
+          "timezones": {
+            "0": {
+              "label": "América/Nova Iorque (EST/EDT)",
+              "value": "América/Nova_York"
+            },
+            "1": {
+              "label": "América/Chicago (CST/CDT)",
+              "value": "América/Chicago"
+            },
+            "10": {
+              "label": "Ásia/Dubai (GST)",
+              "value": "Ásia/Dubai"
+            },
+            "11": {
+              "label": "Ásia/Kolkata (IST)",
+              "value": "Ásia/Kolkata"
+            },
+            "12": {
+              "label": "Ásia/Shanghai (CST)",
+              "value": "Ásia/Shanghai"
+            },
+            "13": {
+              "label": "Austrália/Sydney (AEST/AEDT)",
+              "value": "Austrália/Sydney"
+            },
+            "14": {
+              "label": "Austrália/Perth (AWST)",
+              "value": "Austrália/Perth"
+            },
+            "15": {
+              "label": "África/Cairo (EET)",
+              "value": "África/Cairo"
+            },
+            "16": {
+              "label": "África/Joanesburgo (SAST)",
+              "value": "África/Joanesburgo"
+            },
+            "17": {
+              "label": "Tempo Universal Coordenado (UTC)",
+              "value": "UTC"
+            },
+            "2": {
+              "label": "América/Denver (MST/MDT)",
+              "value": "América/Denver"
+            },
+            "3": {
+              "label": "América/Los Angeles (PST/PDT)",
+              "value": "América/Los_Angeles"
+            },
+            "4": {
+              "label": "America/Sao Paulo (BRT/BRST)",
+              "value": "América/São_Paulo"
+            },
+            "5": {
+              "label": "Europa/Londres (GMT/BST)",
+              "value": "Europa/Londres"
+            },
+            "6": {
+              "label": "Europa/Paris (CET/CEST)",
+              "value": "Europa/Paris"
+            },
+            "7": {
+              "label": "Europa/Berlim (CET/CEST)",
+              "value": "Europa/Berlim"
+            },
+            "8": {
+              "label": "Europa/Moscovo (MSK)",
+              "value": "Europa/Moscovo"
+            },
+            "9": {
+              "label": "Ásia/Tóquio (JST)",
+              "value": "Ásia/Tóquio"
+            }
+          }
+        },
+        "placeholder": {
+          "referralSources": "Por exemplo, amigo, redes sociais, anúncio",
+          "selectCurrency": "Selecione a sua moeda",
+          "selectNotificationChannel": "Selecionar o canal de notificação",
+          "selectTimezone": "Selecione o seu fuso horário"
+        }
+      },
+      "step5ProfileImage": {
+        "console": {
+          "invalidErrorsProp": "Step5ProfileImage: Prop `errors` inválida. Esperava-se um objeto ou indefinido. A exibição de erros pode ser afetada.",
+          "invalidFormDataProp": "Step5ProfileImage: Prop `formData` inválida. Esperava-se um objeto.",
+          "invalidUpdateFieldProp": "Step5ProfileImage: Prop `updateField` inválida. Esperava-se uma função."
+        },
+        "description": "Uma imagem de perfil clara e simpática ajuda a criar confiança e reconhecimento. Escolha uma imagem que represente a sua personalidade e seja visualmente apelativa.",
+        "errors": {
+          "formDataUnavailable": "Erro: Os dados do formulário não estão disponíveis para o passo da imagem de perfil."
+        },
+        "title": "Definir a sua imagem de perfil"
+      }
+    },
+    "useFormState": {
+      "error": {
+        "form": {
+          "correctErrorsInStep": "Corrija os erros no passo {stepNumber}.",
+          "correctErrorsInStepTitleCase": "Corrija os erros na etapa {stepNumber}."
+        }
+      },
+      "log": {
+        "failedToParseSessionStorage": "useFormState: Falha ao analisar o estado do armazenamento da sessão:",
+        "failedToSaveSessionStorage": "useFormState: Falha ao guardar o estado no armazenamento da sessão:"
+      },
+      "passwordStrength": {
+        "fair": "justo",
+        "strong": "forte",
+        "weak": "fraco"
+      },
+      "validation": {
+        "acceptTermsRequired": "O utilizador deve aceitar as Condições de Serviço e a Política de Privacidade.",
+        "addressCityRequired": "A cidade é obrigatória.",
+        "addressCountryRequired": "O país é obrigatório.",
+        "addressDetailsRequired": "São necessários dados de endereço.",
+        "addressPostalCodeRequired": "O código postal é obrigatório.",
+        "addressStreetRequired": "É necessário o endereço postal.",
+        "businessEmailRequired": "É necessário um correio eletrónico profissional.",
+        "businessNameRequired": "O nome da empresa é obrigatório.",
+        "businessPhoneRequired": "O número de telefone da empresa é obrigatório.",
+        "businessTagsMin": "Selecione pelo menos uma etiqueta comercial.",
+        "businessUsernameInvalidFormat": "O nome de utilizador só pode conter letras, números e sublinhados.",
+        "businessUsernameRequired": "É necessário um nome de utilizador.",
+        "businessWebsiteInvalidUrl": "Introduza um URL válido (por exemplo, https://example.com).nullable()",
+        "confirmPasswordMatch": "As palavras-passe têm de corresponder.",
+        "confirmPasswordRequired": "Confirme a sua palavra-passe.",
+        "currencyRequired": "É necessário selecionar a moeda.",
+        "emailInvalid": "Formato de correio eletrónico inválido.",
+        "languageRequired": "É necessário selecionar a língua.",
+        "locationRequiredOnMap": "A localização é obrigatória. Selecione no mapa.",
+        "logoFileSizeTooLarge": "O ficheiro do logótipo é demasiado grande (máx. 5 MB).",
+        "logoFileTypeUnsupported": "Formato de logótipo não suportado (PNG, JPG, GIF, WEBP).",
+        "passwordMinLength": "A palavra-passe deve ter pelo menos 8 caracteres.",
+        "passwordRequired": "É necessária uma palavra-passe.",
+        "passwordRequiresLowercase": "A palavra-passe deve conter uma letra minúscula.",
+        "passwordRequiresNumber": "A palavra-passe deve conter um número.",
+        "passwordRequiresSpecialChar": "A palavra-passe deve conter um carácter especial.",
+        "passwordRequiresUppercase": "A palavra-passe deve conter uma letra maiúscula.",
+        "profileEmailRequired": "O seu e-mail de contacto é obrigatório.",
+        "profileImageFileSizeTooLarge": "A imagem do perfil é demasiado grande (máx. 5MB).",
+        "profileImageFileTypeUnsupported": "Formato de imagem não suportado.",
+        "profileNameRequired": "O seu nome completo é obrigatório.",
+        "profilePhoneRequired": "O seu número de telefone de contacto é obrigatório.",
+        "timezoneRequired": "É necessário selecionar o fuso horário."
+      }
+    }
+  },
+  "venue_management": {
+    "actions": "Acções",
+    "add": "Adicionar",
+    "cancel": "Cancel",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "currencyFormat": "{symbol}{amount}",
+    "currencySymbol": "$",
+    "decimalSeparator": ".",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "error": "Erro",
+    "finish": "Acabamento",
+    "info": "Informações",
+    "items": "Artigos",
+    "loading": "Carregando...",
+    "next": "Seguinte",
+    "no": "Não",
+    "noDataAvailable": "Não existem dados disponíveis.",
+    "page": "Página",
+    "requiredField": "Este campo é obrigatório.",
+    "save": "Guardar",
+    "search": "Pesquisar",
+    "submit": "Enviar",
+    "success": "Sucesso",
+    "thousandSeparator": ",",
+    "total": "Total",
+    "venueManagement": {
+      "canvasCell": {
+        "gridCellRoleDescription": "Célula da grelha de apresentação"
+      },
+      "counterEditor": {
+        "actualBaseHeightLabel": "Altura real da base (menor):",
+        "actualBaseWidthLabel": "Largura real da base (menor):",
+        "decorTypeLabel": "Tipo de decoração (se existir):",
+        "infoSectionTitle": "Informações do contador",
+        "invalidItemError": "Erro: Item inválido para o Counter Editor.",
+        "labelPlaceholder": "Por exemplo, Barra principal, Registo",
+        "labelTooltip": "Introduzir uma etiqueta opcional para este contador.",
+        "lengthHelpText": "Define o comprimento ao longo do seu eixo principal. A espessura é de 1 unidade maior.",
+        "lengthLabel": "Comprimento (unidades de grelha principais)",
+        "lengthPlaceholder": "por exemplo, 2",
+        "lengthTooltip": "Comprimento do contador ao longo do seu eixo principal, em células principais da grelha."
+      },
+      "counterRenderer": {
+        "defaultLabel": "Balcão"
+      },
+      "decorEditor": {
+        "decorTypeGeneric": "Genéricos",
+        "decorTypeLabel": "Tipo de decoração:",
+        "dimensionsHelpText": "As dimensões aplicam-se à base do artigo antes da rotação.",
+        "heightLabel": "Altura (células menores)",
+        "heightTooltip": "Altura da base do item antes da rotação.",
+        "infoSectionTitle": "Informações sobre a decoração",
+        "labelOptionalLabel": "Etiqueta (opcional)",
+        "labelPlaceholder": "por exemplo, feto em vaso, tapete de área",
+        "labelTooltip": "Introduzir uma etiqueta opcional para este artigo de decoração.",
+        "shapeConfigLabel": "Configuração da forma:",
+        "widthLabel": "Largura (células menores)",
+        "widthTooltip": "Largura da base do item antes da rotação."
+      },
+      "doorEditor": {
+        "infoSectionTitle": "Por informações",
+        "leftSwingOption": "Balanço à esquerda",
+        "rightSwingOption": "Balanço à direita",
+        "selectSwingPlaceholder": "Selecionar a direção de oscilação",
+        "standardDoorType": "Porta standard",
+        "swingDirectionLabel": "Direção de oscilação",
+        "typeLabel": "Tipo:"
+      },
+      "draggableTool": {
+        "ariaLabelActivePlacement": "{toolName} ferramenta. Atualmente ativa para colocação.",
+        "ariaLabelDefault": "{toolName} ferramenta. Clique para selecionar ou arraste para adicionar.",
+        "tooltipActivePlacement": "Ferramenta '{toolName}' ativo. Clique numa célula para a colocar.",
+        "tooltipDefaultFullMode": "Clique para selecionar ou Arraste para adicionar {toolName}",
+        "tooltipDefaultZenMode": "{toolName}"
+      },
+      "editorCanvas": {
+        "gridRegionLabel": "Área da grelha de apresentação",
+        "mainCanvasAreaLabel": "Tela de desenho da disposição do local",
+        "resizePreviewAriaHidden": "verdadeiro"
+      },
+      "editorToolbar": {
+        "colsLabel": "C:",
+        "elementsCategory": "Elementos",
+        "eraserActivateTooltip": "Ativar a borracha (E)",
+        "eraserDeactivateTooltip": "Desativar a borracha (E)",
+        "focusModeEnterTooltip": "Entrar no modo de focagem",
+        "focusModeExitTooltip": "Sair do modo de focagem (Esc)",
+        "gridColsAriaLabel": "Colunas da grelha",
+        "gridRowsAriaLabel": "Linhas de grelha",
+        "gridSubdivisionAriaLabel": "Subdivisão da grelha",
+        "redoTooltip": "Refazer (Ctrl+Y)",
+        "resetZoomTooltip": "Repor o zoom ({percentage}%)",
+        "rowsLabel": "R:",
+        "saveLayoutTooltip": "Guardar esquema (Ctrl+S)",
+        "subdivisionOptionSuffix": "x{value}",
+        "toolbarLabel": "Barra de ferramentas do editor de layout",
+        "undoTooltip": "Anular (Ctrl+Z)",
+        "zoomInTooltip": "Aumentar o zoom (+)",
+        "zoomOutTooltip": "Reduzir o zoom (-)"
+      },
+      "itemConfigs": {
+        "placedDecorDisplayName": "Decoração",
+        "placedDoorDisplayName": "Por",
+        "placedTableDisplayName": "Tabela",
+        "placedWallDisplayName": "Parede",
+        "plantToolName": "Planta",
+        "rectTableToolName": "Rect. Mesa",
+        "roundTableToolName": "Mesa redonda",
+        "rugToolName": "Tapete",
+        "squareTableToolName": "Mesa quadrada"
+      },
+      "layoutEditor": {
+        "canvasAreaLabel": "Área de desenho do ecrã",
+        "cellClickedExistingItem": "Célula clicada para mover item EXISTENTE. Candidato: {itemId}, Alvo: R{row}C{col}",
+        "cellClickedNewItem": "Célula clicada para colocação de NOVO item. Ferramenta: {toolName}, Target: R{row}C{col}",
+        "confirmClearConfirmText": "Sim, Limpar tudo e reiniciar",
+        "confirmClearMessage": "Tem a certeza de que pretende limpar todos os itens e repor as predefinições da grelha? Esta ação será registada no histórico, mas a limpeza direta é um passo significativo.",
+        "confirmClearTitle": "Limpar todo o layout",
+        "propertiesInspectorRegionLabel": "Inspetor de propriedades do item",
+        "saveErrorNotConfigured": "Função de gravação (onSaveTrigger) não configurada para o LayoutEditor.",
+        "toolDeselectedForPlacement": "Ferramenta não selecionada para colocação.",
+        "toolSelectedForPlacement": "Ferramenta selecionada para colocação: {toolName}",
+        "validationErrorDuplicateTableNumbers": "Os números de tabela devem ser únicos.",
+        "validationErrorInvalidTables": "Certifique-se de que todas as tabelas têm números válidos e positivos.",
+        "validationErrorTitle": "Erro de validação de layout"
+      },
+      "layoutItemRendererUtils": {
+        "defaultPreviewRendererItemNameFallback": "Artigo desconhecido",
+        "defaultPreviewRendererTitle": "{itemName} (ID: {itemId})"
+      },
+      "liveOrderDashboard": {
+        "activeStatus": "Ativo",
+        "activeViewedLabel": "Visto ativamente: {count}",
+        "alertNoTablesForSimulateMessage": "Por favor, desenhe primeiro a disposição da mesa antes de simular as encomendas.",
+        "alertNoTablesForSimulateTitle": "Nenhuma tabela definida",
+        "confirmChargeCancelText": "Não, ainda não",
+        "confirmChargeConfirmText": "Sim, carregado e limpo",
+        "confirmChargeMessage": "Já facturou o cliente e está pronto para limpar a tabela {number}?",
+        "confirmChargeTitle": "Confirmar o carregamento e limpar a tabela",
+        "delayedStatus": "Atrasado",
+        "designLayoutButton": "Layout da mesa de projeto",
+        "footerText": "Sistema de gestão de mesas de padaria © {year}",
+        "hideSidebar": "Ocultar barra lateral",
+        "idLabel": "ID: {id}...",
+        "itemsLabel": "Artigos:",
+        "kitchenAreaLabel": "Cozinha",
+        "liveStatusTitle": "Estado da mesa em direto (Actualiza {timeAgo})",
+        "newOrdersLabel": "Novas encomendas: {count}",
+        "noTablesDefinedMessage": "Clique em \"Conceber esquema de tabela\" para começar.",
+        "noTablesDefinedTitle": "Ainda não existem tabelas definidas.",
+        "orderDetailsTitle": "Detalhes da encomenda: Mesa {number}",
+        "peopleLabel": "Pessoas:",
+        "showSidebar": "Mostrar barra lateral",
+        "simulateOrderButton": "Simular Nova Ordem",
+        "tableLabel": "Tabela {number}",
+        "title": "Encomendas de padaria",
+        "totalPriceLabel": "Total: {price}",
+        "viewedOrdersTitle": "Encomendas visualizadas ({count})"
+      },
+      "placedItem": {
+        "defaultRendererIdLabel": "ID: {itemId}",
+        "defaultRendererMissingText": "Renderizador em falta",
+        "defaultRendererTypeLabel": "Tipo: {itemType}",
+        "itemBaseTitle": "{itemName}",
+        "itemDefaultAriaRole": "botão",
+        "itemEraserActionText": "Toque para apagar {itemName}",
+        "itemFixedSuffix": "(Fixo)",
+        "itemMoveCandidateSuffix": "Clique numa célula para mover {itemName}",
+        "itemProvisionalSuffix": "(Provisório - Clique no Editor para definir o número)",
+        "itemSelectActionText": "Toque para selecionar {itemName}"
+      },
+      "propertiesInspector": {
+        "closeButtonTooltip": "Fechar o painel de propriedades",
+        "defaultInspectorContent_noEditorConfigured": "Nenhum editor específico configurado para este tipo de item ou a chave configurada não corresponde.",
+        "defaultTitle": "Propriedades",
+        "minimizedTabTooltip": "Mostrar propriedades",
+        "noItemSelectedMessage": "Selecione um item na tela para ver as suas propriedades."
+      },
+      "resizeHandle": {
+        "directionE": "Leste",
+        "directionN": "Norte",
+        "directionS": "Sul",
+        "directionW": "Oeste",
+        "tooltipPrefix": "Redimensionar {direction}"
+      },
+      "rotationHandle": {
+        "ariaLabel": "Rodar o item em 90 graus",
+        "tooltip": "Rodar item (90°)"
+      },
+      "tableEditor": {
+        "defaultShapeLabel": "Forma predefinida:",
+        "fixedLabel": "Corrigido:",
+        "infoSectionTitle": "Informações sobre a tabela",
+        "itemIdLabel": "Item ID:",
+        "provisionalLabel": "Provisório:",
+        "rotationLabel": "Rotação:",
+        "seatsLabel": "Número de lugares",
+        "seatsPlaceholder": "por exemplo, 4 ou vazio por defeito",
+        "seatsTooltip": "Introduzir um número ou deixar em branco para os lugares predefinidos.",
+        "tableNumberHelpText": "Editar o número na própria tabela. Clique para selecionar e, em seguida, clique no número para editar.",
+        "tableNumberLabel": "Número do quadro",
+        "tableNumberValueNotSet": "Não definido",
+        "tableNumberValueProvisional": "Nº? (Colocar na mesa)"
+      },
+      "tableRenderer": {
+        "provisionalDisplayValue": "Nº?",
+        "provisionalTooltipText": "Tabela provisória (Clique no Editor para definir o número)",
+        "tableNumberPrefix": "T"
+      },
+      "useLayoutData": {
+        "layoutSavedMessage": "A disposição do local foi guardada com sucesso.",
+        "layoutSavedTitle": "Layout guardado",
+        "loadingErrorMessageDefault": "Não foi possível carregar o layout do local do evento a partir do servidor.",
+        "loadingErrorTitle": "Erro de carregamento",
+        "noActiveLayoutMessage": "Não foi encontrado nenhum layout ativo no backend. Utilizando a estrutura local predefinida.",
+        "resetLocallyMessage": "O esquema foi reposto para a predefinição. Guardar para manter estas alterações.",
+        "resetLocallyTitle": "Reinicialização local do layout",
+        "saveErrorDefault": "Não foi possível guardar a apresentação do local.",
+        "saveErrorDetailsPrefix": "Detalhes: {details}",
+        "saveErrorNoData": "Não são fornecidos dados de apresentação para guardar.",
+        "saveErrorNotLoaded": "Os dados da apresentação ainda não foram carregados. Aguarde e tente novamente.",
+        "saveErrorTitle": "Guardar erro"
+      },
+      "useLayoutDesignerStateManagement": {
+        "configErrorMissingConfigMessage": "Configuração em falta para o tipo de item: {itemType}. Por favor, contacte o suporte.",
+        "configErrorMissingConfigTitle": "Erro de configuração",
+        "configErrorMissingFactoryMessage": "Fábrica de propriedades em falta para o tipo de item: {itemType}. Por favor, contacte o suporte.",
+        "counterLengthPositiveError": "O comprimento do contador deve ser um número positivo.",
+        "counterSizingErrorConflict": "O contador não pode ser redimensionado: o novo tamanho entra em conflito ou está fora dos limites.",
+        "designerClearedMessage": "Todos os artigos foram retirados da disposição.",
+        "designerClearedTitle": "Designer autorizado",
+        "designerResetMessage": "As definições de esquema e grelha foram repostas para as predefinições.",
+        "designerResetTitle": "Redefinição do designer",
+        "dimensionErrorMinMessage": "Dimensões de base inválidas para um novo item. A dimensão mínima é {minCells} célula(s).",
+        "dimensionErrorTitle": "Erro de dimensão",
+        "duplicateTableNumberMessage": "A tabela número {number} já está a ser utilizada.",
+        "duplicateTableNumberTitle": "Número de tabela duplicado",
+        "factoryErrorMessage": "Erro ao criar propriedades para um novo item ({itemType}).",
+        "factoryErrorTitle": "Erro de fábrica",
+        "gridDimensionErrorRange": "Dimensões da grelha fora do intervalo. Mín/Máx Linhas: {minRows}-{maxRows}, Cols: {minCols}-{maxCols}.",
+        "gridDimensionErrorTitle": "Dimensão inválida",
+        "gridResizeErrorOutOfBoundsMessage": "Não é possível reduzir as dimensões. Alguns objectos estariam fora dos limites.",
+        "gridResizeErrorOutOfBoundsTitle": "Erro de redimensionamento",
+        "invalidInputTitle": "Entrada inválida",
+        "invalidRotationAngle": "Ângulo de rotação inválido.",
+        "invalidRotationType": "Tipo de rotação inválido.",
+        "invalidSeatCountMessage": "O número de lugares deve ser um número inteiro não negativo ou estar vazio.",
+        "invalidSeatCountTitle": "Contagem de lugares inválida",
+        "invalidSubdivisionMessage": "O nível de subdivisão da grelha é inválido.",
+        "invalidSubdivisionTitle": "Subdivisão inválida",
+        "invalidTableNumberMessage": "O número da tabela deve ser um número inteiro positivo ou estar vazio.",
+        "invalidTableNumberTitle": "Número de tabela inválido",
+        "placementErrorOccupiedOrOutOfBounds": "Não é possível colocar um item: Espaço ocupado ou fora dos limites.",
+        "placementErrorTitle": "Erro de colocação",
+        "resizeErrorConflictOrOutOfBounds": "O item redimensionado/movido entra em conflito ou está fora dos limites.",
+        "rotationErrorConflictOrOutOfBounds": "Não é possível rodar: a nova orientação entra em conflito ou está fora dos limites.",
+        "rotationErrorTitle": "Erro de rotação",
+        "sizingErrorTitle": "Erro de dimensionamento",
+        "subdivisionChangedMessage": "A subdivisão da grelha foi actualizada. As dimensões dos itens existentes estão em células menores e não serão escaladas automaticamente. Poderá ser necessário um ajuste manual se o tamanho pretendido for relativo a unidades de grelha principais.",
+        "subdivisionChangedTitle": "Subdivisão Alterada"
+      },
+      "useQrCodeManager": {
+        "downloadCompleteMessage": "Descarregado com sucesso {count} Códigos QR.",
+        "downloadCompleteTitle": "Descarregar completo",
+        "downloadErrorInvalidTable": "Dados de tabela inválidos para descarregamento QR.",
+        "downloadErrorTitle": "Erro de descarregamento",
+        "downloadFailedAllMessage": "De momento, não foi possível descarregar todos os códigos QR de {count}.",
+        "downloadFailedTitle": "Descarregar Falha",
+        "downloadIssueMixedMessage": "Não foram descarregados códigos QR. {failedCount} falhou, {skippedCount} foi ignorado (serviço indisponível).",
+        "downloadIssueMixedTitle": "Descarregar a edição",
+        "downloadPartialMessageFailed": " {failedCount} falhou.",
+        "downloadPartialMessageSkipped": " {skippedCount} ignorado (serviço indisponível).",
+        "downloadPartialMessageSuccess": "Descarregado com sucesso {downloadedCount} Códigos QR.",
+        "downloadPartialTitle": "Descarregar parcial",
+        "downloadStartingMessage": "A preparar a transferência do(s) código(s) QR disponível(eis) para a(s) mesa(s) {count}. Isto pode demorar um pouco.",
+        "downloadStartingSomeFailed": " Alguns QRs anteriormente não eram gerados.",
+        "downloadStartingSomeServiceDisabled": " Alguns QRs não estão disponíveis (serviço desativado).",
+        "downloadStartingSomeUnavailable": " Alguns QRs não estão disponíveis ou apresentam erros.",
+        "downloadStartingTitle": "Início da transferência",
+        "downloadUnavailableAllServiceMessage": "Todos os códigos QR estão atualmente indisponíveis porque o serviço de geração está offline.",
+        "noQrCodesToDownloadMessage": "Não existem tabelas válidas e numeradas para as quais descarregar códigos QR.",
+        "noQrCodesToDownloadTitle": "Sem códigos QR",
+        "qrFetchErrorMessage": "Não foi possível obter o QR para a tabela {tableIdentifier}: {errorMessage}",
+        "qrFetchErrorTitleGeneric": "Erro de rede",
+        "qrFetchErrorTitleHttp": "Erro QR (HTTP {status})",
+        "qrFetchServiceUnavailableMessage": "A geração de códigos QR para o quadro {tableIdentifier} não está atualmente disponível (o ponto final não está pronto).",
+        "qrFetchServiceUnavailableTitle": "Informações sobre o serviço QR",
+        "qrNotAvailableForDownloadTitle": "QR Não disponível",
+        "qrNotAvailableGenericDownloadError": "Não foi possível descarregar o QR para o quadro {tableIdentifier}. Certifique-se de que pode ser gerado.",
+        "qrNotAvailablePreviouslyFailedMessage": "O código QR para a tabela {tableIdentifier} não pôde ser gerado anteriormente. Tente atualizar ou verifique os registos.",
+        "qrNotAvailableServiceMessage": "O código QR do quadro {tableIdentifier} não pode ser descarregado porque o serviço de geração não está disponível."
+      },
+      "venueDesignerHeader": {
+        "designModeLabel": "Conceção",
+        "downloadQrTooltip": "Descarregar todos os códigos QR",
+        "focusModeTooltip": "Modo de focagem",
+        "previewModeLabel": "Pré-visualização",
+        "qrButtonText": "QRs"
+      },
+      "venueDesignerPage": {
+        "defaultLayoutName": "Configuração predefinida do local",
+        "discardAndExitButton": "Descartar e sair",
+        "errorGettingEditorStateMessage": "Não foi possível obter o estado atual do editor para pré-visualização. Por favor, guarde primeiro.",
+        "errorPageMessage": "Não foi possível inicializar os dados de layout. Tente atualizar. Se o problema persistir, contacte o suporte.",
+        "errorPageTitle": "Falha ao carregar dados de layout",
+        "exitLayoutManagerConfirmationMessage": "Tem alterações não guardadas. Tem a certeza de que pretende sair e rejeitá-las?",
+        "exitLayoutManagerTitle": "Sair do Layout Manager",
+        "initializingEditor": "Inicialização do editor...",
+        "loadingPageTitle": "Carregando Venue Designer...",
+        "loadingPreview": "Carregando a pré-visualização...",
+        "previewLastSavedButton": "Pré-visualização Última gravação",
+        "previewUnsavedButton": "Pré-visualização não guardada",
+        "previewingLastSavedAlertMessage": "Mostra a última versão guardada. As suas alterações não guardadas permanecem no editor.",
+        "previewingLastSavedAlertTitle": "Pré-visualização do último layout guardado",
+        "previewingUnsavedAlertMessage": "Está a ver as suas alterações actuais não guardadas. Estas ainda não foram guardadas no servidor.",
+        "previewingUnsavedAlertTitle": "Pré-visualização de alterações não guardadas",
+        "refreshPageButton": "Atualizar página",
+        "stayInDesignButton": "Permanecer no modo de desenho",
+        "stayOnPageButton": "Manter-se na página",
+        "switchToPreviewConfirmationMessage": "Tem alterações não guardadas. Como gostaria de passar para o modo de pré-visualização?",
+        "unsavedChangesTitle": "Alterações não guardadas"
+      },
+      "venueLayoutPreview": {
+        "downloadAllQrsButtonText": "Transferir todos os QRs",
+        "gridItemTableTooltip": "Quadro {number} - Clique para ver o QR na barra lateral",
+        "noTablesForQrMessage": "Mude para o 'Modo de desenho' para adicionar tabelas ao seu esquema e atribuir-lhes números.",
+        "noTablesForQrTitle": "Sem tabelas para códigos QR",
+        "previewUnavailableMessage": "Parece que não há dados de apresentação para apresentar ou as dimensões da grelha são inválidas. <br />Primeiro, desenhe a sua apresentação no \"Modo de desenho\".",
+        "previewUnavailableTitle": "Pré-visualização de layout indisponível",
+        "qrDownloadButtonTooltip": "Descarregar o código QR",
+        "qrErrorMessage": "Não foi possível carregar.",
+        "qrSeatsLabel": "{seats} Assentos",
+        "qrSeatsNotAvailable": "N/A Seats",
+        "qrShapeLabel": "{shape}",
+        "qrSidebarTitle": "Tabela Códigos QR",
+        "qrSkippedMessage": "Não disponível.",
+        "qrStatusError": "Erro ao carregar QR",
+        "qrStatusLoading": "Carregando QR...",
+        "qrStatusPending": "QR Pendente",
+        "qrStatusSkipped": "Geração de QR offline"
+      },
+      "wallEditor": {
+        "baseHeightLabel": "Altura da base (menor):",
+        "baseWidthLabel": "Largura da base (menor):",
+        "infoSectionTitle": "Informações sobre a parede",
+        "lengthLabel": "Comprimento (unidades principais):",
+        "thicknessHelpText": "Espessura dentro da sua própria célula de grelha. Não afecta a colisão. Máximo: {maxThickness}.",
+        "thicknessLabel": "Espessura visual (células menores)",
+        "thicknessTooltip": "Espessura visual da parede dentro da sua própria célula."
+      }
+    },
+    "view": "Ver",
+    "warning": "Aviso",
+    "yes": "Sim"
+  }
+}

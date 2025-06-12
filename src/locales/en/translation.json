@@ -1199,6 +1199,7 @@
           "changeCategory": "Change Category...",
           "deactivateSelected": "Deactivate Selected",
           "deleteSelected": "Delete Selected",
+          "placeholder": "Bulk Actions ({count})",
           "removeTags": "Remove Tags..."
         },
         "buttons": {

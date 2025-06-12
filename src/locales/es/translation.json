@@ -1199,6 +1199,7 @@
           "changeCategory": "Cambiar categoría...",
           "deactivateSelected": "Desactivar seleccionado",
           "deleteSelected": "Borrar seleccionados",
+          "placeholder": "Acciones masivas ({count})",
           "removeTags": "Quitar etiquetas..."
         },
         "buttons": {

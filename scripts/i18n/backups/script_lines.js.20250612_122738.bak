@@ -150,7 +150,7 @@ export const scriptLines_ProductsTable = {
             ariaLabel: i18n.t('products_table.productsTable.productsToolbar.sort.ariaLabel'), // "Sort by"
         },
         bulkActions: {
-            placeholder: i18n.t('products_table.productsTable.productsToolbar.bulkActions.placeholder'), // 
+            placeholder: "Bulk Actions ({count})", // 
             ariaLabel: i18n.t('products_table.productsTable.productsToolbar.bulkActions.ariaLabel'), // 
             activateSelected: i18n.t('products_table.productsTable.productsToolbar.bulkActions.activateSelected'), // 
             deactivateSelected: i18n.t('products_table.productsTable.productsToolbar.bulkActions.deactivateSelected'), // 

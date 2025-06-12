@@ -7,7 +7,7 @@
   "features\\live_orders_view\\utils\\script_lines.js": "e6a1dd18cdbebfd02d030285941a2e1218f2f68c382a275f55bc9e471028b6de",
   "features\\menu_view\\utils\\script_lines.js": "e8325f5f41c6915a33935903935f6b6f6aac7fc81c1f9ddd80488fccf34c029f",
   "features\\payments\\utils\\script_lines.js": "7a0ebc4bece69b78b588ba45674d578d36337a15943f09259c89279b6a8f22c1",
-  "features\\products_table\\utils\\script_lines.js": "17d578194f45e442f81d05bf571f2c41061d7b102a47d7779140cf56b44e3e61",
+  "features\\products_table\\utils\\script_lines.js": "4abc6c65e637cef3b4ef527f1cf27f5b79938a7aac0f53bfc02d23159f0f1352",
   "features\\register\\utils\\script_lines.js": "2ce2e375224662fe44fd6eb2d2aa7756b739cffbcaab2801508cc2d9c26112cb",
   "features\\venue_management\\utils\\script_lines.js": "2c810dbfc7d36a7d045a1e28bae8c718a31aae24530cc03de9282cd9e649e434"
 }

@@ -86,11 +86,11 @@ const PasswordSecurityCard = () => {
     };
 
     return (
-        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-xl">
+        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-4xl font-montserrat">
             <form onSubmit={handleSubmit} noValidate>
                 {/* Header Section */}
                 <div className="p-6 md:p-8 border-b border-white/10 dark:border-neutral-700">
-                    <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+                    <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">
                         Password & Security
                     </h3>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
@@ -98,36 +98,38 @@ const PasswordSecurityCard = () => {
                     </p>
                 </div>
                 {/* Content Section */}
-                <div className="p-6 md:p-8 space-y-6">
-                    <InputField
-                        id="oldPassword"
-                        label="Current Password"
-                        type="password"
-                        value={oldPassword}
-                        onChange={(e) => setOldPassword(e.target.value)}
-                        autoComplete="current-password"
-                        required
-                    />
-                    <InputField
-                        id="newPassword1"
-                        label="New Password"
-                        type="password"
-                        value={newPassword1}
-                        onChange={(e) => setNewPassword1(e.target.value)}
-                        autoComplete="new-password"
-                        required
-                    />
-                    <PasswordStrength strength={getPasswordStrength(newPassword1)} />
-                    <InputField
-                        id="newPassword2"
-                        label="Confirm New Password"
-                        type="password"
-                        value={newPassword2}
-                        onChange={(e) => setNewPassword2(e.target.value)}
-                        autoComplete="new-password"
-                        required
-                        error={combinedError}
-                    />
+                <div className="p-6 md:p-8">
+                    <div className='pt-6 space-y-12'>
+                        <InputField
+                            id="oldPassword"
+                            label="Current Password"
+                            type="password"
+                            value={oldPassword}
+                            onChange={(e) => setOldPassword(e.target.value)}
+                            autoComplete="current-password"
+                            required
+                        />
+                        <InputField
+                            id="newPassword1"
+                            label="New Password"
+                            type="password"
+                            value={newPassword1}
+                            onChange={(e) => setNewPassword1(e.target.value)}
+                            autoComplete="new-password"
+                            required
+                        />
+                        <PasswordStrength strength={getPasswordStrength(newPassword1)} />
+                        <InputField
+                            id="newPassword2"
+                            label="Confirm New Password"
+                            type="password"
+                            value={newPassword2}
+                            onChange={(e) => setNewPassword2(e.target.value)}
+                            autoComplete="new-password"
+                            required
+                            error={combinedError}
+                        />
+                    </div>
                 </div>
                 {/* Footer Section */}
                 <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-xl flex justify-end">

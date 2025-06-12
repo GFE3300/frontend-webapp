@@ -5,7 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // Import translation files
 import translationEN from './locales/en/translation.json';
 import translationES from './locales/es/translation.json';
-import translationPT from './locales/pt/translation.json';
+import translationPTPT from './locales/pt-PT/translation.json';
 
 const resources = {
     en: {
@@ -14,8 +14,8 @@ const resources = {
     es: {
         translation: translationES,
     },
-    pt: {
-        translation: translationPT,
+    'pt-PT': {
+        translation: translationPTPT,
     },
 };
 
@@ -26,7 +26,7 @@ i18n
         resources,
         fallbackLng: 'en',
 
-        supportedLngs: ['en', 'es', 'pt'],
+        supportedLngs: ['en', 'es', 'pt-PT'],
         debug: import.meta.env.DEV,
 
         interpolation: {

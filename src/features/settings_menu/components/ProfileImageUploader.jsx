@@ -170,7 +170,7 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
                 className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 focus:opacity-100 focus:outline-none"
                 aria-label="Change profile picture"
             >
-                <Icon name="edit" className="w-8 h-8 text-white" />
+                <Icon name="edit" className="w-8 h-8 text-white" style={{ fontSize: '2rem' }} />
             </button>
         </motion.div>
     );
@@ -223,7 +223,7 @@ const ProfileImageUploader = memo(({ initialSrc, onImageUpload }) => {
     );
 
     return (
-        <div className="flex flex-col items-center justify-center space-y-2">
+        <div className="flex flex-col font-montserrat items-center justify-center space-y-2">
             <AnimatePresence mode="wait">
                 {view === 'preview' && renderPreview()}
                 {view === 'dropzone' && renderDropzone()}

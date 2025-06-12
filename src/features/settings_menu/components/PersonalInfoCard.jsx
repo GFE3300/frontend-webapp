@@ -96,21 +96,20 @@ const PersonalInfoCard = ({ user }) => {
         }
     };
 
-    const languageOptions = [{ value: 'en', label: 'English' }, { value: 'es', label: 'Español (Spanish)' }, { value: 'pt', label: 'Português (Portuguese)' }];
+    const languageOptions = [{ value: 'en', label: 'English' }, { value: 'es', label: 'Español (Spanish)' }, { value: 'pt-PT', label: 'Português (Portuguese)' }];
 
     return (
-        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-xl">
+        <div className="bg-white/10 dark:bg-neutral-800/50 backdrop-blur-xl border border-white/20 dark:border-neutral-700 shadow-lg rounded-4xl font-montserrat">
             <div className="p-6 md:p-8 border-b border-white/10 dark:border-neutral-700">
-                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Personal Information</h3>
+                <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Personal Information</h3>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Update your photo and personal details here.</p>
             </div>
-            <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
                 <div className="lg:col-span-1 flex flex-col items-center">
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 w-full text-center">Your Photo</label>
                     <ProfileImageUploader initialSrc={user?.profile_image_url} onImageUpload={setProfileImageFile} />
                 </div>
-                {/* THE FIX: Show a loading state until the form is synced with user data */}
-                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-6">
+
+                <div className="lg:col-span-2 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-y-12 gap-x-6">
                     {isDataSynced ? (
                         <>
                             <InputField id="first_name" label="First Name" value={formData.first_name} onChange={handleInputChange} />
@@ -128,7 +127,7 @@ const PersonalInfoCard = ({ user }) => {
                     )}
                 </div>
             </div>
-            <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-xl flex justify-end">
+            <div className="p-6 md:px-8 bg-black/5 dark:bg-neutral-900/40 rounded-b-4xl flex justify-end">
                 <Button onClick={handleSaveChanges} disabled={isSaveDisabled || isSaveLoading} isLoading={isSaveLoading}>Save Changes</Button>
             </div>
         </div>

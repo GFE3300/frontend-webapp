@@ -304,6 +304,47 @@ def handle_sync(args):
     else:
         logging.info("No new strings found in changed files.")
 
+    # This block will run even if `all_new_strings` is empty, ensuring existing keys are synced.
+    logging.info("\n--- Checking for missing keys in target languages... ---")
+    target_languages_for_check = [lang for lang in config['languages'] if lang != source_lang]
+    if args.lang: # Respect the --lang flag if provided
+        target_languages_for_check = [lang for lang in args.lang if lang in target_languages_for_check]
+    
+    if target_languages_for_check:
+        # Re-load the source file in case it was updated with new strings above
+        source_keys = set(flatten_dict(load_json(source_translation_file)).keys())
+        
+        api_key = os.getenv("DEEPL_API_KEY")
+        translator = initialize_translator(api_key)
+        if not translator:
+            logging.error("Back-fill translation skipped due to translator initialization failure.")
+        else:
+            for lang_code in target_languages_for_check:
+                target_file = get_translation_file_path(lang_code)
+                target_translations = flatten_dict(load_json(target_file))
+                target_keys = set(target_translations.keys())
+                
+                missing_keys_for_lang = sorted(list(source_keys - target_keys))
+                
+                if missing_keys_for_lang:
+                    logging.warning(f"Language '{lang_code}' is missing {len(missing_keys_for_lang)} translation(s). Back-filling now...")
+                    
+                    full_source_translations = flatten_dict(load_json(source_translation_file))
+                    texts_to_translate = [full_source_translations[key] for key in missing_keys_for_lang]
+                    
+                    translated_texts = translate_texts(translator, texts_to_translate, lang_code)
+                    
+                    if translated_texts and len(translated_texts) == len(missing_keys_for_lang):
+                        for i, key in enumerate(missing_keys_for_lang):
+                            target_translations[key] = translated_texts[i]
+                        if not args.dry_run:
+                            save_json(target_file, unflatten_dict(target_translations))
+                        logging.info(f"Successfully added {len(missing_keys_for_lang)} missing keys to '{target_file.name}'.")
+                    else:
+                        logging.error(f"Failed to translate missing keys for '{lang_code}'. Skipping file save.")
+                else:
+                    logging.info(f"Language '{lang_code}' is already fully synchronized.")
+
     if not args.dry_run:
         save_state(STATE_FILE, current_state)
         logging.info("Synchronization process completed successfully.")
