@@ -178,7 +178,7 @@ const PlanSelection = ({
                                         <span className={`text-4xl sm:text-5xl font-medium ${plan.theme.textColor}`}>€{originalPrice.toFixed(2)}</span>
                                     )}
                                     <span className="text-lg font-medium text-neutral-500 dark:text-neutral-400">{plan.frequency}</span>
-                                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300 h-10">{plan.description}</p>
+                                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300 h-20">{plan.description}</p>
                                 </div>
                                 {/* --- END MODIFICATION --- */}
 
