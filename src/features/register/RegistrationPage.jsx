@@ -69,8 +69,7 @@ const RegistrationPage = () => {
     const { width } = useWindowSize();
     const vortexRef = useRef(null);
 
-    // --- NEW: Task 2.1 & 2.2: Capture URL parameters and prepare initial data ---
-    // Using useState with an initializer function to parse URL only once on mount.
+    // --- MODIFICATION: Capture URL parameters and prepare initial data ---
     const [initialDataFromUrl] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         const discountCode = params.get('discount_code');
@@ -78,7 +77,6 @@ const RegistrationPage = () => {
         const initialData = {};
 
         if (discountCode) {
-            // Map the `discount_code` URL param to the `referralCode` state key.
             initialData.referralCode = discountCode;
         }
         if (lang) {
@@ -87,9 +85,8 @@ const RegistrationPage = () => {
         return initialData;
     });
 
-    // Pass the captured data to the form state hook.
     const formState = useFormState(initialDataFromUrl);
-    // --- END NEW ---
+    // --- END MODIFICATION ---
 
     const [showPassword, setShowPassword] = useState(false);
     const [formFlowStatus, setFormFlowStatus] = useState('filling_form');
@@ -102,14 +99,14 @@ const RegistrationPage = () => {
     // Effects & Handlers
     // ===========================================================================
 
-    // --- NEW: Task 2.3: Set application language based on URL parameter ---
+    // --- MODIFICATION: Set application language based on URL parameter ---
     useEffect(() => {
         const lang = initialDataFromUrl.language;
         if (lang && i18n.language !== lang) {
             i18n.changeLanguage(lang);
         }
     }, [initialDataFromUrl.language]);
-    // --- END NEW ---
+    // --- END MODIFICATION ---
 
     useEffect(() => {
         if (vortexRef.current && formState.formData) {
@@ -133,7 +130,6 @@ const RegistrationPage = () => {
         const businessAddressData = formState.formData.address || {};
         const locationCoordsData = formState.formData.locationCoords || {};
 
-        // Helper to round numbers to 6 decimals (or less if not needed)
         const roundTo6Decimals = (num) => {
             if (typeof num !== 'number') return num;
             return Number(num.toFixed(6));
@@ -214,6 +210,12 @@ const RegistrationPage = () => {
             return;
         }
 
+        // --- MODIFICATION: Persist the referral code used from the backend response ---
+        if (mainRegResponse.data.referral_code_used) {
+            sessionStorage.setItem('pendingReferralCode', mainRegResponse.data.referral_code_used);
+        }
+        // --- END MODIFICATION ---
+
         let decodedToken;
         const newAccessToken = mainRegResponse.data.access || localStorage.getItem('accessToken');
         if (newAccessToken) {
@@ -247,10 +249,6 @@ const RegistrationPage = () => {
                 allUploadsSuccessful = false;
                 setFileUploadErrors(prev => ({ ...prev, profile: err.response?.data?.detail || "Profile image upload failed." }));
             }
-        }
-
-        if (formState.formData.referralCode) {
-            sessionStorage.setItem('pendingReferralCode', formState.formData.referralCode);
         }
 
         if (allUploadsSuccessful && Object.keys(fileUploadErrors).length === 0) {

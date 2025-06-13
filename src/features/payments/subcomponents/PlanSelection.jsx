@@ -44,7 +44,7 @@ const PlanSelection = ({
     onManageSubscription,
     themeColor = scriptLines.planSelection.themeColorDefault,
     isLoading = false,
-    appliedDiscount = null, // Accept the new prop
+    appliedDiscount = null, // MODIFICATION: Accept the new prop
 }) => {
     const prefersReducedMotion = useReducedMotion();
     const { isAuthenticated } = useAuth();
@@ -118,16 +118,19 @@ const PlanSelection = ({
                 {PLANS_DATA.map((plan) => {
                     const isCurrentActivePlan = isAuthenticated && currentSubscription?.is_active && currentSubscription?.plan_name === plan.id;
 
-                    // Dynamic Price Calculation
+                    // --- MODIFICATION: Dynamic Price Calculation ---
                     const originalPrice = parseFloat(plan.price);
                     let discountedPrice = originalPrice;
                     let hasApplicableDiscount = false;
 
+                    // This logic assumes the affiliate discount applies as a percentage to any plan.
+                    // The backend validation ensures the code itself is valid.
                     if (appliedDiscount?.valid && appliedDiscount.type === 'order_total_percentage') {
                         const discountPercentage = parseFloat(appliedDiscount.value) / 100;
                         discountedPrice = originalPrice * (1 - discountPercentage);
                         hasApplicableDiscount = true;
                     }
+                    // --- END MODIFICATION ---
 
                     let ctaText = isCurrentActivePlan ? scriptLines.planSelection.buttons.manageSubscription : scriptLines.planSelection.buttons.chooseThisPlan;
                     if (!isCurrentActivePlan && currentSubscription?.is_active) {
@@ -164,6 +167,7 @@ const PlanSelection = ({
                                     <h2 className="text-2xl sm:text-3xl font-semibold text-neutral-800 dark:text-white">{plan.name}</h2>
                                 </div>
 
+                                {/* --- MODIFICATION: Conditional Price Rendering --- */}
                                 <div className="mb-6">
                                     {hasApplicableDiscount ? (
                                         <div className="flex items-baseline gap-x-2">
@@ -176,6 +180,7 @@ const PlanSelection = ({
                                     <span className="text-lg font-medium text-neutral-500 dark:text-neutral-400">{plan.frequency}</span>
                                     <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300 h-10">{plan.description}</p>
                                 </div>
+                                {/* --- END MODIFICATION --- */}
 
                                 <ul className="space-y-2.5 text-sm text-neutral-700 dark:text-neutral-200 mb-8 flex-grow">
                                     {plan.features.map((feature, i) => (

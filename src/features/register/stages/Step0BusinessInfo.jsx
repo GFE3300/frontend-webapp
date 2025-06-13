@@ -85,7 +85,9 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
     // ===========================================================================
     // Rendering
     // ===========================================================================
+    // --- MODIFICATION: Determine if the referral code field should be disabled ---
     const isReferralCodeDisabled = !!formData.referralCode;
+    // --- END MODIFICATION ---
 
     return (
         <>
@@ -161,6 +163,7 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                 />
             </div>
 
+            {/* --- MODIFICATION: Referral code field with visual feedback --- */}
             <div className="relative mb-12">
                 <InputField
                     label={scriptLines.step0BusinessInfo.label.referralCodeOptional}
@@ -178,6 +181,7 @@ const Step0BusinessInfo = ({ formData, updateField, errors }) => {
                     </div>
                 )}
             </div>
+            {/* --- END MODIFICATION --- */}
 
             <div className="mb-12">
                 <TagInput

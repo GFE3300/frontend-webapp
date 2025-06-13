@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStripe } from '@stripe/react-stripe-js';
 import { useMutation } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import apiService from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useValidatePromoCode } from '../../contexts/ProductDataContext';
 import PlanSelection from './subcomponents/PlanSelection.jsx';
 import Spinner from '../../components/common/Spinner';
 import BubbleAnimation from '../../features/register/subcomponents/BubbleAnimation';
@@ -29,38 +30,27 @@ const PlanAndPaymentPage = () => {
     const [error, setError] = useState(null);
     const vortexRef = useRef(null);
 
-    // New state for dynamic discount handling
     const [referralCode, setReferralCode] = useState('');
     const [appliedDiscount, setAppliedDiscount] = useState(null);
     const [validationStatus, setValidationStatus] = useState('idle'); // 'idle', 'validating', 'valid', 'invalid'
     const [validationMessage, setValidationMessage] = useState('');
 
-    // Mutation for validating the discount code via the API
-    const validateCodeMutation = useMutation({
-        mutationFn: (code) => {
-            if (!code || !user?.activeBusinessId) {
-                return Promise.reject(new Error("Code or business ID is missing."));
-            }
-            return apiService.post('discounts/validate-promo-code/', {
-                code_name: code,
-                business_identifier: user.activeBusinessId,
-            });
-        },
+    const validateCodeMutation = useValidatePromoCode({
         onMutate: () => {
             setValidationStatus('validating');
             setValidationMessage('');
         },
-        onSuccess: (response) => {
-            if (response.data.valid) {
-                setAppliedDiscount(response.data);
+        onSuccess: (data) => {
+            if (data.valid) {
+                setAppliedDiscount(data);
                 setValidationStatus('valid');
                 setValidationMessage('Discount applied successfully!');
                 addToast('Discount applied!', 'success');
             } else {
                 setAppliedDiscount(null);
                 setValidationStatus('invalid');
-                setValidationMessage(response.data.message || 'Invalid discount code.');
-                addToast(response.data.message || 'Invalid Code', 'error');
+                setValidationMessage(data.message || 'Invalid discount code.');
+                addToast(data.message || 'Invalid Code', 'error');
             }
         },
         onError: (err) => {
@@ -71,6 +61,22 @@ const PlanAndPaymentPage = () => {
             addToast(errorMessage, 'error');
         },
     });
+
+    useEffect(() => {
+        const pendingCode = sessionStorage.getItem('pendingReferralCode');
+        if (pendingCode) {
+            setReferralCode(pendingCode);
+            // Automatically trigger validation if user and business context are available
+            if (user?.activeBusinessId) {
+                validateCodeMutation.mutate({
+                    code_name: pendingCode,
+                    business_identifier: user.activeBusinessId,
+                });
+            }
+            sessionStorage.removeItem('pendingReferralCode'); // Clean up after use
+        }
+    }, [user, validateCodeMutation]); // Depends on user context being ready
+
 
     const handlePlanSelected = useCallback(async (selectedPlan) => {
         if (!isAuthenticated || !stripe) {
@@ -83,7 +89,7 @@ const PlanAndPaymentPage = () => {
         if (vortexRef.current) vortexRef.current.addTurbulence(15000);
 
         try {
-            // The payload now conditionally includes the referral code only if a valid discount is applied.
+
             const payload = {
                 plan_name: selectedPlan.id,
                 referral_code: appliedDiscount?.valid ? referralCode : null,
@@ -158,9 +164,9 @@ const PlanAndPaymentPage = () => {
                                     color="primary"
                                     size="sm"
                                     className="mr-1 my-1"
-                                    onClick={() => validateCodeMutation.mutate(referralCode)}
+                                    onClick={() => validateCodeMutation.mutate({ code_name: referralCode, business_identifier: user.activeBusinessId })}
                                     isLoading={validationStatus === 'validating'}
-                                    disabled={!referralCode || validationStatus === 'validating'}
+                                    disabled={!referralCode || validationStatus === 'validating' || !user?.activeBusinessId}
                                 >
                                     Apply
                                 </Button>
@@ -174,7 +180,7 @@ const PlanAndPaymentPage = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -5 }}
                                     className={`text-xs mt-1.5 ml-1 ${validationStatus === 'valid' ? 'text-green-600 dark:text-green-400'
-                                            : validationStatus === 'invalid' ? 'text-red-600 dark:text-red-400' : 'text-neutral-500'
+                                        : validationStatus === 'invalid' ? 'text-red-600 dark:text-red-400' : 'text-neutral-500'
                                         }`}
                                 >
                                     {validationMessage}
@@ -199,7 +205,7 @@ const PlanAndPaymentPage = () => {
                         onManageSubscription={handleManageSubscription}
                         isLoading={pageIsOverallLoading}
                         themeColor="rose"
-                        appliedDiscount={appliedDiscount}
+                        appliedDiscount={appliedDiscount} // Pass the discount data down
                     />
                 </div>
 
