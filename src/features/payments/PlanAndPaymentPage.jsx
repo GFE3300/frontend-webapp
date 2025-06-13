@@ -64,19 +64,20 @@ const PlanAndPaymentPage = () => {
 
     useEffect(() => {
         const pendingCode = sessionStorage.getItem('pendingReferralCode');
-        if (pendingCode) {
-            setReferralCode(pendingCode);
-            // Automatically trigger validation if user and business context are available
-            if (user?.activeBusinessId) {
-                validateCodeMutation.mutate({
-                    code_name: pendingCode,
-                    business_identifier: user.activeBusinessId,
-                });
-            }
-            sessionStorage.removeItem('pendingReferralCode'); // Clean up after use
-        }
-    }, [user, validateCodeMutation]); // Depends on user context being ready
+        const businessId = user?.activeBusinessId;
 
+        // Only proceed if we have a pending code AND a valid business ID from the auth context.
+        if (pendingCode && businessId) {
+            console.log(`[PlanAndPaymentPage] Found pending code '${pendingCode}' and active business ID '${businessId}'. Triggering validation.`);
+            setReferralCode(pendingCode);
+            validateCodeMutation.mutate({
+                code_name: pendingCode,
+                business_identifier: businessId,
+            });
+            // Clean up immediately after use.
+            sessionStorage.removeItem('pendingReferralCode');
+        }
+    }, [user?.activeBusinessId, validateCodeMutation]);
 
     const handlePlanSelected = useCallback(async (selectedPlan) => {
         if (!isAuthenticated || !stripe) {
@@ -89,7 +90,6 @@ const PlanAndPaymentPage = () => {
         if (vortexRef.current) vortexRef.current.addTurbulence(15000);
 
         try {
-
             const payload = {
                 plan_name: selectedPlan.id,
                 referral_code: appliedDiscount?.valid ? referralCode : null,
@@ -166,6 +166,7 @@ const PlanAndPaymentPage = () => {
                                     className="mr-1 my-1"
                                     onClick={() => validateCodeMutation.mutate({ code_name: referralCode, business_identifier: user.activeBusinessId })}
                                     isLoading={validationStatus === 'validating'}
+                                    // --- MODIFICATION: Disable button if context isn't ready ---
                                     disabled={!referralCode || validationStatus === 'validating' || !user?.activeBusinessId}
                                 >
                                     Apply
@@ -205,7 +206,7 @@ const PlanAndPaymentPage = () => {
                         onManageSubscription={handleManageSubscription}
                         isLoading={pageIsOverallLoading}
                         themeColor="rose"
-                        appliedDiscount={appliedDiscount} // Pass the discount data down
+                        appliedDiscount={appliedDiscount}
                     />
                 </div>
 

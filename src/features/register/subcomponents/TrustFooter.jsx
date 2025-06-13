@@ -37,7 +37,7 @@ const TrustFooter = ({
     isFixed = true,
     themeColor = "rose",
     className = '',
-    companyName = "Your Company Name", // Default company name
+    companyName = "CrumbData", // Default company name
 }) => {
     // ===========================================================================
     // Configuration
