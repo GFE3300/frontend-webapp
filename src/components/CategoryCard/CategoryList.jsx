@@ -1,16 +1,10 @@
-// FILE: src/components/CategoryCard/CategoryList.jsx
-// MODIFIED: This component is now controlled, receiving selection state and callbacks via props to enable table filtering.
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from '@tanstack/react-query';
-import { useCategories } from '../../contexts/ProductDataContext'; // Using the context hook
+import { useCategories } from '../../contexts/ProductDataContext';
 import AddCategoryForm from './Subcomponents/AddCategoryForm';
 import CategoryItem from './Subcomponents/CategoryItem';
 import Icon from '../common/Icon';
 import Spinner from '../common/Spinner';
-
-// Note: The logic for Add/Edit/Delete will be handled internally or via context mutations,
-// but the selection logic is now external.
 
 const CategoryList = ({ onSelectCategory, selectedCategoryId }) => {
 	const [isAdding, setIsAdding] = useState(false);
@@ -20,12 +14,15 @@ const CategoryList = ({ onSelectCategory, selectedCategoryId }) => {
 		data: categoriesData,
 		isLoading,
 		error,
-		refetch, // Using refetch from the hook
+		refetch,
 	} = useCategories();
+
+	// Destructure the new data shape with defaults
+	const { categories = [], totalProductsCount = 0 } = categoriesData || {};
 
 	const handleEdit = (category) => {
 		setEditingCategory(category);
-		setIsAdding(false); // Close add form if open
+		setIsAdding(false);
 	};
 
 	const handleCancel = () => {
@@ -33,12 +30,10 @@ const CategoryList = ({ onSelectCategory, selectedCategoryId }) => {
 		setEditingCategory(null);
 	};
 
-	// This function will be called by sub-components after a successful mutation
 	const onMutationSuccess = () => {
 		refetch();
 		handleCancel();
 	};
-
 
 	if (isLoading) {
 		return (
@@ -57,10 +52,30 @@ const CategoryList = ({ onSelectCategory, selectedCategoryId }) => {
 		);
 	}
 
+	const isAllSelected = selectedCategoryId === null || selectedCategoryId === undefined;
+
 	return (
 		<div className="space-y-3">
 			<ul className="space-y-2">
-				{categoriesData?.map((category) => (
+				<li>
+					<div
+						onClick={() => onSelectCategory(null)}
+						className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-150
+                            ${isAllSelected
+								? 'bg-rose-100 dark:bg-rose-500/20 ring-1 ring-rose-500'
+								: 'bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600'
+							}`}
+					>
+						<span className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+							All Products
+						</span>
+						<span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-200 dark:bg-neutral-600 rounded-full px-2 py-0.5">
+							{totalProductsCount}
+						</span>
+					</div>
+				</li>
+
+				{categories.map((category) => (
 					<li key={category.id}>
 						{editingCategory && editingCategory.id === category.id ? (
 							<AddCategoryForm
@@ -73,8 +88,8 @@ const CategoryList = ({ onSelectCategory, selectedCategoryId }) => {
 								category={category}
 								onEdit={() => handleEdit(category)}
 								onSuccess={onMutationSuccess}
-								onSelect={() => onSelectCategory(category.id)} // Pass the ID to the handler
-								isSelected={selectedCategoryId === category.id} // Control selection state
+								onSelect={() => onSelectCategory(category.id)}
+								isSelected={selectedCategoryId === category.id}
 							/>
 						)}
 					</li>

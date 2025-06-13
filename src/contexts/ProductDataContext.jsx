@@ -314,7 +314,15 @@ export const useProductSearchSuggestions = (debouncedQuery, options = {}) => {
 export const useCategories = (options = {}) => {
     return useQuery({
         queryKey: [queryKeys.categories],
-        queryFn: () => apiService.get('/products/categories/').then(res => res.data.results || res.data),
+        queryFn: async () => {
+            const { data } = await apiService.get('/products/categories/');
+            // The new API response is { total_products_count, categories }
+            // Return a structured object with defaults.
+            return {
+                categories: data.categories || [],
+                totalProductsCount: data.total_products_count || 0,
+            };
+        },
         staleTime: 1000 * 60 * 10,
         ...options,
     });

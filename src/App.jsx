@@ -43,6 +43,7 @@ import SettingsPage from './features/dashboard/pages/SettingsPage.jsx';
 import UserProfile from './features/settings_menu/components/UserProfile.jsx';
 import BusinessProfilePage from './features/settings_menu/components/BusinessProfilePage.jsx';
 import BillingPage from './features/settings_menu/components/BillingPage.jsx';
+import TeamManagementPage from './features/settings_menu/components/TeamManagementPage.jsx'; // NEW: Import the page
 
 // Components
 import PrivateRoute from './components/common/PrivateRoute.jsx';
@@ -176,23 +177,18 @@ const router = createBrowserRouter([
             { path: "analytics", element: <AnalyticsPage /> },
             {
                 path: "settings",
-                element: <SettingsPage />, // This is our new layout component
+                element: <SettingsPage />,
                 children: [
                     // Redirect the base /settings path to the profile page by default
                     { index: true, element: <Navigate to="profile" replace /> },
                     { path: "profile", element: <UserProfile /> },
                     { path: "business", element: <BusinessProfilePage /> },
                     { path: "billing", element: <BillingPage /> },
-                    // Add other pages as they are built, e.g.:
-                    // { path: "security", element: <SecurityPage /> },
+                    { path: "team", element: <TeamManagementPage /> },
                 ]
             },
-            // FIX: The link in the switcher pointed here, but the standalone page should be a top-level route.
-            // This nested route is no longer needed. The correct route is added below.
-            // { path: "create", element: <CreateBusinessPage /> },
         ]
     },
-    // --- NEW: Add the standalone Create Business page route ---
     {
         path: "/dashboard/business/create",
         element: (
@@ -268,4 +264,4 @@ function AppWrapper() {
     );
 }
 
-export default AppWrapper;  
+export default AppWrapper;

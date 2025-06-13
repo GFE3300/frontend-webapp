@@ -4,11 +4,10 @@ import Icon from '../../../components/common/Icon';
 import { scriptLines_dashboard as sl } from '../utils/script_lines';
 
 const SettingsSidebar = () => {
-    // This array now uses the script lines for link names
+    // MODIFICATION: Added 'Team Members' to the settings links array.
     const settingsLinks = [
         { name: sl.settingsSidebar.userProfile || 'User Profile', to: 'profile', icon: 'person' },
         { name: sl.settingsSidebar.businessProfile || 'Business Profile', to: 'business', icon: 'storefront' },
-        { name: sl.settingsSidebar.security || 'Security', to: 'security', icon: 'shield_lock' },
         { name: sl.settingsSidebar.billing || 'Billing', to: 'billing', icon: 'credit_card' },
         { name: sl.settingsSidebar.teamMembers || 'Team Members', to: 'team', icon: 'groups' },
     ];
@@ -29,7 +28,7 @@ const SettingsSidebar = () => {
                         key={link.name}
                         to={link.to}
                         className={getLinkClassName}
-                        end // Ensures the NavLink is only active on exact matches
+                        end
                     >
                         <Icon name={link.icon} className="w-5 h-5" />
                         <span>{link.name}</span>

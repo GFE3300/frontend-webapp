@@ -109,6 +109,13 @@ apiInstance.interceptors.response.use(
                 isRefreshing = false;
             }
         }
+        // Add this check *before* the final `return Promise.reject(error);`
+        const errorDetail = error.response?.data?.detail;
+        if (error.response?.status === 403 && errorDetail === 'No active business context found.') {
+            console.warn("API call failed due to missing business context. Dispatching 'context-lost' event.");
+            window.dispatchEvent(new CustomEvent('context-lost'));
+        }
+
         return Promise.reject(error);
     }
 );

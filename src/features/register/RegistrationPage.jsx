@@ -133,6 +133,12 @@ const RegistrationPage = () => {
         const businessAddressData = formState.formData.address || {};
         const locationCoordsData = formState.formData.locationCoords || {};
 
+        // Helper to round numbers to 6 decimals (or less if not needed)
+        const roundTo6Decimals = (num) => {
+            if (typeof num !== 'number') return num;
+            return Number(num.toFixed(6));
+        };
+
         const registrationData = {
             email: formState.formData.email,
             password: formState.formData.password,
@@ -154,8 +160,8 @@ const RegistrationPage = () => {
             business_address_postal_code: businessAddressData.postalCode,
             business_address_country: businessAddressData.country,
             business_address_formatted: businessAddressData.formattedAddress,
-            business_latitude: typeof locationCoordsData.lat === 'number' ? locationCoordsData.lat : null,
-            business_longitude: typeof locationCoordsData.lng === 'number' ? locationCoordsData.lng : null,
+            business_latitude: typeof locationCoordsData.lat === 'number' ? roundTo6Decimals(locationCoordsData.lat) : null,
+            business_longitude: typeof locationCoordsData.lng === 'number' ? roundTo6Decimals(locationCoordsData.lng) : null,
         };
 
         const cleanRegistrationData = Object.fromEntries(

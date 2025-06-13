@@ -11,18 +11,18 @@ import scriptLines from '../utils/script_lines'; // Added import
 
 const Step4_Pricing_Actual = memo(({ formData, updateField, errors }) => {
     const { data: taxRatesData, isLoading: isLoadingTaxRates, error: taxRatesError } = useTaxRates();
-    const taxRates = taxRatesData || [];
-    
+    const taxRates = useMemo(() => taxRatesData || [], [taxRatesData]);
+
     const currencySymbol = scriptLines.currencySymbolDefault || '€'; // Use localized currency symbol
 
     const estimatedCostFromIngredients = parseFloat(formData.estimatedCostFromIngredients) || 0;
     const laborAndOverheadCost = parseFloat(formData.laborAndOverheadCost) || 0;
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    
-    const selectedTaxRateObject = useMemo(() => 
+
+    const selectedTaxRateObject = useMemo(() =>
         taxRates.find(tr => tr.id === formData.taxRateId),
-    [formData.taxRateId, taxRates]);
-    
+        [formData.taxRateId, taxRates]);
+
     const currentTaxRatePercentage = selectedTaxRateObject ? parseFloat(selectedTaxRateObject.rate_percentage) : null;
 
     const totalCalculatedCost = useMemo(() => {
@@ -89,9 +89,9 @@ const Step4_Pricing_Actual = memo(({ formData, updateField, errors }) => {
                         </span>
                     </div>
                 )}
-                <div className='flex h-15 items-end w-full'>
+                <div className='flex h-15 items-end w-full mb-8'>
                     <InputField
-                        label={formData.productType === 'made_in_house' 
+                        label={formData.productType === 'made_in_house'
                             ? (scriptLines.step4LaborOverheadLabelPattern || "Labor, Packaging & Overheads ({currencySymbol})").replace('{currencySymbol}', currencySymbol)
                             : (scriptLines.step4PurchaseCostLabelPattern || "Purchase Cost ({currencySymbol})").replace('{currencySymbol}', currencySymbol)
                         }
@@ -99,8 +99,8 @@ const Step4_Pricing_Actual = memo(({ formData, updateField, errors }) => {
                         value={formData.laborAndOverheadCost === null ? '' : formData.laborAndOverheadCost}
                         onChange={(e) => updateField('laborAndOverheadCost', e.target.value === '' ? null : parseFloat(e.target.value))}
                         error={errors?.laborAndOverheadCost} placeholder="0.00" min="0" step="0.01"
-                        helptext={formData.productType === 'made_in_house' 
-                            ? scriptLines.step4LaborOverheadHelpText || "Additional costs beyond raw ingredients." 
+                        helptext={formData.productType === 'made_in_house'
+                            ? scriptLines.step4LaborOverheadHelpText || "Additional costs beyond raw ingredients."
                             : scriptLines.step4PurchaseCostHelpText || "Your cost to acquire this resold item."
                         }
                     />

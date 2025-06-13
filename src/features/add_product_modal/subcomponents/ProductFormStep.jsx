@@ -151,7 +151,7 @@ const ProductFormStep = ({
                     <div className='space-y-6 md:space-y-8 h-120 px-1 pb-32 sm:pb-18 overflow-y-auto'>
                         {children}
                     </div>
-                    <div className="step-controls absolute w-full bottom-0 pt-6 sm:pt-8 flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 bg-gradient-to-t from-white dark:from-neutral-800 from-70% to-neutral-0/0 dark:to-neutral-900 to-90%"> {/* Removed pt-6 sm:pt-8 from here as it was doubled */}
+                    <div className="step-controls absolute w-full bottom-0 pt-6 sm:pt-8 flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 bg-gradient-to-t from-white dark:from-neutral-800 from-70% to-neutral-0/0 dark:to-neutral-0 to-90%"> {/* Removed pt-6 sm:pt-8 from here as it was doubled */}
                         {formStateHook.currentStep > 1 ? (
                             <motion.button
                                 type="button"
