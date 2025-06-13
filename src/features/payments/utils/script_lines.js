@@ -181,5 +181,27 @@ export const scriptLines_Components = {
             contactSupport: i18n.t('payments.components.paymentCancelPage.buttons.contactSupport'), // "Contact Support"
         },
         footerNote: i18n.t('payments.components.paymentCancelPage.footerNote') // "If you believe this is an error or need assistance, please don't hesitate to reach out."
+    },
+    planAndPaymentPage: {
+    messages: {
+        discountAppliedSuccess: "Discount applied!",
+        discountAppliedSuccessMessage: "Discount applied successfully!",
+        invalidDiscountCode: "Invalid discount code.",
+        invalidCodeShort: "Invalid Code",
+        codeValidationError: "Could not validate code. Please try again.",
+        affiliateCodeAppliedToast: "Affiliate code '{{code}}' will be applied at checkout.",
+        loginToSelectPlan: "Please log in to select a plan.",
+        stripeNotReady: "Stripe is not ready.",
+        sessionInitFailed: "Failed to initialize payment session.",
+        subscriptionInitFailed: "Could not initiate your subscription.",
+        redirectingToManage: "Redirecting to subscription management...",
+        manageAccessError: "Error accessing subscription management.",
+        affiliateDiscountNotice: "Affiliate discount for code '{{code}}' will be applied at checkout.",
+    },
+    promoCodeInput: {
+        label: "Discount Code",
+        placeholder: "Enter code here",
+        applyButton: "Apply",
     }
+},
 };

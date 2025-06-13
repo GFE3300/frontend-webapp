@@ -13,10 +13,11 @@ import { useValidatePromoCode } from '../../contexts/ProductDataContext';
 import PlanSelection from './subcomponents/PlanSelection.jsx';
 import Spinner from '../../components/common/Spinner';
 import BubbleAnimation from '../../features/register/subcomponents/BubbleAnimation';
-import { scriptLines_Components as scriptLines } from './utils/script_lines';
+import { scriptLines_Components as sl } from './utils/script_lines';
 import Icon from '../../components/common/Icon';
 import InputField from '../../components/common/InputField';
 import Button from '../../components/common/Button';
+import { interpolate } from '../../utils/utils'; // Assuming a utility function
 
 const PlanAndPaymentPage = () => {
     const stripe = useStripe();
@@ -38,6 +39,7 @@ const PlanAndPaymentPage = () => {
     const [appliedDiscount, setAppliedDiscount] = useState(null);
     const [validationStatus, setValidationStatus] = useState('idle'); // 'idle', 'validating', 'valid', 'invalid'
     const [validationMessage, setValidationMessage] = useState('');
+    const s = sl.planAndPaymentPage;
 
     // This mutation is ONLY for the manually entered promo code.
     const validateCodeMutation = useValidatePromoCode({
@@ -49,19 +51,20 @@ const PlanAndPaymentPage = () => {
             if (data.valid) {
                 setAppliedDiscount(data);
                 setValidationStatus('valid');
-                setValidationMessage('Discount applied successfully!');
-                addToast('Discount applied!', 'success');
+                setValidationMessage(s.messages.discountAppliedSuccessMessage || 'Discount applied successfully!');
+                addToast(s.messages.discountAppliedSuccess || 'Discount applied!', 'success');
             } else {
                 setAppliedDiscount(null);
                 setValidationStatus('invalid');
-                setValidationMessage(data.message || 'Invalid discount code.');
-                addToast(data.message || 'Invalid Code', 'error');
+                const message = data.message || s.messages.invalidDiscountCode || 'Invalid discount code.';
+                setValidationMessage(message);
+                addToast(data.message || s.messages.invalidCodeShort || 'Invalid Code', 'error');
             }
         },
         onError: (err) => {
             setAppliedDiscount(null);
             setValidationStatus('invalid');
-            const errorMessage = err.response?.data?.message || 'Could not validate code. Please try again.';
+            const errorMessage = err.response?.data?.message || s.messages.codeValidationError || 'Could not validate code. Please try again.';
             setValidationMessage(errorMessage);
             addToast(errorMessage, 'error');
         },
@@ -73,14 +76,21 @@ const PlanAndPaymentPage = () => {
         if (pendingCode) {
             console.log(`[PlanAndPaymentPage] Found affiliate referral code in sessionStorage: '${pendingCode}'. Storing for checkout.`);
             setAffiliateReferralCode(pendingCode);
-            addToast(`Affiliate code '${pendingCode}' will be applied at checkout.`, 'info', 5000);
+            addToast(
+                interpolate(s.messages.affiliateCodeAppliedToast || "Affiliate code '{{code}}' will be applied at checkout.", { code: pendingCode }),
+                'info', 
+                5000
+            );
             sessionStorage.removeItem('pendingReferralCode');
         }
-    }, []); // Run only once on mount
+    }, [addToast, s.messages.affiliateCodeAppliedToast]); // Run only once on mount
 
     const handlePlanSelected = useCallback(async (selectedPlan) => {
         if (!isAuthenticated || !stripe) {
-            addToast(!isAuthenticated ? 'Please log in to select a plan.' : 'Stripe is not ready.', 'error');
+            const toastMessage = !isAuthenticated 
+                ? (s.messages.loginToSelectPlan || 'Please log in to select a plan.') 
+                : (s.messages.stripeNotReady || 'Stripe is not ready.');
+            addToast(toastMessage, 'error');
             return;
         }
 
@@ -99,29 +109,29 @@ const PlanAndPaymentPage = () => {
             const response = await apiService.createCheckoutSession(payload);
             const { sessionId } = response.data;
 
-            if (!sessionId) throw new Error("Failed to initialize payment session.");
+            if (!sessionId) throw new Error(s.messages.sessionInitFailed || "Failed to initialize payment session.");
 
             const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
             if (stripeError) throw stripeError;
 
         } catch (apiError) {
-            const errorMessage = apiError.response?.data?.error || apiError.message || 'Could not initiate your subscription.';
+            const errorMessage = apiError.response?.data?.error || apiError.message || s.messages.subscriptionInitFailed || 'Could not initiate your subscription.';
             setError(errorMessage);
             addToast(errorMessage, 'error', 5000);
             setIsProcessingCheckout(false);
         }
-    }, [stripe, addToast, isAuthenticated, affiliateReferralCode]); // Use affiliateReferralCode in dependency array
+    }, [stripe, addToast, isAuthenticated, affiliateReferralCode, s.messages]);
 
     const handleManageSubscription = useCallback((plan) => {
-        addToast("Redirecting to subscription management...", "info");
+        addToast(s.messages.redirectingToManage || "Redirecting to subscription management...", "info");
         apiService.post('payments/create-customer-portal-session/')
             .then(response => {
                 if (response.data.url) window.location.href = response.data.url;
             })
             .catch(err => {
-                addToast("Error accessing subscription management.", "error");
+                addToast(s.messages.manageAccessError || "Error accessing subscription management.", "error");
             });
-    }, [addToast]);
+    }, [addToast, s.messages]);
 
     const pageIsOverallLoading = isProcessingCheckout || isSubscriptionDataLoading;
 
@@ -139,10 +149,10 @@ const PlanAndPaymentPage = () => {
             <div className="flex flex-col items-center justify-start min-h-screen py-12 px-4 font-montserrat">
                 <header className="text-center mb-10 mt-8 sm:mt-12 relative z-10">
                     <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl">
-                        {scriptLines.planSelection.title}
+                        {sl.planSelection.title}
                     </h1>
                     <p className="mt-4 text-xl text-gray-600 dark:text-neutral-300 max-w-2xl mx-auto">
-                        {scriptLines.planSelection.subtitle}
+                        {sl.planSelection.subtitle}
                     </p>
                 </header>
 
@@ -157,16 +167,16 @@ const PlanAndPaymentPage = () => {
                             <div className="p-3 mb-4 text-center bg-green-100 dark:bg-green-900/50 border border-green-200 dark:border-green-700 rounded-lg">
                                 <p className="text-sm flex items-center text-left font-semibold text-green-800 dark:text-green-200">
                                     <Icon name="verified" className="w-5 h-5 mr-4 inline-block" style={{ fontSize: '1.25rem' }} />
-                                    Affiliate discount for code '{affiliateReferralCode}' will be applied at checkout.
+                                    {interpolate(s.messages.affiliateDiscountNotice || "Affiliate discount for code '{{code}}' will be applied at checkout.", { code: affiliateReferralCode })}
                                 </p>
                             </div>
                         ) : (
                             <InputField
-                                label="Discount Code"
+                                label={s.promoCodeInput.label || "Discount Code"}
                                 name="promoCodeInput"
                                 value={promoCodeInput}
                                 onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
-                                placeholder="Enter code here"
+                                placeholder={s.promoCodeInput.placeholder || "Enter code here"}
                                 disabled={validateCodeMutation.isPending}
                                 adornment={
                                     <Button
@@ -178,7 +188,7 @@ const PlanAndPaymentPage = () => {
                                         isLoading={validationStatus === 'validating'}
                                         disabled={!promoCodeInput || validationStatus === 'validating' || !user?.activeBusinessId}
                                     >
-                                        Apply
+                                        {s.promoCodeInput.applyButton || "Apply"}
                                     </Button>
                                 }
                             />
@@ -221,7 +231,7 @@ const PlanAndPaymentPage = () => {
                 </div>
 
                 <footer className="mt-16 mb-8 text-center text-sm text-gray-500 dark:text-neutral-400 relative z-10">
-                    <p>{scriptLines.planSelection.footerNote}</p>
+                    <p>{sl.planSelection.footerNote}</p>
                 </footer>
             </div>
         </BubbleAnimation>
