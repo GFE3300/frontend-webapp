@@ -82,6 +82,7 @@ const RegistrationPage = () => {
         if (lang) {
             initialData.language = lang;
         }
+        console.log('[RegistrationPage] Initial data from URL:', initialData);
         return initialData;
     });
 
@@ -212,6 +213,7 @@ const RegistrationPage = () => {
 
         // --- MODIFICATION: Persist the referral code used from the backend response ---
         if (mainRegResponse.data.referral_code_used) {
+            console.log(`[RegistrationPage] Registration successful. Persisting referral code to sessionStorage: '${mainRegResponse.data.referral_code_used}'`);
             sessionStorage.setItem('pendingReferralCode', mainRegResponse.data.referral_code_used);
         }
         // --- END MODIFICATION ---

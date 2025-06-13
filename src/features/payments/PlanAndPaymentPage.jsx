@@ -30,11 +30,16 @@ const PlanAndPaymentPage = () => {
     const [error, setError] = useState(null);
     const vortexRef = useRef(null);
 
-    const [referralCode, setReferralCode] = useState('');
+    // --- State Management Correction ---
+    // This state is for affiliate referrals, automatically applied.
+    const [affiliateReferralCode, setAffiliateReferralCode] = useState(null);
+    // This state is for manual promo codes the user can enter.
+    const [promoCodeInput, setPromoCodeInput] = useState('');
     const [appliedDiscount, setAppliedDiscount] = useState(null);
     const [validationStatus, setValidationStatus] = useState('idle'); // 'idle', 'validating', 'valid', 'invalid'
     const [validationMessage, setValidationMessage] = useState('');
 
+    // This mutation is ONLY for the manually entered promo code.
     const validateCodeMutation = useValidatePromoCode({
         onMutate: () => {
             setValidationStatus('validating');
@@ -62,22 +67,16 @@ const PlanAndPaymentPage = () => {
         },
     });
 
+    // This effect ONLY handles the affiliate code from registration.
     useEffect(() => {
         const pendingCode = sessionStorage.getItem('pendingReferralCode');
-        const businessId = user?.activeBusinessId;
-
-        // Only proceed if we have a pending code AND a valid business ID from the auth context.
-        if (pendingCode && businessId) {
-            console.log(`[PlanAndPaymentPage] Found pending code '${pendingCode}' and active business ID '${businessId}'. Triggering validation.`);
-            setReferralCode(pendingCode);
-            validateCodeMutation.mutate({
-                code_name: pendingCode,
-                business_identifier: businessId,
-            });
-            // Clean up immediately after use.
+        if (pendingCode) {
+            console.log(`[PlanAndPaymentPage] Found affiliate referral code in sessionStorage: '${pendingCode}'. Storing for checkout.`);
+            setAffiliateReferralCode(pendingCode);
+            addToast(`Affiliate code '${pendingCode}' will be applied at checkout.`, 'info', 5000);
             sessionStorage.removeItem('pendingReferralCode');
         }
-    }, [user?.activeBusinessId, validateCodeMutation]);
+    }, []); // Run only once on mount
 
     const handlePlanSelected = useCallback(async (selectedPlan) => {
         if (!isAuthenticated || !stripe) {
@@ -90,10 +89,12 @@ const PlanAndPaymentPage = () => {
         if (vortexRef.current) vortexRef.current.addTurbulence(15000);
 
         try {
+            // Correctly pass the affiliate code to the backend.
             const payload = {
                 plan_name: selectedPlan.id,
-                referral_code: appliedDiscount?.valid ? referralCode : null,
+                referral_code: affiliateReferralCode,
             };
+            console.log('[PlanAndPaymentPage] Creating checkout session with payload:', payload);
 
             const response = await apiService.createCheckoutSession(payload);
             const { sessionId } = response.data;
@@ -109,7 +110,7 @@ const PlanAndPaymentPage = () => {
             addToast(errorMessage, 'error', 5000);
             setIsProcessingCheckout(false);
         }
-    }, [stripe, addToast, isAuthenticated, referralCode, appliedDiscount]);
+    }, [stripe, addToast, isAuthenticated, affiliateReferralCode]); // Use affiliateReferralCode in dependency array
 
     const handleManageSubscription = useCallback((plan) => {
         addToast("Redirecting to subscription management...", "info");
@@ -151,28 +152,37 @@ const PlanAndPaymentPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                     >
-                        <InputField
-                            label="Discount Code"
-                            name="referralCode"
-                            value={referralCode}
-                            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                            placeholder="Enter code here"
-                            disabled={validateCodeMutation.isPending}
-                            adornment={
-                                <Button
-                                    variant="solid"
-                                    color="primary"
-                                    size="sm"
-                                    className="mr-1 my-1"
-                                    onClick={() => validateCodeMutation.mutate({ code_name: referralCode, business_identifier: user.activeBusinessId })}
-                                    isLoading={validationStatus === 'validating'}
-                                    // --- MODIFICATION: Disable button if context isn't ready ---
-                                    disabled={!referralCode || validationStatus === 'validating' || !user?.activeBusinessId}
-                                >
-                                    Apply
-                                </Button>
-                            }
-                        />
+                        {/* Display a message if an affiliate code is active */}
+                        {affiliateReferralCode ? (
+                            <div className="p-3 mb-4 text-center bg-green-100 dark:bg-green-900/50 border border-green-200 dark:border-green-700 rounded-lg">
+                                <p className="text-sm flex items-center text-left font-semibold text-green-800 dark:text-green-200">
+                                    <Icon name="verified" className="w-5 h-5 mr-4 inline-block" style={{ fontSize: '1.25rem' }} />
+                                    Affiliate discount for code '{affiliateReferralCode}' will be applied at checkout.
+                                </p>
+                            </div>
+                        ) : (
+                            <InputField
+                                label="Discount Code"
+                                name="promoCodeInput"
+                                value={promoCodeInput}
+                                onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                                placeholder="Enter code here"
+                                disabled={validateCodeMutation.isPending}
+                                adornment={
+                                    <Button
+                                        variant="solid"
+                                        color="primary"
+                                        size="sm"
+                                        className="mr-1 my-1"
+                                        onClick={() => validateCodeMutation.mutate({ code_name: promoCodeInput, business_identifier: user.activeBusinessId })}
+                                        isLoading={validationStatus === 'validating'}
+                                        disabled={!promoCodeInput || validationStatus === 'validating' || !user?.activeBusinessId}
+                                    >
+                                        Apply
+                                    </Button>
+                                }
+                            />
+                        )}
                         <AnimatePresence>
                             {validationMessage && (
                                 <motion.p
