@@ -1,13 +1,15 @@
 {
+  "components\\DoughToggleCard\\script_lines.js": "a08f0e3401551a7d98ab8e9c59a771f1bd246c9604140f7f28f78149034fecd7",
   "features\\add_product_modal\\utils\\script_lines.js": "219db24c17c5a7a9d2fc25871d5aaa7818bd4d3485b1784b6a2728a791c4c6e4",
-  "features\\dashboard\\utils\\script_lines.js": "ee3753941ab5452453e7ab6489454703f947d6c54d7ec238de6093c9fbc60de9",
+  "features\\dashboard\\utils\\script_lines.js": "b752ebee175991824fd7b08a495f25b9c168435e625cf33cb13e107c3408af01",
   "features\\data_cards\\heatmap\\utils\\script_lines.js": "e969f9f6e0df23cd96c7d6cdd85f5c4dbafbac68899350d0ce2af7f237b546e8",
   "features\\data_cards\\revenue_card\\language_script\\script_lines.js": "50969a45c67eb8bd899f909be88367eb43802afbd08caac0226c8ee137d9b7e6",
   "features\\kitchen_display_system\\utils\\script_lines.js": "9f49b40285b5438feaf97f368023e2b9cd713528454b31b318e488225610dce9",
   "features\\live_orders_view\\utils\\script_lines.js": "e6a1dd18cdbebfd02d030285941a2e1218f2f68c382a275f55bc9e471028b6de",
   "features\\menu_view\\utils\\script_lines.js": "e8325f5f41c6915a33935903935f6b6f6aac7fc81c1f9ddd80488fccf34c029f",
-  "features\\payments\\utils\\script_lines.js": "7a0ebc4bece69b78b588ba45674d578d36337a15943f09259c89279b6a8f22c1",
+  "features\\payments\\utils\\script_lines.js": "b71f3a83a9547730f0ba52fc78d7d70e01a84a1a0bb4c053861610069a87feb0",
   "features\\products_table\\utils\\script_lines.js": "4abc6c65e637cef3b4ef527f1cf27f5b79938a7aac0f53bfc02d23159f0f1352",
   "features\\register\\utils\\script_lines.js": "2ce2e375224662fe44fd6eb2d2aa7756b739cffbcaab2801508cc2d9c26112cb",
-  "features\\venue_management\\utils\\script_lines.js": "2c810dbfc7d36a7d045a1e28bae8c718a31aae24530cc03de9282cd9e649e434"
+  "features\\venue_management\\utils\\script_lines.js": "2c810dbfc7d36a7d045a1e28bae8c718a31aae24530cc03de9282cd9e649e434",
+  "pages\\script_lines.js": "a12bfebf62c040f69dd00f553bdb98c057b8963bb328d559bec8715011df6681"
 }

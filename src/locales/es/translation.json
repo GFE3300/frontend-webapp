@@ -1,4 +1,25 @@
 {
+  "DoughToggleCard": {
+    "doughToggleCard": {
+      "authCard": {
+        "emailRequired": "Correo electrónico obligatorio",
+        "loginFormAria": "Formulario de acceso",
+        "passwordRequired": "Se requiere contraseña",
+        "passwordsMustMatch": "Las contraseñas deben coincidir",
+        "registerFormAria": "Formulario de inscripción",
+        "tagline": "Hornee su próximo pedido"
+      },
+      "authForm": {
+        "createAccountButton": "Crear una cuenta",
+        "signInButton": "Iniciar sesión"
+      },
+      "toggleSwitch": {
+        "loginButton": "Inicio de sesión",
+        "registerButton": "Regístrese en",
+        "switchAriaLabel": "Cambiar entre los formularios de acceso y registro"
+      }
+    }
+  },
   "add_product_modal": {
     "addProductModal_errorFetchingTemplate": "Error al recuperar la plantilla del producto:",
     "addProductModal_error_activeBusinessMissing": "Falta el contexto empresarial activo.",
@@ -358,6 +379,32 @@
         "subtitle": "Obtenga información sobre el rendimiento de su empresa.",
         "title": "Análisis e informes"
       },
+      "billingCard": {
+        "billingCycleLabel": "Ciclo de facturación",
+        "choosePlanLink": "Elija un plan",
+        "endsOnLabel": "Termina en {{date}}",
+        "manageButton": "Gestión de suscripciones y facturación",
+        "noSubscriptionMessage": "No tiene una suscripción activa.",
+        "paymentMethodLabel": "Forma de pago",
+        "paymentMethodText": "Los métodos de pago y las facturas son gestionados de forma segura por Stripe.",
+        "renewsOnLabel": "Renueva en {{date}}",
+        "subtitle": "Consulte su plan actual, el historial de facturación y gestione los datos de pago.",
+        "title": "Facturación y suscripción"
+      },
+      "businessProfileCard": {
+        "labelDescription": "Descripción de la empresa",
+        "labelPhone": "Número de teléfono público",
+        "labelWebsite": "Página web",
+        "placeholderWebsite": "https://yourbusiness.com",
+        "sectionTitleDetails": "Detalles de la empresa",
+        "sectionTitleLocation": "Localización y dirección",
+        "subtitle": "Gestione la información pública de su empresa y los ajustes de ubicación.",
+        "toastError": "No se ha podido actualizar el perfil de la empresa.",
+        "toastLogoError": "No se ha podido cargar el logotipo.",
+        "toastLogoSuccess": "¡Logotipo actualizado correctamente!",
+        "toastNoChanges": "No hay cambios que guardar.",
+        "toastSuccess": "¡Perfil de empresa actualizado correctamente!"
+      },
       "businessSwitcher": {
         "createNewBusiness": "Crear nuevas empresas",
         "failedToLoad": "Fallo al cargar.",
@@ -455,6 +502,18 @@
         "tablePlaceholderTitle": "[Marcador de posición de la tabla de pedidos]",
         "title": "Gestionar pedidos"
       },
+      "passwordSecurityCard": {
+        "changePasswordButton": "Cambiar contraseña",
+        "errorAllFieldsRequired": "Todos los campos de contraseña son obligatorios.",
+        "errorMinLength": "La nueva contraseña debe tener al menos 8 caracteres.",
+        "errorMismatch": "Las nuevas contraseñas no coinciden.",
+        "errorSameAsOld": "La nueva contraseña no puede ser la misma que la antigua.",
+        "labelConfirmNewPassword": "Confirmar nueva contraseña",
+        "labelCurrentPassword": "Contraseña actual",
+        "labelNewPassword": "Nueva contraseña",
+        "subtitle": "Actualice su contraseña para mejorar la seguridad de su cuenta.",
+        "title": "Contraseña y seguridad"
+      },
       "productMoversCard": {
         "bottomItemsTitle": "Los 5 artículos más vendidos",
         "noData": "No hay datos para este periodo.",
@@ -505,6 +564,54 @@
         "starterPlan": "Plan de inicio",
         "trialDaysLeft": "Juicio: {{days}}d izquierda",
         "trialEndsToday": "Prueba: Termina hoy"
+      },
+      "subscriptionManagement": {
+        "portalErrorToast": "No se ha podido abrir el portal de facturación. Inténtelo de nuevo.",
+        "redirectingToast": "Redirigir a su portal de facturación seguro..."
+      },
+      "teamManagement": {
+        "changeRoleAction": "Cambiar el papel",
+        "emailFieldLabel": "Dirección de correo electrónico",
+        "expired": "Caducado",
+        "expiresInDays": "en {{count}} días",
+        "expiresLabel": "Expira en",
+        "expiresToday": "hoy",
+        "invitationsCardSubtitle": "Estas invitaciones se han enviado y están a la espera de respuesta.",
+        "invitationsCardTitle": "Invitaciones pendientes",
+        "inviteErrorToast": "No se ha podido enviar la invitación. Puede que el usuario ya sea miembro o tenga una invitación pendiente.",
+        "inviteMemberButton": "Invitar a un miembro",
+        "inviteModalSubtitle": "Introduzca su dirección de correo electrónico y seleccione una función para concederle acceso.",
+        "inviteModalTitle": "Invitar a un nuevo miembro",
+        "inviteSuccessToast": "Invitación enviada con éxito a {{email}}.",
+        "invitedEmailLabel": "Correo electrónico invitado",
+        "memberOptionsTooltip": "Opciones",
+        "membersCardSubtitle": "Miembros actuales con acceso a este negocio.",
+        "noPendingInvites": "No hay invitaciones pendientes.",
+        "pageSubtitle": "Vea los miembros, gestione las funciones e invite a nuevas personas a su empresa.",
+        "pageTitle": "Gestión de equipos",
+        "removeErrorToast": "No se ha podido eliminar el miembro.",
+        "removeMemberAction": "Eliminar miembro",
+        "removeMemberConfirmButton": "Sí, eliminar miembro",
+        "removeMemberModalMessage": "¿Estás seguro de que quieres eliminar {{name}}? Perderán inmediatamente el acceso a este negocio. Esta acción no se puede deshacer.",
+        "removeMemberModalTitle": "¿Retirar a un miembro?",
+        "removeSuccessToast": "Miembro eliminado con éxito.",
+        "resendButton": "Vuelva a enviar",
+        "resendErrorToast": "No se ha podido reenviar la invitación.",
+        "resendSuccessToast": "Invitación reenviada.",
+        "revokeButton": "Revocar",
+        "revokeErrorToast": "No se ha podido revocar la invitación.",
+        "revokeInviteConfirmButton": "Sí, Revocar",
+        "revokeInviteModalMessage": "¿Estás seguro de que quieres revocar la invitación de {{email}}? Ya no podrán unirse utilizando el enlace actual.",
+        "revokeInviteModalTitle": "¿Revocar la invitación?",
+        "revokeSuccessToast": "Invitación revocada.",
+        "roleAdmin": "Admin",
+        "roleLabel": "Papel",
+        "roleManager": "Director",
+        "roleStaff": "Personal",
+        "roleUpdateErrorToast": "Error al actualizar el rol.",
+        "roleUpdateSuccessToast": "Función de miembro actualizada.",
+        "sendInviteButton": "Enviar invitación",
+        "sendingInviteButton": "Enviando..."
       },
       "userProfileWidget": {
         "logout": "Cierre de sesión"
@@ -926,6 +1033,26 @@
       }
     }
   },
+  "pages": {
+    "pages": {
+      "businessLoginPage": {
+        "buttonLoggingIn": "Iniciar sesión...",
+        "buttonLogin": "Acceda a su empresa",
+        "emailPlaceholder": "you@company.com",
+        "errorCorrectFields": "Por favor, corrija los errores mostrados.",
+        "errorLoginFailed": "Error al iniciar sesión. Por favor, compruebe sus credenciales e inténtelo de nuevo.",
+        "errorNoTokens": "El inicio de sesión se ha realizado correctamente, pero no se han recibido fichas.",
+        "linkCustomerLogin": "Conéctese aquí",
+        "linkRegister": "Registre su empresa",
+        "passwordLabel": "Contraseña",
+        "passwordPlaceholder": "Introduzca su contraseña",
+        "promptIsCustomer": "¿Es usted cliente?",
+        "promptNoAccount": "¿No tiene una cuenta de empresa?",
+        "subtitle": "Acceda al panel de control de su empresa.",
+        "title": "Acceso al portal de empresas"
+      }
+    }
+  },
   "payments": {
     "components": {
       "paymentCancelPage": {
@@ -959,6 +1086,26 @@
         "title": "Pago efectuado.",
         "titleSubscriptionActivated": "Suscripción activada",
         "transactionIdLabel": "ID de transacción:"
+      },
+      "planAndPaymentPage": {
+        "messages": {
+          "affiliateCodeAppliedToast": "El código de afiliado '{{code}}' se aplicará en el momento de pagar.",
+          "affiliateDiscountNotice": "El descuento de afiliado para el código '{{code}}' se aplicará al finalizar la compra.",
+          "codeValidationError": "No se ha podido validar el código. Por favor, inténtelo de nuevo.",
+          "discountAppliedSuccessMessage": "¡Descuento aplicado con éxito!",
+          "invalidCodeShort": "Código no válido",
+          "invalidDiscountCode": "Código de descuento no válido.",
+          "loginToSelectPlan": "Inicie sesión para seleccionar un plan.",
+          "manageAccessError": "Error al acceder a la gestión de suscripciones.",
+          "redirectingToManage": "Redirigiendo a la gestión de suscripciones...",
+          "sessionInitFailed": "No se ha podido iniciar la sesión de pago.",
+          "stripeNotReady": "Stripe no está listo.",
+          "subscriptionInitFailed": "No se ha podido iniciar su suscripción."
+        },
+        "promoCodeInput": {
+          "label": "Código de descuento",
+          "placeholder": "Introduzca aquí el código"
+        }
       },
       "planSelection": {
         "badges": {

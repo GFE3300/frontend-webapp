@@ -1,4 +1,25 @@
 {
+  "DoughToggleCard": {
+    "doughToggleCard": {
+      "authCard": {
+        "emailRequired": "Email is required",
+        "loginFormAria": "Login form",
+        "passwordRequired": "Password is required",
+        "passwordsMustMatch": "Passwords must match",
+        "registerFormAria": "Registration form",
+        "tagline": "Bake your next order"
+      },
+      "authForm": {
+        "createAccountButton": "Create Account",
+        "signInButton": "Sign In"
+      },
+      "toggleSwitch": {
+        "loginButton": "Login",
+        "registerButton": "Register",
+        "switchAriaLabel": "Switch between login and registration forms"
+      }
+    }
+  },
   "add_product_modal": {
     "addProductModal_errorFetchingTemplate": "Error fetching product template:",
     "addProductModal_error_activeBusinessMissing": "Active business context missing.",
@@ -358,6 +379,32 @@
         "subtitle": "Gain insights into your business performance.",
         "title": "Analytics & Reports"
       },
+      "billingCard": {
+        "billingCycleLabel": "Billing Cycle",
+        "choosePlanLink": "Choose a Plan",
+        "endsOnLabel": "Ends on {{date}}",
+        "manageButton": "Manage Subscription & Billing",
+        "noSubscriptionMessage": "You do not have an active subscription.",
+        "paymentMethodLabel": "Payment Method",
+        "paymentMethodText": "Payment methods and invoices are securely managed by Stripe.",
+        "renewsOnLabel": "Renews on {{date}}",
+        "subtitle": "View your current plan, billing history, and manage payment details.",
+        "title": "Billing & Subscription"
+      },
+      "businessProfileCard": {
+        "labelDescription": "Business Description",
+        "labelPhone": "Public Phone Number",
+        "labelWebsite": "Website",
+        "placeholderWebsite": "https://yourbusiness.com",
+        "sectionTitleDetails": "Business Details",
+        "sectionTitleLocation": "Location & Address",
+        "subtitle": "Manage your business's public information and location settings.",
+        "toastError": "Failed to update business profile.",
+        "toastLogoError": "Failed to upload logo.",
+        "toastLogoSuccess": "Logo updated successfully!",
+        "toastNoChanges": "No changes to save.",
+        "toastSuccess": "Business profile updated successfully!"
+      },
       "businessSwitcher": {
         "createNewBusiness": "Create New Business",
         "failedToLoad": "Failed to load.",
@@ -455,6 +502,18 @@
         "tablePlaceholderTitle": "[Orders Table Placeholder]",
         "title": "Manage Orders"
       },
+      "passwordSecurityCard": {
+        "changePasswordButton": "Change Password",
+        "errorAllFieldsRequired": "All password fields are required.",
+        "errorMinLength": "New password must be at least 8 characters long.",
+        "errorMismatch": "The new passwords do not match.",
+        "errorSameAsOld": "The new password cannot be the same as the old password.",
+        "labelConfirmNewPassword": "Confirm New Password",
+        "labelCurrentPassword": "Current Password",
+        "labelNewPassword": "New Password",
+        "subtitle": "Update your password for enhanced account security.",
+        "title": "Password & Security"
+      },
       "productMoversCard": {
         "bottomItemsTitle": "Bottom 5 Selling Items",
         "noData": "No data for this period.",
@@ -505,6 +564,54 @@
         "starterPlan": "Starter Plan",
         "trialDaysLeft": "Trial: {{days}}d left",
         "trialEndsToday": "Trial: Ends Today"
+      },
+      "subscriptionManagement": {
+        "portalErrorToast": "Could not open the billing portal. Please try again.",
+        "redirectingToast": "Redirecting to your secure billing portal..."
+      },
+      "teamManagement": {
+        "changeRoleAction": "Change Role",
+        "emailFieldLabel": "Email Address",
+        "expired": "Expired",
+        "expiresInDays": "in {{count}} days",
+        "expiresLabel": "Expires",
+        "expiresToday": "today",
+        "invitationsCardSubtitle": "These invitations have been sent and are awaiting a response.",
+        "invitationsCardTitle": "Pending Invitations",
+        "inviteErrorToast": "Failed to send invitation. The user may already be a member or have a pending invite.",
+        "inviteMemberButton": "Invite Member",
+        "inviteModalSubtitle": "Enter their email and select a role to grant them access.",
+        "inviteModalTitle": "Invite New Member",
+        "inviteSuccessToast": "Invitation sent successfully to {{email}}.",
+        "invitedEmailLabel": "Invited Email",
+        "memberOptionsTooltip": "Options",
+        "membersCardSubtitle": "Current members with access to this business.",
+        "noPendingInvites": "No pending invitations.",
+        "pageSubtitle": "View members, manage roles, and invite new people to your business.",
+        "pageTitle": "Team Management",
+        "removeErrorToast": "Failed to remove member.",
+        "removeMemberAction": "Remove Member",
+        "removeMemberConfirmButton": "Yes, Remove Member",
+        "removeMemberModalMessage": "Are you sure you want to remove {{name}}? They will immediately lose access to this business. This action cannot be undone.",
+        "removeMemberModalTitle": "Remove Member?",
+        "removeSuccessToast": "Member removed successfully.",
+        "resendButton": "Resend",
+        "resendErrorToast": "Failed to resend invitation.",
+        "resendSuccessToast": "Invitation resent.",
+        "revokeButton": "Revoke",
+        "revokeErrorToast": "Failed to revoke invitation.",
+        "revokeInviteConfirmButton": "Yes, Revoke",
+        "revokeInviteModalMessage": "Are you sure you want to revoke the invitation for {{email}}? They will no longer be able to join using the current link.",
+        "revokeInviteModalTitle": "Revoke Invitation?",
+        "revokeSuccessToast": "Invitation revoked.",
+        "roleAdmin": "Admin",
+        "roleLabel": "Role",
+        "roleManager": "Manager",
+        "roleStaff": "Staff",
+        "roleUpdateErrorToast": "Failed to update role.",
+        "roleUpdateSuccessToast": "Member role updated.",
+        "sendInviteButton": "Send Invitation",
+        "sendingInviteButton": "Sending..."
       },
       "userProfileWidget": {
         "logout": "Logout"
@@ -926,6 +1033,26 @@
       }
     }
   },
+  "pages": {
+    "pages": {
+      "businessLoginPage": {
+        "buttonLoggingIn": "Logging In...",
+        "buttonLogin": "Login to Your Business",
+        "emailPlaceholder": "you@company.com",
+        "errorCorrectFields": "Please correct the errors shown.",
+        "errorLoginFailed": "Login failed. Please check your credentials and try again.",
+        "errorNoTokens": "Login successful, but no tokens were received.",
+        "linkCustomerLogin": "Login here",
+        "linkRegister": "Register your business",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "promptIsCustomer": "Are you a customer?",
+        "promptNoAccount": "Don't have a business account?",
+        "subtitle": "Access your business dashboard.",
+        "title": "Business Portal Login"
+      }
+    }
+  },
   "payments": {
     "components": {
       "paymentCancelPage": {
@@ -959,6 +1086,26 @@
         "title": "Payment Successful!",
         "titleSubscriptionActivated": "Subscription Activated!",
         "transactionIdLabel": "Transaction ID:"
+      },
+      "planAndPaymentPage": {
+        "messages": {
+          "affiliateCodeAppliedToast": "Affiliate code '{{code}}' will be applied at checkout.",
+          "affiliateDiscountNotice": "Affiliate discount for code '{{code}}' will be applied at checkout.",
+          "codeValidationError": "Could not validate code. Please try again.",
+          "discountAppliedSuccessMessage": "Discount applied successfully!",
+          "invalidCodeShort": "Invalid Code",
+          "invalidDiscountCode": "Invalid discount code.",
+          "loginToSelectPlan": "Please log in to select a plan.",
+          "manageAccessError": "Error accessing subscription management.",
+          "redirectingToManage": "Redirecting to subscription management...",
+          "sessionInitFailed": "Failed to initialize payment session.",
+          "stripeNotReady": "Stripe is not ready.",
+          "subscriptionInitFailed": "Could not initiate your subscription."
+        },
+        "promoCodeInput": {
+          "label": "Discount Code",
+          "placeholder": "Enter code here"
+        }
       },
       "planSelection": {
         "badges": {
