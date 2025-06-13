@@ -21,59 +21,41 @@ export const useProductDataContext = () => {
 
 // --- Custom Hooks for Data Fetching ---
 
-
+// --- MODIFICATION: New hook for promo code validation ---
 /**
  * Mutation hook to validate a promo code against the current order context.
  * @param {object} options - TanStack Query mutation options.
  * @returns {MutationResult} The result of the TanStack Query mutation operation.
- *                          On success, `data` will be the API response for the validated promo code:
- *                          e.g., { valid: true, code_name, type, value, public_display_name, message, applicability: { scope, product_ids, ... } }
- *                          or { valid: false, message, code_name }
+ *                          On success, `data` will be the API response for the validated promo code.
  */
 export const useValidatePromoCode = (options = {}) => {
-    // const queryClient = useQueryClient(); // Not strictly needed unless invalidating other queries on promo validation
-
     return useMutation({
         mutationFn: async (payload) => {
-            // Task 1.2: Payload Expectation
-            // The payload is constructed by the calling component (OrderSummaryPanel.jsx).
-            // Expected structure: { code_name: string, business_identifier: string, order_items_context?: array, current_order_subtotal?: string }
-            // console.log('[useValidatePromoCode] Attempting to validate promo code. Payload:', payload);
-
-            // Basic client-side check for essential fields.
-            // More robust validation and payload construction happens in the calling component.
+            // The payload is constructed by the calling component (e.g., PlanAndPaymentPage).
+            // Expected structure: { code_name: string, business_identifier: string }
             if (!payload.code_name || !payload.business_identifier) {
                 const error = new Error("Promo code name and business identifier are required for validation.");
-                error.isClientValidationError = true; // Custom flag for easier identification by caller
-                error.code = 'CLIENT_VALIDATION_ERROR'; // Provide a code for client-side errors
+                error.isClientValidationError = true;
+                error.code = 'CLIENT_VALIDATION_ERROR';
                 throw error;
             }
-
-            // Task 1.1: API Endpoint
-            // Backend endpoint: POST /api/discounts/validate-promo-code/
-            // apiService.post correctly prepends /api/ from its baseURL config.
-            const response = await apiService.post('discounts/validate-promo-code/', payload);
-            // console.log('[useValidatePromoCode] Promo code validation API response:', response.data);
-
-            // Task 1.3: Success/Error Handling - Return raw response.data on success.
+            // API call to the new endpoint
+            const response = await apiService.validatePromoCode(payload);
             return response.data;
         },
         onSuccess: (data, variables, context) => {
-            // Task 1.3: Existing logging is good.
-            // console.log('[useValidatePromoCode] Promo code validation successful. Data:', data, 'Variables:', variables);
+            console.log('[useValidatePromoCode] Promo code validation successful. Data:', data);
             if (options.onSuccess) {
                 options.onSuccess(data, variables, context);
             }
         },
         onError: (error, variables, context) => {
-            // Task 1.3: Propagate full error object. Existing logging is good.
             console.error(
                 '[useValidatePromoCode] Promo code validation failed.',
                 'Variables:', variables,
                 'Error status:', error.response?.status,
                 'Error data:', error.response?.data,
-                'Error message:', error.message,
-                'Full error object:', error
+                'Error message:', error.message
             );
             if (options.onError) {
                 options.onError(error, variables, context);
@@ -82,6 +64,8 @@ export const useValidatePromoCode = (options = {}) => {
         ...options, // Spread any additional mutation options provided by the caller
     });
 };
+// --- END MODIFICATION ---
+
 
 /**
  * Fetches publicly available product search suggestions for a given business.
@@ -106,7 +90,7 @@ export const usePublicProductSuggestions = (businessIdentifier, debouncedQuery, 
             try {
                 // Backend endpoint: GET /api/products/public/menu/{business_identifier}/suggestions/?q={searchQuery}
                 // apiService.get will prepend /api/
-                const response = await apiService.get(`products/public/menu/${businessIdentifier}/suggestions/`, { q: debouncedQuery.trim(), limit: 7 });
+                const response = await apiService.get(`products/public/menu/${businessIdentifier}/suggestions/`, { params: { q: debouncedQuery.trim(), limit: 7 } });
                 // console.log('[usePublicProductSuggestions] Successfully fetched suggestions:', response.data);
                 // Backend might return { results: [] } or just []
                 return Array.isArray(response.data) ? response.data : response.data.results || [];
@@ -153,19 +137,15 @@ export const usePublicProductsList = (businessIdentifier, filters = {}, paginati
     };
 
     if (filters.category_id) {
-        queryParamsForHook.category_id = filters.category_id;
+        queryParamsForHook.category__id = filters.category_id;
     }
     if (filters.search_query && filters.search_query.trim()) {
-        queryParamsForHook.search_query = filters.search_query.trim();
+        queryParamsForHook.search = filters.search_query.trim();
     }
 
-    // TASK 3: Handle tag_ids filter
-    // Convert array of tag_ids to a comma-separated string for the API
     if (filters.tag_ids && Array.isArray(filters.tag_ids) && filters.tag_ids.length > 0) {
-        queryParamsForHook.tag_ids = filters.tag_ids.join(',');
+        queryParamsForHook.product_tags__id__in = filters.tag_ids.join(',');
     }
-    // Note: If filters.tag_ids is an empty array, queryParamsForHook.tag_ids will remain undefined,
-    // so it won't be sent to the API, which is correct.
 
     const currentQueryKey = queryKeys.publicProductsList(businessIdentifier, queryParamsForHook);
 
@@ -174,10 +154,7 @@ export const usePublicProductsList = (businessIdentifier, filters = {}, paginati
         queryFn: async () => {
             // console.log(`[usePublicProductsList] Fetching public products for business: ${businessIdentifier} with params:`, queryParamsForHook);
             try {
-                // Backend endpoint: /api/products/public/menu/{business_identifier}/products/
-                // The backend PublicProductListView expects 'tag_ids' as a comma-separated string
-                // and handles the conversion to product_tags__id__in.
-                const response = await apiService.get(`products/public/menu/${businessIdentifier}/products/`, queryParamsForHook);
+                const response = await apiService.get(`products/public/menu/${businessIdentifier}/products/`, { params: queryParamsForHook });
                 // console.log('[usePublicProductsList] Successfully fetched public products:', response.data);
                 return response.data; // Expects { results: [], count, next, previous }
             } catch (error) {
@@ -294,7 +271,7 @@ export const useProductSearchSuggestions = (debouncedQuery, options = {}) => {
                 return []; // Return empty array, no API call
             }
             // console.log(`Fetching suggestions for: '${debouncedQuery}'`);
-            const response = await apiService.get('/products/suggestions/', { q: debouncedQuery, limit: 7 });
+            const response = await apiService.get('/products/suggestions/', { params: { q: debouncedQuery, limit: 7 } });
             return response.data; // Backend should return an array of suggestions
         },
         // Enable the query only when the user is authenticated, has an active business,
@@ -314,7 +291,15 @@ export const useProductSearchSuggestions = (debouncedQuery, options = {}) => {
 export const useCategories = (options = {}) => {
     return useQuery({
         queryKey: [queryKeys.categories],
-        queryFn: () => apiService.get('/products/categories/').then(res => res.data.results || res.data),
+        queryFn: async () => {
+            const { data } = await apiService.get('/products/categories/');
+            // The new API response is { total_products_count, categories }
+            // Return a structured object with defaults.
+            return {
+                categories: data.categories || [],
+                totalProductsCount: data.total_products_count || 0,
+            };
+        },
         staleTime: 1000 * 60 * 10,
         ...options,
     });

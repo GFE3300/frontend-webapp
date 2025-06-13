@@ -109,6 +109,13 @@ apiInstance.interceptors.response.use(
                 isRefreshing = false;
             }
         }
+        // Add this check *before* the final `return Promise.reject(error);`
+        const errorDetail = error.response?.data?.detail;
+        if (error.response?.status === 403 && errorDetail === 'No active business context found.') {
+            console.warn("API call failed due to missing business context. Dispatching 'context-lost' event.");
+            window.dispatchEvent(new CustomEvent('context-lost'));
+        }
+
         return Promise.reject(error);
     }
 );
@@ -120,6 +127,14 @@ const apiService = {
     put: (url, data, config) => apiInstance.put(url, data, config),
     patch: (url, data, config) => apiInstance.patch(url, data, config),
     delete: (url, config) => apiInstance.delete(url, config),
+
+    // --- MODIFICATION: New function added for validating promo codes ---
+    validatePromoCode: (payload) => {
+        // This endpoint can be public, but if a user is logged in, we let the interceptor handle auth.
+        // The backend can use the user's context if available, or just validate based on business_identifier.
+        return apiInstance.post('discounts/validate-promo-code/', payload);
+    },
+    // --- END MODIFICATION ---
 
     updateCurrentUser: (data) => {
         return apiInstance.patch('/auth/user/', data);

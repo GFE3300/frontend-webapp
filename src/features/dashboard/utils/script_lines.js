@@ -283,4 +283,66 @@ export const scriptLines_dashboard = {
         redirectingToast: "Redirecting to your secure billing portal...",
         portalErrorToast: "Could not open the billing portal. Please try again.",
     },
+    teamManagement: {
+        // Page
+        pageTitle: "Team Management",
+        pageSubtitle: "View members, manage roles, and invite new people to your business.",
+
+        // Current Members Card
+        membersCardTitle: "Team Members",
+        membersCardSubtitle: "Current members with access to this business.",
+        inviteMemberButton: "Invite Member",
+        memberOptionsTooltip: "Options",
+        changeRoleAction: "Change Role",
+        removeMemberAction: "Remove Member",
+
+        // Roles
+        roleAdmin: "Admin",
+        roleManager: "Manager",
+        roleStaff: "Staff",
+
+        // Pending Invitations Card
+        invitationsCardTitle: "Pending Invitations",
+        invitationsCardSubtitle: "These invitations have been sent and are awaiting a response.",
+        invitedEmailLabel: "Invited Email",
+        roleLabel: "Role",
+        expiresLabel: "Expires",
+        resendButton: "Resend",
+        revokeButton: "Revoke",
+        expiresInDays: "in {{count}} days",
+        expiresToday: "today",
+        expired: "Expired",
+        noPendingInvites: "No pending invitations.",
+
+        // Invite Member Modal
+        inviteModalTitle: "Invite New Member",
+        inviteModalSubtitle: "Enter their email and select a role to grant them access.",
+        emailFieldLabel: "Email Address",
+        roleFieldLabel: "Role",
+        sendInviteButton: "Send Invitation",
+        sendingInviteButton: "Sending...",
+
+        // Confirmation Modals
+        removeMemberModalTitle: "Remove Member?",
+        removeMemberModalMessage: "Are you sure you want to remove {{name}}? They will immediately lose access to this business. This action cannot be undone.",
+        removeMemberConfirmButton: "Yes, Remove Member",
+
+        revokeInviteModalTitle: "Revoke Invitation?",
+        revokeInviteModalMessage: "Are you sure you want to revoke the invitation for {{email}}? They will no longer be able to join using the current link.",
+        revokeInviteConfirmButton: "Yes, Revoke",
+
+        cancelButton: "Cancel",
+
+        // Toasts
+        inviteSuccessToast: "Invitation sent successfully to {{email}}.",
+        inviteErrorToast: "Failed to send invitation. The user may already be a member or have a pending invite.",
+        removeSuccessToast: "Member removed successfully.",
+        removeErrorToast: "Failed to remove member.",
+        roleUpdateSuccessToast: "Member role updated.",
+        roleUpdateErrorToast: "Failed to update role.",
+        resendSuccessToast: "Invitation resent.",
+        resendErrorToast: "Failed to resend invitation.",
+        revokeSuccessToast: "Invitation revoked.",
+        revokeErrorToast: "Failed to revoke invitation.",
+    },
 };

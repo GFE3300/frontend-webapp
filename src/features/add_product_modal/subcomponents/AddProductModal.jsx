@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 
@@ -144,7 +143,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
             name: dataFromDropdown.label,
             color_class: dataFromDropdown.colorClass,
             icon_name: dataFromDropdown.iconName || null,
-            business: user.activeBusinessId,
+            // --- FIX: `business` key removed. Backend will handle this. ---
         };
         try {
             const createdCategory = await createCategoryMutation.mutateAsync(payload);
@@ -170,7 +169,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
         const payload = {
             name: newAttributeData.label,
             icon_name: newAttributeData.iconName || null,
-            business: user.activeBusinessId,
+            // --- FIX: `business` key removed. Backend will handle this. ---
         };
         try {
             const createdAttribute = await createAttributeMutation.mutateAsync(payload);
@@ -300,7 +299,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded, initialProductData }
                             if (typeof itemError === 'string') return itemError;
                             const firstNestedErrorKey = Object.keys(itemError)[0];
                             if (firstNestedErrorKey) {
-                                const nestedErrorMsg = Array.isArray(itemError[firstNestedErrorKey]) ? itemError[firstNestedErrorKey][0] : itemError[firstNestedErrorKey];
+                                let nestedErrorMsg = Array.isArray(itemError[firstNestedErrorKey]) ? itemError[firstNestedErrorKey][0] : itemError[firstNestedErrorKey];
+                                if (typeof nestedErrorMsg !== 'string') nestedErrorMsg = JSON.stringify(nestedErrorMsg); // Prevent [Object object]
                                 return `${frontendKey}[${idx}].${firstNestedErrorKey}: ${nestedErrorMsg}`;
                             }
                             return JSON.stringify(itemError);

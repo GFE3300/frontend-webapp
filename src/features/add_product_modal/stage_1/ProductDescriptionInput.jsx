@@ -191,7 +191,7 @@ const ProductDescriptionInput = ({
                             onKeyDown={handleKeyDown}
                             placeholder={placeholder} // Prop 'placeholder' is used, default comes from scriptLines
                             className={`${commonBoxClasses} appearance-none bg-white dark:bg-neutral-750 
-                                        text-neutral-800 dark:text-neutral-100 
+                                        text-neutral-800 dark:text-neutral-900
                                         placeholder-neutral-400 dark:placeholder-neutral-500
                                         focus:outline-none focus:ring-2 resize-none overflow-y-auto 
                                         scrollbar-thin scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent scrollbar-thumb-rounded-full

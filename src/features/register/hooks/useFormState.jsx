@@ -149,7 +149,9 @@ export const useFormState = (initialFormStateData = {}) => {
         }
         return {
             currentStep: persistedState.currentStep || 0,
-            formData: { ...defaultInitialData, ...persistedState.formData, ...initialFormStateData }, // BUGFIX: Merge initialFormStateData
+            // --- MODIFICATION: Merging `initialFormStateData` to override defaults and persisted state ---
+            formData: { ...defaultInitialData, ...persistedState.formData, ...initialFormStateData },
+            // --- END MODIFICATION ---
             errors: {},
             generalError: null,
             visitedSteps: new Set(
