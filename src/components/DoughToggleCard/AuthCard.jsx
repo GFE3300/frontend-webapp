@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import axios from 'axios';
+import { motion } from 'framer-motion';
 import { ToggleSwitch } from './ToggleSwitch';
 import { AuthForm } from './AuthForm';
 import { RollingPin } from './RollingPin';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 import { useAuth } from '../../contexts/AuthContext';
+import { scriptLines_doughToggleCard as sl } from './script_lines.js';
 
 const AuthCard = () => {
     const { login, register } = useAuth();
@@ -23,10 +23,10 @@ const AuthCard = () => {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.email) newErrors.email = 'Email is required';
-        if (!formData.password) newErrors.password = 'Password is required';
+        if (!formData.email) newErrors.email = sl.authCard.emailRequired || 'Email is required';
+        if (!formData.password) newErrors.password = sl.authCard.passwordRequired || 'Password is required';
         if (!isLogin && formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords must match';
+            newErrors.confirmPassword = sl.authCard.passwordsMustMatch || 'Passwords must match';
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -53,7 +53,6 @@ const AuthCard = () => {
         }
     };
 
-    // Rest of the component remains unchanged
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -81,15 +80,14 @@ const AuthCard = () => {
                     height: isLogin ? 500 : 600
                 }}
             >
-                {/* Rest of the JSX remains unchanged */}
                 <div className="mb-8 text-center">
                     <h1 className="text-3xl font-bold text-[#6F4E37] mb-2">
                         S'more
                     </h1>
-                    <p className="text-[#6F4E37]/80">Bake your next order</p>
+                    <p className="text-[#6F4E37]/80">{sl.authCard.tagline || 'Bake your next order'}</p>
                 </div>
 
-                <ToggleSwitch isLogin={isLogin} setIsLogin={handleToggle} />
+                <ToggleSwitch isLogin={isLogin} setIsLogin={handleToggle} sl={sl.toggleSwitch} />
 
                 <RollingPin isAnimating={isAnimating} />
 
@@ -102,11 +100,12 @@ const AuthCard = () => {
                         isLoading={isLoading}
                         handleSubmit={handleSubmit}
                         apiError={apiError}
+                        sl={sl.authForm}
                     />
                 </form>
 
                 <div aria-live="polite" className="sr-only">
-                    {isLogin ? 'Login form' : 'Registration form'}
+                    {isLogin ? (sl.authCard.loginFormAria || 'Login form') : (sl.authCard.registerFormAria || 'Registration form')}
                 </div>
             </motion.div>
         </div>
