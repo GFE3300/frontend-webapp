@@ -17,7 +17,7 @@ const inputVariants = {
     visible: { opacity: 1, y: 0 }
 };
 
-export const AuthForm = ({ isLogin, formData, errors, handleChange, isLoading, handleSubmit, apiError }) => {
+export const AuthForm = ({ isLogin, formData, errors, handleChange, isLoading, handleSubmit, apiError, sl }) => {
     return (
         <AnimatePresence mode='wait'>
             <motion.div
@@ -28,10 +28,9 @@ export const AuthForm = ({ isLogin, formData, errors, handleChange, isLoading, h
                 exit="exit"
                 className="space-y-4"
             >
-                {/* Updated InputField with value and onChange */}
                 <motion.div variants={inputVariants}>
                     <InputField
-                        label="Email"
+                        label={sl.emailLabel || 'Email'}
                         type="email"
                         name="email"
                         value={formData.email}
@@ -42,7 +41,7 @@ export const AuthForm = ({ isLogin, formData, errors, handleChange, isLoading, h
 
                 <motion.div variants={inputVariants}>
                     <InputField
-                        label="Password"
+                        label={sl.passwordLabel || 'Password'}
                         type="password"
                         name="password"
                         value={formData.password}
@@ -54,7 +53,7 @@ export const AuthForm = ({ isLogin, formData, errors, handleChange, isLoading, h
                 {!isLogin && (
                     <motion.div variants={inputVariants}>
                         <InputField
-                            label="Confirm Password"
+                            label={sl.confirmPasswordLabel || 'Confirm Password'}
                             type="password"
                             name="confirmPassword"
                             value={formData.confirmPassword}
@@ -76,9 +75,9 @@ export const AuthForm = ({ isLogin, formData, errors, handleChange, isLoading, h
                         {isLoading ? (
                             <div className="flex items-center justify-center gap-2">
                                 <Icon name="autorenew" className="animate-spin" />
-                                Processing...
+                                {sl.processing || 'Processing...'}
                             </div>
-                        ) : isLogin ? 'Sign In' : 'Create Account'}
+                        ) : isLogin ? (sl.signInButton || 'Sign In') : (sl.createAccountButton || 'Create Account')}
                     </motion.button>
                 </motion.div>
                 {apiError && (

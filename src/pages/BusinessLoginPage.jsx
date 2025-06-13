@@ -9,6 +9,7 @@ import { BubbleAnimation, TrustFooter, InputField } from '../features/register/s
 import Icon from '../components/common/Icon';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { scriptLines_pages as sl } from './script_lines.js';
 
 // Animation configurations (can be shared or adapted from RegistrationPage)
 const ANIMATION_CONFIG = {
@@ -68,11 +69,11 @@ const LoginPage = () => {
                 resetForm();
                 navigate('/dashboard/business'); // Or wherever business users should go
             } else {
-                throw new Error("Login successful, but no tokens received.");
+                throw new Error(sl.businessLoginPage.errorNoTokens || "Login successful, but no tokens received.");
             }
         } catch (error) {
             console.error('Login error:', error);
-            let errorMessage = "Login failed. Please check your credentials and try again.";
+            let errorMessage = sl.businessLoginPage.errorLoginFailed || "Login failed. Please check your credentials and try again.";
             if (error.response && error.response.data) {
                 const backendError = error.response.data.detail || error.response.data.non_field_errors;
                 if (backendError) {
@@ -84,7 +85,7 @@ const LoginPage = () => {
                         fieldSpecificErrors[key] = Array.isArray(value) ? value.join(' ') : String(value);
                     });
                     setErrors(fieldSpecificErrors);
-                    errorMessage = "Please correct the errors shown."
+                    errorMessage = sl.businessLoginPage.errorCorrectFields || "Please correct the errors shown."
                 }
             } else if (error.message) {
                 errorMessage = error.message;
@@ -118,10 +119,10 @@ const LoginPage = () => {
                     <header className="text-center mb-8">
                         {/* Optional: Logo or Branding */}
                         <h1 className="text-3xl font-semibold text-neutral-800 dark:text-white mb-2">
-                            Business Portal Login
+                            {sl.businessLoginPage.title || "Business Portal Login"}
                         </h1>
                         <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                            Access your business dashboard.
+                            {sl.businessLoginPage.subtitle || "Access your business dashboard."}
                         </p>
                     </header>
 
@@ -131,12 +132,12 @@ const LoginPage = () => {
                         variants={ANIMATION_CONFIG.formElements} // Stagger children
                     >
                         <InputField
-                            label="Business Email"
+                            label={sl.businessLoginPage.emailLabel || "Business Email"}
                             name="email"
                             type="email"
                             value={email}
                             onChange={(e) => { setEmail(e.target.value); handleBubbleEffect(); }}
-                            placeholder="you@company.com"
+                            placeholder={sl.businessLoginPage.emailPlaceholder || "you@company.com"}
                             error={errors.email}
                             autoComplete="email"
                             disabled={isSubmitting}
@@ -145,12 +146,12 @@ const LoginPage = () => {
 
                         <div className="relative">
                             <InputField
-                                label="Password"
+                                label={sl.businessLoginPage.passwordLabel || "Password"}
                                 name="password"
                                 type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => { setPassword(e.target.value); handleBubbleEffect(); }}
-                                placeholder="Enter your password"
+                                placeholder={sl.businessLoginPage.passwordPlaceholder || "Enter your password"}
                                 error={errors.password}
                                 autoComplete="current-password"
                                 disabled={isSubmitting}
@@ -167,7 +168,7 @@ const LoginPage = () => {
                                         hover:text-rose-500 dark:hover:text-rose-400 
                                         focus:outline-none focus:ring-2 focus:ring-rose-100 rounded-full p-1
                                         ${(errors?.password) ? 'right-8' : 'right-2'}`}
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    aria-label={showPassword ? (sl.businessLoginPage.hidePasswordAria || "Hide password") : (sl.businessLoginPage.showPasswordAria || "Show password")}
                                     variants={{ initial: { opacity: 0.6, scale: 0.8 }, animate: { opacity: 1, scale: 1 }, exit: { opacity: 0.6, scale: 0.8 } }}
                                     initial="initial" animate="animate" exit="exit"
                                 >
@@ -207,11 +208,11 @@ const LoginPage = () => {
                             {isSubmitting ? (
                                 <>
                                     <Icon name="progress_activity" className="animate-spin w-6 h-6" />
-                                    Logging In...
+                                    {sl.businessLoginPage.buttonLoggingIn || "Logging In..."}
                                 </>
                             ) : (
                                 <>
-                                    Login to Your Business
+                                    {sl.businessLoginPage.buttonLogin || "Login to Your Business"}
                                     <Icon name="arrow_forward" className="w-5 h-5 ml-1" />
                                 </>
                             )}
@@ -219,15 +220,15 @@ const LoginPage = () => {
                     </motion.form>
 
                     <p className="mt-8 text-center text-xs text-neutral-500 dark:text-neutral-400">
-                        Don't have a business account?{' '}
+                        {sl.businessLoginPage.promptNoAccount || "Don't have a business account?"}{' '}
                         <Link to="/register" className="font-medium text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300">
-                            Register your business
+                            {sl.businessLoginPage.linkRegister || "Register your business"}
                         </Link>
                     </p>
                     <p className="mt-2 text-center text-xs text-neutral-500 dark:text-neutral-400">
-                        Are you a customer?{' '}
-                        <Link to="/login/customer" className="font-medium text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300">
-                            Login here
+                        {sl.businessLoginPage.promptIsCustomer || "Are you a customer?"}{' '}
+                        <Link to="/login" className="font-medium text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300">
+                            {sl.businessLoginPage.linkCustomerLogin || "Login here"}
                         </Link>
                     </p>
                 </motion.div>
