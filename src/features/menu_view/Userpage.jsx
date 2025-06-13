@@ -1,4 +1,5 @@
 // frontend/src/features/menu_view/Userpage.jsx
+// ESTE CODIGO FUE REVISADO A LA 1:17 AM BAJO EL EFECTO DE MAS DE UN ESTUPEFACIENTE, MEZCLADO CON CAFEINA, Y ANTICONCEPTIVOS, SE RECOMIENDA DISCRECION AL REESCRIBIR YA QUE FUNCIONA POR LA MINIMA (Max)
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
